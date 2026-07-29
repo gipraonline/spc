@@ -1,0 +1,33 @@
+Centreal Bazaar Incentive calculation
+Main Modules
+1. Store staff and office staff module
+2. Admin module
+
+1. Store staff and office staff module
+
+1. Login and Logout
+2. Dashboard
+3. Incentive allowed product list
+4. Incentive generated report
+5. Incentive transfer report
+6. Change password
+
+* CSA, SM
+7. Daily Sales entry/Edit form
+* SM
+8. CSA entered sales verify and approval
+
+2. Admin module
+1. Login and Logout
+2. Designation Entry/Edit/View Option
+3. Store Entry/Edit/View Option
+4. Employee Entry/Edit/View Option
+5. Product Entry/Edit/View Option
+6. Daily sales Excell file upload/View/Edit
+7. Sales reports product wise/Store wise/Employee wise
+8. Incentive Calculation
+9. Incentive reports
+10. KYC Approval/Reject
+11. Income withdrawal/Status Updation
+
+

@@ -1,0 +1,74 @@
+CENTREAL BAZAAR DATABASE DESIGN
+admin_roles
+* n_role_Id (pk)
+* c_role
+If super admin:->
+pool_masters
+* n_pool_id
+* c_pool_name
+operations
+* n_operation_id(pk)
+* c_operation_name(Vanitham, Centreal Bazaar)
+* n_pool_id (fk)
+
+employee_types (pivote table)
+* n_id(pk)
+* n_employee_id
+* pool_ id
+* cluster_status
+* n_operation_ id
+
+store_masters
+* n_store_Id (pk)
+* c_store_code
+* c_store_name
+* c_store_address
+* c_ store_email
+* n_ store_phone
+* c_store_status
+designation_masters
+* n_designation _Id (pk)
+* c_designation _designation(SM,C&A,CSA)
+* c_designation_status
+employee_masters
+* n_employee_Id (pk)
+* c_employee_code
+* c_ employee _name
+* c_ employee _address
+* c_ employee _email
+* n_ employee _phone
+* n_designation_id(fk) (default null)
+* n_store_id(fk) (default null)
+* c_status
+* n_pool_id(fk) (default null)
+
+item_masters
+* n_ item _Id (pk)
+* c_item_name
+* d_selling_price
+* d_purchase_price
+* in_status(allowed or not)
+incentive_masters
+* n_pool_id
+* incentive_percentage
+* item_id (enum)
+employee_incentives
+* employee_id
+* n_item_id
+* incentive_master_id
+
+sales_masters
+* n_Id (pk)
+* n_employee_id(fk)
+* n_item_id(fk)
+* n_qnty
+* p_commission_percentage
+* d_item_price
+* c_incentive_report (file)
+* created_date
+
+
+
+
+
+

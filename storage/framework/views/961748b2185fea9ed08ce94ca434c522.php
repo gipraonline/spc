@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 /* Filter Card */
 .filter-card-wrapper {
@@ -122,11 +120,11 @@
 <div class="card w-100 position-relative overflow-hidden">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Employees</h5>
-        @can('employees.create')
-        <a href="{{ route('admin.employees.create') }}" class="btn btn-primary">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.create')): ?>
+        <a href="<?php echo e(route('admin.employees.create')); ?>" class="btn btn-primary">
             Add Employee
         </a>
-        @endcan
+        <?php endif; ?>
     </div>
     <!-- Redesigned Creative Filter Section -->
     <div class="filter-card-wrapper">
@@ -141,7 +139,7 @@
         </div>
 
         <div class="premium-filter-container">
-            <form action="{{ route('admin.employees.index') }}" method="GET">
+            <form action="<?php echo e(route('admin.employees.index')); ?>" method="GET">
 
                 <div class="row g-3 align-items-end">
 
@@ -154,12 +152,13 @@
 
                                 <option value="">Select Designation</option>
 
-                                @foreach($designations as $designation)
-                                <option value="{{ $designation->n_designation_id }}"
-                                    {{ request('n_designation_id') == $designation->n_designation_id ? 'selected' : '' }}>
-                                    {{ $designation->c_designation }}
+                                <?php $__currentLoopData = $designations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $designation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($designation->n_designation_id); ?>"
+                                    <?php echo e(request('n_designation_id') == $designation->n_designation_id ? 'selected' : ''); ?>>
+                                    <?php echo e($designation->c_designation); ?>
+
                                 </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                             </select>
                         </div>
@@ -171,7 +170,7 @@
                             <label for="employee_search">Employee</label>
 
                             <input type="text" id="employee_search" name="employee_search"
-                                value="{{ request('employee_search') }}" autocomplete="off"
+                                value="<?php echo e(request('employee_search')); ?>" autocomplete="off"
                                 placeholder="Search by Name or Code" class="form-control styled-textbox">
 
                             <input type="hidden" id="employee_id" name="employee_id">
@@ -191,7 +190,7 @@
                                 Filter
                             </button>
 
-                            <a href="{{ route('admin.employees.index') }}"
+                            <a href="<?php echo e(route('admin.employees.index')); ?>"
                                 class="btn btn-secondary btn-creative-filter flex-fill">
                                 <i class="ti ti-refresh"></i>
                                 Reset
@@ -207,11 +206,12 @@
     </div>
 
     <div class="card-body p-4">
-        @if ($message = Session::get('success'))
+        <?php if($message = Session::get('success')): ?>
         <div class="alert alert-success" role="alert">
-            {{ $message }}
+            <?php echo e($message); ?>
+
         </div>
-        @endif
+        <?php endif; ?>
         <div class="table-responsive">
             <table class="table text-nowrap mb-0 align-middle">
                 <thead class="text-dark fs-4">
@@ -247,93 +247,95 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Status</h6>
                         </th>
-                        @canany(['employees.edit','employees.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['employees.edit','employees.delete'])): ?>
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Actions</h6>
                         </th>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($employees as $key=>$employee)
+                    <?php $__empty_1 = true; $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
                         <td class="border-bottom-0 text-center">
-                            <span class="fw-normal">{{ $employees->firstItem() + $key }}</span>
+                            <span class="fw-normal"><?php echo e($employees->firstItem() + $key); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $employee->c_employee_code }}</span>
+                            <span class="fw-normal"><?php echo e($employee->c_employee_code); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <h6 class="fw-semibold mb-0">{{ $employee->c_employee_name }}</h6>
+                            <h6 class="fw-semibold mb-0"><?php echo e($employee->c_employee_name); ?></h6>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $employee->designation?->c_designation ?? '-' }}</span>
+                            <span class="fw-normal"><?php echo e($employee->designation?->c_designation ?? '-'); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $employee->kycSubmission?->account_number ?? '-' }}</span>
+                            <span class="fw-normal"><?php echo e($employee->kycSubmission?->account_number ?? '-'); ?></span>
                         </td>
 
 
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $employee->kycSubmission?->ifsc_code ?? '-' }}</span>
+                            <span class="fw-normal"><?php echo e($employee->kycSubmission?->ifsc_code ?? '-'); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $employee->kycSubmission?->bank_name ?? '-' }}</span>
+                            <span class="fw-normal"><?php echo e($employee->kycSubmission?->bank_name ?? '-'); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $employee->kycSubmission?->bank_branch ?? '-' }}</span>
+                            <span class="fw-normal"><?php echo e($employee->kycSubmission?->bank_branch ?? '-'); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $employee->c_employee_email ?? '-' }}</span>
+                            <span class="fw-normal"><?php echo e($employee->c_employee_email ?? '-'); ?></span>
                         </td>
 
 
                         <td class="border-bottom-0">
                             <span
-                                class="badge {{ $employee->c_status === 'Y' ? 'bg-success' : 'bg-danger' }} rounded-3 fw-semibold">
-                                {{ ucfirst($employee->c_status) }}
+                                class="badge <?php echo e($employee->c_status === 'Y' ? 'bg-success' : 'bg-danger'); ?> rounded-3 fw-semibold">
+                                <?php echo e(ucfirst($employee->c_status)); ?>
+
                             </span>
                         </td>
-                        @canany(['employees.edit','employees.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['employees.edit','employees.delete'])): ?>
                         <td class="border-bottom-0">
 
-                            @can('employees.edit')
-                            <a href="{{ route('admin.employees.edit', $employee) }}" class="btn btn-sm btn-primary">
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.edit')): ?>
+                            <a href="<?php echo e(route('admin.employees.edit', $employee)); ?>" class="btn btn-sm btn-primary">
                                 Edit
                             </a>
-                            @endcan
+                            <?php endif; ?>
 
-                            @can('employees.delete')
-                            <form method="POST" action="{{ route('admin.employees.destroy', $employee) }}"
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.delete')): ?>
+                            <form method="POST" action="<?php echo e(route('admin.employees.destroy', $employee)); ?>"
                                 class="d-inline">
-                                @csrf
-                                @method('DELETE')
+                                <?php echo csrf_field(); ?>
+                                <?php echo method_field('DELETE'); ?>
 
                                 <button type="submit" class="btn btn-sm btn-danger ms-2"
                                     onclick="return confirm('Are you sure?')">
                                     Delete
                                 </button>
                             </form>
-                            @endcan
+                            <?php endif; ?>
 
                         </td>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="11" class="text-center">No employees found</td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
         <div class="mt-4">
-            {{ $employees->links() }}
+            <?php echo e($employees->links()); ?>
+
         </div>
     </div>
 </div>
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -415,7 +417,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Pass employee data to JS for search suggestions
-window.employees = @json($employeesForSearch);
+window.employees = <?php echo json_encode($employeesForSearch, 15, 512) ?>;
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/employees/index.blade.php ENDPATH**/ ?>

@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 :root {
     --primary-green: #1b3e86;
@@ -113,8 +111,8 @@
     </div>
 
     <div class="card-body p-4 p-md-5">
-        <form method="POST" id="frm_create" action="{{ route('admin.employees.store') }}">
-            @csrf
+        <form method="POST" id="frm_create" action="<?php echo e(route('admin.employees.store')); ?>">
+            <?php echo csrf_field(); ?>
 
             <!-- Section 1: Identification -->
             <div class="form-section-header">
@@ -124,14 +122,14 @@
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <label for="c_employee_code" class="form-label">Employee Code *</label>
-                    <input type="text" id="c_employee_code" name="c_employee_code" value="{{ old('c_employee_code') }}"
+                    <input type="text" id="c_employee_code" name="c_employee_code" value="<?php echo e(old('c_employee_code')); ?>"
                         data-message="Please add Employee Code" class="form-control mandatory" placeholder="EMP-001">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
 
                 <div class="col-md-6">
                     <label for="c_employee_name" class="form-label">Employee Name *</label>
-                    <input type="text" id="c_employee_name" name="c_employee_name" value="{{ old('c_employee_name') }}"
+                    <input type="text" id="c_employee_name" name="c_employee_name" value="<?php echo e(old('c_employee_name')); ?>"
                         data-message="Please enter Employee Name" class="form-control mandatory"
                         placeholder="Enter full name">
                     <div class="text-danger mt-1 fs-2"></div>
@@ -149,16 +147,17 @@
                     <select id="n_designation_id" name="n_designation_id" data-message="Please select a Designation"
                         class="form-select mandatory">
                         <option value="">Select Designation</option>
-                        @foreach($designations as $designation)
-                        @php
+                        <?php $__currentLoopData = $designations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $designation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                         $desigName = strtoupper(trim($designation->c_designation));
                         $storeRequired = in_array($desigName, ['CSA', 'C&A', 'SM']) ? 1 : 0;
-                        @endphp
-                        <option value="{{ $designation->n_designation_id }}" data-store="{{ $storeRequired }}"
-                            {{ old('n_designation_id') == $designation->n_designation_id ? 'selected' : '' }}>
-                            {{ $designation->c_designation }}
+                        ?>
+                        <option value="<?php echo e($designation->n_designation_id); ?>" data-store="<?php echo e($storeRequired); ?>"
+                            <?php echo e(old('n_designation_id') == $designation->n_designation_id ? 'selected' : ''); ?>>
+                            <?php echo e($designation->c_designation); ?>
+
                         </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
@@ -171,27 +170,27 @@
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <label for="account_number" class="form-label">Account Number *</label>
-                    <input type="text" id="account_number" name="account_number" value="{{ old('account_number') }}"
+                    <input type="text" id="account_number" name="account_number" value="<?php echo e(old('account_number')); ?>"
                         data-message="Please add Account Number" class="form-control mandatory" placeholder="ACC-001">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
 
                 <div class="col-md-6">
                     <label for="ifsc_code" class="form-label">IFSC Code *</label>
-                    <input type="text" id="ifsc_code" name="ifsc_code" value="{{ old('ifsc_code') }}"
+                    <input type="text" id="ifsc_code" name="ifsc_code" value="<?php echo e(old('ifsc_code')); ?>"
                         data-message="Please enter IFSC Code" class="form-control mandatory"
                         placeholder="Enter IFSC code">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
                 <div class="col-md-6">
                     <label for="bank_name" class="form-label">Bank Name *</label>
-                    <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}"
+                    <input type="text" id="bank_name" name="bank_name" value="<?php echo e(old('bank_name')); ?>"
                         data-message="Please add Bank name" class="form-control mandatory" placeholder="SBI">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
                 <div class="col-md-6">
                     <label for="branch_name" class="form-label">Branch Name*</label>
-                    <input type="text" id="branch_name" name="branch_name" value="{{ old('branch_name') }}"
+                    <input type="text" id="branch_name" name="branch_name" value="<?php echo e(old('branch_name')); ?>"
                         data-message="Please add Branch name" class="form-control mandatory" placeholder="KOCHI">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
@@ -207,12 +206,20 @@
                 <div class="col-md-8">
                     <label for="c_employee_email" class="form-label">Email Address *</label>
                     <input type="email" id="c_employee_email" name="c_employee_email"
-                        value="{{ old('c_employee_email') }}" data-message="Please enter an Email Address"
+                        value="<?php echo e(old('c_employee_email')); ?>" data-message="Please enter an Email Address"
                         class="form-control mandatory" placeholder="example@company.com">
                     <div class="text-danger mt-1 fs-2">
-                        @error('c_employee_email')
-                        {{ $message }}
-                        @enderror
+                        <?php $__errorArgs = ['c_employee_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <?php echo e($message); ?>
+
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
                 </div>
 
@@ -221,8 +228,8 @@
                     <select id="c_status" name="c_status" class="form-select mandatory"
                         data-message="Please select Status">
                         <option value="">Select Status</option>
-                        <option value="Y" {{ old('c_status') === 'Y' ? 'selected' : '' }}>Active</option>
-                        <option value="N" {{ old('c_status') === 'N' ? 'selected' : '' }}>Inactive</option>
+                        <option value="Y" <?php echo e(old('c_status') === 'Y' ? 'selected' : ''); ?>>Active</option>
+                        <option value="N" <?php echo e(old('c_status') === 'N' ? 'selected' : ''); ?>>Inactive</option>
                     </select>
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
@@ -237,14 +244,15 @@
                 <button type="button" id="btn_create" class="btn btn-create-item">
                     <i class="ti ti-plus me-1"></i> Create Employee
                 </button>
-                <a href="{{ route('admin.employees.index') }}"
+                <a href="<?php echo e(route('admin.employees.index')); ?>"
                     class="btn btn-outline-secondary btn-cancel-custom">Cancel</a>
             </div>
         </form>
     </div>
 </div>
 
-@push('scripts')
-<script src="{{asset('dist/js/custom.js?1')}}"></script>
-@endpush
-@endsection
+<?php $__env->startPush('scripts'); ?>
+<script src="<?php echo e(asset('dist/js/custom.js?1')); ?>"></script>
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/employees/create.blade.php ENDPATH**/ ?>

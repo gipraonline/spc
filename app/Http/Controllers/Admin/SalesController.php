@@ -16,6 +16,7 @@ use App\Models\ReturnSaleDraft;
 use App\Models\ReturnDraftUpload;
 use App\Models\StoreMaster;
 use App\Models\AdminSaleUnnormalizedLog;
+use App\Models\OrderProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -108,42 +109,40 @@ public function index(Request $request)
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'n_employee_id' => [
+            'd_date' => 'required|date',
+            'c_bill_no' => 'required|string|max:50|unique:daily_store_sales,c_bill_no',
+            'farm_care_advisor_id' => [
                 'required',
                 \Illuminate\Validation\Rule::exists('employee_masters', 'n_employee_id'),
             ],
-            'n_product_id' => 'required|exists:product_masters,n_product_id',
-            'c_bill_no' => 'required|string|max:50|unique:daily_store_sales,c_bill_no',
+            'c_customer_name' => 'required|string',
+            'c_customer_email' => 'required|string',
+            'c_customer_address' => 'required|string',
+            'n_customer_mobile' => 'required|integer',
+            'district' => 'required|string',
+            'state'=> 'required|string',
+            'nearest_franchise_id' => 'required|integer',
+            'payment_status'=>'required|string',
+            'delivery_status'=>'required|string',
             'n_quantity' => 'required|integer|min:1',
-            'd_date' => 'required|date',
+
         ]);
 
-        $employee = EmployeeMaster::find($validated['n_employee_id']);
+        $farm_care_advisor = EmployeeMaster::find($validated['farm_care_advisor_id']);
         $product = ProductMaster::find($validated['n_product_id']);
 
-        $buyingRate = (float) ($product->n_purchase_price ?? 0);
-        $sellingPrice = (float) ($product->n_selling_price ?? 0);
-        $qty = (int) ($validated['n_quantity'] ?? 1);
-        $buyingRate = (float) ($product->n_purchase_price ?? 0);
-        $sellingPrice = (float) ($product->n_selling_price ?? 0);
-        $qty = (int) ($validated['n_quantity'] ?? 1);
-
-        $sale = DailyStoreSale::create([
-            'd_date' => $validated['d_date'],
-            'n_store_id' => $employee->n_store_id ?? null,
-            'n_employee_id' => $validated['n_employee_id'],
-            'n_product_id' => $validated['n_product_id'],
-            'n_sold_price' => $sellingPrice,
-            'n_buying_rate' => $buyingRate,
-            'n_quantity' => $qty,
-            'c_bill_no' => $validated['c_bill_no'],
-            'd_bill_date' => $validated['d_date'],
-            'c_approve' => 'N',
-            'c_status' => 'Y',
-        ]);
-
-        $incentiveService = new \App\Services\IncentiveCalculationService();
-        $incentiveService->calculateSaleIncentives($sale->n_slno);
+        $order = SalesOrder::create($validated);
+        if(isset($products)){
+            foreach(products[${rowIndex}][product_id] as $key=>$val){
+                OrderProduct::create([
+                        'n_id'=>$order->id,
+                        'product_id'=>$val,
+                        'product_price'=>$key['price'],
+                        'qty'=>$key['qty'],
+                        'product_total'=>$key['product_total'],
+                ]);
+            }
+        }
 
         return redirect()->route('admin.sales.index')->with('success', 'Sales entry created successfully.');
     }

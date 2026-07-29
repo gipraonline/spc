@@ -22,7 +22,7 @@
     <link id="themeColors" rel="stylesheet" href="{{asset('dist/css/style.min.css')}}" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     @stack('styles')
 </head>
 
@@ -611,7 +611,7 @@
     <!-- Import Js Files -->
     {{-- <script src="{{asset('dist/libs/jquery/dist/jquery.min.js')}}"></script> --}}
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    {{-- <script src="{{asset('dist/js/select2.min.js')}}"></script> --}}
+    <script src="{{asset('dist/js/select2.min.js')}}"></script>
     <script src="{{asset('dist/libs/simplebar/dist/simplebar.min.js')}}"></script>
     <script src="{{asset('dist/libs/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
     <!-- core files -->
@@ -619,7 +619,7 @@
     <script src="{{asset('dist/js/app.min.js')}}"></script>
     <script src="{{asset('dist/js/app.init.js')}}"></script>
     <script src="{{asset('dist/js/sidebarmenu.js')}}"></script>
-    <script src="{{asset('dist/js/custom.js?2')}}"></script>
+    <script src="{{asset('dist/js/custom.js')}}"></script>
     <!-- Link stores Js and CSS files-->
 
 

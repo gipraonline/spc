@@ -179,12 +179,25 @@ $(document).on('click', '#btn_create,#btn_update', function () {
 
   var error = 0;
 
-  $('.mandatory').each(function () {
+  $('.mandatory').each(function (index, obj) {
 
-    if ($(this).val() == '') {
-      $(this).siblings(".text-danger").text($(this).data('message'));
+        if ($(this).is(':radio')) {
+
+            let name = $(this).attr('name');
+
+            if ($('input[name="' + name + '"]:checked').length == 0) {
+
+                $(this).parent().siblings('.text-danger')
+                       .text($(obj).data('message'));
+
+                error = 1;
+
+            }
+        }
+
+    if(obj.value==''){
+      $(this).siblings(".text-danger").text($(obj).data('message'));
       error = 1;
-      return false;
     }
 
   });
@@ -193,6 +206,53 @@ $(document).on('click', '#btn_create,#btn_update', function () {
     $("#frm_create").submit();
   }
 });
+
+
+/* $(document).on('click', '#btn_create, #btn_update', function (e) {
+
+    e.preventDefault();
+
+    let error = 0;
+
+    $('.text-danger').text('');
+
+    $('.mandatory').each(function () {
+
+        // Radio button validation
+        if ($(this).is(':radio')) {
+
+            let name = $(this).attr('name');
+
+            if ($('input[name="' + name + '"]:checked').length == 0) {
+
+                $(this).closest('.mb-3')
+                       .find('.text-danger')
+                       .text($(this).data('message'));
+
+                error = 1;
+                return false;
+            }
+        }
+        // Textbox, Select, Date, Textarea validation
+        else {
+
+            if ($.trim($(this).val()) == '') {
+
+                $(this).siblings('.text-danger')
+                       .text($(this).data('message'));
+
+                error = 1;
+                return false;
+            }
+        }
+
+    });
+
+    if (error == 0) {
+        $('#frm_create').submit();
+    }
+
+}); */
 
 // ==============================================================
 //                      LINK TO STORES

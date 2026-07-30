@@ -196,14 +196,14 @@
                         value="{{ old('n_mrp') }}" class="form-control mandatory" placeholder="0.00">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
-{{--
+
                 <div class="col-md-6">
                     <label for="n_purchase_price" class="form-label">Purchase Price *</label>
                     <input type="text" id="n_purchase_price" name="n_purchase_price"
                         data-message="Please enter Purchase Price" value="{{ old('n_purchase_price') }}"
                         class="form-control mandatory" placeholder="0.00">
                     <div class="text-danger mt-1 fs-2"></div>
-                </div> --}}
+                </div>
 
                 <div class="col-md-6">
                     <label for="n_selling_price" class="form-label">Selling Price *</label>

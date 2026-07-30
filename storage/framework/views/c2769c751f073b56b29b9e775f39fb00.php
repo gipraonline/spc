@@ -103,26 +103,23 @@
 
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <label for="state" class="form-label">District</label>
-                    <select class="form-select mandatory" data-message="Please enter District" id="district" name="district">
-                        <option value="" selected>Select District</option>
-                        <?php if(isset($districts)): ?>
-                            <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="1"><?php echo e($district->name); ?></option>
+                    <label for="state" class="form-label">State</label>
+                    <select class="form-select mandatory" data-message="Please enter State" id="state" name="state">
+                        <option value="" selected>Select State</option>
+                        <?php if(isset($States)): ?>
+                            <?php $__currentLoopData = $States; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $State): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($State->n_state_id); ?>"><?php echo e($State->name); ?></option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         <?php endif; ?>
                     </select>
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
                 <div class="col-md-6">
-                    <label for="state" class="form-label">State</label>
-                    <select class="form-select mandatory" data-message="Please enter State"  id="state" name="state">
-                        <option value="" selected>Select State</option>
-                         <?php if(isset($states)): ?>
-                            <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="1"><?php echo e($state->name); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        <?php endif; ?>
+                    <label for="state" class="form-label">District</label>
+                    <select class="form-select mandatory" data-message="Please enter District"  id="district" name="district">
+                        <option value="" selected>Select District</option>
+
+
                     </select>
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
@@ -156,11 +153,11 @@
              <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <label for="state" class="form-label">Nearest Franchise</label>
-                    <select class="form-select mandatory" data-message="Please enter Nearest Franchise" id="state" name="nearest_franchise_id">
+                    <select class="form-select mandatory" data-message="Please enter Nearest Franchise" id="franchise" name="nearest_franchise_id">
                         <option value="" selected>Select Franchise</option>
-                         <?php if(isset($shops)): ?>
-                            <?php $__currentLoopData = $shops; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $shop): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="1"><?php echo e($shop->name); ?></option>
+                         <?php if(isset($franchises)): ?>
+                            <?php $__currentLoopData = $franchises; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $franchise): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($franchise->n_store_id); ?>"><?php echo e($franchise->c_store_name); ?>(<?php echo e($franchise->c_store_code); ?>)</option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         <?php endif; ?>
 
@@ -169,7 +166,7 @@
                 </div>
                 <div class="col-md-6">
                     <label for="state" class="form-label">Payment Status</label>
-                    <select class="form-select mandatory" data-message="Please enter Payment Status" id="state" name="payment_status">
+                    <select class="form-select mandatory" data-message="Please enter Payment Status" id="payment_status" name="payment_status">
                         <option value="" selected>Select Status</option>
                         <option value="1">Ordered</option>
                         <option value="2">Paid</option>
@@ -182,7 +179,7 @@
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <label for="state" class="form-label">Delivery Status</label>
-                    <select class="form-select mandatory" data-message="Please enter Delivory Status" id="state" name="delivery_status">
+                    <select class="form-select mandatory" data-message="Please enter Delivory Status" id="delivery_status" name="delivery_status">
                         <option value="" selected>Select Delivery Status</option>
                         <option value="1">Ordered</option>
                         <option value="2">Shipped</option>
@@ -216,10 +213,9 @@
                             <option value="">Select Product</option>
 
                             <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($product->id); ?>"
-                                        data-price="<?php echo e($product->price); ?>">
-                                    <?php echo e($product->product_name); ?>
-
+                                <option value="<?php echo e($product->n_product_id); ?>"
+                                        data-price="<?php echo e($product->n_selling_price); ?>">
+                                    <?php echo e($product->c_product_name); ?>(<?php echo e($product->c_product_code); ?>)
                                 </option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
@@ -264,15 +260,13 @@
 
             $(document).on("change",".product",function(){
 
-                let row = $(this).closest("tr");
+                productTotal($(this));
 
-                let price = $(this).find(":selected").data("price");
+            });
 
-                row.find(".price").val(price);
+             $(document).on("change",".qty",function(){
 
-                let qty = row.find(".qty").val();
-
-                row.find(".total").val(price * qty);
+                productTotal($(this).parent().siblings().find(".product"));
 
             });
 
@@ -281,6 +275,41 @@
             $(document).on("click",".removeRow",function(){
                 $(this).closest("tr").remove();
             });
+
+            $(document).on("change","#state",function(){
+                var state=$(this).val();
+                $.ajax({
+                        type: "get",
+                        url:"<?php echo e(route('admin.filterDistrict')); ?>",
+                        data: { state:state },
+                        cache: false,
+                        dataType:'json',
+                        success: function(data)
+                        {
+                            console.log(data);
+                                $("#district").empty();
+                                $("#district").append('<option value="">Select District</option>');
+
+                                $.each(data.districts, function (index, district) {
+                                    $("#district").append(
+                                        '<option value="' + district.id + '">' + district.district_name + '</option>'
+                                    );
+                                });
+                        }
+                });
+            });
+
+            function productTotal(id){
+                let row = id.closest("tr");
+
+                let price = id.find(":selected").data("price");
+
+                row.find(".price").val(price);
+
+                let qty = row.find(".qty").val();
+
+                row.find(".total").val(price * qty);
+            }
         });
     </script>
 <?php $__env->stopPush(); ?>

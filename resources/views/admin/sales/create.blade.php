@@ -104,26 +104,23 @@
 
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <label for="state" class="form-label">District</label>
-                    <select class="form-select mandatory" data-message="Please enter District" id="district" name="district">
-                        <option value="" selected>Select District</option>
-                        @if(isset($districts))
-                            @foreach($districts as $district)
-                                <option value="1">{{$district->name}}</option>
+                    <label for="state" class="form-label">State</label>
+                    <select class="form-select mandatory" data-message="Please enter State" id="state" name="state">
+                        <option value="" selected>Select State</option>
+                        @if(isset($States))
+                            @foreach($States as $State)
+                                <option value="{{$State->n_state_id}}">{{$State->name}}</option>
                             @endforeach
                         @endif
                     </select>
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
                 <div class="col-md-6">
-                    <label for="state" class="form-label">State</label>
-                    <select class="form-select mandatory" data-message="Please enter State"  id="state" name="state">
-                        <option value="" selected>Select State</option>
-                         @if(isset($states))
-                            @foreach($states as $state)
-                                <option value="1">{{$state->name}}</option>
-                            @endforeach
-                        @endif
+                    <label for="state" class="form-label">District</label>
+                    <select class="form-select mandatory" data-message="Please enter District"  id="district" name="district">
+                        <option value="" selected>Select District</option>
+
+
                     </select>
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
@@ -157,11 +154,11 @@
              <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <label for="state" class="form-label">Nearest Franchise</label>
-                    <select class="form-select mandatory" data-message="Please enter Nearest Franchise" id="state" name="nearest_franchise_id">
+                    <select class="form-select mandatory" data-message="Please enter Nearest Franchise" id="franchise" name="nearest_franchise_id">
                         <option value="" selected>Select Franchise</option>
-                         @if(isset($shops))
-                            @foreach($shops as $shop)
-                                <option value="1">{{$shop->name}}</option>
+                         @if(isset($franchises))
+                            @foreach($franchises as $franchise)
+                                <option value="{{$franchise->n_store_id}}">{{$franchise->c_store_name}}({{$franchise->c_store_code}})</option>
                             @endforeach
                         @endif
 
@@ -170,7 +167,7 @@
                 </div>
                 <div class="col-md-6">
                     <label for="state" class="form-label">Payment Status</label>
-                    <select class="form-select mandatory" data-message="Please enter Payment Status" id="state" name="payment_status">
+                    <select class="form-select mandatory" data-message="Please enter Payment Status" id="payment_status" name="payment_status">
                         <option value="" selected>Select Status</option>
                         <option value="1">Ordered</option>
                         <option value="2">Paid</option>
@@ -183,7 +180,7 @@
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <label for="state" class="form-label">Delivery Status</label>
-                    <select class="form-select mandatory" data-message="Please enter Delivory Status" id="state" name="delivery_status">
+                    <select class="form-select mandatory" data-message="Please enter Delivory Status" id="delivery_status" name="delivery_status">
                         <option value="" selected>Select Delivery Status</option>
                         <option value="1">Ordered</option>
                         <option value="2">Shipped</option>
@@ -217,9 +214,9 @@
                             <option value="">Select Product</option>
 
                             @foreach($products as $product)
-                                <option value="{{ $product->id }}"
-                                        data-price="{{ $product->price }}">
-                                    {{ $product->product_name }}
+                                <option value="{{ $product->n_product_id }}"
+                                        data-price="{{ $product->n_selling_price }}">
+                                    {{ $product->c_product_name }}({{$product->c_product_code}})
                                 </option>
                             @endforeach
 
@@ -264,15 +261,13 @@
 
             $(document).on("change",".product",function(){
 
-                let row = $(this).closest("tr");
+                productTotal($(this));
 
-                let price = $(this).find(":selected").data("price");
+            });
 
-                row.find(".price").val(price);
+             $(document).on("change",".qty",function(){
 
-                let qty = row.find(".qty").val();
-
-                row.find(".total").val(price * qty);
+                productTotal($(this).parent().siblings().find(".product"));
 
             });
 
@@ -281,6 +276,41 @@
             $(document).on("click",".removeRow",function(){
                 $(this).closest("tr").remove();
             });
+
+            $(document).on("change","#state",function(){
+                var state=$(this).val();
+                $.ajax({
+                        type: "get",
+                        url:"{{route('admin.filterDistrict')}}",
+                        data: { state:state },
+                        cache: false,
+                        dataType:'json',
+                        success: function(data)
+                        {
+                            console.log(data);
+                                $("#district").empty();
+                                $("#district").append('<option value="">Select District</option>');
+
+                                $.each(data.districts, function (index, district) {
+                                    $("#district").append(
+                                        '<option value="' + district.id + '">' + district.district_name + '</option>'
+                                    );
+                                });
+                        }
+                });
+            });
+
+            function productTotal(id){
+                let row = id.closest("tr");
+
+                let price = id.find(":selected").data("price");
+
+                row.find(".price").val(price);
+
+                let qty = row.find(".qty").val();
+
+                row.find(".total").val(price * qty);
+            }
         });
     </script>
 @endpush

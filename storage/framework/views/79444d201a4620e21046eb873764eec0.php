@@ -1,19 +1,13 @@
 <?php $__env->startSection('content'); ?>
 <style>
-/* Premium Filter Section Styling */
+/* Filter Card */
 .filter-card-wrapper {
-    background: #ffffff;
+    background: #fff;
+    border: 1px solid #eef2f6;
     border-radius: 12px;
     margin: 1.5rem 2rem;
     padding: 1.5rem;
-    border: 1px solid #eef2f6;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
-    transition: all 0.3s ease;
-}
-
-.filter-card-wrapper:hover {
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-    border-color: #dce3eb;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .02);
 }
 
 .filter-header-sub {
@@ -27,7 +21,7 @@
 .filter-header-sub .icon-box {
     width: 32px;
     height: 32px;
-    background: rgba(93, 135, 255, 0.1);
+    background: rgba(93, 135, 255, .1);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -36,261 +30,89 @@
 }
 
 .filter-header-sub span {
+    font-size: .9rem;
     font-weight: 700;
-    font-size: 0.9rem;
-    letter-spacing: 0.5px;
     text-transform: uppercase;
+    letter-spacing: .5px;
 }
 
+/* Filter Container */
+.premium-filter-container {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 20px;
+    padding: 30px;
+}
+
+/* Labels */
 .custom-filter-group {
     position: relative;
 }
 
 .custom-filter-group label {
     display: block;
-    margin-bottom: 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #5a6a85;
-    padding-left: 2px;
+    margin-bottom: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.styled-select {
-    height: 54px !important;
+/* Designation & Employee */
+.styled-select,
+.styled-textbox {
+    height: 44px !important;
     border-radius: 16px !important;
-    border: 1.5px solid #dfe5ef !important;
-    padding: 0 15px !important;
-    font-size: 0.9rem !important;
-    background-color: #fbfcfe !important;
-    color: #2a3547 !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    cursor: pointer !important;
 }
 
-.styled-select:focus {
-    border-color: #5d87ff;
-    box-shadow: 0 0 0 4px rgba(93, 135, 255, 0.1);
-    background-color: #ffffff;
-    outline: none;
-}
-
-.filter-action-container {
-    display: flex;
-    align-items: flex-end;
-}
-
+/* Filter & Reset Buttons */
 .btn-creative-filter {
-    height: 54px;
-    width: 100%;
-    border-radius: 10px;
-    font-weight: 600;
-    background: linear-gradient(135deg, #5d87ff 0%, #4669e0 100%);
-    border: none;
-    color: white;
+    height: 44px !important;
+    min-height: 44px;
+    padding: 0 24px !important;
+    border-radius: 16px !important;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(93, 135, 255, 0.2);
+    font-weight: 600;
 }
 
-.btn-creative-filter:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(93, 135, 255, 0.35);
-    background: linear-gradient(135deg, #4669e0 0%, #5d87ff 100%);
+.btn-secondary.btn-creative-filter {
+    height: 44px !important;
 }
 
-.btn-creative-filter:active {
-    transform: translateY(0);
-}
-
-/* Animation for the filter section appear */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.filter-card-wrapper {
-    animation: slideIn 0.4s ease-out forwards;
-}
-
-@media (max-width: 767px) {
-    .filter-action-container {
-        margin-top: 1rem;
-    }
-}
-
-.select2-results__options {
-    max-height: 180px !important;
-    overflow-y: auto !important;
-}
-
-.select2-container--default .select2-selection--single {
-    border: none !important;
-}
-
-select#n_store_id,
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    height: 54px !important;
-    border-radius: 10px !important;
-    border: 1.5px solid #dfe5ef !important;
-    padding: 0 15px !important;
-    font-size: 0.9rem !important;
-    background-color: #fbfcfe !important;
-    color: #2a3547 !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    cursor: pointer !important;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #444;
-    line-height: 54px !important;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 35px;
-}
-
-
-.premium-filter-container {
-    background: #ffffff;
-    border-radius: 24px;
-    padding: 30px;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04);
-    margin-bottom: 2rem;
-}
-
-/* Label Styling */
-.custom-filter-group label {
-    font-size: 11px;
-    font-weight: 800;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    margin-bottom: 12px;
-    display: block;
-}
-
-/* Input & Select Customization */
-.styled-select,
-.styled-textbox {
-    height: 54px !important;
-    background-color: #f8fafc !important;
-    border-radius: 16px !important;
-    color: #1e293b !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    padding-left: 20px !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: none !important;
-}
-
-.styled-select:focus,
-.styled-textbox:focus {
-    background-color: #ffffff !important;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.08) !important;
-    outline: none !important;
-}
-
-/* Column Spacing Adjustments */
-.row.g-3 {
-    --bs-gutter-x: 1.5rem;
-}
-
-/* Suggestions Menu */
+/* Employee Suggestion */
 #employee_suggestions {
-    margin-top: 10px;
-    border: none;
-    border-radius: 18px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    margin-top: 8px;
+    border-radius: 12px;
     overflow: hidden;
-    background: white;
-    z-index: 1050;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+    z-index: 1000;
 }
 
 #employee_suggestions .list-group-item {
-    border: none;
-    padding: 14px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #475569;
-    transition: all 0.2s;
+    border: 0;
+    padding: 12px 16px;
+    cursor: pointer;
 }
 
 #employee_suggestions .list-group-item:hover {
-    background-color: #eff6ff;
-    color: #2563eb;
+    background: #eff6ff;
 }
 
-/* Premium Filter Button */
-.btn-creative-filter {
-    height: 54px;
-    width: 100%;
-    border-radius: 16px;
-    background: #1e293b;
-    /* Deep slate for high contrast */
-    border: none;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 15px -3px rgba(30, 41, 59, 0.1);
-}
 
-.btn-creative-filter:hover {
-    background: #0f172a;
-    transform: translateY(-2px);
-    box-shadow: 0 20px 25px -5px rgba(30, 41, 59, 0.2);
-}
 
-.btn-creative-filter:active {
-    transform: translateY(0);
-}
-
-/* Subtle hover effect on the whole container */
-.premium-filter-container:hover {
-    border-color: #e2e8f0;
-}
-
-.select2-container {
-    width: 100%;
-}
-
-#store_div {
-    position: relative;
-    margin: 0;
-}
-
-select#n_store_id,
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    border-radius: 16px !important;
-    margin-top: -10px !important;
-}
-
-@media screen and (max-width:767px) {
+/* Responsive */
+@media (max-width:768px) {
     .premium-filter-container {
-        padding: 0;
-        border: none !important;
+        padding: 15px;
     }
 
-    #store_div {
-        position: relative;
-        margin: 10px 0px;
+    .filter-card-wrapper {
+        margin: 1rem;
+        padding: 1rem;
     }
 }
 </style>
@@ -304,7 +126,6 @@ select#n_store_id,
         </a>
         <?php endif; ?>
     </div>
-
     <!-- Redesigned Creative Filter Section -->
     <div class="filter-card-wrapper">
         <div class="filter-header-sub">
@@ -318,57 +139,68 @@ select#n_store_id,
         </div>
 
         <div class="premium-filter-container">
-            <form action="<?php echo e(route('admin.employees.index')); ?>" method="get">
-                <div class="row g-3 align-items-center">
+            <form action="<?php echo e(route('admin.employees.index')); ?>" method="GET">
 
-                    <!-- Designation Section -->
+                <div class="row g-3 align-items-end">
+
+                    <!-- Designation -->
                     <div class="col-md-3">
                         <div class="custom-filter-group">
                             <label for="n_designation_id">Designation</label>
+
                             <select id="n_designation_id" name="n_designation_id" class="form-select styled-select">
+
                                 <option value="">Select Designation</option>
+
                                 <?php $__currentLoopData = $designations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $designation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <?php
-                                $desigName = strtoupper(trim($designation->c_designation));
-                                $storeRequired = in_array($desigName, ['CSA','C&A','SM']) ? 1 : 0;
-                                ?>
-                                <option value="<?php echo e($designation->n_designation_id); ?>" data-store="<?php echo e($storeRequired); ?>"
-                                    <?php echo e(request()->n_designation_id == $designation->n_designation_id ? 'selected' : ''); ?>>
+                                <option value="<?php echo e($designation->n_designation_id); ?>"
+                                    <?php echo e(request('n_designation_id') == $designation->n_designation_id ? 'selected' : ''); ?>>
                                     <?php echo e($designation->c_designation); ?>
 
                                 </option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
                             </select>
-                            <div class="text-danger  fs-2"></div>
                         </div>
                     </div>
-                    <!-- Stores Section -->
-                    
-                    <!-- Employee Search Section -->
-                    <div class="col-md-4 position-relative">
+
+                    <!-- Employee -->
+                    <div class="col-md-5 position-relative">
                         <div class="custom-filter-group">
                             <label for="employee_search">Employee</label>
-                            <input type="text" id="employee_search" name="employee_search" autocomplete="off"
+
+                            <input type="text" id="employee_search" name="employee_search"
+                                value="<?php echo e(request('employee_search')); ?>" autocomplete="off"
                                 placeholder="Search by Name or Code" class="form-control styled-textbox">
+
                             <input type="hidden" id="employee_id" name="employee_id">
+
                             <ul id="employee_suggestions" class="list-group position-absolute w-100"></ul>
                         </div>
                     </div>
-                    <!-- Action Section -->
-                    <div class="col-md-2 filter-action-container">
-                        <button style="margin-top: 11%;
-    height: 54px;" type="submit" class="btn btn-primary btn-creative-filter">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                            Filter
-                        </button>
+
+                    <!-- Buttons -->
+                    <div class="col-md-4">
+                        <label class="invisible">Action</label>
+
+                        <div class="d-flex gap-2">
+
+                            <button type="submit" class="btn btn-primary btn-creative-filter flex-fill">
+                                <i class="ti ti-search"></i>
+                                Filter
+                            </button>
+
+                            <a href="<?php echo e(route('admin.employees.index')); ?>"
+                                class="btn btn-secondary btn-creative-filter flex-fill">
+                                <i class="ti ti-refresh"></i>
+                                Reset
+                            </a>
+
+                        </div>
                     </div>
 
                 </div>
+
             </form>
         </div>
     </div>
@@ -397,11 +229,17 @@ select#n_store_id,
                             <h6 class="fw-semibold mb-0">Designation</h6>
                         </th>
                         <th class="border-bottom-0">
-                            <h6 class="fw-semibold mb-0">Store</h6>
+                            <h6 class="fw-semibold mb-0">Account Number</h6>
                         </th>
 
                         <th class="border-bottom-0">
-                            <h6 class="fw-semibold mb-0">Operation Head</h6>
+                            <h6 class="fw-semibold mb-0">IFSC</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Bank Name</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Branch Name</h6>
                         </th>
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Email</h6>
@@ -432,17 +270,24 @@ select#n_store_id,
                             <span class="fw-normal"><?php echo e($employee->designation?->c_designation ?? '-'); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal"><?php echo e($employee->store?->c_store_name ?? '-'); ?></span>
+                            <span class="fw-normal"><?php echo e($employee->kycSubmission?->account_number ?? '-'); ?></span>
                         </td>
 
 
                         <td class="border-bottom-0">
-                            <span class="fw-normal"><?php echo e($employee->operation ?? $employee->poolUpline); ?></span>
+                            <span class="fw-normal"><?php echo e($employee->kycSubmission?->ifsc_code ?? '-'); ?></span>
                         </td>
-
+                        <td class="border-bottom-0">
+                            <span class="fw-normal"><?php echo e($employee->kycSubmission?->bank_name ?? '-'); ?></span>
+                        </td>
+                        <td class="border-bottom-0">
+                            <span class="fw-normal"><?php echo e($employee->kycSubmission?->bank_branch ?? '-'); ?></span>
+                        </td>
                         <td class="border-bottom-0">
                             <span class="fw-normal"><?php echo e($employee->c_employee_email ?? '-'); ?></span>
                         </td>
+
+
                         <td class="border-bottom-0">
                             <span
                                 class="badge <?php echo e($employee->c_status === 'Y' ? 'bg-success' : 'bg-danger'); ?> rounded-3 fw-semibold">
@@ -491,37 +336,6 @@ select#n_store_id,
     </div>
 </div>
 <?php $__env->startPush('scripts'); ?>
-<script>
-$(document).ready(function() {
-
-    $('#n_store_id').select2({
-        placeholder: "Select Store",
-
-        matcher: function(params, data) {
-
-            // show first 5 initially
-            if ($.trim(params.term) === '') {
-
-                let index = $(data.element).index();
-
-                return index <= 5 ? data : null;
-            }
-
-            // search filter
-            if (typeof data.text === 'undefined') {
-                return null;
-            }
-
-            if (data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1) {
-                return data;
-            }
-
-            return null;
-        }
-    });
-
-});
-</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -607,5 +421,4 @@ window.employees = <?php echo json_encode($employeesForSearch, 15, 512) ?>;
 </script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/employees/index.blade.php ENDPATH**/ ?>

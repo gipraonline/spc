@@ -17,6 +17,9 @@ use App\Models\ReturnDraftUpload;
 use App\Models\StoreMaster;
 use App\Models\AdminSaleUnnormalizedLog;
 use App\Models\OrderProduct;
+use App\Models\State;
+use App\Models\District;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -102,15 +105,23 @@ public function index(Request $request)
     {
         $employees = EmployeeMaster::where('c_status', 'Y')->get();
         $products = ProductMaster::where('c_status', 'Y')->get();
+        $franchises = StoreMaster::where('c_store_status', 'Y')->get();
+        $States=State::with('districts')->where('status', '1')->get();
+       // $districts=District::where('status', '1')->get();
 
-        return view('admin.sales.create', compact('employees', 'products'));
+        return view('admin.sales.create', compact('employees', 'products','franchises','States'));
+    }
+
+    public function districtFilter(Request $request){
+        $districts=District::where('state_id',$request->state)->get();
+        return response()->json(['districts'=>$districts]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'd_date' => 'required|date',
-            'c_bill_no' => 'required|string|max:50|unique:daily_store_sales,c_bill_no',
+            'c_bill_no' => 'required|string|max:50|unique:sales_orders,c_bill_no',
             'farm_care_advisor_id' => [
                 'required',
                 \Illuminate\Validation\Rule::exists('employee_masters', 'n_employee_id'),

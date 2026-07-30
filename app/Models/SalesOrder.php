@@ -19,6 +19,7 @@ class SalesOrder extends Model
 
     protected $fillable = [
         'd_date',
+        'c_bill_no',
         'n_sold_price',
         'farm_care_advisor_id',
         'c_customer_name',

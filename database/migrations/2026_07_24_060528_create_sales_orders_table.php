@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('sales_orders', function (Blueprint $table) {
             $table->id('n_sl_no');
+            $table->bigInteger('c_bill_no')->nullable();
             $table->date('d_date');
             $table->string('n_sold_price', 20);
 

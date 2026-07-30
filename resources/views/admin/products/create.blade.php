@@ -372,41 +372,7 @@ function validateProductCode() {
     });
 }
 
-// Trigger validation on input and blur
-codeInput.addEventListener('input', validateProductCode);
-codeInput.addEventListener('blur', validateProductCode);
 
-// Selling price validation function
-function validatePrices() {
-    let purchase = parseFloat(purchaseInput.value) || 0;
-    let selling = parseFloat(sellingInput.value) || 0;
-
-    if (selling <= purchase && selling !== 0) {
-        sellingError.innerText = "Selling price must be greater than purchase price";
-    } else {
-        sellingError.innerText = "";
-    }
-}
-
-// Trigger price validation on input
-purchaseInput.addEventListener('input', validatePrices);
-sellingInput.addEventListener('input', validatePrices);
-
-// Form submission check
-document.getElementById('frm_create').addEventListener('submit', function(e) {
-    // Trim product code spaces
-    codeInput.value = codeInput.value.trim();
-
-    // Run validations
-    validateProductCode();
-    validatePrices();
-
-    if (codeError.innerText !== "" || sellingError.innerText !== "" || isDuplicate) {
-        e.preventDefault(); // block submission
-        alert("Please fix errors before submitting");
-    }
-});
-}
 
 // Trigger validation on input and blur
 codeInput.addEventListener('input', validateProductCode);
@@ -443,39 +409,5 @@ document.getElementById('frm_create').addEventListener('submit', function(e) {
     }
 });
 </script>
-<script>
-$('document').ready(function() {
 
-    $('#active_incentive').change(function() {
-        $('#incentive_percentages').toggle($(this).is(':checked'));
-    });
-
-
-    function checkTotal() {
-        let total = 0;
-        document.querySelectorAll('.incentive').forEach(function(input) {
-            let value = parseFloat(input.value) || 0;
-            total += value;
-        });
-
-        if (total === 100) {
-            return true;
-        } else {
-            let message = "Total% is " + total + " ❌ (It must be 100)";
-            $("#incentive_danger").text(message);
-            return false;
-        }
-    }
-
-
-    $(".incentive_perc").click(function() {
-        if ($('#active_incentive').is(':checked')) {
-            return checkTotal();
-        } else {
-
-            return true;
-        }
-    });
-})
-</script>
 @endpush

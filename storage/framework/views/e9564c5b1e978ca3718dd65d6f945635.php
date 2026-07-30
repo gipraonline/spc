@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 /* Premium Design Tokens */
 :root {
@@ -145,8 +143,8 @@
     </div>
 
     <div class="card-body p-4 p-md-5 pt-md-4">
-        <form id="frm_create" method="POST" action="{{ route('admin.franchises.store') }}">
-            @csrf
+        <form id="frm_create" method="POST" action="<?php echo e(route('admin.franchises.store')); ?>">
+            <?php echo csrf_field(); ?>
 
             <!-- Section 1: Record Identity -->
             <div class="field-group-title">
@@ -157,30 +155,51 @@
                 <div class="col-md-5">
                     <label for="c_store_code" class="form-label">Store Code *</label>
                     <input type="text" id="c_store_code" data-message="Enter valid Store Code" name="c_store_code"
-                        value="{{ old('c_store_code') }}" max-length="20" class="form-control mandatory"
+                        value="<?php echo e(old('c_store_code')); ?>" max-length="20" class="form-control mandatory"
                         placeholder="e.g. BAZAAR-001">
-                    @error('c_store_code')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_store_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1 fs-2"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-7">
                     <label for="c_store_name" class="form-label">Store Name *</label>
                     <input type="text" id="c_store_name" data-message="Please enter Name" name="c_store_name"
-                        value="{{ old('c_store_name') }}" maxlength="100" pattern="[A-Za-z0-9\s\-]+"
+                        value="<?php echo e(old('c_store_name')); ?>" maxlength="100" pattern="[A-Za-z0-9\s\-]+"
                         class="form-control mandatory" placeholder="Legal store name">
-                    @error('c_store_name')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_store_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1 fs-2"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-12">
                     <label for="c_store_address" class="form-label">Address</label>
-                    <input type="text" id="c_store_address" name="c_store_address" value="{{ old('c_store_address') }}"
+                    <input type="text" id="c_store_address" name="c_store_address" value="<?php echo e(old('c_store_address')); ?>"
                         maxlength="255" class="form-control" placeholder="Street, Building, Area...">
-                    @error('c_store_address')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_store_address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1 fs-2"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -192,20 +211,34 @@
             <div class="row g-4 mb-5">
                 <div class="col-md-4">
                     <label for="c_store_email" class="form-label">Email</label>
-                    <input type="email" id="c_store_email" name="c_store_email" value="{{ old('c_store_email') }}"
+                    <input type="email" id="c_store_email" name="c_store_email" value="<?php echo e(old('c_store_email')); ?>"
                         class="form-control" placeholder="branch@bazaar.com">
-                    @error('c_store_email')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_store_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1 fs-2"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-4">
                     <label for="n_store_phone" class="form-label">Phone</label>
-                    <input type="text" id="n_store_phone" name="n_store_phone" value="{{ old('n_store_phone') }}"
+                    <input type="text" id="n_store_phone" name="n_store_phone" value="<?php echo e(old('n_store_phone')); ?>"
                         max-length="10" class="form-control" placeholder="Contact number">
-                    @error('n_store_phone')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['n_store_phone'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1 fs-2"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-4">
@@ -213,8 +246,8 @@
                     <select id="c_store_status" data-message="Please select Status" name="c_store_status"
                         class="form-select mandatory">
                         <option value="">Select Status</option>
-                        <option value="Y" {{ old('c_store_status') === 'Y' ? 'selected' : '' }}>Active</option>
-                        <option value="N" {{ old('c_store_status') === 'N' ? 'selected' : '' }}>Inactive</option>
+                        <option value="Y" <?php echo e(old('c_store_status') === 'Y' ? 'selected' : ''); ?>>Active</option>
+                        <option value="N" <?php echo e(old('c_store_status') === 'N' ? 'selected' : ''); ?>>Inactive</option>
                     </select>
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
@@ -225,9 +258,11 @@
                 <button type="button" id="btn_create" class="btn btn-create-action">
                     <i class="ti ti-plus fs-4"></i> Create Store
                 </button>
-                <a href="{{ route('admin.franchises.index') }}" class="btn btn-cancel-action">Cancel</a>
+                <a href="<?php echo e(route('admin.franchises.index')); ?>" class="btn btn-cancel-action">Cancel</a>
             </div>
         </form>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/stores/create.blade.php ENDPATH**/ ?>

@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('sales_orders', function (Blueprint $table) {
             $table->id('n_sl_no');
+            $table->bigInteger('c_bill_no')->nullable();
             $table->date('d_date');
             $table->string('n_sold_price', 20);
 
-            $table->string('farm_care_advisor');
+            $table->unsignedBigInteger('farm_care_advisor_id');
             $table->string('c_customer_name');
             $table->text('c_customer_address')->nullable();
             $table->string('c_customer_email')->nullable();
@@ -26,7 +27,7 @@ return new class extends Migration
             $table->string('c_district');
 
             $table->string('c_mode_of_payment');
-            $table->string('nearest_franchise_id');
+            $table->unsignedBigInteger('nearest_franchise_id');
 
             $table->string('payment_status')->default('Pending');
             $table->string('delivery_status')->default('Pending');

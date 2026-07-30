@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\StoreController;
 
 
 Route::get('/', function () {
@@ -137,6 +138,39 @@ Route::middleware(['auth', 'admin'])
 
     /*
     |--------------------------------------------------------------------------
+    | Stores
+    |--------------------------------------------------------------------------
+    */
+
+
+
+     Route::get('franchises', [StoreController::class, 'index'])
+    ->middleware('permission:franchises.view')
+    ->name('franchises.index');
+
+    Route::get('franchises/create', [StoreController::class, 'create'])
+        ->middleware('permission:franchises.create')
+        ->name('franchises.create');
+
+    Route::post('franchises', [StoreController::class, 'store'])
+        ->middleware('permission:franchises.create')
+        ->name('franchises.store');
+
+    Route::get('franchises/{franchise}/edit', [StoreController::class, 'edit'])
+        ->middleware('permission:franchises.edit')
+        ->name('franchises.edit');
+
+    Route::put('franchises/{franchise}', [StoreController::class, 'update'])
+        ->middleware('permission:franchises.edit')
+        ->name('franchises.update');
+
+    Route::delete('franchises/{franchise}', [StoreController::class, 'destroy'])
+        ->middleware('permission:franchises.delete')
+        ->name('franchises.destroy');
+    // *********************************************
+
+    /*
+    |--------------------------------------------------------------------------
     | Products
     |--------------------------------------------------------------------------
     */
@@ -186,6 +220,13 @@ Route::middleware(['auth', 'admin'])
         ->name('check.product.code');
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | District Filter
+    |--------------------------------------------------------------------------
+    */
+        Route::get('districts', [SalesController::class, 'districtFilter'])
+        ->name('filterDistrict');
 
     /*
     |--------------------------------------------------------------------------
@@ -199,32 +240,32 @@ Route::middleware(['auth', 'admin'])
 
 
     Route::get('salesorders/create', [SalesController::class, 'create'])
-        ->middleware('permission:sales-orders.create')
+        ->middleware('permission:sales-orders.add-sale')
         ->name('salesorders.create');
 
 
     Route::post('salesorders', [SalesController::class, 'store'])
-        ->middleware('permission:salesorders.add-sale')
+        ->middleware('permission:sales-orders.create')
         ->name('salesorders.store');
 
 
     Route::get('salesorders/{salesorder}', [SalesController::class, 'show'])
-        ->middleware('permission:salesorders.view-details')
+        ->middleware('permission:sales-orders.view-details')
         ->name('salesorders.show');
 
 
     Route::get('salesorders/{salesorder}/edit', [SalesController::class, 'edit'])
-        ->middleware('permission:salesorders.edit')
+        ->middleware('permission:sales-orders.edit')
         ->name('salesorders.edit');
 
 
     Route::put('salesorders/{salesorder}', [SalesController::class, 'update'])
-        ->middleware('permission:salesorders.edit')
+        ->middleware('permission:sales-orders.edit')
         ->name('salesorders.update');
 
 
     Route::delete('salesorders/{salesorder}', [SalesController::class, 'destroy'])
-        ->middleware('permission:salesorders.delete')
+        ->middleware('permission:sales-orders.delete')
         ->name('salesorders.destroy');
 
 

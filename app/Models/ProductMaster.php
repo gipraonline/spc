@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductMaster extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $table = 'product_masters';
 
@@ -21,10 +23,5 @@ class ProductMaster extends Model
         'n_mrp',
         'c_status',
     ];
-
-    public function incentives()
-    {
-        return $this->hasOne(ProductIncentive::class, 'n_product_id', 'n_product_id');
-    }
 
 }

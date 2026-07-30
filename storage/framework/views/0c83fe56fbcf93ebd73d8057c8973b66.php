@@ -128,7 +128,16 @@
                     <input type="text" id="c_employee_code" name="c_employee_code"
                         value="<?php echo e(old('c_employee_code', $employee->c_employee_code)); ?>"
                         data-message="Please add Employee Code" class="form-control mandatory" disabled>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <?php $__errorArgs = ['c_employee_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-6">
@@ -136,7 +145,16 @@
                     <input type="text" id="c_employee_name" name="c_employee_name"
                         value="<?php echo e(old('c_employee_name', $employee->c_employee_name)); ?>"
                         data-message="Please enter Employee Name" class="form-control mandatory">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <?php $__errorArgs = ['c_employee_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -195,7 +213,16 @@ unset($__errorArgs, $__bag); ?>
                         </option>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <?php $__errorArgs = ['account_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
             </div>
@@ -209,7 +236,16 @@ unset($__errorArgs, $__bag); ?>
                     <input type="text" id="account_number" name="account_number"
                         value="<?php echo e(old('account_number', $kyc ? $kyc->account_number : '')); ?>"
                         data-message="Please add Account Number" class="form-control mandatory" placeholder="ACC-001">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <?php $__errorArgs = ['account_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-6">
@@ -218,7 +254,16 @@ unset($__errorArgs, $__bag); ?>
                         value="<?php echo e(old('ifsc_code', $kyc ? $kyc->ifsc_code : '')); ?>"
                         data-message="Please enter IFSC Code" class="form-control mandatory"
                         placeholder="Enter IFSC code">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <?php $__errorArgs = ['ifsc_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="col-md-6">
                     <label for="ifsc_code" class="form-label">Bank Name *</label>
@@ -226,15 +271,33 @@ unset($__errorArgs, $__bag); ?>
                         value="<?php echo e(old('bank_name', $kyc ? $kyc->bank_name : '')); ?>"
                         data-message="Please enter Bank name" class="form-control mandatory"
                         placeholder="Enter Bank Name">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <?php $__errorArgs = ['bank_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="col-md-6">
-                    <label for="ifsc_code" class="form-label">Bank Name *</label>
+                    <label for="ifsc_code" class="form-label">Branch Name *</label>
                     <input type="text" id="branch_name" name="branch_name"
                         value="<?php echo e(old('bank_branch', $kyc ? $kyc->bank_branch : '')); ?>"
                         data-message="Please enter branch name" class="form-control mandatory"
                         placeholder="Enter Branch Name">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <?php $__errorArgs = ['branch_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -250,7 +313,16 @@ unset($__errorArgs, $__bag); ?>
                     <input type="email" id="c_employee_email" name="c_employee_email"
                         value="<?php echo e(old('c_employee_email', $employee->c_employee_email)); ?>"
                         data-message="Please enter an Email Address" class="form-control mandatory" readonly>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <?php $__errorArgs = ['c_employee_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-4">
@@ -263,7 +335,16 @@ unset($__errorArgs, $__bag); ?>
                         <option value="N" <?php echo e(old('c_status', $employee->c_status) === 'N' ? 'selected' : ''); ?>>Inactive
                         </option>
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <?php $__errorArgs = ['c_status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 

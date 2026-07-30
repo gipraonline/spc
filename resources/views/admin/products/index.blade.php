@@ -1,169 +1,99 @@
 @extends('layouts.app')
 
 @section('content')
-
 <style>
-/* Premium Filter Card Design */
-.product-filter-card {
-    background: #ffffff;
-    border: none;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    position: relative;
-    overflow: hidden;
+/* Filter Card */
+.filter-card-wrapper {
+    margin-bottom: 1rem;
 }
 
-/* Creative Gradient Top Border */
-.product-filter-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-}
-
-.product-filter-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.12);
-}
-
-.filter-header-wrapper {
+.filter-header-sub {
     display: flex;
     align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px dashed #e2e8f0;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+    color: #2a3547;
 }
 
-.filter-icon-container {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
-    color: #3b82f6;
-    width: 48px;
-    height: 48px;
+.filter-header-sub .icon-box {
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 14px;
-    transition: all 0.3s ease;
+    border-radius: 8px;
+    background: rgba(93, 135, 255, .1);
+    color: #5d87ff;
 }
 
-.product-filter-card:hover .filter-icon-container {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: #ffffff;
-    box-shadow: 0 8px 20px -5px rgba(37, 99, 235, 0.4);
-}
-
-.filter-icon-container i {
-    font-size: 22px;
-}
-
-.header-title {
-    font-size: 18px;
-    letter-spacing: 0.5px;
-    color: #0f172a;
-    font-weight: 700 !important;
-}
-
-.premium-label {
-    font-size: 13px;
-    color: #64748b;
-    margin-bottom: 8px;
-    font-weight: 600 !important;
+.filter-header-sub span {
+    font-size: .9rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: .5px;
 }
 
-.search-input-wrapper {
+/* Filter Body */
+.premium-filter-container {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 0;
+}
+
+/* Labels */
+.custom-filter-group {
     position: relative;
 }
 
-.input-inner-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
+.custom-filter-group label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 11px;
+    font-weight: 700;
     color: #94a3b8;
-    font-size: 18px;
-    pointer-events: none;
-    transition: color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.premium-input-control {
-    height: 52px !important;
-    border-radius: 14px !important;
-    border: 2px solid #f1f5f9 !important;
-    background-color: #f8fafc !important;
+/* Inputs */
+.styled-select,
+.styled-textbox {
+    height: 54px !important;
+    border: 1.5px solid #dfe5ef !important;
+    border-radius: 16px !important;
+    background: #f8fafc !important;
+    padding: 0 18px !important;
     font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #1e293b !important;
-    transition: all 0.3s ease !important;
-    box-shadow: none !important;
 }
 
-.premium-search-input {
-    padding-left: 48px !important;
-}
-
-.premium-input-control:focus {
-    background-color: #ffffff !important;
+.styled-select:focus,
+.styled-textbox:focus {
     border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, .08) !important;
 }
 
-.search-input-wrapper:focus-within .input-inner-icon {
-    color: #3b82f6;
-}
-
-.premium-btn {
-    height: 52px;
-    border-radius: 14px;
-    font-weight: 600;
-    font-size: 14px;
-    letter-spacing: 0.3px;
-    transition: all 0.3s ease;
-    display: inline-flex;
+/* Buttons */
+.btn-creative-filter {
+    height: 54px !important;
+    border-radius: 16px !important;
+    display: flex;
     align-items: center;
     justify-content: center;
-    border: none;
+    gap: 8px;
+    font-weight: 600;
 }
 
-.btn-filter {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
-    box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.3);
-}
+/* Responsive */
+@media (max-width:768px) {
+    .filter-card-wrapper {
+        margin: 1rem;
+        padding: 1rem;
+    }
 
-.btn-filter:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 20px -4px rgba(37, 99, 235, 0.4);
-    color: white;
-}
-
-.btn-export {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    box-shadow: 0 8px 16px -4px rgba(16, 185, 129, 0.3);
-}
-
-.btn-export:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 20px -4px rgba(16, 185, 129, 0.4);
-    color: white;
-}
-
-.action-buttons-wrapper {
-    display: flex;
-    gap: 16px;
-    align-items: flex-end;
-}
-
-@media (max-width: 768px) {
-    .action-buttons-wrapper {
-        flex-direction: column;
-        align-items: stretch;
+    .premium-filter-container {
+        padding: 15px;
     }
 }
 </style>
@@ -185,62 +115,79 @@
         </div>
         @endif
 
+
         {{-- Search Box --}}
+
         <form method="GET" action="{{ route('admin.products.index') }}">
-            <div class="product-filter-card p-4 p-md-5 mb-4">
-                <!-- Header Section -->
-                <div class="filter-header-wrapper">
-                    <div class="filter-icon-container">
-                        <i class="ti ti-filter"></i>
+
+            <div class="filter-card-wrapper">
+                <div class="filter-header-sub">
+                    <div class="icon-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                        </svg>
                     </div>
-                    <h5 class="ms-3 mb-0 header-title text-uppercase">
-                        Refine Search
-                    </h5>
+                    <span>Refine Search</span>
                 </div>
+                <div class="premium-filter-container">
 
-                <!-- Search Input Section -->
-                <div class="row g-4">
-                    <div class="col-md-5 col-lg-5">
-                        <label class="form-label premium-label">
-                            Search by Product ID or Product Name
-                        </label>
-                        <div class="search-input-wrapper">
-                            <div class="input-inner-icon">
-                                <i class="ti ti-search"></i>
+                    <div class="row g-3 align-items-end">
+
+                        <!-- Search -->
+                        <div class="col-md-5">
+                            <div class="custom-filter-group">
+                                <label>Product</label>
+                                <input type="text" name="search" class="form-control styled-textbox"
+                                    placeholder="Search by Product ID or Product Name" value="{{ request('search') }}">
                             </div>
-                            <input type="text" name="search" id="search"
-                                class="form-control premium-input-control premium-search-input"
-                                placeholder="Search by Product ID or Product Name" value="{{ request('search') }}">
                         </div>
-                    </div>
 
-                    {{-- Product Status --}}
-                    <div class="col-md-3 col-lg-3">
-                        <label class="form-label premium-label">Product Status</label>
-                        <select name="status" class="form-select premium-input-control">
-                            <option value="">All Status</option>
-                            <option value="Y" {{ request('status') == 'Y' ? 'selected' : '' }}>Active</option>
-                            <option value="N" {{ request('status') == 'N' ? 'selected' : '' }}>Inactive</option>
-                        </select>
-                    </div>
+                        <!-- Status -->
+                        <div class="col-md-3">
+                            <div class="custom-filter-group">
+                                <label>Status</label>
 
-                    {{-- Action Buttons --}}
-                    <div class="col-md-4 col-lg-4 d-flex align-items-end">
-                        <div class="action-buttons-wrapper w-100">
-                            <button type="submit" class="btn premium-btn btn-filter flex-grow-1">
-                                <i class="ti ti-search me-2 fs-5"></i>
-                                Filter Products
-                            </button>
-
-                            @can('products.export')
-                            <a href="{{ route('admin.products.export', request()->query()) }}"
-                                class="btn premium-btn btn-export px-4">
-                                <i class="ti ti-file-export me-1 fs-5"></i>
-                                Export Excel
-                            </a>
-                            @endcan
+                                <select name="status" class="form-select styled-select">
+                                    <option value="">All Status</option>
+                                    <option value="Y" {{ request('status')=='Y' ? 'selected' : '' }}>
+                                        Active
+                                    </option>
+                                    <option value="N" {{ request('status')=='N' ? 'selected' : '' }}>
+                                        Inactive
+                                    </option>
+                                </select>
+                            </div>
                         </div>
+
+                        <!-- Buttons -->
+                        <div class="col-md-4">
+                            <div class="d-flex gap-2">
+
+                                <button type="submit" class="btn btn-primary btn-creative-filter flex-fill">
+                                    <i class="ti ti-search"></i>
+                                    Filter
+                                </button>
+
+                                <a href="{{ route('admin.products.index') }}"
+                                    class="btn btn-secondary btn-creative-filter flex-fill">
+                                    <i class="ti ti-refresh"></i>
+                                    Reset
+                                </a>
+
+                                @can('products.export')
+                                <a href="{{ route('admin.products.export', request()->query()) }}"
+                                    class="btn btn-success btn-creative-filter flex-fill">
+                                    <i class="ti ti-file-export"></i>
+                                    Export
+                                </a>
+                                @endcan
+
+                            </div>
+                        </div>
+
                     </div>
+
                 </div>
             </div>
         </form>

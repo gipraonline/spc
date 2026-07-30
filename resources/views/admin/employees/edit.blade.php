@@ -130,7 +130,9 @@
                     <input type="text" id="c_employee_code" name="c_employee_code"
                         value="{{ old('c_employee_code', $employee->c_employee_code) }}"
                         data-message="Please add Employee Code" class="form-control mandatory" disabled>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_employee_code')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -138,7 +140,9 @@
                     <input type="text" id="c_employee_name" name="c_employee_name"
                         value="{{ old('c_employee_name', $employee->c_employee_name) }}"
                         data-message="Please enter Employee Name" class="form-control mandatory">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_employee_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -189,7 +193,9 @@
                         </option>
                         @endforeach
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('account_number')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
             </div>
@@ -203,7 +209,9 @@
                     <input type="text" id="account_number" name="account_number"
                         value="{{ old('account_number', $kyc ? $kyc->account_number : '') }}"
                         data-message="Please add Account Number" class="form-control mandatory" placeholder="ACC-001">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('account_number')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -212,7 +220,9 @@
                         value="{{ old('ifsc_code', $kyc ? $kyc->ifsc_code : '') }}"
                         data-message="Please enter IFSC Code" class="form-control mandatory"
                         placeholder="Enter IFSC code">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('ifsc_code')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="col-md-6">
                     <label for="ifsc_code" class="form-label">Bank Name *</label>
@@ -220,15 +230,19 @@
                         value="{{ old('bank_name', $kyc ? $kyc->bank_name : '') }}"
                         data-message="Please enter Bank name" class="form-control mandatory"
                         placeholder="Enter Bank Name">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('bank_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="col-md-6">
-                    <label for="ifsc_code" class="form-label">Bank Name *</label>
+                    <label for="ifsc_code" class="form-label">Branch Name *</label>
                     <input type="text" id="branch_name" name="branch_name"
                         value="{{ old('bank_branch', $kyc ? $kyc->bank_branch : '') }}"
                         data-message="Please enter branch name" class="form-control mandatory"
                         placeholder="Enter Branch Name">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('branch_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -244,7 +258,9 @@
                     <input type="email" id="c_employee_email" name="c_employee_email"
                         value="{{ old('c_employee_email', $employee->c_employee_email) }}"
                         data-message="Please enter an Email Address" class="form-control mandatory" readonly>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_employee_email')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-4">
@@ -257,7 +273,9 @@
                         <option value="N" {{ old('c_status', $employee->c_status) === 'N' ? 'selected' : '' }}>Inactive
                         </option>
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_status')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 

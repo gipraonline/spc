@@ -21,11 +21,30 @@ class ProductController extends Controller
 //         'products.xlsx'
 //     );
 // }
+
+    public function search(Request $request)
+    {
+        session([
+            'product_search' => $request->search,
+            'product_status' => $request->status,
+        ]);
+
+        return redirect()->route('admin.products.index');
+    }
+
+    public function clearSearch()
+    {
+        session()->forget([
+            'product_search',
+            'product_status',
+        ]);
+
+        return redirect()->route('admin.products.index');
+    }
     public function index(Request $request)
     {
-  
-        $search = $request->search;
-        $status = $request->status;
+        $search = session('product_search');
+        $status = session('product_status');
 
         $products = ProductMaster::query()
             ->when($search, function ($query) use ($search) {
@@ -34,15 +53,13 @@ class ProductController extends Controller
                     ->orWhere('c_product_name', 'LIKE', "%{$search}%");
                 });
             })
-            ->when($request->filled('status'), function ($query) use ($status) {
+            ->when(!empty($status), function ($query) use ($status) {
                 $query->where('c_status', $status);
             })
-            ->paginate(10)
-            ->withQueryString();
+            ->paginate(10);
 
         return view('admin.products.index', compact('products'));
     }
-    
 
     public function create()
     {

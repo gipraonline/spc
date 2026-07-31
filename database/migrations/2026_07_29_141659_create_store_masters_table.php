@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('n_store_phone')->nullable();
             $table->string('c_store_status')->default('Y');
             $table->timestamps();
+            
+            // Soft Delete
+            
             $table->softDeletes();
 
             // Uncomment if n_clustor_manager_id references another table

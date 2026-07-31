@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 
 <style>
@@ -110,22 +108,23 @@
 <div class="card w-100 position-relative overflow-hidden">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Stores</h5>
-        @can('franchises.create')
-        <a href="{{ route('admin.franchises.create') }}" class="btn btn-primary">Add Store</a>
-        @endcan
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('franchises.create')): ?>
+        <a href="<?php echo e(route('admin.franchises.create')); ?>" class="btn btn-primary">Add Store</a>
+        <?php endif; ?>
     </div>
     <div class="card-body p-4">
-        @if ($message = Session::get('success'))
+        <?php if($message = Session::get('success')): ?>
         <div class="alert alert-success" role="alert">
-            {{ $message }}
+            <?php echo e($message); ?>
+
         </div>
-        @endif
+        <?php endif; ?>
 
 
         <!-- Search Store -->
 
-        <form method="POST" action="{{ route('admin.franchises.search') }}">
-            @csrf
+        <form method="POST" action="<?php echo e(route('admin.franchises.search')); ?>">
+            <?php echo csrf_field(); ?>
             <div class="card refine-search-card border-0 rounded-4 mb-4">
                 <div class="card-body p-4">
                     <!-- Header Section -->
@@ -171,7 +170,7 @@
                                     </svg>
                                 </div>
 
-                                <input type="text" name="search" value="{{ session('store_search') }}"
+                                <input type="text" name="search" value="<?php echo e(session('store_search')); ?>"
                                     class="form-control custom-input" placeholder="Store Code or Name..."
                                     id="storeSearch" autocomplete="off">
 
@@ -180,13 +179,13 @@
                                         Search
                                     </button>
 
-                                    @if(session('store_search'))
-                                    <a href="{{ route('admin.franchises.clearSearch') }}"
+                                    <?php if(session('store_search')): ?>
+                                    <a href="<?php echo e(route('admin.franchises.clearSearch')); ?>"
                                         class="btn btn-outline-primary reset-btn">
                                         <i class="ti ti-refresh me-1"></i>
                                         Reset
                                     </a>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -213,67 +212,69 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Status</h6>
                         </th>
-                        @canany(['franchises.edit', 'franchises.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['franchises.edit', 'franchises.delete'])): ?>
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Actions</h6>
                         </th>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($stores as $store)
+                    <?php $__empty_1 = true; $__currentLoopData = $stores; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $store): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $store->c_store_code }}</span>
+                            <span class="fw-normal"><?php echo e($store->c_store_code); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <h6 class="fw-semibold mb-0">{{ $store->c_store_name }}</h6>
+                            <h6 class="fw-semibold mb-0"><?php echo e($store->c_store_name); ?></h6>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $store->c_store_email ?? '-' }}</span>
+                            <span class="fw-normal"><?php echo e($store->c_store_email ?? '-'); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">{{ $store->n_store_phone ?? '-' }}</span>
+                            <span class="fw-normal"><?php echo e($store->n_store_phone ?? '-'); ?></span>
                         </td>
                         <td class="border-bottom-0">
                             <span
-                                class="badge {{ $store->c_store_status === 'Y' ? 'bg-success' : 'bg-danger' }} rounded-3 fw-semibold">
-                                {{ ucfirst($store->c_store_status) }}
+                                class="badge <?php echo e($store->c_store_status === 'Y' ? 'bg-success' : 'bg-danger'); ?> rounded-3 fw-semibold">
+                                <?php echo e(ucfirst($store->c_store_status)); ?>
+
                             </span>
                         </td>
-                        @canany(['franchises.edit', 'franchises.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['franchises.edit', 'franchises.delete'])): ?>
                         <td class="border-bottom-0">
-                            @can('franchises.edit')
-                            <a href="{{ route('admin.franchises.edit', $store) }}"
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('franchises.edit')): ?>
+                            <a href="<?php echo e(route('admin.franchises.edit', $store)); ?>"
                                 class="btn btn-sm btn-primary">Edit</a>
-                            @endcan
-                            @can('franchises.delete')
-                            <form method="POST" action="{{ route('admin.franchises.destroy', $store) }}"
+                            <?php endif; ?>
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('franchises.delete')): ?>
+                            <form method="POST" action="<?php echo e(route('admin.franchises.destroy', $store)); ?>"
                                 class="d-inline">
-                                @csrf @method('DELETE')
+                                <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
                                 <button type="submit" class="btn btn-sm btn-danger ms-2"
                                     onclick="return confirm('Are you sure?')">Delete</button>
                             </form>
-                            @endcan
+                            <?php endif; ?>
                         </td>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="6" class="text-center">No franchises found</td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
         <div class="mt-4">
-            {{ $stores->links() }}
+            <?php echo e($stores->links()); ?>
+
         </div>
     </div>
 </div>
 
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 let searchTimer;
 
@@ -286,5 +287,6 @@ document.getElementById('storeSearch').addEventListener('keyup', function() {
     }, 1200); // waits 800ms after typing stops
 });
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/stores/index.blade.php ENDPATH**/ ?>

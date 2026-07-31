@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 /* Filter Card */
 .filter-card-wrapper {
@@ -101,25 +99,26 @@
 <div class="card w-100 position-relative overflow-hidden">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-products-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Products</h5>
-        @can('products.create')
-        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('products.create')): ?>
+        <a href="<?php echo e(route('admin.products.create')); ?>" class="btn btn-primary">
             Add Item
         </a>
-        @endcan
+        <?php endif; ?>
     </div>
 
     <div class="card-body p-4">
-        @if ($message = Session::get('success'))
+        <?php if($message = Session::get('success')): ?>
         <div class="alert alert-success" role="alert">
-            {{ $message }}
+            <?php echo e($message); ?>
+
         </div>
-        @endif
+        <?php endif; ?>
 
 
-        {{-- Search Box --}}
+        
 
-        <form method="POST" action="{{ route('admin.products.search') }}">
-            @csrf
+        <form method="POST" action="<?php echo e(route('admin.products.search')); ?>">
+            <?php echo csrf_field(); ?>
             <div class="filter-card-wrapper">
                 <div class="filter-header-sub">
                     <div class="icon-box">
@@ -140,7 +139,7 @@
                                 <label>Product</label>
                                 <input type="text" id="search" name="search" class="form-control styled-textbox"
                                     placeholder="Search by Product ID or Product Name"
-                                    value="{{ session('product_search') }}">
+                                    value="<?php echo e(session('product_search')); ?>">
                             </div>
                         </div>
 
@@ -150,11 +149,11 @@
                                 <label>Status</label>
 
                                 <select name="status" class="form-select styled-select">
-                                    <option value="Y" {{ session('product_status') == 'Y' ? 'selected' : '' }}>
+                                    <option value="Y" <?php echo e(session('product_status') == 'Y' ? 'selected' : ''); ?>>
                                         Active
                                     </option>
 
-                                    <option value="N" {{ session('product_status') == 'N' ? 'selected' : '' }}>
+                                    <option value="N" <?php echo e(session('product_status') == 'N' ? 'selected' : ''); ?>>
                                         Inactive
                                     </option>
                                 </select>
@@ -171,19 +170,19 @@
                                 </button>
 
 
-                                <a href="{{ route('admin.products.clearSearch') }}"
+                                <a href="<?php echo e(route('admin.products.clearSearch')); ?>"
                                     class="btn btn-secondary btn-creative-filter flex-fill">
                                     <i class="ti ti-refresh"></i>
                                     Reset
                                 </a>
 
-                                @can('products.export')
-                                <a href="{{ route('admin.products.export', request()->query()) }}"
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('products.export')): ?>
+                                <a href="<?php echo e(route('admin.products.export', request()->query())); ?>"
                                     class="btn btn-success btn-creative-filter flex-fill">
                                     <i class="ti ti-file-export"></i>
                                     Export
                                 </a>
-                                @endcan
+                                <?php endif; ?>
 
                             </div>
                         </div>
@@ -219,79 +218,82 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Status</h6>
                         </th>
-                        @canany(['products.edit', 'products.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['products.edit', 'products.delete'])): ?>
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Actions</h6>
                         </th>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($products as $product)
+                    <?php $__empty_1 = true; $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
-                        {{-- SL No --}}
+                        
                         <td class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">
-                                {{ ($products->currentPage() - 1) * $products->perPage() + $loop->iteration }}
+                                <?php echo e(($products->currentPage() - 1) * $products->perPage() + $loop->iteration); ?>
+
                             </h6>
                         </td>
                         <td class="border-bottom-0">
-                            <h6 class="fw-semibold mb-0">{{ $product->c_product_code }}</h6>
+                            <h6 class="fw-semibold mb-0"><?php echo e($product->c_product_code); ?></h6>
                         </td>
                         <td class="border-bottom-0">
-                            <h6 class="fw-semibold mb-0">{{ $product->c_product_name }}</h6>
+                            <h6 class="fw-semibold mb-0"><?php echo e($product->c_product_name); ?></h6>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">₹{{ number_format($product->n_mrp, 2) }}</span>
+                            <span class="fw-normal">₹<?php echo e(number_format($product->n_mrp, 2)); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">₹{{ number_format($product->n_selling_price, 2) }}</span>
+                            <span class="fw-normal">₹<?php echo e(number_format($product->n_selling_price, 2)); ?></span>
                         </td>
                         <td class="border-bottom-0">
-                            <span class="fw-normal">₹{{ number_format($product->n_purchase_price, 2) }}</span>
+                            <span class="fw-normal">₹<?php echo e(number_format($product->n_purchase_price, 2)); ?></span>
                         </td>
                         <td class="border-bottom-0">
                             <span
-                                class="badge {{ $product->c_status === 'Y' ? 'bg-success' : 'bg-danger' }} rounded-3 fw-semibold">
-                                {{ ucfirst(str_replace('_', ' ', $product->c_status)) }}
+                                class="badge <?php echo e($product->c_status === 'Y' ? 'bg-success' : 'bg-danger'); ?> rounded-3 fw-semibold">
+                                <?php echo e(ucfirst(str_replace('_', ' ', $product->c_status))); ?>
+
                             </span>
                         </td>
-                        @canany(['products.edit', 'products.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['products.edit', 'products.delete'])): ?>
                         <td class="border-bottom-0">
-                            @can('products.edit')
-                            <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-primary">
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('products.edit')): ?>
+                            <a href="<?php echo e(route('admin.products.edit', $product)); ?>" class="btn btn-sm btn-primary">
                                 Edit
                             </a>
-                            @endcan
-                            @can('products.delete')
-                            <form method="POST" action="{{ route('admin.products.destroy', $product) }}"
+                            <?php endif; ?>
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('products.delete')): ?>
+                            <form method="POST" action="<?php echo e(route('admin.products.destroy', $product)); ?>"
                                 class="d-inline">
-                                @csrf
-                                @method('DELETE')
+                                <?php echo csrf_field(); ?>
+                                <?php echo method_field('DELETE'); ?>
                                 <button class="btn btn-sm btn-danger ms-2" onclick="return confirm('Are you sure?')">
                                     Delete
                                 </button>
                             </form>
-                            @endcan
+                            <?php endif; ?>
                         </td>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="8" class="text-center">No products found</td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
         <div class="mt-4">
-            {{ $products->links() }}
+            <?php echo e($products->links()); ?>
+
         </div>
     </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 let timer;
 
@@ -302,5 +304,6 @@ document.getElementById('search').addEventListener('keyup', function() {
     }, 1500);
 });
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/products/index.blade.php ENDPATH**/ ?>

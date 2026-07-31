@@ -16,65 +16,60 @@ use Illuminate\Validation\Rules\Password;
 class EmployeeController extends Controller
 {
 
+public function search(Request $request)
+    {
+        session([
+            'employee_search' => $request->employee_search,
+            'designation_filter' => $request->n_designation_id,
+        ]);
+
+        return redirect()->route('admin.employees.index');
+    }
+
+public function clearSearch()
+    {
+        session()->forget([
+            'employee_search',
+            'designation_filter',
+        ]);
+
+        return redirect()->route('admin.employees.index');
+    }
+
    public function index(Request $request)
 {
-    $query = EmployeeMaster::query()
-        ->select([
-            'employee_masters.*',
-        ])
-        ->leftJoin(
-            'designation_masters as d',
-            'employee_masters.n_designation_id',
-            '=',
-            'd.n_designation_id'
-        );
+    $query = EmployeeMaster::with(['designation']);
 
-    // Employee Search (Name or Code)
-    if ($request->filled('employee_search')) {
-        $search = trim($request->employee_search);
+    // Get filters from session
+    $search = session('employee_search');
+    $designation = session('designation_filter');
 
+    // Search by employee code or employee name
+    if (!empty($search)) {
         $query->where(function ($q) use ($search) {
-            $q->where('employee_masters.c_employee_name', 'LIKE', "%{$search}%")
-              ->orWhere('employee_masters.c_employee_code', 'LIKE', "%{$search}%");
+            $q->where('c_employee_code', 'LIKE', "%{$search}%")
+              ->orWhere('c_employee_name', 'LIKE', "%{$search}%");
         });
     }
 
-    // Designation Filter
-    if ($request->filled('n_designation_id')) {
-        $query->where(
-            'employee_masters.n_designation_id',
-            $request->n_designation_id
-        );
+    // Filter by designation
+    if (!empty($designation)) {
+        $query->where('n_designation_id', $designation);
     }
 
-    // Order By
-    $query->orderBy('employee_masters.c_employee_name', 'ASC');
+    $employees = $query->paginate(10);
 
-    // Pagination
-    $employees = $query->paginate(10)->appends($request->all());
+    // Dropdown data
+    $designations = DesignationMaster::where('c_status', 'Y')->get();
 
-    // Employee list for autocomplete
-    $employeesForSearch = EmployeeMaster::select(
-        'n_employee_id',
-        'c_employee_name',
-        'c_employee_code'
-    )
-    ->where('c_status', 'Y')
-    ->orderBy('c_employee_name')
-    ->get();
+    // Employee list for autocomplete 
+     $employeesForSearch = EmployeeMaster::select( 'n_employee_id', 'c_employee_name', 'c_employee_code' )
+                                            ->where('c_status', 'Y') 
+                                            ->orderBy('c_employee_name')
+                                            ->get();
 
-    // Designation list
-    $designations = DesignationMaster::where('c_status', 'Y')
-        ->orderBy('c_designation')
-        ->get();
-
-    return view('admin.employees.index', compact(
-        'employees',
-        'designations',
-        'employeesForSearch'
-    ));
+    return view('admin.employees.index', compact('employees', 'designations','employeesForSearch'));
 }
-
     public function create()
     {
         $designations = DesignationMaster::where('c_status', 'Y')->get();

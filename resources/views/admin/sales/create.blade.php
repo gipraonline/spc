@@ -162,7 +162,7 @@
                 <div class="col-md-6">
                     <label for="c_customer_address" class="form-label">Customer Address *</label>
                     <input type="text" id="c_customer_address" name="c_customer_address" value="{{ old('c_customer_address',isset($sale) ? $sale->c_customer_address : '') }}"
-                        {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }} data-message="Please add Customer Address" class="form-control mandatory" placeholder="ACC-001">
+                        {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }} data-message="Please add Customer Address" class="form-control mandatory" placeholder="Customer Address">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
 
@@ -170,7 +170,7 @@
                     <label for="n_customer_mobile" class="form-label">Customer Mobile *</label>
                     <input type="text" id="n_customer_mobile" name="n_customer_mobile" value="{{ old('n_customer_mobile',isset($sale) ? $sale->n_customer_mobile : '') }}"
                         {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }} data-message="Please enter Customer Mobile" class="form-control mandatory"
-                        placeholder="Enter IFSC code">
+                        placeholder="Enter Customer Mobile">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
             </div>

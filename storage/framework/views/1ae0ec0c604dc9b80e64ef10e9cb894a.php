@@ -83,6 +83,25 @@
     font-weight: 600;
 }
 
+.search-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1b3e86;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.search-label svg {
+    flex-shrink: 0;
+}
+
+.search-label {
+    margin-bottom: 12px !important;
+}
+
 /* Responsive */
 @media (max-width:768px) {
     .filter-card-wrapper {
@@ -117,8 +136,8 @@
 
         
 
-        <form method="GET" action="<?php echo e(route('admin.products.index')); ?>">
-
+        <form method="POST" action="<?php echo e(route('admin.products.search')); ?>">
+            <?php echo csrf_field(); ?>
             <div class="filter-card-wrapper">
                 <div class="filter-header-sub">
                     <div class="icon-box">
@@ -135,24 +154,44 @@
 
                         <!-- Search -->
                         <div class="col-md-5">
-                            <div class="custom-filter-group">
-                                <label>Product</label>
-                                <input type="text" name="search" class="form-control styled-textbox"
-                                    placeholder="Search by Product ID or Product Name" value="<?php echo e(request('search')); ?>">
+                            <div class="">
+
+                                <label class="search-label">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" style="color:#1b3e86; margin-right:6px;">
+                                        <path
+                                            d="M21 8a2 2 0 0 0-1-1.73L13 2.27a2 2 0 0 0-2 0L4 6.27A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                                        <polyline points="3.29 7 12 12 20.71 7" />
+                                        <line x1="12" y1="22" x2="12" y2="12" />
+                                    </svg>
+                                    Product
+                                </label>
+
+                                <input type="text" id="search" name="search" class="form-control styled-textbox"
+                                    placeholder="Search by Product ID or Product Name"
+                                    value="<?php echo e(session('product_search')); ?>">
                             </div>
                         </div>
 
                         <!-- Status -->
                         <div class="col-md-3">
-                            <div class="custom-filter-group">
-                                <label>Status</label>
-
+                            <div class="">
+                                <label class="search-label">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" style="color:#1b3e86; margin-right:6px;">
+                                        <circle cx="12" cy="12" r="9"></circle>
+                                        <path d="M9 12l2 2 4-4"></path>
+                                    </svg>
+                                    Status
+                                </label>
                                 <select name="status" class="form-select styled-select">
-                                    <option value="">All Status</option>
-                                    <option value="Y" <?php echo e(request('status')=='Y' ? 'selected' : ''); ?>>
+                                    <option value="Y" <?php echo e(session('product_status') == 'Y' ? 'selected' : ''); ?>>
                                         Active
                                     </option>
-                                    <option value="N" <?php echo e(request('status')=='N' ? 'selected' : ''); ?>>
+
+                                    <option value="N" <?php echo e(session('product_status') == 'N' ? 'selected' : ''); ?>>
                                         Inactive
                                     </option>
                                 </select>
@@ -168,7 +207,8 @@
                                     Filter
                                 </button>
 
-                                <a href="<?php echo e(route('admin.products.index')); ?>"
+
+                                <a href="<?php echo e(route('admin.products.clearSearch')); ?>"
                                     class="btn btn-secondary btn-creative-filter flex-fill">
                                     <i class="ti ti-refresh"></i>
                                     Reset

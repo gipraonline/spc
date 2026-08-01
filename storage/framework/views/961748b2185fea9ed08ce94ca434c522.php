@@ -62,9 +62,20 @@
 /* Designation & Employee */
 .styled-select,
 .styled-textbox {
-    height: 44px !important;
+    height: 54px !important;
+    border: 1.5px solid #dfe5ef !important;
     border-radius: 16px !important;
+    background: #f8fafc !important;
+    padding: 0 18px !important;
+    font-size: 14px !important;
 }
+
+.styled-select:focus,
+.styled-textbox:focus {
+    border-color: #7f8ca0 !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, .08) !important;
+}
+
 
 /* Filter & Reset Buttons */
 .btn-creative-filter {
@@ -102,7 +113,24 @@
     background: #eff6ff;
 }
 
+.search-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1b3e86;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
 
+.search-label svg {
+    flex-shrink: 0;
+}
+
+.search-label {
+    margin-bottom: 12px !important;
+}
 
 /* Responsive */
 @media (max-width:768px) {
@@ -146,8 +174,16 @@
 
                     <!-- Designation -->
                     <div class="col-md-3">
-                        <div class="custom-filter-group">
-                            <label for="n_designation_id">Designation</label>
+                        <div class="">
+                            <label class="search-label" for="n_designation_id">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                    fill="none" stroke="#1b3e86" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" style="vertical-align:middle; margin-right:6px;">
+                                    <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                </svg>
+                                Designation
+                            </label>
 
                             <select id="n_designation_id" name="n_designation_id" class="form-select styled-select">
 
@@ -167,8 +203,16 @@
 
                     <!-- Employee -->
                     <div class="col-md-5 position-relative">
-                        <div class="custom-filter-group">
-                            <label for="employee_search">Employee</label>
+                        <div class="">
+                            <label class="search-label" for="employee_search">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="#1b3e86" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" style="vertical-align:middle; margin-right:6px;">
+                                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                Employee
+                            </label>
 
                             <input type="text" id="employee_search" name="employee_search"
                                 value="<?php echo e(session('employee_search')); ?>" autocomplete="off"

@@ -8,12 +8,6 @@ use Illuminate\Http\Request;
 
 class StoreController extends Controller
 {
-    // public function index()
-    // {
-    //     $stores = StoreMaster::paginate(15);
-
-    //     return view('admin.stores.index', compact('stores'));
-    // }
 
     public function search(Request $request)
     {
@@ -33,19 +27,6 @@ class StoreController extends Controller
     {
 
         $stores = StoreMaster::query();
-
-        // Search by store code or store name
-        // if ($request->filled('search')) {
-
-        //     $search = $request->search;
-
-        //     $stores->where(function ($query) use ($search) {
-        //         $query->where('c_store_code', 'LIKE', "%{$search}%")
-        //             ->orWhere('c_store_name', 'LIKE', "%{$search}%");
-        //     });
-        // }
-
-        // $stores = $stores->paginate(15)->withQueryString();
         $search = session('store_search');
 
         if (!empty($search)) {

@@ -96,6 +96,7 @@
             <div class="stat-header">
                 <div class="stat-icon"><i data-lucide="shopping-cart"></i></div>
                 <span class="stat-trend
+                @if(isset($growthPercentageSales))
                     @if($growthPercentageSales > 0) trend-up
                     @elseif($growthPercentageSales < 0) trend-down
                     @else trend-neutral
@@ -109,6 +110,7 @@
                         <i data-lucide="minus"></i>
                         {{ number_format(abs($growthPercentageSales), 2) }}%
                         @endif
+                @endif
                 </span>
             </div>
             <div class="stat-content">

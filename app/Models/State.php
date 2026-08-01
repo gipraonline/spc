@@ -17,8 +17,8 @@ class State extends Model
         'status',
     ];
 
-    public function Districts()
+    public function districts()
     {
-        return $this->hasMany(District::class, 'state_id', 'state_id');
+        return $this->hasMany(District::class, 'state_id', 'n_state_id');
     }
 }

@@ -66,24 +66,24 @@ $totalInactiveProducts = ProductMaster::where('c_status', 'N')->count();
 //                  SALES GROWTH PERCENTAGE
 // ------------------------------------------------------------------------
     // Total sales (dashboard)
-    $totalSales = DB::table('sales_orders')
-    ->sum('n_sold_price');
+    $totalSales = DB::table('sales_orders');
+   // ->sum('n_sold_price');
 
    // Today
     $currentSales = DB::table('sales_orders')
     ->whereBetween('created_at', [
         now()->startOfDay(),
         now()->endOfDay()
-    ])
-    ->sum('n_sold_price');
+    ]);
+    //->sum('n_sold_price');
 
     // Yesterday
     $previousSales = DB::table('sales_orders')
     ->whereBetween('created_at', [
         now()->subDay()->startOfDay(),
         now()->subDay()->endOfDay()
-    ])
-    ->sum('n_sold_price');
+    ]);
+    //->sum('n_sold_price');
 
 
 

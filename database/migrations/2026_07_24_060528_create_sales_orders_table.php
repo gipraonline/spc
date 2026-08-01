@@ -12,27 +12,32 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sales_orders', function (Blueprint $table) {
-            $table->id('n_sl_no');
-            $table->bigInteger('c_bill_no')->nullable();
-            $table->date('d_date');
-            $table->string('n_sold_price', 20);
+            $table->bigIncrements('n_sl_no');
 
-            $table->unsignedBigInteger('farm_care_advisor_id');
-            $table->string('c_customer_name');
+            $table->string('c_bill_no')->nullable();
+            $table->date('d_date')->nullable();
+
+
+            $table->unsignedBigInteger('farm_care_advisor_id')->nullable();
+
+            $table->string('c_customer_name')->nullable();
             $table->text('c_customer_address')->nullable();
             $table->string('c_customer_email')->nullable();
-            $table->string('n_customer_mobile', 20);
+            $table->string('n_customer_mobile', 20)->nullable();
 
-            $table->string('c_state');
-            $table->string('c_district');
+            $table->unsignedBigInteger('n_state_id')->nullable();
+            $table->unsignedBigInteger('n_district_id')->nullable();
 
-            $table->string('c_mode_of_payment');
-            $table->unsignedBigInteger('nearest_franchise_id');
+            $table->string('c_mode_of_payment')->nullable();
+
+            $table->unsignedBigInteger('nearest_franchise_id')->nullable();
 
             $table->string('payment_status')->default('Pending');
             $table->string('delivery_status')->default('Pending');
 
             $table->timestamps();
+            $table->softDeletes();
+
         });
     }
 

@@ -94,6 +94,7 @@
             <div class="stat-header">
                 <div class="stat-icon"><i data-lucide="shopping-cart"></i></div>
                 <span class="stat-trend
+                <?php if(isset($growthPercentageSales)): ?>
                     <?php if($growthPercentageSales > 0): ?> trend-up
                     <?php elseif($growthPercentageSales < 0): ?> trend-down
                     <?php else: ?> trend-neutral
@@ -107,6 +108,7 @@
                         <i data-lucide="minus"></i>
                         <?php echo e(number_format(abs($growthPercentageSales), 2)); ?>%
                         <?php endif; ?>
+                <?php endif; ?>
                 </span>
             </div>
             <div class="stat-content">

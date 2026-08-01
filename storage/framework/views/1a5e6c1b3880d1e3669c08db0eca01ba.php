@@ -97,6 +97,21 @@
     font-size: 13px;
     font-weight: 600;
 }
+
+.search-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1b3e86;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.search-label svg {
+    flex-shrink: 0;
+}
 </style>
 
 
@@ -129,22 +144,15 @@
                 <div class="card-body p-4">
                     <!-- Header Section -->
                     <div class="d-flex align-items-center justify-content-between mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-box d-flex align-items-center justify-content-center rounded-3 me-3"
-                                style="width:40px; height:40px;">
+                        <div class="filter-header-sub">
+                            <div class="icon-box">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
                                     <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                                 </svg>
                             </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold" style="font-size:16px; color:#1e293b; letter-spacing:-0.2px;">
-                                    Refine Search
-                                </h6>
-                                <p class="mb-0 text-muted" style="font-size: 12px; font-weight: 400;">Filter your stores
-                                    by name or unique code</p>
-                            </div>
+                            <span>Refine Search</span>
                         </div>
 
                     </div>
@@ -153,13 +161,15 @@
                         <div class="col-md-6 col-lg-5">
 
                             <label class="search-label" for="storeSearch">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    stroke-linejoin="round" class="me-1">
+                                    <path d="M3 9l1-5h16l1 5" />
+                                    <path d="M5 9v10h14V9" />
+                                    <path d="M9 19v-6h6v6" />
+                                    <path d="M3 9h18" />
                                 </svg>
-                                Store Identity
+                                Store Search
                             </label>
                             <div class="search-input-group">
                                 <div class="search-icon-inner">

@@ -182,16 +182,16 @@ unset($__errorArgs, $__bag); ?>
                     <input type="text" id="c_product_code" data-message="Please enter Product Code"
                         name="c_product_code" value="<?php echo e(old('c_product_code', $product->c_product_code)); ?>"
                         class="form-control mandatory">
-                    <div id="code_error" class="text-danger mt-1 fs-2">
-                        <?php $__errorArgs = ['c_product_code'];
+                    <?php $__errorArgs = ['c_product_code'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> <?php echo e($message); ?> <?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                    </div>
                 </div>
             </div>
 

@@ -38,7 +38,7 @@ public function clearSearch()
 
    public function index(Request $request)
 {
-    $query = EmployeeMaster::with(['designation']);
+    $query = EmployeeMaster::with(['designation'])->whereNull('deleted_at');
 
     // Get filters from session
     $search = session('employee_search');
@@ -62,9 +62,9 @@ public function clearSearch()
     // Dropdown data
     $designations = DesignationMaster::where('c_status', 'Y')->get();
 
-    // Employee list for autocomplete 
+    // Employee list for autocomplete
      $employeesForSearch = EmployeeMaster::select( 'n_employee_id', 'c_employee_name', 'c_employee_code' )
-                                            ->where('c_status', 'Y') 
+                                            ->where('c_status', 'Y')
                                             ->orderBy('c_employee_name')
                                             ->get();
 
@@ -73,7 +73,7 @@ public function clearSearch()
     public function create()
     {
         $designations = DesignationMaster::where('c_status', 'Y')->get();
-       
+
         return view('admin.employees.create', compact('designations'));
     }
 
@@ -183,11 +183,11 @@ public function clearSearch()
     {
 
         $designations = DesignationMaster::where('c_status', 'Y')->get();
-    
+
         $kyc = KycSubmission::where('n_employee_id', $employee->n_employee_id)
                         ->where('status', 'Active')
                         ->first();
-                    
+
 
         return view('admin.employees.edit', compact('employee', 'designations','kyc'));
     }
@@ -284,19 +284,19 @@ public function clearSearch()
     public function destroy($id)
     {
         $employee = EmployeeMaster::findOrFail($id);
-        
+
         // Update employee status to 'D' (Deleted)
-        
+
         $employee->update([
             'c_status' => 'D',
         ]);
-        
+
         // Soft delete the employee by setting the deleted_at timestamp
-        
+
         $employee->delete();
 
         return redirect()->route('admin.employees.index')
                         ->with('success', 'Employee deleted successfully.');
     }
-  
+
 }

@@ -139,7 +139,8 @@
         </div>
 
         <div class="premium-filter-container">
-            <form action="<?php echo e(route('admin.employees.index')); ?>" method="GET">
+            <form method="POST" action="<?php echo e(route('admin.employees.search')); ?>">
+                <?php echo csrf_field(); ?>
 
                 <div class="row g-3 align-items-end">
 
@@ -154,7 +155,7 @@
 
                                 <?php $__currentLoopData = $designations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $designation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($designation->n_designation_id); ?>"
-                                    <?php echo e(request('n_designation_id') == $designation->n_designation_id ? 'selected' : ''); ?>>
+                                    <?php echo e(session('designation_filter') == $designation->n_designation_id ? 'selected' : ''); ?>>
                                     <?php echo e($designation->c_designation); ?>
 
                                 </option>
@@ -170,7 +171,7 @@
                             <label for="employee_search">Employee</label>
 
                             <input type="text" id="employee_search" name="employee_search"
-                                value="<?php echo e(request('employee_search')); ?>" autocomplete="off"
+                                value="<?php echo e(session('employee_search')); ?>" autocomplete="off"
                                 placeholder="Search by Name or Code" class="form-control styled-textbox">
 
                             <input type="hidden" id="employee_id" name="employee_id">
@@ -190,7 +191,7 @@
                                 Filter
                             </button>
 
-                            <a href="<?php echo e(route('admin.employees.index')); ?>"
+                            <a href="<?php echo e(route('admin.employees.clearSearch')); ?>"
                                 class="btn btn-secondary btn-creative-filter flex-fill">
                                 <i class="ti ti-refresh"></i>
                                 Reset

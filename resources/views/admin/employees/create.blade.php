@@ -126,7 +126,9 @@
                     <label for="c_employee_code" class="form-label">Employee Code *</label>
                     <input type="text" id="c_employee_code" name="c_employee_code" value="{{ old('c_employee_code') }}"
                         data-message="Please add Employee Code" class="form-control mandatory" placeholder="EMP-001">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_employee_code')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -134,7 +136,9 @@
                     <input type="text" id="c_employee_name" name="c_employee_name" value="{{ old('c_employee_name') }}"
                         data-message="Please enter Employee Name" class="form-control mandatory"
                         placeholder="Enter full name">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_employee_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -160,7 +164,9 @@
                         </option>
                         @endforeach
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('n_designation_id')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
             </div>
@@ -173,7 +179,10 @@
                     <label for="account_number" class="form-label">Account Number *</label>
                     <input type="text" id="account_number" name="account_number" value="{{ old('account_number') }}"
                         data-message="Please add Account Number" class="form-control mandatory" placeholder="ACC-001">
-                    <div class="text-danger mt-1 fs-2"></div>
+
+                    @error('account_number')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -181,19 +190,26 @@
                     <input type="text" id="ifsc_code" name="ifsc_code" value="{{ old('ifsc_code') }}"
                         data-message="Please enter IFSC Code" class="form-control mandatory"
                         placeholder="Enter IFSC code">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('ifsc_code')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="col-md-6">
                     <label for="bank_name" class="form-label">Bank Name *</label>
                     <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}"
                         data-message="Please add Bank name" class="form-control mandatory" placeholder="SBI">
-                    <div class="text-danger mt-1 fs-2"></div>
+
+                    @error('bank_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="col-md-6">
                     <label for="branch_name" class="form-label">Branch Name*</label>
                     <input type="text" id="branch_name" name="branch_name" value="{{ old('branch_name') }}"
                         data-message="Please add Branch name" class="form-control mandatory" placeholder="KOCHI">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('branch_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -209,11 +225,10 @@
                     <input type="email" id="c_employee_email" name="c_employee_email"
                         value="{{ old('c_employee_email') }}" data-message="Please enter an Email Address"
                         class="form-control mandatory" placeholder="example@company.com">
-                    <div class="text-danger mt-1 fs-2">
-                        @error('c_employee_email')
-                        {{ $message }}
-                        @enderror
-                    </div>
+
+                    @error('c_employee_email')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-4">
@@ -224,7 +239,10 @@
                         <option value="Y" {{ old('c_status') === 'Y' ? 'selected' : '' }}>Active</option>
                         <option value="N" {{ old('c_status') === 'N' ? 'selected' : '' }}>Inactive</option>
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+
+                    @error('c_status')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="col-md-4">
                     <small class="text-muted d-block mt-1">
@@ -234,7 +252,7 @@
             </div>
 
             <div class="d-flex gap-3 pt-4 border-top">
-                <button type="button" id="btn_create" class="btn btn-create-item">
+                <button type="submit" id="btn_create" class="btn btn-create-item">
                     <i class="ti ti-plus me-1"></i> Create Employee
                 </button>
                 <a href="{{ route('admin.employees.index') }}"

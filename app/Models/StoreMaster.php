@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class StoreMaster extends Model
 {
+    use SoftDeletes;
     protected $table = 'store_masters';
 
     protected $primaryKey = 'n_store_id';

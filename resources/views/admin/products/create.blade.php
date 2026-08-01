@@ -171,7 +171,10 @@
                     <input type="text" id="c_product_name" data-message="Please enter Product Name"
                         name="c_product_name" value="{{ old('c_product_name') }}" class="form-control mandatory"
                         placeholder="Enter product name">
-                    <div class="text-danger mt-1 fs-2"></div>
+
+                    @error('c_product_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -194,7 +197,9 @@
                     <label for="n_mrp" class="form-label">MRP *</label>
                     <input type="text" id="n_mrp" name="n_mrp" data-message="Please enter Maximum Retail Price"
                         value="{{ old('n_mrp') }}" class="form-control mandatory" placeholder="0.00">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('n_mrp')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -202,7 +207,9 @@
                     <input type="text" id="n_purchase_price" name="n_purchase_price"
                         data-message="Please enter Purchase Price" value="{{ old('n_purchase_price') }}"
                         class="form-control mandatory" placeholder="0.00">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('n_purchase_price')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -223,10 +230,12 @@
                         <option value="Y" {{ old('c_status') === 'Y' ? 'selected' : '' }}>Active</option>
                         <option value="N" {{ old('c_status') === 'N' ? 'selected' : '' }}>Inactive</option>
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_status')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
-             {{--    <!-- Incentive Splits Toggle -->
+                {{--    <!-- Incentive Splits Toggle -->
                 <div class="col-12 mt-4">
                     <label class="checkbox-container">
                         <input type="checkbox" value="1" name="c_active_incentive" id="active_incentive">
@@ -244,88 +253,83 @@
                                 <input type="text" id="csa" name="n_customer_service_associate"
                                     class="form-control incentive" placeholder="0"
                                     value="{{ old('n_customer_service_associate', 60) }}" readonly>
-                                <span class="input-group-text-custom">%</span>
-                            </div>
-                        </div>
-
-                        <div class="incentive-item">
-                            <label class="form-label">C&A</label>
-                            <div class="d-flex align-items-center">
-                                <input type="text" id="n_cash_accountant" name="n_cash_accountant"
-                                    class="form-control incentive" placeholder="0"
-                                    value="{{ old('n_cash_accountant', 5) }}" readonly>
-                                <span class="input-group-text-custom">%</span>
-                            </div>
-                        </div>
-
-                        <div class="incentive-item">
-                            <label class="form-label">SM</label>
-                            <div class="d-flex align-items-center">
-                                <input type="text" id="n_sales_manager" name="n_sales_manager"
-                                    class="form-control incentive" placeholder="0"
-                                    value="{{ old('n_sales_manager', 10) }}" readonly>
-                                <span class="input-group-text-custom">%</span>
-                            </div>
-                        </div>
-
-                        <div class="incentive-item">
-                            <label class="form-label">Clustor</label>
-                            <div class="d-flex align-items-center">
-                                <input type="text" id="n_clustor_manager" name="n_clustor_manager"
-                                    class="form-control incentive" placeholder="0"
-                                    value="{{ old('n_clustor_manager', 5) }}" readonly>
-                                <span class="input-group-text-custom">%</span>
-                            </div>
-                        </div>
-
-                        <div class="incentive-item">
-                            <label class="form-label">Operations</label>
-                            <div class="d-flex align-items-center">
-                                <input type="text" id="n_operations" name="n_operations" class="form-control incentive"
-                                    placeholder="0" value="{{ old('n_operations', 3) }}" readonly>
-                                <span class="input-group-text-custom">%</span>
-                            </div>
-                        </div>
-
-                        <div class="incentive-item">
-                            <label class="form-label">BM</label>
-                            <div class="d-flex align-items-center">
-                                <input type="text" id="n_bm_teams" name="n_bm_teams" class="form-control incentive"
-                                    placeholder="0" placeholder="0" value="{{ old('n_bm_teams', 7) }}" readonly>
-                                <span class="input-group-text-custom">%</span>
-                            </div>
-                        </div>
-
-                        <div class="incentive-item">
-                            <label class="form-label">DC</label>
-                            <div class="d-flex align-items-center">
-                                <input type="text" id="n_dc_teams" name="n_dc_teams" class="form-control incentive"
-                                    placeholder="0" value="{{ old('n_dc_teams', 5) }}" readonly>
-                                <span class="input-group-text-custom">%</span>
-                            </div>
-                        </div>
-
-                        <div class="incentive-item">
-                            <label class="form-label">HO</label>
-                            <div class="d-flex align-items-center">
-                                <input type="text" id="n_head_office" name="n_head_office"
-                                    class="form-control incentive" placeholder="0" value="{{ old('n_head_office', 5) }}"
-                                    readonly>
-                                <span class="input-group-text-custom">%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-
-                <div class="col-12 mt-4 pt-3 border-top d-flex gap-3">
-                    <button type="button" id="btn_create" class="btn btn-create-custom incentive_perc">Create
-                        Item</button>
-                    <a href="{{ route('admin.products.index') }}"
-                        class="btn btn-outline-secondary btn-cancel-custom">Cancel</a>
-                </div>
+                <span class="input-group-text-custom">%</span>
             </div>
-        </form>
     </div>
+
+    <div class="incentive-item">
+        <label class="form-label">C&A</label>
+        <div class="d-flex align-items-center">
+            <input type="text" id="n_cash_accountant" name="n_cash_accountant" class="form-control incentive"
+                placeholder="0" value="{{ old('n_cash_accountant', 5) }}" readonly>
+            <span class="input-group-text-custom">%</span>
+        </div>
+    </div>
+
+    <div class="incentive-item">
+        <label class="form-label">SM</label>
+        <div class="d-flex align-items-center">
+            <input type="text" id="n_sales_manager" name="n_sales_manager" class="form-control incentive"
+                placeholder="0" value="{{ old('n_sales_manager', 10) }}" readonly>
+            <span class="input-group-text-custom">%</span>
+        </div>
+    </div>
+
+    <div class="incentive-item">
+        <label class="form-label">Clustor</label>
+        <div class="d-flex align-items-center">
+            <input type="text" id="n_clustor_manager" name="n_clustor_manager" class="form-control incentive"
+                placeholder="0" value="{{ old('n_clustor_manager', 5) }}" readonly>
+            <span class="input-group-text-custom">%</span>
+        </div>
+    </div>
+
+    <div class="incentive-item">
+        <label class="form-label">Operations</label>
+        <div class="d-flex align-items-center">
+            <input type="text" id="n_operations" name="n_operations" class="form-control incentive" placeholder="0"
+                value="{{ old('n_operations', 3) }}" readonly>
+            <span class="input-group-text-custom">%</span>
+        </div>
+    </div>
+
+    <div class="incentive-item">
+        <label class="form-label">BM</label>
+        <div class="d-flex align-items-center">
+            <input type="text" id="n_bm_teams" name="n_bm_teams" class="form-control incentive" placeholder="0"
+                placeholder="0" value="{{ old('n_bm_teams', 7) }}" readonly>
+            <span class="input-group-text-custom">%</span>
+        </div>
+    </div>
+
+    <div class="incentive-item">
+        <label class="form-label">DC</label>
+        <div class="d-flex align-items-center">
+            <input type="text" id="n_dc_teams" name="n_dc_teams" class="form-control incentive" placeholder="0"
+                value="{{ old('n_dc_teams', 5) }}" readonly>
+            <span class="input-group-text-custom">%</span>
+        </div>
+    </div>
+
+    <div class="incentive-item">
+        <label class="form-label">HO</label>
+        <div class="d-flex align-items-center">
+            <input type="text" id="n_head_office" name="n_head_office" class="form-control incentive" placeholder="0"
+                value="{{ old('n_head_office', 5) }}" readonly>
+            <span class="input-group-text-custom">%</span>
+        </div>
+    </div>
+</div>
+</div> --}}
+
+<div class="col-12 mt-4 pt-3 border-top d-flex gap-3">
+    <button type="submit" id="btn_create" class="btn btn-create-custom incentive_perc">Create
+        Item</button>
+    <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary btn-cancel-custom">Cancel</a>
+</div>
+</div>
+</form>
+</div>
 </div>
 @endsection
 
@@ -368,41 +372,7 @@ function validateProductCode() {
     });
 }
 
-// Trigger validation on input and blur
-codeInput.addEventListener('input', validateProductCode);
-codeInput.addEventListener('blur', validateProductCode);
 
-// Selling price validation function
-function validatePrices() {
-    let purchase = parseFloat(purchaseInput.value) || 0;
-    let selling = parseFloat(sellingInput.value) || 0;
-
-    if (selling <= purchase && selling !== 0) {
-        sellingError.innerText = "Selling price must be greater than purchase price";
-    } else {
-        sellingError.innerText = "";
-    }
-}
-
-// Trigger price validation on input
-purchaseInput.addEventListener('input', validatePrices);
-sellingInput.addEventListener('input', validatePrices);
-
-// Form submission check
-document.getElementById('frm_create').addEventListener('submit', function(e) {
-    // Trim product code spaces
-    codeInput.value = codeInput.value.trim();
-
-    // Run validations
-    validateProductCode();
-    validatePrices();
-
-    if (codeError.innerText !== "" || sellingError.innerText !== "" || isDuplicate) {
-        e.preventDefault(); // block submission
-        alert("Please fix errors before submitting");
-    }
-});
-}
 
 // Trigger validation on input and blur
 codeInput.addEventListener('input', validateProductCode);
@@ -439,39 +409,5 @@ document.getElementById('frm_create').addEventListener('submit', function(e) {
     }
 });
 </script>
-<script>
-$('document').ready(function() {
 
-    $('#active_incentive').change(function() {
-        $('#incentive_percentages').toggle($(this).is(':checked'));
-    });
-
-
-    function checkTotal() {
-        let total = 0;
-        document.querySelectorAll('.incentive').forEach(function(input) {
-            let value = parseFloat(input.value) || 0;
-            total += value;
-        });
-
-        if (total === 100) {
-            return true;
-        } else {
-            let message = "Total% is " + total + " ❌ (It must be 100)";
-            $("#incentive_danger").text(message);
-            return false;
-        }
-    }
-
-
-    $(".incentive_perc").click(function() {
-        if ($('#active_incentive').is(':checked')) {
-            return checkTotal();
-        } else {
-
-            return true;
-        }
-    });
-})
-</script>
 @endpush

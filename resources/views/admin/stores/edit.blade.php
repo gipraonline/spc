@@ -129,7 +129,7 @@
     </div>
 
     <div class="card-body p-4 p-md-5 pt-md-4">
-        <form id="frm_create" method="POST" action="{{ route('admin.stores.update', $store) }}">
+        <form id="frm_create" method="POST" action="{{ route('admin.franchises.update', $franchise) }}">
             @csrf @method('PUT')
 
             <!-- Section 1: Store Configuration -->
@@ -141,7 +141,7 @@
                 <div class="col-md-5">
                     <label for="c_store_code" class="form-label">Store Code *</label>
                     <input type="text" id="c_store_code" name="c_store_code" data-message="Enter valid Store Code"
-                        max-length="20" value="{{ old('c_store_code', $store->c_store_code) }}" required
+                        max-length="20" value="{{ old('c_store_code', $franchise->c_store_code) }}" required
                         class="form-control mandatory">
                     <div class="text-danger mt-1 fs-2"></div>
                     @error('c_store_code')
@@ -152,7 +152,7 @@
                 <div class="col-md-7">
                     <label for="c_store_name" class="form-label">Store Name *</label>
                     <input type="text" id="c_store_name" name="c_store_name" data-message="Please enter Name"
-                        maxlength="100" value="{{ old('c_store_name', $store->c_store_name) }}" required
+                        maxlength="100" value="{{ old('c_store_name', $franchise->c_store_name) }}" required
                         class="form-control mandatory">
                     @error('c_store_name')
                     <div class="text-danger mt-1 fs-2">{{ $message }}</div>
@@ -162,7 +162,7 @@
                 <div class="col-12">
                     <label for="c_store_address" class="form-label">Address</label>
                     <input type="text" id="c_store_address" name="c_store_address" maxlength="255"
-                        value="{{ old('c_store_address', $store->c_store_address) }}" class="form-control">
+                        value="{{ old('c_store_address', $franchise->c_store_address) }}" class="form-control">
                     @error('c_store_address')
                     <div class="text-danger mt-1 fs-2">{{ $message }}</div>
                     @enderror
@@ -178,7 +178,7 @@
                 <div class="col-md-6">
                     <label for="c_store_email" class="form-label">Email</label>
                     <input type="email" id="c_store_email" name="c_store_email"
-                        value="{{ old('c_store_email', $store->c_store_email) }}" class="form-control">
+                        value="{{ old('c_store_email', $franchise->c_store_email) }}" class="form-control">
                     @error('c_store_email')
                     <div class="text-danger mt-1 fs-2">{{ $message }}</div>
                     @enderror
@@ -187,7 +187,7 @@
                 <div class="col-md-6">
                     <label for="n_store_phone" class="form-label">Phone</label>
                     <input type="text" id="n_store_phone" name="n_store_phone" max-length="10"
-                        value="{{ old('n_store_phone', $store->n_store_phone) }}" class="form-control">
+                        value="{{ old('n_store_phone', $franchise->n_store_phone) }}" class="form-control">
                     @error('n_store_phone')
                     <div class="text-danger mt-1 fs-2">{{ $message }}</div>
                     @enderror
@@ -197,12 +197,16 @@
                     <label for="c_store_status" class="form-label">Status *</label>
                     <select id="c_store_status" name="c_store_status" data-message="Please select Status" required
                         class="form-select mandatory">
-                        <option value="Y" {{ old('c_store_status', $store->c_store_status) === 'Y' ? 'selected' : '' }}>
+                        <option value="Y"
+                            {{ old('c_store_status', $franchise->c_store_status) === 'Y' ? 'selected' : '' }}>
                             Active</option>
-                        <option value="N" {{ old('c_store_status', $store->c_store_status) === 'N' ? 'selected' : '' }}>
+                        <option value="N"
+                            {{ old('c_store_status', $franchise->c_store_status) === 'N' ? 'selected' : '' }}>
                             Inactive</option>
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_store_status')
+                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -211,7 +215,7 @@
                 <button type="button" id="btn_create" class="btn btn-update-action">
                     <i class="ti ti-refresh fs-4"></i> Update Record
                 </button>
-                <a href="{{ route('admin.stores.index') }}" class="btn btn-cancel-action">Cancel</a>
+                <a href="{{ route('admin.franchises.index') }}" class="btn btn-cancel-action">Cancel</a>
             </div>
         </form>
     </div>

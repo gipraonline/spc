@@ -31,6 +31,9 @@ return new class extends Migration
             $table->string('c_status')->default('Y');
 
             $table->timestamps();
+
+            // Soft Delete
+            $table->softDeletes();
         });
     }
 

@@ -167,7 +167,9 @@
                     <input type="text" id="c_product_name" data-message="Please enter Product Name"
                         name="c_product_name" value="{{ old('c_product_name', $product->c_product_name) }}"
                         class="form-control mandatory">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_product_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -175,9 +177,9 @@
                     <input type="text" id="c_product_code" data-message="Please enter Product Code"
                         name="c_product_code" value="{{ old('c_product_code', $product->c_product_code) }}"
                         class="form-control mandatory">
-                    <div id="code_error" class="text-danger mt-1 fs-2">
-                        @error('c_product_code') {{ $message }} @enderror
-                    </div>
+                    @error('c_product_code')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -189,7 +191,9 @@
                     <label for="n_mrp" class="form-label">MRP *</label>
                     <input type="number" id="n_mrp" data-message="Please enter Maximum Retail Price" name="n_mrp"
                         value="{{ old('n_mrp', $product->n_mrp) }}" step="0.01" class="form-control mandatory">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('n_mrp')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
 
@@ -198,7 +202,9 @@
                     <input type="number" id="n_purchase_price" data-message="Please enter Purchase Price"
                         name="n_purchase_price" value="{{ old('n_purchase_price', $product->n_purchase_price) }}"
                         step="0.01" class="form-control mandatory">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('n_purchase_price')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -215,56 +221,17 @@
                     <label for="c_status" class="form-label">Operational Status *</label>
                     <select id="c_status" name="c_status" class="form-select mandatory">
                         <option value="Y" {{ old('c_status', $product->c_status) === 'Y' ? 'selected' : '' }}>
-                            Allowed
+                            Active
                         </option>
                         <option value="N" {{ old('c_status', $product->c_status) === 'N' ? 'selected' : '' }}>Not
-                            Allowed</option>
+                            Inactive</option>
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+
+                    @error('c_status')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
-
-            <div class="section-title pt-3">
-                <i class="ti ti-chart-pie me-1"></i> Revenue Splits
-            </div>
-
-            <div class="mb-4">
-                <label class="toggle-container">
-                    <input type="checkbox" value="1" name="c_active_incentive" id="active_incentive">
-                    <span class="form-label mb-0">Enable Incentive Splits</span>
-                    <div id="incentive_danger" class="text-danger mt-1 fs-2 ms-2"></div>
-                </label>
-            </div>
-
-            <div id="incentive_percentages" style="display:none;">
-                <div class="incentive-grid">
-                    @php
-                    $roles = [
-                    'csa' => ['label' => 'CSA', 'name' => 'n_customer_service_associate'],
-                    'n_cash_accountant' => ['label' => 'C&A', 'name' => 'n_cash_accountant'],
-                    'n_sales_manager' => ['label' => 'SM', 'name' => 'n_sales_manager'],
-                    'n_clustor_manager' => ['label' => 'Clustor', 'name' => 'n_clustor_manager'],
-                    'n_operations' => ['label' => 'Operations', 'name' => 'n_operations'],
-                    'n_bm_teams' => ['label' => 'BM', 'name' => 'n_bm_teams'],
-                    'n_dc_teams' => ['label' => 'DC', 'name' => 'n_dc_teams'],
-                    'n_head_office' => ['label' => 'HO', 'name' => 'n_head_office'],
-                    ];
-                    @endphp
-
-                    @foreach($roles as $id => $role)
-                    <div class="incentive-box">
-                        <span class="pct-label">{{ $role['label'] }}</span>
-                        <div class="pct-input-wrap">
-                            <input type="text" id="{{ $id }}" name="{{ $role['name'] }}"
-                                value="{{ $product->incentives->{$role['name']} ?? '' }}"
-                                class="form-control incentive p-2 fs-3 text-center" style="height: 38px;">
-                            <span class="pct-symbol">%</span>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-
             <div class="pt-5 border-top d-flex gap-3">
                 <button type="button" id="btn_create" class="btn btn-update-item">
                     <i class="ti ti-device-floppy me-1"></i> Update Item
@@ -298,8 +265,6 @@ function validateProductCode() {
         isDuplicate = false;
         return;
     }
-
-
 }
 
 // Trigger validation on input and blur
@@ -336,51 +301,5 @@ document.getElementById('frm_create').addEventListener('submit', function(e) {
         alert("Please fix errors before submitting");
     }
 });
-</script>
-
-
-
-<script>
-$('document').ready(function() {
-    // Keep original detection logic
-    var c_active_incentive =
-        "<?php echo isset($product->incentives->n_product_id) ?  $product->incentives->n_product_id : ''?>"
-
-    if (c_active_incentive) {
-        $('#active_incentive').prop('checked', true);
-        $('#incentive_percentages').show();
-    }
-
-    $('#active_incentive').change(function() {
-        $('#incentive_percentages').toggle($(this).is(':checked'));
-    });
-
-    function checkTotal() {
-        let total = 0;
-        document.querySelectorAll('.incentive').forEach(function(input) {
-            let value = parseFloat(input.value) || 0;
-            total += value;
-        });
-
-        if (total === 100) {
-            return true;
-        } else {
-            let message = "Total% is " + total + " ❌ (It must be 100)";
-            $("#incentive_danger").text(message);
-            return false;
-        }
-    }
-
-    // Click handler remains consistent
-    $("#btn_create").click(function() {
-        if ($('#active_incentive').is(':checked')) {
-            if (checkTotal()) {
-                $('#frm_create').submit();
-            }
-        } else {
-            $('#frm_create').submit();
-        }
-    });
-})
 </script>
 @endpush

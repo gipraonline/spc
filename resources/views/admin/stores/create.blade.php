@@ -216,13 +216,15 @@
                         <option value="Y" {{ old('c_store_status') === 'Y' ? 'selected' : '' }}>Active</option>
                         <option value="N" {{ old('c_store_status') === 'N' ? 'selected' : '' }}>Inactive</option>
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_store_status')
+                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
             <!-- Enhanced Action Bar -->
             <div class="pt-4 border-top d-flex gap-3">
-                <button type="button" id="btn_create" class="btn btn-create-action">
+                <button type="submit" id="btn_create" class="btn btn-create-action">
                     <i class="ti ti-plus fs-4"></i> Create Store
                 </button>
                 <a href="{{ route('admin.franchises.index') }}" class="btn btn-cancel-action">Cancel</a>

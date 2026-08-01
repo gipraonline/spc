@@ -88,6 +88,17 @@
     align-items: center;
     gap: 6px;
 }
+
+.search-btn.position-static {
+    position: static;
+}
+
+.reset-btn {
+    height: 38px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
 </style>
 
 
@@ -113,7 +124,8 @@
 
         <!-- Search Store -->
 
-        <form method="GET" action="{{ route('admin.franchises.index') }}">
+        <form method="POST" action="{{ route('admin.franchises.search') }}">
+            @csrf
             <div class="card refine-search-card border-0 rounded-4 mb-4">
                 <div class="card-body p-4">
                     <!-- Header Section -->
@@ -136,12 +148,6 @@
                             </div>
                         </div>
 
-                        @if(request('search'))
-                        <a href="{{ route('admin.franchises.index') }}" class="text-decoration-none"
-                            style="font-size: 13px; color: #ef4444; font-weight: 600;">
-                            Clear Filters
-                        </a>
-                        @endif
                     </div>
                     <!-- Search Field Section -->
                     <div class="row">
@@ -165,23 +171,29 @@
                                     </svg>
                                 </div>
 
-                                <input type="text" name="search" value="{{ request('search') }}"
+                                <input type="text" name="search" value="{{ session('store_search') }}"
                                     class="form-control custom-input" placeholder="Store Code or Name..."
                                     id="storeSearch" autocomplete="off">
-                                <button type="submit" class="search-btn">
-                                    Search
-                                </button>
+
+                                <div class="position-absolute end-0 me-2 d-flex gap-2">
+                                    <button type="submit" class="search-btn position-static">
+                                        Search
+                                    </button>
+
+                                    @if(session('store_search'))
+                                    <a href="{{ route('admin.franchises.clearSearch') }}"
+                                        class="btn btn-outline-primary reset-btn">
+                                        <i class="ti ti-refresh me-1"></i>
+                                        Reset
+                                    </a>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </form>
-
-
-
-
-
         <div class="table-responsive">
             <table class="table text-nowrap mb-0 align-middle">
                 <thead class="text-dark fs-4">
@@ -201,7 +213,7 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Status</h6>
                         </th>
-                        @canany(['stores.edit', 'stores.delete'])
+                        @canany(['franchises.edit', 'franchises.delete'])
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Actions</h6>
                         </th>
@@ -229,13 +241,15 @@
                                 {{ ucfirst($store->c_store_status) }}
                             </span>
                         </td>
-                        @canany(['stores.edit', 'stores.delete'])
+                        @canany(['franchises.edit', 'franchises.delete'])
                         <td class="border-bottom-0">
-                            @can('stores.edit')
-                            <a href="{{ route('admin.stores.edit', $store) }}" class="btn btn-sm btn-primary">Edit</a>
+                            @can('franchises.edit')
+                            <a href="{{ route('admin.franchises.edit', $store) }}"
+                                class="btn btn-sm btn-primary">Edit</a>
                             @endcan
-                            @can('stores.delete')
-                            <form method="POST" action="{{ route('admin.stores.destroy', $store) }}" class="d-inline">
+                            @can('franchises.delete')
+                            <form method="POST" action="{{ route('admin.franchises.destroy', $store) }}"
+                                class="d-inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger ms-2"
                                     onclick="return confirm('Are you sure?')">Delete</button>
@@ -246,7 +260,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center">No stores found</td>
+                        <td colspan="6" class="text-center">No franchises found</td>
                     </tr>
                     @endforelse
                 </tbody>

@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -133,7 +132,14 @@ Route::middleware(['auth', 'admin'])
     Route::delete('employees/{employee}', [EmployeeController::class, 'destroy'])
         ->middleware('permission:employees.delete')
         ->name('employees.destroy');
+    
+    Route::post('employees/search', [EmployeeController::class, 'search'])
+        ->middleware('permission:employees.view')
+        ->name('employees.search');
 
+    Route::get('employees/clear-search', [EmployeeController::class, 'clearSearch'])
+        ->middleware('permission:employees.view')
+        ->name('employees.clearSearch');    
 
 
     /*
@@ -167,6 +173,14 @@ Route::middleware(['auth', 'admin'])
     Route::delete('franchises/{franchise}', [StoreController::class, 'destroy'])
         ->middleware('permission:franchises.delete')
         ->name('franchises.destroy');
+
+    Route::post('franchises/search', [StoreController::class, 'search'])
+        ->middleware('permission:franchises.view')
+        ->name('franchises.search');
+
+    Route::get('franchises/clear-search', [StoreController::class, 'clearSearch'])
+        ->middleware('permission:franchises.view')
+        ->name('franchises.clearSearch');    
     // *********************************************
 
     /*
@@ -190,9 +204,9 @@ Route::middleware(['auth', 'admin'])
         ->name('products.store');
 
 
-    Route::get('products/{product}', [ProductController::class, 'show'])
-        ->middleware('permission:products.view')
-        ->name('products.show');
+    // Route::get('products/{product}', [ProductController::class, 'show'])
+    //     ->middleware('permission:products.view')
+    //     ->name('products.show');
 
 
     Route::get('products/{product}/edit', [ProductController::class, 'edit'])
@@ -218,6 +232,14 @@ Route::middleware(['auth', 'admin'])
     Route::get('check-product-code', [ProductController::class, 'checkCode'])
         ->middleware('permission:products.create|products.edit')
         ->name('check.product.code');
+
+    Route::post('products/search', [ProductController::class, 'search'])
+        ->middleware('permission:products.view')
+        ->name('products.search');
+
+    Route::get('products/clear-search', [ProductController::class, 'clearSearch'])
+        ->middleware('permission:products.view')
+        ->name('products.clearSearch');    
 
 
     /*

@@ -141,7 +141,8 @@
         </div>
 
         <div class="premium-filter-container">
-            <form action="{{ route('admin.employees.index') }}" method="GET">
+            <form method="POST" action="{{ route('admin.employees.search') }}">
+                @csrf
 
                 <div class="row g-3 align-items-end">
 
@@ -156,7 +157,7 @@
 
                                 @foreach($designations as $designation)
                                 <option value="{{ $designation->n_designation_id }}"
-                                    {{ request('n_designation_id') == $designation->n_designation_id ? 'selected' : '' }}>
+                                    {{ session('designation_filter') == $designation->n_designation_id ? 'selected' : '' }}>
                                     {{ $designation->c_designation }}
                                 </option>
                                 @endforeach
@@ -171,7 +172,7 @@
                             <label for="employee_search">Employee</label>
 
                             <input type="text" id="employee_search" name="employee_search"
-                                value="{{ request('employee_search') }}" autocomplete="off"
+                                value="{{ session('employee_search') }}" autocomplete="off"
                                 placeholder="Search by Name or Code" class="form-control styled-textbox">
 
                             <input type="hidden" id="employee_id" name="employee_id">
@@ -191,7 +192,7 @@
                                 Filter
                             </button>
 
-                            <a href="{{ route('admin.employees.index') }}"
+                            <a href="{{ route('admin.employees.clearSearch') }}"
                                 class="btn btn-secondary btn-creative-filter flex-fill">
                                 <i class="ti ti-refresh"></i>
                                 Reset

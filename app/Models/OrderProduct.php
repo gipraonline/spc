@@ -17,6 +17,8 @@ class OrderProduct extends Model
     public $timestamps = true;
 
     protected $fillable = [
+
+        'n_order_id',
         'product_id',
         'product_price',
         'qty',

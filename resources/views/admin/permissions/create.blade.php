@@ -86,6 +86,7 @@
             'cancel',
             'process-batch',
             'add-sale',
+            'approve',
 
             // Dashboard Cards
             'employees-card',

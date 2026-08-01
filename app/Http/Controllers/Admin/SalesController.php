@@ -113,11 +113,11 @@ public function index(Request $request)
         $employees = EmployeeMaster::where('n_designation_id','5')->where('c_status', 'Y')->get();
         $products = ProductMaster::where('c_status', 'Y')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
-        $States=State::where('status', '1')->get();
+        $states=State::where('status', '1')->get();
         $viewmode="off";
        // $districts=District::where('status', '1')->get();
 
-        return view('admin.sales.create', compact('employees', 'products','franchises','States','viewmode'));
+        return view('admin.sales.create', compact('employees', 'products','franchises','states','viewmode'));
     }
 
 

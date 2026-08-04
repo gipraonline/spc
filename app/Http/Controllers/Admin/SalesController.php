@@ -140,8 +140,6 @@ public function index(Request $request)
             'n_state_id' => 'required|integer|exists:states,n_state_id',
             'n_district_id' => 'required|integer|exists:districts,id',
             'nearest_franchise_id' => 'required|integer|exists:store_masters,n_store_id',
-            'payment_status' => 'required',
-            'delivery_status' => 'required',
             'c_mode_of_payment' => 'required',
 
             'products' => 'required|array|min:1',
@@ -176,8 +174,7 @@ public function index(Request $request)
                 'n_district_id' => $validated['n_district_id'],
                 'c_mode_of_payment' => $validated['c_mode_of_payment'],
                 'nearest_franchise_id' => $validated['nearest_franchise_id'],
-                'payment_status' => $validated['payment_status'],
-                'delivery_status' => $validated['delivery_status'],
+
             ];
 
             if ($request->filled('id')) {

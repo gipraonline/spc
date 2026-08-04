@@ -29,7 +29,7 @@
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-products-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
         @can('sales-orders.create')
-        <a href="{{ route('admin.salesorders.create') }}" class="btn btn-primary btn-sm">Add Sales Entry</a>
+        <a href="{{ route('admin.salesorders.create') }}" class="btn buttonSpc">Add Sales Entry</a>
         @endcan
     </div>
     <form method="GET" action="{{ route('admin.salesorders.index') }}" class="p-4">
@@ -57,14 +57,14 @@
             <!-- Buttons -->
         </div>
         <div class="mt-4 d-flex gap-2">
-            <button class="btn btn-primary">Filter Report</button>
+            <button class="btn buttonSpc">Filter Report</button>
             @can('salesorders.export')
             <button type="submit" name="export" value="excel" class="btn btn-success">
                 <i class="ti ti-file-export me-1"></i>
                 Export to Excel
             </button>
             @endcan
-            <a href="{{ route('admin.salesorders.index') }}" class="btn btn-secondary">Reset</a>
+            <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Reset</a>
         </div>
     </form>
 

@@ -258,7 +258,7 @@
             </small>
         </div>
         @can('permission-management.create')
-        <a href="{{ route('admin.permissions.create') }}" class="btn btn-primary rounded-pill px-4">
+        <a href="{{ route('admin.permissions.create') }}" class="btn buttonSpc rounded-pill px-4">
             <i class="fas fa-plus me-1"></i>
             Create Permission
         </a>

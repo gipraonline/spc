@@ -119,7 +119,7 @@
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-products-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Products</h5>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('products.create')): ?>
-        <a href="<?php echo e(route('admin.products.create')); ?>" class="btn btn-primary">
+        <a href="<?php echo e(route('admin.products.create')); ?>" class="btn buttonSpc">
             Add Item
         </a>
         <?php endif; ?>
@@ -202,14 +202,14 @@
                         <div class="col-md-4">
                             <div class="d-flex gap-2">
 
-                                <button type="submit" class="btn btn-primary btn-creative-filter flex-fill">
+                                <button type="submit" class="btn buttonSpc btn-creative-filter flex-fill">
                                     <i class="ti ti-search"></i>
                                     Filter
                                 </button>
 
 
                                 <a href="<?php echo e(route('admin.products.clearSearch')); ?>"
-                                    class="btn btn-secondary btn-creative-filter flex-fill">
+                                    class="btn btn-outline-secondary" style="width:200px;--bs-btn-padding-y: 15px;">
                                     <i class="ti ti-refresh"></i>
                                     Reset
                                 </a>
@@ -344,4 +344,5 @@ document.getElementById('search').addEventListener('keyup', function() {
 </script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/products/index.blade.php ENDPATH**/ ?>

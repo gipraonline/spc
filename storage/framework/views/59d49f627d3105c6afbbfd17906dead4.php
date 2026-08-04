@@ -278,7 +278,7 @@ unset($__errorArgs, $__bag); ?>
                 
 
 <div class="col-12 mt-4 pt-3 border-top d-flex gap-3">
-    <button type="submit" id="btn_create" class="btn btn-create-custom incentive_perc">Create
+    <button type="submit" id="btn_create" class="btn buttonSpc incentive_perc">Create
         Item</button>
     <a href="<?php echo e(route('admin.products.index')); ?>" class="btn btn-outline-secondary btn-cancel-custom">Cancel</a>
 </div>
@@ -287,4 +287,5 @@ unset($__errorArgs, $__bag); ?>
 </div>
 </div>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/products/create.blade.php ENDPATH**/ ?>

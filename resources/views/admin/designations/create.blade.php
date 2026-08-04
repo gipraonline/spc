@@ -58,7 +58,7 @@
     .form-control, .form-select {
         border-radius: 12px;
         padding: 0.9rem 1.2rem;
-       
+
         background-color: #f8fafc;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-weight: 600;
@@ -118,14 +118,14 @@
     <div class="card-header-premium">
         <h5 class="page-main-title mb-0">Add Designation</h5>
     </div>
-    
+
     <div class="card-body p-4 p-md-5 pt-md-4">
         <form method="POST" id="frm_create" action="{{ route('admin.designations.store') }}">
             @csrf
-            
+
             <div class="mb-4 pt-2">
                 <label for="c_designation" class="form-label">Designation Name *</label>
-                <input type="text" id="c_designation" name="c_designation" data-message="Please enter a Designation" value="{{ old('c_designation') }}"  
+                <input type="text" id="c_designation" name="c_designation" data-message="Please enter a Designation" value="{{ old('c_designation') }}"
                     class="form-control mandatory" placeholder="e.g. Senior Manager">
                 @error('c_designation')
                     <div class="text-danger mt-1">{{ $message }}</div>
@@ -146,10 +146,10 @@
             </div>
 
             <div class="d-flex gap-3 pt-4 border-top">
-                <button type="submit" id="btn_create" class="btn btn-create-action">
+                <button type="submit" id="btn_create" class="btn buttonSpc">
                     <i class="ti ti-plus fs-4"></i> Create
                 </button>
-                <a href="{{ route('admin.designations.index') }}" class="btn btn-cancel-action">Cancel</a>
+                <a href="{{ route('admin.designations.index') }}" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
     </div>

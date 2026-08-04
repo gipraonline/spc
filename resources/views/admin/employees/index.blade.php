@@ -151,7 +151,7 @@
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Employees</h5>
         @can('employees.create')
-        <a href="{{ route('admin.employees.create') }}" class="btn btn-primary">
+        <a href="{{ route('admin.employees.create') }}" class="btn buttonSpc">
             Add Employee
         </a>
         @endcan
@@ -231,13 +231,13 @@
 
                         <div class="d-flex gap-2">
 
-                            <button type="submit" class="btn btn-primary btn-creative-filter flex-fill">
+                            <button type="submit" class="btn buttonSpc btn-creative-filter flex-fill">
                                 <i class="ti ti-search"></i>
                                 Filter
                             </button>
 
                             <a href="{{ route('admin.employees.clearSearch') }}"
-                                class="btn btn-secondary btn-creative-filter flex-fill">
+                                class="btn btn-outline-secondary">
                                 <i class="ti ti-refresh"></i>
                                 Reset
                             </a>

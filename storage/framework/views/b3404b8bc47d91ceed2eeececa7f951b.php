@@ -106,7 +106,7 @@ unset($__errorArgs, $__bag); ?>
 
                 </a>
 
-                <button class="btn btn-primary px-4">
+                <button class="btn buttonSpc px-4">
 
                     <i class="fas fa-save me-1"></i>
 
@@ -185,4 +185,5 @@ hr {
     margin: 30px 0;
 }
 </style>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/permissions/edit.blade.php ENDPATH**/ ?>

@@ -323,7 +323,7 @@
 </div> --}}
 
 <div class="col-12 mt-4 pt-3 border-top d-flex gap-3">
-    <button type="submit" id="btn_create" class="btn btn-create-custom incentive_perc">Create
+    <button type="submit" id="btn_create" class="btn buttonSpc incentive_perc">Create
         Item</button>
     <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary btn-cancel-custom">Cancel</a>
 </div>

@@ -8,7 +8,7 @@
             {{ isset($selectedMenu) ? 'Add Permission' : 'Create Permission' }}
         </h4>
 
-        <a href="{{ route('admin.permissions.index') }}" class="btn btn-secondary">
+        <a href="{{ route('admin.permissions.index') }}" class="btn btn-outline-secondary">
             Back
         </a>
     </div>
@@ -156,7 +156,7 @@
 
             @endif
 
-            <button class="btn btn-primary">
+            <button class="btn buttonSpc">
                 Save
             </button>
 

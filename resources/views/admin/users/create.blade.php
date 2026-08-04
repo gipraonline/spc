@@ -139,7 +139,7 @@
 
                 </a>
 
-                <button type="submit" class="btn btn-primary px-4">
+                <button type="submit" class="btn buttonSpc px-4">
 
                     <i class="fas fa-save me-1"></i>
 

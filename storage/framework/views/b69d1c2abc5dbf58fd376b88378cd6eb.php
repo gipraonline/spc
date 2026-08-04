@@ -142,7 +142,10 @@
         padding: 2rem 0.25rem;
     }
 
-
+    .buttonSpc {
+     background: linear-gradient(135deg, #5A8D3A, #074E30);
+        color: #fff !important;
+}
 
 
     header.app-header {
@@ -160,7 +163,7 @@
     .sidebar-nav ul .sidebar-item.selected>.sidebar-link,
     .sidebar-nav ul .sidebar-item.selected>.sidebar-link.active,
     .sidebar-nav ul .sidebar-item>.sidebar-link.active {
-        background: linear-gradient(135deg, #024d93, #003366);
+        background: linear-gradient(135deg, #5A8D3A, #074E30);
     }
 
     .body-wrapper>.container-fluid {
@@ -189,7 +192,7 @@
 
     table th,
     th.border-bottom-0 h6 {
-        background: #15386e !important;
+        background: linear-gradient(135deg, #5A8D3A, #074E30);
         color: #fff !important;
 
     }
@@ -416,7 +419,7 @@
 
                 <div class="brand-logo d-flex align-products-center justify-content-center">
                     <a href="<?php echo e(route('dashboard')); ?>" class="text-nowrap logo-img">
-                        <img src="<?php echo e(asset('dist/images/logos/centrallogo.png')); ?>" alt="Centreal Bazaar Logo">
+                        <img src="<?php echo e(asset('dist/images/logos/spclogo.png')); ?>" alt="Centreal Bazaar Logo">
                     </a>
                     <div class="close-btn d-lg-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
                         <i class="ti ti-x fs-8 text-muted"></i>
@@ -602,7 +605,7 @@
     text-align: center;
     color: #15386f;
     font-weight: 600;
-">Copyright © 2026 Centreal Bazaar All Rights Reserved.
+">Copyright © 2026  All Rights Reserved.
 
             </p>
         </div>

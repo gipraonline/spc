@@ -1,5 +1,246 @@
 @extends('layouts.app')
 
+@push('styles')
+    <style>
+    /* ===========================
+    Card
+    =========================== */
+
+    .card {
+        border-radius: 12px;
+    }
+
+    .card-header {
+        padding: 18px 24px;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+
+    /* ===========================
+    Accordion
+    =========================== */
+
+    .accordion-item {
+        border: 1px solid #e9ecef;
+        border-radius: 10px !important;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
+    }
+
+    .accordion-button {
+        background: #fff;
+        font-weight: 600;
+        color: #2c3e50;
+        padding: 16px 20px;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background: #f8f9fa;
+        color: #0d6efd;
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+    }
+
+
+    /* ===========================
+    Table
+    =========================== */
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #5A8D3A, #074E30);
+        color: #fff;
+        font-weight: 600;
+        padding: 14px;
+        border: none;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        padding: 14px;
+    }
+
+    .table-hover tbody tr:hover {
+        background: #f8fbff;
+    }
+
+
+    /* ===========================
+    Permission Badges
+    =========================== */
+
+    .permission-badge {
+
+        width: 110px;
+        height: 36px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50px;
+
+        font-size: 14px;
+        font-weight: 600;
+
+        letter-spacing: .2px;
+    }
+
+
+    /* View */
+
+    .badge-view {
+        background: #E8F3FF;
+        color: #0D6EFD;
+    }
+
+
+    /* Create */
+
+    .badge-create {
+        background: #E8F8EF;
+        color: #198754;
+    }
+
+
+    /* Edit */
+
+    .badge-edit {
+        background: #FFF4DD;
+        color: #C58A00;
+    }
+
+
+    /* Delete */
+
+    .badge-delete {
+        background: #FDECEC;
+        color: #DC3545;
+    }
+
+
+    /* Approve */
+
+    .badge-approve {
+        background: #EEF2FF;
+        color: #4F46E5;
+    }
+
+
+    /* Export */
+
+    .badge-export {
+        background: #F1F3F5;
+        color: #495057;
+    }
+
+
+    /* Upload */
+
+    .badge-upload {
+        background: #E8F4FD;
+        color: #1565C0;
+    }
+
+
+    /* Default */
+
+    .badge-default {
+        background: #ECECEC;
+        color: #343A40;
+    }
+
+    /* Calculate */
+    .badge-calculate {
+        background: #FFF8E1;
+        color: #F57F17;
+    }
+
+    /* View Details */
+    .badge-view-details {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+
+    /* ===========================
+    Action Buttons
+    =========================== */
+
+    .btn-warning {
+
+        background: #FFC107;
+        border: none;
+    }
+
+    .btn-warning:hover {
+
+        background: #E0A800;
+    }
+
+    .btn-danger {
+
+        border: none;
+    }
+
+    .btn-danger:hover {
+
+        background: #BB2D3B;
+    }
+
+
+    /* ===========================
+    Pagination
+    =========================== */
+
+    .pagination {
+
+        margin-bottom: 0;
+    }
+
+    .page-link {
+
+        border-radius: 6px;
+        margin: 0 3px;
+        color: #1f4277;
+    }
+
+    .page-item.active .page-link {
+
+        background: #1f4277;
+        border-color: #1f4277;
+    }
+
+
+    /* ===========================
+    Alerts
+    =========================== */
+
+    .alert {
+
+        border-radius: 8px;
+    }
+
+    .accordion-button::after {
+        margin-left: 15px;
+    }
+
+    .accordion-button .btn {
+        z-index: 100;
+        position: relative;
+    }
+    </style>
+
+@endpush
+
 @section('content')
 
 <div class="card shadow-sm border-0">
@@ -267,240 +508,3 @@
 </div>
 
 @endsection
-<style>
-/* ===========================
-   Card
-=========================== */
-
-.card {
-    border-radius: 12px;
-}
-
-.card-header {
-    padding: 18px 24px;
-}
-
-.card-body {
-    padding: 20px;
-}
-
-
-/* ===========================
-   Accordion
-=========================== */
-
-.accordion-item {
-    border: 1px solid #e9ecef;
-    border-radius: 10px !important;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
-}
-
-.accordion-button {
-    background: #fff;
-    font-weight: 600;
-    color: #2c3e50;
-    padding: 16px 20px;
-}
-
-.accordion-button:not(.collapsed) {
-    background: #f8f9fa;
-    color: #0d6efd;
-}
-
-.accordion-button:focus {
-    box-shadow: none;
-}
-
-
-/* ===========================
-   Table
-=========================== */
-
-.table {
-    margin-bottom: 0;
-}
-
-.table thead th {
-    background: #1f4277;
-    color: #fff;
-    font-weight: 600;
-    padding: 14px;
-    border: none;
-}
-
-.table tbody td {
-    vertical-align: middle;
-    padding: 14px;
-}
-
-.table-hover tbody tr:hover {
-    background: #f8fbff;
-}
-
-
-/* ===========================
-   Permission Badges
-=========================== */
-
-.permission-badge {
-
-    width: 110px;
-    height: 36px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50px;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    letter-spacing: .2px;
-}
-
-
-/* View */
-
-.badge-view {
-    background: #E8F3FF;
-    color: #0D6EFD;
-}
-
-
-/* Create */
-
-.badge-create {
-    background: #E8F8EF;
-    color: #198754;
-}
-
-
-/* Edit */
-
-.badge-edit {
-    background: #FFF4DD;
-    color: #C58A00;
-}
-
-
-/* Delete */
-
-.badge-delete {
-    background: #FDECEC;
-    color: #DC3545;
-}
-
-
-/* Approve */
-
-.badge-approve {
-    background: #EEF2FF;
-    color: #4F46E5;
-}
-
-
-/* Export */
-
-.badge-export {
-    background: #F1F3F5;
-    color: #495057;
-}
-
-
-/* Upload */
-
-.badge-upload {
-    background: #E8F4FD;
-    color: #1565C0;
-}
-
-
-/* Default */
-
-.badge-default {
-    background: #ECECEC;
-    color: #343A40;
-}
-
-/* Calculate */
-.badge-calculate {
-    background: #FFF8E1;
-    color: #F57F17;
-}
-
-/* View Details */
-.badge-view-details {
-    background: #E8F5E9;
-    color: #2E7D32;
-}
-
-
-/* ===========================
-   Action Buttons
-=========================== */
-
-.btn-warning {
-
-    background: #FFC107;
-    border: none;
-}
-
-.btn-warning:hover {
-
-    background: #E0A800;
-}
-
-.btn-danger {
-
-    border: none;
-}
-
-.btn-danger:hover {
-
-    background: #BB2D3B;
-}
-
-
-/* ===========================
-   Pagination
-=========================== */
-
-.pagination {
-
-    margin-bottom: 0;
-}
-
-.page-link {
-
-    border-radius: 6px;
-    margin: 0 3px;
-    color: #1f4277;
-}
-
-.page-item.active .page-link {
-
-    background: #1f4277;
-    border-color: #1f4277;
-}
-
-
-/* ===========================
-   Alerts
-=========================== */
-
-.alert {
-
-    border-radius: 8px;
-}
-
-.accordion-button::after {
-    margin-left: 15px;
-}
-
-.accordion-button .btn {
-    z-index: 100;
-    position: relative;
-}
-</style>

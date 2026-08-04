@@ -69,7 +69,7 @@
             <div class="row">
                 <label class="form-label">Order Details *</label>
                 <?php if(isset($viewmode) && $viewmode=='off'): ?>
-                    <button type="button" style="width:150px;position:relative;" class="btn mb-1 btn-primary" id="addRow">Add Product</button>
+                    <button type="button" style="width:180px;position:relative;" class="btn mb-1 buttonSpc" id="addRow">Add New Product</button>
                 <?php endif; ?>
                 <table class="table table-responsive " id="productTable">
                     <thead>
@@ -247,28 +247,7 @@
                     </select>
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
-                <div class="col-md-6">
-                    <label for="state" class="form-label">Payment Status</label>
-                    <select class="form-select mandatory" data-message="Please enter Payment Status" id="payment_status" name="payment_status" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>>
-                        <option value="">Select Status</option>
-                        <option value="pending" <?php echo e(old('payment_status', $sale->payment_status ?? '') == 'pending' ? 'selected' : ''); ?>>Pending</option>
-                        <option value="approved" <?php echo e(old('payment_status', $sale->payment_status ?? '') == 'approved' ?  'selected' : ''); ?>>Approved</option>
-                        <option value="cancelled" <?php echo e(old('payment_status', $sale->payment_status ?? '') == 'cancelled' ? 'selected' : ''); ?>>Cancelled</option>
-                    </select>
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-            </div>
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <label for="state" class="form-label">Delivery Status</label>
-                    <select class="form-select mandatory" data-message="Please enter Delivory Status" id="delivery_status" name="delivery_status" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>>
-                        <option value="">Select Delivery Status</option>
-                        <option value="pending" <?php echo e(old('delivery_status', $sale->delivery_status ?? '') == 'pending' ? 'selected' : ''); ?>>Pending</option>
-                        <option value="shipped" <?php echo e(old('delivery_status', $sale->delivery_status ?? '') == 'shipped' ? 'selected' : ''); ?>>Shipped</option>
-                        <option value="delivered" <?php echo e(old('delivery_status', $sale->delivery_status ?? '') == 'delivered' ? 'selected' : ''); ?>>Delivered</option>
-                    </select>
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
+
             </div>
 
 

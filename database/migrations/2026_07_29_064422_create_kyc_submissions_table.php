@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kyc_submissions', function (Blueprint $table) {
+        Schema::create('employee_bank_details', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('n_employee_id');
@@ -21,13 +21,11 @@ return new class extends Migration
             $table->string('account_number');
             $table->string('ifsc_code');
             $table->string('document_path');
-
             $table->enum('status', ['Active', 'Inactive'])->nullable();
 
             $table->timestamps();
             $table->softDeletes();
 
-            
         });
     }
 

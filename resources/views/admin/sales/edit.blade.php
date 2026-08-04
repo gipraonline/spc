@@ -9,7 +9,7 @@
     <form method="POST" action="{{ route('admin.sales.update', $sale->n_slno) }}">
         @csrf
         @method('PUT')
-        
+
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="n_employee_id" class="form-label">Employee *</label>
@@ -45,16 +45,16 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="n_quantity" class="form-label">Quantity *</label>
-                <input type="number" id="n_quantity" name="n_quantity" value="{{ old('n_quantity', $sale->n_quantity) }}" min="1" required 
+                <input type="number" id="n_quantity" name="n_quantity" value="{{ old('n_quantity', $sale->n_quantity) }}" min="1" required
                     class="form-control">
                 @error('n_quantity')
                     <div class="text-danger mt-1 fs-2">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div class="col-md-6 mb-3">
                 <label for="d_date" class="form-label">Date *</label>
-                <input type="date" id="d_date" name="d_date" value="{{ old('d_date', $sale->d_date) }}" required 
+                <input type="date" id="d_date" name="d_date" value="{{ old('d_date', $sale->d_date) }}" required
                     class="form-control">
                 @error('d_date')
                     <div class="text-danger mt-1 fs-2">{{ $message }}</div>
@@ -63,7 +63,7 @@
         </div>
 
         <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="submit" class="btn buttonSpc">Update</button>
             <a href="{{ route('admin.sales.index') }}" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>

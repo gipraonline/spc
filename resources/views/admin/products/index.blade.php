@@ -121,7 +121,7 @@
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-products-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Products</h5>
         @can('products.create')
-        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+        <a href="{{ route('admin.products.create') }}" class="btn buttonSpc">
             Add Item
         </a>
         @endcan
@@ -203,14 +203,14 @@
                         <div class="col-md-4">
                             <div class="d-flex gap-2">
 
-                                <button type="submit" class="btn btn-primary btn-creative-filter flex-fill">
+                                <button type="submit" class="btn buttonSpc btn-creative-filter flex-fill">
                                     <i class="ti ti-search"></i>
                                     Filter
                                 </button>
 
 
                                 <a href="{{ route('admin.products.clearSearch') }}"
-                                    class="btn btn-secondary btn-creative-filter flex-fill">
+                                    class="btn btn-outline-secondary" style="width:200px;--bs-btn-padding-y: 15px;">
                                     <i class="ti ti-refresh"></i>
                                     Reset
                                 </a>

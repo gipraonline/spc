@@ -5,7 +5,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">User Management</h5>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('user-management.create')): ?>
-        <a href="<?php echo e(route('admin.users.create')); ?>" class="btn btn-primary">
+        <a href="<?php echo e(route('admin.users.create')); ?>" class="btn buttonSpc">
             + Create User
         </a>
         <?php endif; ?>
@@ -113,4 +113,5 @@
     align-items: center;
 }
 </style>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/users/index.blade.php ENDPATH**/ ?>

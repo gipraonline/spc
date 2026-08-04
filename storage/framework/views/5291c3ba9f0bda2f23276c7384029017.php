@@ -7,7 +7,7 @@
 
         </h4>
 
-        <a href="<?php echo e(route('admin.permissions.index')); ?>" class="btn btn-secondary">
+        <a href="<?php echo e(route('admin.permissions.index')); ?>" class="btn btn-outline-secondary">
             Back
         </a>
     </div>
@@ -159,7 +159,7 @@
 
             <?php endif; ?>
 
-            <button class="btn btn-primary">
+            <button class="btn buttonSpc">
                 Save
             </button>
 

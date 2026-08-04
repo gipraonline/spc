@@ -143,9 +143,19 @@
     }
 
     .buttonSpc {
-     background: linear-gradient(135deg, #5A8D3A, #074E30);
+        border-radius: 16px;
+        background: linear-gradient(135deg, #5A8D3A, #074E30);
+        align-items: center;
         color: #fff !important;
-}
+        min-width: 110px;
+    }
+
+    .btn-outline-secondary {
+        border-radius: 16px !important;
+        align-items: center;
+        font-weight: 600;
+        min-width: 110px;
+    }
 
 
     header.app-header {

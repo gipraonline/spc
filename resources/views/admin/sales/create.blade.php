@@ -253,10 +253,10 @@
             <div class="mt-3">
                 @if(isset($viewmode) && $viewmode=="on")
                     @can('sales-orders.approve')
-                        <button type="button" style="width:150px;position:relative;" class="btn mb-1 btn-primary" data-bs-toggle="modal" data-bs-target="#approveModal" data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="approve">Approve</button>
+                        <button type="button" style="width:150px;position:relative;" class="btn mb-1 buttonSpc" data-bs-toggle="modal" data-bs-target="#approveModal" data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="approve">Approve</button>
                     @endcan
                 @else
-                    <button type="button" class="btn btn-primary" id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
+                    <button type="button" class="btn buttonSpc" id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
                     <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
                 @endif
             </div>

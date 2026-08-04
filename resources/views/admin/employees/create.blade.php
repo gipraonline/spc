@@ -264,7 +264,7 @@
             </div>
 
             <div class="d-flex gap-3 pt-4 border-top">
-                <button type="submit" id="btn_create" class="btn btn-create-item">
+                <button type="submit" id="btn_create" class="btn buttonSpc">
                     <i class="ti ti-plus me-1"></i> Create Employee
                 </button>
                 <a href="{{ route('admin.employees.index') }}"

@@ -7,7 +7,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Create Role</h5>
 
-        <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">
+        <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-secondary">
             Back
         </a>
     </div>
@@ -47,7 +47,7 @@
                 @enderror
             </div>
 
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn buttonSpc">
                 Save Role
             </button>
 

@@ -6,7 +6,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Role Management</h5>
         @can('role-management.create')
-        <a href="{{ route('admin.roles.create') }}" class="btn btn-primary">
+        <a href="{{ route('admin.roles.create') }}" class="btn buttonSpc">
             + Create Role
         </a>
         @endcan

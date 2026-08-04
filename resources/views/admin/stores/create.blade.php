@@ -228,10 +228,10 @@
 
             <!-- Enhanced Action Bar -->
             <div class="pt-4 border-top d-flex gap-3">
-                <button type="submit" id="btn_create" class="btn btn-create-action">
+                <button type="submit" id="btn_create" class="btn buttonSpc btn-create-action">
                     <i class="ti ti-plus fs-4"></i> Create Franchise
                 </button>
-                <a href="{{ route('admin.franchises.index') }}" class="btn btn-cancel-action">Cancel</a>
+                <a href="{{ route('admin.franchises.index') }}" class="btn btn-outline-secondary" style="--bs-btn-padding-y: 15px;">Cancel</a>
             </div>
         </form>
     </div>

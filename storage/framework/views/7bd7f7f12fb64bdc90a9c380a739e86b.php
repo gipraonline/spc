@@ -314,7 +314,7 @@ unset($__errorArgs, $__bag); ?>
             </div>
 
             <div class="d-flex gap-3 pt-4 border-top">
-                <button type="submit" id="btn_create" class="btn btn-create-item">
+                <button type="submit" id="btn_create" class="btn buttonSpc">
                     <i class="ti ti-plus me-1"></i> Create Employee
                 </button>
                 <a href="<?php echo e(route('admin.employees.index')); ?>"
@@ -328,4 +328,5 @@ unset($__errorArgs, $__bag); ?>
 <script src="<?php echo e(asset('dist/js/custom.js?1')); ?>"></script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/employees/create.blade.php ENDPATH**/ ?>

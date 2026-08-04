@@ -55,12 +55,23 @@
     margin-bottom: 0.8rem;
 }
 
-.form-control,
+<<<<<<< HEAD .form-control,
 .form-select {
     border-radius: 12px;
     padding: 0.9rem 1.2rem;
 
-    background-color: #f8fafc;
+    =======.form-control,
+    .form-select {
+        border-radius: 12px;
+        padding: 0.9rem 1.2rem;
+
+        background-color: #f8fafc;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 600;
+        color: var(--deep-slate);
+    }
+
+    >>>>>>>6ece91f46f5b9050b27e04fd4893f79c9f9e0960 background-color: #f8fafc;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
     color: var(--deep-slate);
@@ -169,10 +180,10 @@
             </div>
 
             <div class="d-flex gap-3 pt-4 border-top">
-                <button type="submit" id="btn_create" class="btn btn-create-action">
+                <button type="submit" id="btn_create" class="btn buttonSpc">
                     <i class="ti ti-plus fs-4"></i> Create
                 </button>
-                <a href="{{ route('admin.designations.index') }}" class="btn btn-cancel-action">Cancel</a>
+                <a href="{{ route('admin.designations.index') }}" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
     </div>

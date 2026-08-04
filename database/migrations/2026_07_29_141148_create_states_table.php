@@ -19,10 +19,7 @@ return new class extends Migration
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
 
-            $table->foreign('country_id')
-                  ->references('country_id')
-                  ->on('countries')
-                  ->onDelete('cascade');
+            
         });
     }
 

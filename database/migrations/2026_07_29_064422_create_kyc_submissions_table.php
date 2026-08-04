@@ -13,7 +13,21 @@ return new class extends Migration
     {
         Schema::create('kyc_submissions', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedBigInteger('n_employee_id');
+
+            $table->string('bank_name')->nullable();
+            $table->string('bank_branch')->nullable();
+            $table->string('account_number');
+            $table->string('ifsc_code');
+            $table->string('document_path');
+
+            $table->enum('status', ['Active', 'Inactive'])->nullable();
+
             $table->timestamps();
+            $table->softDeletes();
+
+            
         });
     }
 

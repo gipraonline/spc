@@ -34,6 +34,18 @@
                 <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
+            <div class="mb-3">
+                <label class="form-label">
+                    Identifier <span class="text-danger">*</span>
+                </label>
+
+                <input type="text" name="identifier" class="form-control" value="{{ old('identifier') }}"
+                    placeholder="Example: HR_MANAGER">
+
+                @error('identifier')
+                <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
 
             <button type="submit" class="btn btn-primary">
                 Save Role

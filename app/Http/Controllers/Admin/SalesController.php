@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Auth;
 
+
 use App\Jobs\ProcessSalesUpload;
 use App\Jobs\ProcessReturnsUpload;
 use App\Models\SalesOrder;
@@ -29,7 +30,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
-use Illuminate\Support\Facades\DB;
+use DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SalesReportExport;
 use App\Exports\SaleReturnsReportExport;
@@ -159,7 +160,7 @@ public function index(Request $request)
 
         $validated = $validator->validated();
 
-        DB::beginTransaction();
+        //DB::beginTransaction();
 
         try {
 
@@ -220,7 +221,9 @@ public function index(Request $request)
         } else {
 
             // INSERT
+
             $salesOrder=SalesOrder::create($order);
+                  
 
             if(isset($validated['products'])){
                 foreach($validated['products'] as $product) {
@@ -239,15 +242,15 @@ public function index(Request $request)
             }
             $message = 'Sales order created successfully.';
         }
-           DB::commit();
+           //DB::commit();
 
             return redirect()
                 ->route('admin.salesorders.index')
-                ->with('Success', 'Sales entry created successfully.');
+                ->with('success', 'Sales entry created successfully.');
 
         } catch (\Exception $e) {
 
-            DB::rollBack();
+           // DB::rollBack();
 
             return back()
                 ->withInput()

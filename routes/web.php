@@ -139,7 +139,9 @@ Route::middleware(['auth', 'admin'])
 
     Route::get('employees/clear-search', [EmployeeController::class, 'clearSearch'])
         ->middleware('permission:employees.view')
-        ->name('employees.clearSearch');    
+        ->name('employees.clearSearch'); 
+    
+    Route::get('/employees/reporting-managers/{designation}', [EmployeeController::class, 'getReportingManagers']);   
 
 
     /*

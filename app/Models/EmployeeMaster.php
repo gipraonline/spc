@@ -26,6 +26,7 @@ class EmployeeMaster extends Model
         'c_employee_email',
         'n_employee_phone',
         'n_designation_id',
+        'reporting_to',
         'c_status',
     ];
 
@@ -38,6 +39,14 @@ class EmployeeMaster extends Model
     {
         return $this->hasOne(KycSubmission::class, 'n_employee_id', 'n_employee_id');
     }
-    
+    public function reportingManager()
+    {
+        return $this->belongsTo(EmployeeMaster::class, 'reporting_to');
+    }
+
+    public function subordinates()
+    {
+        return $this->hasMany(EmployeeMaster::class, 'reporting_to');
+    }
 
 }

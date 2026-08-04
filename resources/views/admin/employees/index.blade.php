@@ -274,6 +274,9 @@
                             <h6 class="fw-semibold mb-0">Designation</h6>
                         </th>
                         <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Reporting To</h6>
+                        </th>
+                        <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Account Number</h6>
                         </th>
 
@@ -313,6 +316,11 @@
                         </td>
                         <td class="border-bottom-0">
                             <span class="fw-normal">{{ $employee->designation?->c_designation ?? '-' }}</span>
+                        </td>
+                        <td class="border-bottom-0">
+                            <span class="fw-normal">
+                                {{ $employee->reportingManager?->designation?->c_designation ?? '-' }}
+                            </span>
                         </td>
                         <td class="border-bottom-0">
                             <span class="fw-normal">{{ $employee->kycSubmission?->account_number ?? '-' }}</span>

@@ -193,8 +193,23 @@
                         </option>
                         @endforeach
                     </select>
+
                     @error('account_number')
                     <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+                <div class="col-md-6">
+
+                    <label for="reporting_to" class="form-label">
+                        Reporting Manager
+                    </label>
+                    <select name="reporting_to" id="reporting_to" class="form-select">
+                        <option value="">Select Reporting Manager</option>
+                    </select>
+
+                    @error('reporting_to')
+                    <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
 
@@ -292,7 +307,23 @@
         </form>
     </div>
 </div>
+@push('scripts')
+<script>
+success: function(data) {
 
+    let options = '<option value="">Select Reporting Manager</option>';
 
+    $.each(data, function(index, item) {
 
+        options += `
+            <option value="${item.n_designation_id}">
+                ${item.c_designation}
+            </option>
+        `;
+    });
+
+    $('#reporting_to').html(options);
+}
+</script>
+@endpush
 @endsection

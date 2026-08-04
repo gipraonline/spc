@@ -213,12 +213,34 @@ unset($__errorArgs, $__bag); ?>
                         </option>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
+
                     <?php $__errorArgs = ['account_number'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
                     <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                </div>
+                <div class="col-md-6">
+
+                    <label for="reporting_to" class="form-label">
+                        Reporting Manager
+                    </label>
+                    <select name="reporting_to" id="reporting_to" class="form-select">
+                        <option value="">Select Reporting Manager</option>
+                    </select>
+
+                    <?php $__errorArgs = ['reporting_to'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <small class="text-danger"><?php echo e($message); ?></small>
                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -361,8 +383,24 @@ unset($__errorArgs, $__bag); ?>
         </form>
     </div>
 </div>
+<?php $__env->startPush('scripts'); ?>
+<script>
+success: function(data) {
 
+    let options = '<option value="">Select Reporting Manager</option>';
 
+    $.each(data, function(index, item) {
 
+        options += `
+            <option value="${item.n_designation_id}">
+                ${item.c_designation}
+            </option>
+        `;
+    });
+
+    $('#reporting_to').html(options);
+}
+</script>
+<?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/employees/edit.blade.php ENDPATH**/ ?>

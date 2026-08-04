@@ -27,10 +27,12 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:roles,name',
+            'identifier' => 'required|unique:roles,identifier',
         ]);
 
         Role::create([
             'name' => $request->name,
+            'identifier' => $request->identifier,
             'guard_name' => 'web',
         ]);
 
@@ -65,10 +67,12 @@ class RoleController extends Controller
 {
     $request->validate([
         'name' => 'required|unique:roles,name,' . $role->id,
+        'identifier' => 'required|unique:roles,identifier,' . $role->id,
     ]);
 
     $role->update([
         'name' => $request->name,
+        'identifier' => $request->identifier,
     ]);
 
     $role->menus()->sync($request->menus ?? []);

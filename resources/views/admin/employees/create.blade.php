@@ -168,6 +168,18 @@
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
                 </div>
+                <div class="col-md-6">
+                    <label for="reporting_to" class="form-label">
+                        Reporting Manager
+                    </label>
+                    <select name="reporting_to" id="reporting_to" class="form-select">
+                        <option value="">Select Reporting Manager</option>
+                    </select>
+
+                    @error('reporting_to')
+                    <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
 
             </div>
             <!-- Section 3: Account Details -->
@@ -264,5 +276,42 @@
 
 @push('scripts')
 <script src="{{asset('dist/js/custom.js?1')}}"></script>
+<script>
+$(document).ready(function() {
+
+    $('#n_designation_id').change(function() {
+
+        let designation = $(this).val();
+
+        console.log(designation);
+
+        $.ajax({
+            url: '/admin/employees/reporting-managers/' + designation,
+            type: 'GET',
+            success: function(data) {
+
+                let options = '<option value="">Select Reporting Manager</option>';
+
+                $.each(data, function(index, emp) {
+
+                    options += `
+            <option value="${emp.n_employee_id}">
+                ${emp.c_designation}
+            </option>
+        `;
+
+                });
+
+                $('#reporting_to').html(options);
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+
+    });
+
+});
+</script>
 @endpush
 @endsection

@@ -24,15 +24,22 @@ class DesignationController extends Controller
     {
 
         $validated = $request->validate([
-           'c_designation' => [
+        'c_designation' => [
         'required',
         'string',
         'max:30',
         'unique:designation_masters,c_designation',
 
         // Only letters and &
-        'regex:/^[A-Za-z]+(&[A-Za-z]+)*$/',
+        'regex:/^[A-Za-z ]+$/',
     ],
+     'identifier' => [
+            'required',
+            'string',
+            'max:50',
+            'unique:designation_masters,identifier',
+    ],
+    'hierarchy_level' => 'required|integer|min:1|unique:designation_masters,hierarchy_level',
 
         'c_status' => 'required|in:Y,N',
         'c_status.required' => 'Please select a Status.',
@@ -41,7 +48,10 @@ class DesignationController extends Controller
         'c_designation.required' => 'Designation is required.',
         'c_designation.max' => 'Designation must not exceed 30 characters.',
         'c_designation.unique' => 'This designation already exists.',
-        'c_designation.regex' => 'Only letters and & are allowed (no spaces).',
+        'c_designation.regex' => 'Only letters and spaces are allowed.',
+        'identifier.required' => 'Identifier is required.',
+        'identifier.unique' => 'This identifier already exists.',
+
     ]);
 
         DesignationMaster::create($validated);
@@ -63,6 +73,7 @@ class DesignationController extends Controller
     {
         $validated = $request->validate([
             'c_designation' => 'required|string|unique:designation_masters,c_designation,'.$designation->n_designation_id.',n_designation_id',
+            'hierarchy_level' => 'required|integer|min:1|unique:designation_masters,hierarchy_level,'.$designation->n_designation_id.',n_designation_id',
             'c_designation_status' => 'required|in:Y,N',
         ]);
 

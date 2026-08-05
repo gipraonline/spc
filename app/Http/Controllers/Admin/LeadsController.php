@@ -114,7 +114,7 @@ public function index(Request $request)
        // $districts=District::where('status', '1')->get();
        $customers = CustomerMaster::orderBy('c_customer_name')->get();
 
-        return view('admin.sales.create', compact('employees', 'products','franchises','states','viewmode', 'customers'));
+        return view('admin.leads.create', compact('employees', 'products','franchises','states','viewmode', 'customers'));
     }
 
 

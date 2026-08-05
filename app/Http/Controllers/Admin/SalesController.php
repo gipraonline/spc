@@ -25,6 +25,7 @@ use App\Models\OrderProduct;
 use App\Models\State;
 use App\Models\District;
 use App\Models\SalesApproval;
+use App\Models\CustomerMaster;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -117,8 +118,9 @@ public function index(Request $request)
         $states=State::where('status', '1')->get();
         $viewmode="off";
        // $districts=District::where('status', '1')->get();
+       $customers = CustomerMaster::orderBy('c_customer_name')->get();
 
-        return view('admin.sales.create', compact('employees', 'products','franchises','states','viewmode'));
+        return view('admin.sales.create', compact('employees', 'products','franchises','states','viewmode', 'customers'));
     }
 
 
@@ -134,7 +136,7 @@ public function index(Request $request)
             'd_date' => 'required|date',
             'c_bill_no' => 'required|string|max:255',
             'farm_care_advisor_id' => 'required|integer|exists:employee_masters,n_employee_id',
-            'c_customer_name' => 'required|string|max:255',
+            'customer_id' => 'required|exists:customer_masters,n_customer_id',
             'c_customer_email' => 'nullable|email|max:255',
             'c_customer_address' => 'nullable|string|max:1000',
             'n_customer_mobile' => 'required|digits_between:10,15',
@@ -157,7 +159,10 @@ public function index(Request $request)
         }
 
         $validated = $validator->validated();
-
+$customer = CustomerMaster::where(
+    'n_customer_id',
+    $validated['customer_id']
+)->first();
         //DB::beginTransaction();
 
         try {
@@ -167,6 +172,7 @@ public function index(Request $request)
                 'c_bill_no' => $validated['c_bill_no'],
                 'd_date' => $validated['d_date'],
                 'farm_care_advisor_id' => $validated['farm_care_advisor_id'],
+                'customer_id'        => $customer->n_customer_id,
                 'c_customer_name' => $validated['c_customer_name'],
                 'c_customer_email' => $validated['c_customer_email'],
                 'c_customer_address' => $validated['c_customer_address'],

@@ -142,19 +142,12 @@ use Illuminate\Support\Facades\Crypt;
 
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <label for="c_customer_name" class="form-label">Customer *</label>
-                    <select name="customer_id" id="customer_id" class="form-select mandatory">
-                        <option value="">Select Customer</option>
-
-                        @foreach($customers as $customer)
-                        <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
-                            data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
-                            data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
-                            data-district="{{ $customer->n_district_id }}">
-                            {{ $customer->c_customer_name }}
-                        </option>
-                        @endforeach
-                    </select>
+                    <label for="c_customer_name" class="form-label">Customer Name *</label>
+                    <input type="text" id="c_customer_name" name="c_customer_name"
+                        value="{{ old('c_customer_name',isset($sale) ? $sale->c_customer_name : '') }}"
+                        {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
+                        data-message="Please add Customer Name" class="form-control mandatory"
+                        placeholder="Customer Name">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
 
@@ -348,7 +341,6 @@ use Illuminate\Support\Facades\Crypt;
 @push('scripts')
 <script>
 $(document).ready(function() {
-    console.log("First script loaded");
     let rowIndex = {
         {
             isset($sale) ? count($sale - > orderProducts) : 0
@@ -475,49 +467,6 @@ $(document).ready(function() {
 
         // Set form action dynamically
         document.getElementById('approveForm').action = "{{route('admin.salesorders.approval.save')}}";
-    });
-});
-</script>
-<script>
-$(document).ready(function() {
-    $("#customer_id").change(function() {
-
-        let option = $(this).find(":selected");
-
-        $("#c_customer_email").val(option.data("email"));
-        $("#n_customer_mobile").val(option.data("mobile"));
-        $("#c_customer_address").val(option.data("address"));
-
-        let stateId = option.data("state");
-        let districtId = option.data("district");
-
-        $("#state").val(stateId);
-
-        $.ajax({
-            type: "GET",
-            url: "{{ route('admin.filterDistrict') }}",
-            data: {
-                state: stateId
-            },
-            dataType: "json",
-            success: function(data) {
-
-                $("#district").html('<option value="">Select District</option>');
-
-                $.each(data.districts, function(i, district) {
-                    $("#district").append(
-                        '<option value="' + district.id + '">' +
-                        district.district_name +
-                        '</option>'
-                    );
-                });
-
-                // Select customer's district after options are loaded
-                $("#district").val(districtId);
-
-            }
-        });
-
     });
 });
 </script>

@@ -215,17 +215,12 @@
                 </div>
                 <div class="col-md-4">
 
-                    <select name="c_state" id="c_state" class="form-select">
-
+                    <select name="n_state_id" id="n_state_id" class="form-select">
                         <option value="">Select State</option>
-
                         @foreach($states as $state)
-
-                        <option value="{{ $state->name }}" data-id="{{ $state->n_state_id }}"
-                            {{ old('c_state', $customer->c_state) == $state->name ? 'selected' : '' }}>
-
+                        <option value="{{ $state->n_state_id }}"
+                            {{ old('n_state_id', $customer->n_state_id) == $state->n_state_id ? 'selected' : '' }}>
                             {{ $state->name }}
-
                         </option>
 
                         @endforeach
@@ -237,17 +232,14 @@
 
                 <div class="col-md-4">
 
-                    <select name="c_district" id="c_district" class="form-select">
-
+                    <select name="n_district_id" id="n_district_id" class="form-select">
                         <option value="">Select District</option>
 
                         @foreach($districts as $district)
 
-                        <option value="{{ $district->district_name }}"
-                            {{ old('c_district', $customer->c_district) == $district->district_name ? 'selected' : '' }}>
-
+                        <option value="{{ $district->id }}"
+                            {{ old('n_district_id', $customer->n_district_id) == $district->id ? 'selected' : '' }}>
                             {{ $district->district_name }}
-
                         </option>
 
                         @endforeach
@@ -355,20 +347,20 @@ $(document).ready(function() {
 });
 </script>
 <script>
-$('#c_state').change(function() {
+$('#n_state_id').change(function() {
 
-    let stateId = $(this).find(':selected').data('id');
+    let stateId = $(this).val();
 
-    $('#c_district').html('<option>Loading...</option>');
+    $('#n_district_id').html('<option>Loading...</option>');
 
     $.get('/admin/districts/' + stateId, function(data) {
 
-        $('#c_district').html('<option value="">Select District</option>');
+        $('#n_district_id').html('<option value="">Select District</option>');
 
         $.each(data, function(index, district) {
 
-            $('#c_district').append(
-                '<option value="' + district.district_name + '">' +
+            $('#n_district_id').append(
+                '<option value="' + district.id + '">' +
                 district.district_name +
                 '</option>'
             );
@@ -378,8 +370,6 @@ $('#c_state').change(function() {
     });
 
 });
-</script>
-
 @endpush
 
 @endsection

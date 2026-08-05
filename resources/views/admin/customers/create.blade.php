@@ -216,14 +216,14 @@
                         State
                     </label>
 
-                    <select name="c_state" id="c_state" class="form-select">
+                    <select name="n_state_id" id="n_state_id" class="form-select">
 
                         <option value="">Select State</option>
 
                         @foreach($states as $state)
 
-                        <option value="{{ $state->name }}" data-id="{{ $state->n_state_id }}"
-                            {{ old('c_state') == $state->name ? 'selected' : '' }}>
+                        <option value="{{ $state->n_state_id }}" data-id="{{ $state->n_state_id }}"
+                            {{ old('n_state_id') == $state->n_state_id ? 'selected' : '' }}>
 
                             {{ $state->name }}
 
@@ -233,7 +233,7 @@
 
                     </select>
 
-                    @error('c_state')
+                    @error('n_state_id')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
 
@@ -245,13 +245,13 @@
                         District
                     </label>
 
-                    <select name="c_district" id="c_district" class="form-select">
+                    <select name="n_district_id" id="n_district_id" class="form-select">
 
                         <option value="">Select District</option>
 
                     </select>
 
-                    @error('c_district')
+                    @error('n_district_id')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
 
@@ -357,20 +357,20 @@ $(document).ready(function() {
 });
 </script>
 <script>
-$('#c_state').on('change', function() {
+$('#n_state_id').on('change', function() {
 
-    let stateId = $(this).find(':selected').data('id');
+    let stateId = $(this).val();
 
-    $('#c_district').html('<option>Loading...</option>');
+    $('#n_district_id').html('<option>Loading...</option>');
 
     $.get('/admin/districts/' + stateId, function(response) {
 
-        $('#c_district').html('<option value="">Select District</option>');
+        $('#n_district_id').html('<option value="">Select District</option>');
 
         $.each(response, function(index, district) {
 
-            $('#c_district').append(
-                '<option value="' + district.district_name + '">' +
+            $('#n_district_id').append(
+                '<option value="' + district.id + '">' +
                 district.district_name +
                 '</option>'
             );

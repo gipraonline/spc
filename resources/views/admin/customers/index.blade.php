@@ -266,11 +266,11 @@
                         </td>
 
                         <td class="border-bottom-0">
-                            {{ $customer->c_district ?? '-' }}
+                            {{ $customer->district?->district_name ?? '-' }}
                         </td>
 
                         <td class="border-bottom-0">
-                            {{ $customer->c_state ?? '-' }}
+                            {{ $customer->state?->name ?? '-' }}
                         </td>
 
                         <td class="border-bottom-0">

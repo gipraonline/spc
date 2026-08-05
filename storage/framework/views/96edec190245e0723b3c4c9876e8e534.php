@@ -7,7 +7,7 @@
 
         </h4>
 
-        <a href="<?php echo e(route('admin.permissions.index')); ?>" class="btn btn-secondary">
+        <a href="<?php echo e(route('admin.permissions.index')); ?>" class="btn btn-outline-secondary">
             Back
         </a>
     </div>
@@ -87,6 +87,7 @@
             'cancel',
             'process-batch',
             'add-sale',
+            'approve',
 
             // Dashboard Cards
             'employees-card',
@@ -158,7 +159,7 @@
 
             <?php endif; ?>
 
-            <button class="btn btn-primary">
+            <button class="btn buttonSpc">
                 Save
             </button>
 
@@ -169,4 +170,5 @@
 </div>
 
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/permissions/create.blade.php ENDPATH**/ ?>

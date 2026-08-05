@@ -188,6 +188,25 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                 </div>
+                <div class="col-md-6">
+                    <label for="reporting_to" class="form-label">
+                        Reporting Manager
+                    </label>
+                    <select name="reporting_to" id="reporting_to" class="form-select">
+                        <option value="">Select Reporting Manager</option>
+                    </select>
+
+                    <?php $__errorArgs = ['reporting_to'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <small class="text-danger"><?php echo e($message); ?></small>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
 
             </div>
             <!-- Section 3: Account Details -->
@@ -314,7 +333,7 @@ unset($__errorArgs, $__bag); ?>
             </div>
 
             <div class="d-flex gap-3 pt-4 border-top">
-                <button type="submit" id="btn_create" class="btn btn-create-item">
+                <button type="submit" id="btn_create" class="btn buttonSpc">
                     <i class="ti ti-plus me-1"></i> Create Employee
                 </button>
                 <a href="<?php echo e(route('admin.employees.index')); ?>"
@@ -326,6 +345,44 @@ unset($__errorArgs, $__bag); ?>
 
 <?php $__env->startPush('scripts'); ?>
 <script src="<?php echo e(asset('dist/js/custom.js?1')); ?>"></script>
+<script>
+$(document).ready(function() {
+
+    $('#n_designation_id').change(function() {
+
+        let designation = $(this).val();
+
+        console.log(designation);
+
+        $.ajax({
+            url: '/admin/employees/reporting-managers/' + designation,
+            type: 'GET',
+            success: function(data) {
+
+                let options = '<option value="">Select Reporting Manager</option>';
+
+                $.each(data, function(index, emp) {
+
+                    options += `
+            <option value="${emp.n_employee_id}">
+                ${emp.c_designation}
+            </option>
+        `;
+
+                });
+
+                $('#reporting_to').html(options);
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+
+    });
+
+});
+</script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/employees/create.blade.php ENDPATH**/ ?>

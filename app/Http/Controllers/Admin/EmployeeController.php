@@ -73,13 +73,16 @@ public function clearSearch()
     public function create()
     {
         $designations = DesignationMaster::where('c_status', 'Y')->get();
+        $employees = EmployeeMaster::where('c_status', 'Y')
+        ->orderBy('c_employee_name')
+        ->get();
 
-        return view('admin.employees.create', compact('designations'));
+        return view('admin.employees.create', compact('designations','employees'));
     }
 
     public function store(Request $request)
     {
-    //    dd("hits");
+        // dd("hits");
        $validated = $request->validate([
             'c_employee_code' => [
                 'required',
@@ -97,6 +100,7 @@ public function clearSearch()
             'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
 
             'n_designation_id' => 'required|exists:designation_masters,n_designation_id',
+            'reporting_to' => 'nullable|exists:employee_masters,n_employee_id',
 
             'c_status' => 'required|in:Y,N',
 
@@ -148,20 +152,23 @@ public function clearSearch()
             'c_employee_email'   => $validated['c_employee_email'] ?? null,
             'n_employee_phone'   => $validated['n_employee_phone'] ?? null,
             'n_designation_id'   => $validated['n_designation_id'] ?? null,
-            'c_status'           => $request->c_status,
+            'reporting_to'       => $validated['reporting_to'] ?? null,
+            'c_status'           => $validated['c_status'],
         ]);
 
         // Bank Details
+        
         KycSubmission::create([
             'n_employee_id'  => $employee->n_employee_id,
-            'bank_name'      => $request->bank_name,
-            'bank_branch'    => $request->branch_name,
-            'account_number' => $request->account_number,
-            'ifsc_code'      => $request->ifsc_code,
+            'bank_name'      => $validated['bank_name'],
+            'bank_branch'    => $validated['branch_name'],
+            'account_number' => $validated['account_number'],
+            'ifsc_code'      => $validated['ifsc_code'],
             'document_path'  => '',
             'status'         => 'Active',
         ]);
-
+    
+  
         DB::commit();
 
         return redirect()
@@ -183,13 +190,17 @@ public function clearSearch()
     {
 
         $designations = DesignationMaster::where('c_status', 'Y')->get();
+          $employees = EmployeeMaster::where('c_status', 'Y')
+        ->where('n_employee_id', '!=', $employee->n_employee_id)
+        ->orderBy('c_employee_name')
+        ->get();
 
-        $kyc = KycSubmission::where('n_employee_id', $employee->n_employee_id)
-                        ->where('status', 'Active')
-                        ->first();
+    $kyc = KycSubmission::where('n_employee_id', $employee->n_employee_id)
+        ->where('status', 'Active')
+        ->first();
 
 
-        return view('admin.employees.edit', compact('employee', 'designations','kyc'));
+        return view('admin.employees.edit', compact('employees','employee', 'designations','kyc'));
     }
 
     public function update(Request $request, EmployeeMaster $employee)
@@ -203,6 +214,8 @@ public function clearSearch()
             'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
 
             'n_designation_id' => 'required|exists:designation_masters,n_designation_id',
+
+            'reporting_to' => 'nullable|exists:employee_masters,n_employee_id',
 
             'c_status' => 'required|in:Y,N',
 
@@ -242,6 +255,7 @@ public function clearSearch()
             'c_employee_email'   => $request->c_employee_email,
             'n_employee_phone'   => $request->n_employee_phone,
             'n_designation_id'   => $request->n_designation_id,
+            'reporting_to'       => $request->reporting_to,
             'c_status'           => $request->c_status,
         ]);
 
@@ -298,5 +312,27 @@ public function clearSearch()
         return redirect()->route('admin.employees.index')
                         ->with('success', 'Employee deleted successfully.');
     }
+    public function getReportingManagers($designationId)
+{
+    $designation = DesignationMaster::findOrFail($designationId);
+
+    $employees = EmployeeMaster::join(
+            'designation_masters',
+            'employee_masters.n_designation_id',
+            '=',
+            'designation_masters.n_designation_id'
+        )
+        ->where('designation_masters.hierarchy_level', '<', $designation->hierarchy_level)
+        ->where('employee_masters.c_status', 'Y')
+        ->select(
+            'employee_masters.n_employee_id',
+            'employee_masters.c_employee_name',
+            'designation_masters.c_designation'
+        )
+        ->orderBy('designation_masters.hierarchy_level')
+        ->get();
+
+    return response()->json($employees);
+}
 
 }

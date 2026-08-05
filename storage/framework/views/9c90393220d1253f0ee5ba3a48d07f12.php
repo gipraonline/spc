@@ -70,6 +70,28 @@ endif;
 unset($__errorArgs, $__bag); ?>
 
             </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">
+                    Identifier <span class="text-danger">*</span>
+                </label>
+
+                <input type="text" name="identifier" class="form-control"
+                    value="<?php echo e(old('identifier', $role->identifier)); ?>" placeholder="Enter Identifier">
+
+                <?php $__errorArgs = ['identifier'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                <small class="text-danger">
+                    <?php echo e($message); ?>
+
+                </small>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+            </div>
 
             <hr>
 
@@ -619,4 +641,5 @@ hr {
 
 }
 </style>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/roles/edit.blade.php ENDPATH**/ ?>

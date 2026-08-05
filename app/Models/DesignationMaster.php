@@ -15,6 +15,8 @@ class DesignationMaster extends Model
 
     protected $fillable = [
         'c_designation',
+        'identifier',
+        'hierarchy_level',
         'c_status',
     ];
 }

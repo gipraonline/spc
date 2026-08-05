@@ -64,6 +64,20 @@
                 @enderror
 
             </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">
+                    Identifier <span class="text-danger">*</span>
+                </label>
+
+                <input type="text" name="identifier" class="form-control"
+                    value="{{ old('identifier', $role->identifier) }}" placeholder="Enter Identifier">
+
+                @error('identifier')
+                <small class="text-danger">
+                    {{ $message }}
+                </small>
+                @enderror
+            </div>
 
             <hr>
 

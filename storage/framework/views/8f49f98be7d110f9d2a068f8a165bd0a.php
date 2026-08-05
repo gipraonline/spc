@@ -2,13 +2,13 @@
 <html lang="en">
 
 <head>
-    <title>Centreal Bazaar - A Fast Growing Supermarket chain in India</title>
+    <title>SPC</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="handheldfriendly" content="true" />
     <meta name="MobileOptimized" content="width" />
-    <meta name="description" content="Centreal Bazaar - A Fast Growing Supermarket chain in India" />
-    <meta name="keywords" content="Centreal Bazaar, Supermarket, India, Grocery" />
+    <meta name="description" content="SPC" />
+    <meta name="keywords" content="spc" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="shortcut icon" type="image/png" href="<?php echo e(asset('dist/images/logos/fav.png')); ?>" />
 
@@ -363,7 +363,7 @@
     <div class="auth-container">
         <div class="auth-card">
             <div class="logo-box">
-                <img src="<?php echo e(asset('dist/images/logos/centrallogo.png')); ?>" alt="Centreal Bazaar Logo">
+                <img src="<?php echo e(asset('dist/images/logos/spclogo.png')); ?>" alt="SPC Logo">
             </div>
 
             <div class="auth-header animated">
@@ -416,13 +416,13 @@
                 </button>
 
                 <div class="footer-text animated delay-2">
-                    New to Centreal Bazaar?
-                    <a href="./authentication-register.html"></a>
+                    New to SPC?
+                    <a href="<?php echo e(route('register')); ?>"></a>
                 </div>
             </form>
         </div>
     </div>
-    <p class="copy">Copyright © 2026 Centreal Bazaar All Rights Reserved.
+    <p class="copy">Copyright © 2026 SPC All Rights Reserved.
 
     </p>
 

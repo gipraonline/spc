@@ -69,7 +69,7 @@
             <div class="row">
                 <label class="form-label">Order Details *</label>
                 <?php if(isset($viewmode) && $viewmode=='off'): ?>
-                    <button type="button" style="width:150px;position:relative;" class="btn mb-1 btn-primary" id="addRow">Add Product</button>
+                    <button type="button" style="width:180px;position:relative;" class="btn mb-1 buttonSpc" id="addRow">Add New Product</button>
                 <?php endif; ?>
                 <table class="table table-responsive " id="productTable">
                     <thead>
@@ -164,7 +164,7 @@
                 <div class="col-md-6">
                     <label for="c_customer_address" class="form-label">Customer Address *</label>
                     <input type="text" id="c_customer_address" name="c_customer_address" value="<?php echo e(old('c_customer_address',isset($sale) ? $sale->c_customer_address : '')); ?>"
-                        <?php echo e(isset($viewmode) && $viewmode=='on' ? 'readonly' : ''); ?> data-message="Please add Customer Address" class="form-control mandatory" placeholder="ACC-001">
+                        <?php echo e(isset($viewmode) && $viewmode=='on' ? 'readonly' : ''); ?> data-message="Please add Customer Address" class="form-control mandatory" placeholder="Customer Address">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
 
@@ -172,7 +172,7 @@
                     <label for="n_customer_mobile" class="form-label">Customer Mobile *</label>
                     <input type="text" id="n_customer_mobile" name="n_customer_mobile" value="<?php echo e(old('n_customer_mobile',isset($sale) ? $sale->n_customer_mobile : '')); ?>"
                         <?php echo e(isset($viewmode) && $viewmode=='on' ? 'readonly' : ''); ?> data-message="Please enter Customer Mobile" class="form-control mandatory"
-                        placeholder="Enter IFSC code">
+                        placeholder="Enter Customer Mobile">
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
             </div>
@@ -247,28 +247,7 @@
                     </select>
                     <div class="text-danger mt-1 fs-2"></div>
                 </div>
-                <div class="col-md-6">
-                    <label for="state" class="form-label">Payment Status</label>
-                    <select class="form-select mandatory" data-message="Please enter Payment Status" id="payment_status" name="payment_status" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>>
-                        <option value="">Select Status</option>
-                        <option value="pending" <?php echo e(old('payment_status', $sale->payment_status ?? '') == 'pending' ? 'selected' : ''); ?>>Pending</option>
-                        <option value="approved" <?php echo e(old('payment_status', $sale->payment_status ?? '') == 'approved' ?  'selected' : ''); ?>>Approved</option>
-                        <option value="cancelled" <?php echo e(old('payment_status', $sale->payment_status ?? '') == 'cancelled' ? 'selected' : ''); ?>>Cancelled</option>
-                    </select>
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-            </div>
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <label for="state" class="form-label">Delivery Status</label>
-                    <select class="form-select mandatory" data-message="Please enter Delivory Status" id="delivery_status" name="delivery_status" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>>
-                        <option value="">Select Delivery Status</option>
-                        <option value="pending" <?php echo e(old('delivery_status', $sale->delivery_status ?? '') == 'pending' ? 'selected' : ''); ?>>Pending</option>
-                        <option value="shipped" <?php echo e(old('delivery_status', $sale->delivery_status ?? '') == 'shipped' ? 'selected' : ''); ?>>Shipped</option>
-                        <option value="delivered" <?php echo e(old('delivery_status', $sale->delivery_status ?? '') == 'delivered' ? 'selected' : ''); ?>>Delivered</option>
-                    </select>
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
+
             </div>
 
 
@@ -276,10 +255,10 @@
             <div class="mt-3">
                 <?php if(isset($viewmode) && $viewmode=="on"): ?>
                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.approve')): ?>
-                        <button type="button" style="width:150px;position:relative;" class="btn mb-1 btn-primary" data-bs-toggle="modal" data-bs-target="#approveModal" data-id="<?php echo e(isset($sale) ? Crypt::encryptString($sale->n_sl_no) : ''); ?>" id="approve">Approve</button>
+                        <button type="button" style="width:150px;position:relative;" class="btn mb-1 buttonSpc" data-bs-toggle="modal" data-bs-target="#approveModal" data-id="<?php echo e(isset($sale) ? Crypt::encryptString($sale->n_sl_no) : ''); ?>" id="approve">Approve</button>
                     <?php endif; ?>
                 <?php else: ?>
-                    <button type="button" class="btn btn-primary" id="btn_create"><?php echo e(isset($sale->n_sl_no) ? 'Update' : 'Create'); ?></button>
+                    <button type="button" class="btn buttonSpc" id="btn_create"><?php echo e(isset($sale->n_sl_no) ? 'Update' : 'Create'); ?></button>
                     <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Cancel</a>
                 <?php endif; ?>
             </div>

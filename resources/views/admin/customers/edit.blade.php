@@ -213,37 +213,49 @@
                     @enderror
 
                 </div>
-
                 <div class="col-md-4">
 
-                    <label for="c_district" class="form-label">
-                        District
-                    </label>
+                    <select name="c_state" id="c_state" class="form-select">
 
-                    <input type="text" id="c_district" name="c_district"
-                        value="{{ old('c_district', $customer->c_district) }}" class="form-control"
-                        placeholder="District">
+                        <option value="">Select State</option>
 
-                    @error('c_district')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                        @foreach($states as $state)
+
+                        <option value="{{ $state->name }}" data-id="{{ $state->n_state_id }}"
+                            {{ old('c_state', $customer->c_state) == $state->name ? 'selected' : '' }}>
+
+                            {{ $state->name }}
+
+                        </option>
+
+                        @endforeach
+
+                    </select>
 
                 </div>
 
+
                 <div class="col-md-4">
 
-                    <label for="c_state" class="form-label">
-                        State
-                    </label>
+                    <select name="c_district" id="c_district" class="form-select">
 
-                    <input type="text" id="c_state" name="c_state" value="{{ old('c_state', $customer->c_state) }}"
-                        class="form-control" placeholder="State">
+                        <option value="">Select District</option>
 
-                    @error('c_state')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                        @foreach($districts as $district)
+
+                        <option value="{{ $district->district_name }}"
+                            {{ old('c_district', $customer->c_district) == $district->district_name ? 'selected' : '' }}>
+
+                            {{ $district->district_name }}
+
+                        </option>
+
+                        @endforeach
+
+                    </select>
 
                 </div>
+
 
                 <div class="col-md-4">
 
@@ -338,6 +350,31 @@ $(document).ready(function() {
     // Convert Customer Code to uppercase
     $('#c_customer_code').on('keyup', function() {
         $(this).val($(this).val().toUpperCase());
+    });
+
+});
+</script>
+<script>
+$('#c_state').change(function() {
+
+    let stateId = $(this).find(':selected').data('id');
+
+    $('#c_district').html('<option>Loading...</option>');
+
+    $.get('/admin/districts/' + stateId, function(data) {
+
+        $('#c_district').html('<option value="">Select District</option>');
+
+        $.each(data, function(index, district) {
+
+            $('#c_district').append(
+                '<option value="' + district.district_name + '">' +
+                district.district_name +
+                '</option>'
+            );
+
+        });
+
     });
 
 });

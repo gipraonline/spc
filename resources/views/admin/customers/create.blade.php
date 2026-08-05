@@ -210,6 +210,34 @@
                     @enderror
 
                 </div>
+                <div class="col-md-4">
+
+                    <label for="c_state" class="form-label">
+                        State
+                    </label>
+
+                    <select name="c_state" id="c_state" class="form-select">
+
+                        <option value="">Select State</option>
+
+                        @foreach($states as $state)
+
+                        <option value="{{ $state->name }}" data-id="{{ $state->n_state_id }}"
+                            {{ old('c_state') == $state->name ? 'selected' : '' }}>
+
+                            {{ $state->name }}
+
+                        </option>
+
+                        @endforeach
+
+                    </select>
+
+                    @error('c_state')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
 
                 <div class="col-md-4">
 
@@ -217,8 +245,11 @@
                         District
                     </label>
 
-                    <input type="text" id="c_district" name="c_district" value="{{ old('c_district') }}"
-                        class="form-control" placeholder="District">
+                    <select name="c_district" id="c_district" class="form-select">
+
+                        <option value="">Select District</option>
+
+                    </select>
 
                     @error('c_district')
                     <div class="text-danger mt-1">{{ $message }}</div>
@@ -226,20 +257,6 @@
 
                 </div>
 
-                <div class="col-md-4">
-
-                    <label for="c_state" class="form-label">
-                        State
-                    </label>
-
-                    <input type="text" id="c_state" name="c_state" value="{{ old('c_state') }}" class="form-control"
-                        placeholder="State">
-
-                    @error('c_state')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
-
-                </div>
 
                 <div class="col-md-4">
 
@@ -335,6 +352,31 @@ $(document).ready(function() {
     // Convert Customer Code to uppercase
     $('#c_customer_code').on('keyup', function() {
         $(this).val($(this).val().toUpperCase());
+    });
+
+});
+</script>
+<script>
+$('#c_state').on('change', function() {
+
+    let stateId = $(this).find(':selected').data('id');
+
+    $('#c_district').html('<option>Loading...</option>');
+
+    $.get('/admin/districts/' + stateId, function(response) {
+
+        $('#c_district').html('<option value="">Select District</option>');
+
+        $.each(response, function(index, district) {
+
+            $('#c_district').append(
+                '<option value="' + district.district_name + '">' +
+                district.district_name +
+                '</option>'
+            );
+
+        });
+
     });
 
 });

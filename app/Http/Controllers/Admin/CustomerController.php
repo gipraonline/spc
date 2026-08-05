@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CustomerMaster;
+use App\Models\District;
+use App\Models\State;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -44,7 +46,10 @@ public function index()
 
     public function create()
 {
-    return view('admin.customers.create');
+     $states = State::where('status', 1)
+        ->orderBy('name')
+        ->get();
+    return view('admin.customers.create', compact('states'));
 }
 
     public function store(Request $request)
@@ -161,7 +166,25 @@ public function index()
 
     public function edit(CustomerMaster $customer)
 {
-    return view('admin.customers.edit', compact('customer'));
+    $states = State::where('status', 1)
+        ->orderBy('name')
+        ->get();
+
+    $selectedState = State::where('name', $customer->c_state)->first();
+
+    $districts = [];
+
+    if ($selectedState) {
+        $districts = District::where('state_id', $selectedState->n_state_id)
+            ->orderBy('district_name')
+            ->get();
+    }
+
+    return view('admin.customers.edit', compact(
+        'customer',
+        'states',
+        'districts'
+    ));
 }
 
    public function update(Request $request, CustomerMaster $customer)
@@ -287,5 +310,11 @@ public function index()
     ]);
 
     return redirect()->route('admin.customers.index');
+}
+public function getDistricts($stateId)
+{
+    return District::where('state_id', $stateId)
+        ->orderBy('district_name')
+        ->get(['id', 'district_name']);
 }
 }

@@ -252,6 +252,42 @@ endif;
 unset($__errorArgs, $__bag); ?>
 
                 </div>
+                <div class="col-md-4">
+
+                    <label for="c_state" class="form-label">
+                        State
+                    </label>
+
+                    <select name="c_state" id="c_state" class="form-select">
+
+                        <option value="">Select State</option>
+
+                        <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                        <option value="<?php echo e($state->name); ?>" data-id="<?php echo e($state->n_state_id); ?>"
+                            <?php echo e(old('c_state') == $state->name ? 'selected' : ''); ?>>
+
+                            <?php echo e($state->name); ?>
+
+
+                        </option>
+
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                    </select>
+
+                    <?php $__errorArgs = ['c_state'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                </div>
 
                 <div class="col-md-4">
 
@@ -259,8 +295,11 @@ unset($__errorArgs, $__bag); ?>
                         District
                     </label>
 
-                    <input type="text" id="c_district" name="c_district" value="<?php echo e(old('c_district')); ?>"
-                        class="form-control" placeholder="District">
+                    <select name="c_district" id="c_district" class="form-select">
+
+                        <option value="">Select District</option>
+
+                    </select>
 
                     <?php $__errorArgs = ['c_district'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -275,27 +314,6 @@ unset($__errorArgs, $__bag); ?>
 
                 </div>
 
-                <div class="col-md-4">
-
-                    <label for="c_state" class="form-label">
-                        State
-                    </label>
-
-                    <input type="text" id="c_state" name="c_state" value="<?php echo e(old('c_state')); ?>" class="form-control"
-                        placeholder="State">
-
-                    <?php $__errorArgs = ['c_state'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
-                    <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-
-                </div>
 
                 <div class="col-md-4">
 
@@ -405,6 +423,31 @@ $(document).ready(function() {
     // Convert Customer Code to uppercase
     $('#c_customer_code').on('keyup', function() {
         $(this).val($(this).val().toUpperCase());
+    });
+
+});
+</script>
+<script>
+$('#c_state').on('change', function() {
+
+    let stateId = $(this).find(':selected').data('id');
+
+    $('#c_district').html('<option>Loading...</option>');
+
+    $.get('/admin/districts/' + stateId, function(response) {
+
+        $('#c_district').html('<option value="">Select District</option>');
+
+        $.each(response, function(index, district) {
+
+            $('#c_district').append(
+                '<option value="' + district.district_name + '">' +
+                district.district_name +
+                '</option>'
+            );
+
+        });
+
     });
 
 });

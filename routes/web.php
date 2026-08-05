@@ -357,6 +357,9 @@ Route::middleware(['auth', 'admin'])
         ->middleware('permission:customers.view')
         ->name('customers.clearSearch');
     
+    Route::get('districts/{state}', [CustomerController::class, 'getDistricts'])
+        ->name('admin.districts');
+    
 
 });
 

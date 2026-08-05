@@ -5,7 +5,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Create Role</h5>
 
-        <a href="<?php echo e(route('admin.roles.index')); ?>" class="btn btn-secondary">
+        <a href="<?php echo e(route('admin.roles.index')); ?>" class="btn btn-outline-secondary">
             Back
         </a>
     </div>
@@ -59,7 +59,7 @@ endif;
 unset($__errorArgs, $__bag); ?>
             </div>
 
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn buttonSpc">
                 Save Role
             </button>
 
@@ -70,4 +70,5 @@ unset($__errorArgs, $__bag); ?>
 </div>
 
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/roles/create.blade.php ENDPATH**/ ?>

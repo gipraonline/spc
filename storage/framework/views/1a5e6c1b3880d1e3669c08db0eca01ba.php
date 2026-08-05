@@ -120,7 +120,7 @@
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Franchises</h5>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('franchises.create')): ?>
-        <a href="<?php echo e(route('admin.franchises.create')); ?>" class="btn btn-primary">Add Franchise</a>
+        <a href="<?php echo e(route('admin.franchises.create')); ?>" class="btn buttonSpc">Add Franchise</a>
         <?php endif; ?>
     </div>
     <div class="card-body p-4">
@@ -181,7 +181,7 @@
                                     id="storeSearch" autocomplete="off">
 
                                 <div class="position-absolute end-0 me-2 d-flex gap-2">
-                                    <button type="submit" class="search-btn position-static">
+                                    <button type="submit" class="search-btn buttonSpc position-static">
                                         Search
                                     </button>
 

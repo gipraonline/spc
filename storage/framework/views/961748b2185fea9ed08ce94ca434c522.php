@@ -149,7 +149,7 @@
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Employees</h5>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.create')): ?>
-        <a href="<?php echo e(route('admin.employees.create')); ?>" class="btn btn-primary">
+        <a href="<?php echo e(route('admin.employees.create')); ?>" class="btn buttonSpc">
             Add Employee
         </a>
         <?php endif; ?>
@@ -230,13 +230,13 @@
 
                         <div class="d-flex gap-2">
 
-                            <button type="submit" class="btn btn-primary btn-creative-filter flex-fill">
+                            <button type="submit" class="btn buttonSpc btn-creative-filter flex-fill">
                                 <i class="ti ti-search"></i>
                                 Filter
                             </button>
 
                             <a href="<?php echo e(route('admin.employees.clearSearch')); ?>"
-                                class="btn btn-secondary btn-creative-filter flex-fill">
+                                class="btn btn-outline-secondary">
                                 <i class="ti ti-refresh"></i>
                                 Reset
                             </a>
@@ -475,4 +475,5 @@ window.employees = <?php echo json_encode($employeesForSearch, 15, 512) ?>;
 </script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/employees/index.blade.php ENDPATH**/ ?>

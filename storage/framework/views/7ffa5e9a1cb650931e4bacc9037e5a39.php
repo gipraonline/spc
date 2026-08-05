@@ -27,7 +27,7 @@
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-products-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.create')): ?>
-        <a href="<?php echo e(route('admin.salesorders.create')); ?>" class="btn btn-primary btn-sm">Add Sales Entry</a>
+        <a href="<?php echo e(route('admin.salesorders.create')); ?>" class="btn buttonSpc">Add Sales Entry</a>
         <?php endif; ?>
     </div>
     <form method="GET" action="<?php echo e(route('admin.salesorders.index')); ?>" class="p-4">
@@ -55,14 +55,14 @@
             <!-- Buttons -->
         </div>
         <div class="mt-4 d-flex gap-2">
-            <button class="btn btn-primary">Filter Report</button>
+            <button class="btn buttonSpc">Filter Report</button>
             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('salesorders.export')): ?>
             <button type="submit" name="export" value="excel" class="btn btn-success">
                 <i class="ti ti-file-export me-1"></i>
                 Export to Excel
             </button>
             <?php endif; ?>
-            <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-secondary">Reset</a>
+            <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Reset</a>
         </div>
     </form>
 

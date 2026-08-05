@@ -3,7 +3,7 @@
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Designations</h5>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('designations.create')): ?>
-        <a href="<?php echo e(route('admin.designations.create')); ?>" class="btn btn-primary">
+        <a href="<?php echo e(route('admin.designations.create')); ?>" class="btn buttonSpc">
              Add Designation
         </a>
         <?php endif; ?>

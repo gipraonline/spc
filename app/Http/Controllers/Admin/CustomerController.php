@@ -9,31 +9,35 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
-
-    public function index()
+public function index()
 {
-    $query = CustomerMaster::whereNull('deleted_at');
 
-    if (session('customer_search')) {
+    $query = CustomerMaster::query();
 
-        $search = session('customer_search');
+    $search = session('customer_search');
+    $status = session('customer_status');
+
+    // Search by Customer Code, Name or Mobile
+    if (!empty($search)) {
 
         $query->where(function ($q) use ($search) {
 
             $q->where('c_customer_code', 'LIKE', "%{$search}%")
               ->orWhere('c_customer_name', 'LIKE', "%{$search}%")
-              ->orWhere('n_mobile', 'LIKE', "%{$search}%");
+              ->orWhere('n_mobile', 'LIKE', "%{$search}%")
+              ->orWhere('n_whatsapp', 'LIKE', "%{$search}%");
 
         });
     }
 
-    if (session('status_filter')) {
-
-        $query->where('c_status', session('status_filter'));
-
+    // Filter by Status
+    if (!empty($status)) {
+        $query->where('c_status', $status);
     }
 
-    $customers = $query->paginate(10);
+    $customers = $query
+                    ->orderBy('n_customer_id', 'desc')
+                    ->paginate(10);
 
     return view('admin.customers.index', compact('customers'));
 }
@@ -265,12 +269,23 @@ class CustomerController extends Controller
 }
 
     public function search(Request $request)
-    {
+{
+    
+    session([
+        'customer_search' => $request->customer_search,
+        'customer_status' => $request->c_status,
+    ]);
 
-    }
+    return redirect()->route('admin.customers.index');
+}
 
     public function clearSearch()
-    {
+{
+    session()->forget([
+        'customer_search',
+        'customer_status',
+    ]);
 
-    }
+    return redirect()->route('admin.customers.index');
+}
 }

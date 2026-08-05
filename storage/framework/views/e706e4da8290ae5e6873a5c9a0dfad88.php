@@ -153,15 +153,15 @@
                             Status
                         </label>
 
-                        <select name="status_filter" class="form-select styled-select">
+                        <select name="c_status" class="form-select styled-select">
 
                             <option value="">All</option>
 
-                            <option value="Y" <?php echo e(session('status_filter')=='Y' ? 'selected':''); ?>>
+                            <option value="Y" <?php echo e(session('customer_status')=='Y' ? 'selected':''); ?>>
                                 Active
                             </option>
 
-                            <option value="N" <?php echo e(session('status_filter')=='N' ? 'selected':''); ?>>
+                            <option value="N" <?php echo e(session('customer_status')=='N' ? 'selected':''); ?>>
                                 Inactive
                             </option>
 

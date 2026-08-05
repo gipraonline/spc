@@ -32,43 +32,59 @@
         <a href="{{ route('admin.salesorders.create') }}" class="btn buttonSpc">Add Sales Entry</a>
         @endcan
     </div>
-    <form method="GET" action="{{ route('admin.salesorders.index') }}" class="p-4">
-        <div class="row g-4 align-items-end">
 
-            <!-- Search By Employee Name or Code-->
-            <div class="col-lg-4 col-md-6">
-                <label class="form-label fw-semibold">Search</label>
-                <input type="text" name="search" class="form-control" placeholder="Farm Care Advisor name/Code"
-                    value="{{ request('search') }}">
-            </div>
 
-            <!-- From Date -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label fw-semibold">From Date</label>
-                <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
-            </div>
 
-            <!-- To Date -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label fw-semibold">To Date</label>
-                <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
-            </div>
 
-            <!-- Buttons -->
-        </div>
-        <div class="mt-4 d-flex gap-2">
-            <button class="btn buttonSpc">Filter Report</button>
-            @can('salesorders.export')
-            <button type="submit" name="export" value="excel" class="btn btn-success">
-                <i class="ti ti-file-export me-1"></i>
-                Export to Excel
-            </button>
-            @endcan
-            <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Reset</a>
-        </div>
-    </form>
 
     <div class="card-body p-4">
+
+        @if ($message = Session::get('success'))
+        <div class="alert alert-success" role="alert">
+            {{ $message }}
+        </div>
+        @endif
+
+        <form method="GET" action="{{ route('admin.salesorders.index') }}" class="p-2">
+             <div class="card refine-search-card border-0 rounded-4 mb-4">
+                <div class="card-body">
+
+                <!-- Search By Farm Care Advisor Name or Code-->
+                <div class="row">
+                    <div class="col-lg-3 col-md-3">
+                        <label class="form-label fw-semibold">Search</label>
+                        <input type="text" name="search" class="form-control" placeholder="Farm Care Advisor name/Code"
+                            value="{{ request('search') }}">
+                    </div>
+
+                    <!-- From Date -->
+                    <div class="col-lg-3 col-md-3">
+                        <label class="form-label fw-semibold">From Date</label>
+                        <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
+                    </div>
+
+                    <!-- To Date -->
+                    <div class="col-lg-3 col-md-3">
+                        <label class="form-label fw-semibold">To Date</label>
+                        <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="col-lg-3 col-md-3 pt-4 d-flex gap-2">
+                        <button class="btn buttonSpc">Filter Report</button>
+                        @can('salesorders.export')
+                        <button type="submit" name="export" value="excel" class="btn btn-success">
+                            <i class="ti ti-file-export me-1"></i>
+                            Export to Excel
+                        </button>
+                        @endcan
+                        <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Reset</a>
+                    </div>
+                </div>
+
+            </div>
+            </div>
+        </form>
         <div class="table-responsive">
             <table class="table table-hover align-middle text-nowrap">
                 <thead>

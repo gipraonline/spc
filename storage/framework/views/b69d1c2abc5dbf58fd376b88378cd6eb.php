@@ -26,10 +26,6 @@
     <?php echo $__env->yieldPushContent('styles'); ?>
 
 
-
-
-
-
     <style>
     /* FILTER WRAPPER */
     .filter-card-wrapper {

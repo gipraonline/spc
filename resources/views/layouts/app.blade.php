@@ -26,10 +26,6 @@
     @stack('styles')
 
 
-
-
-
-
     <style>
     /* FILTER WRAPPER */
     .filter-card-wrapper {

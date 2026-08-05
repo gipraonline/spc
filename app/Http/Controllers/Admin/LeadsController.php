@@ -8,24 +8,18 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Auth;
 
 
-use App\Jobs\ProcessSalesUpload;
-use App\Jobs\ProcessReturnsUpload;
 use App\Models\SalesOrder;
 use App\Models\DesignationMaster;
-use App\Models\EmployeeIncentive;
+
 use App\Models\EmployeeMaster;
 use App\Models\ProductMaster;
-use App\Models\AdminSaleDraft;
-use App\Models\AdminSaleUpload;
-use App\Models\ReturnSaleDraft;
-use App\Models\ReturnDraftUpload;
 use App\Models\StoreMaster;
-use App\Models\AdminSaleUnnormalizedLog;
 use App\Models\OrderProduct;
 use App\Models\State;
 use App\Models\District;
 use App\Models\SalesApproval;
 use App\Models\CustomerMaster;
+use App\Models\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -37,7 +31,7 @@ use App\Exports\SalesReportExport;
 use App\Exports\SaleReturnsReportExport;
 use App\Exports\IncentiveSalesReportExport;
 
-class SalesController extends Controller
+class LeadsController extends Controller
 {
 public function index(Request $request)
     {
@@ -106,7 +100,7 @@ public function index(Request $request)
             ->paginate(20)
             ->withQueryString();
     //dd($sales);
-        return view('admin.sales.index', compact('sales'));
+        return view('admin.leads.index', compact('sales'));
     }
 
 
@@ -219,14 +213,14 @@ $customer = CustomerMaster::where(
                     }
                 }
 
-            $message = 'Sales order updated successfully.';
+            $message = 'Leads updated successfully.';
 
         } else {
 
             // INSERT
 
             $salesOrder=SalesOrder::create($order);
-                  
+
 
             if(isset($validated['products'])){
                 foreach($validated['products'] as $product) {
@@ -243,12 +237,12 @@ $customer = CustomerMaster::where(
                     }
                 }
             }
-            $message = 'Sales order created successfully.';
+            $message = 'Lead created successfully.';
         }
            //DB::commit();
 
             return redirect()
-                ->route('admin.salesorders.index')
+                ->route('admin.leads.index')
                 ->with('success', 'Sales entry created successfully.');
 
         } catch (\Exception $e) {
@@ -271,7 +265,8 @@ $customer = CustomerMaster::where(
         $states=State::with('districts')->where('status', '1')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='on';
-        return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode'));
+        $user=Admin::with('role')->where('n_role_id',Auth::user()->n_role_id)->first();
+        return view('admin.leads.create', compact('sale','employees','products','states','franchises','viewmode','user'));
     }
 
 
@@ -308,7 +303,7 @@ $customer = CustomerMaster::where(
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='off';
 
-        return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode'));
+        return view('admin.leads.create', compact('sale','employees','products','states','franchises','viewmode'));
     }
 
 
@@ -318,7 +313,7 @@ $customer = CustomerMaster::where(
         $id = Crypt::decryptString($id);
         $sale=SalesOrder::where('n_sl_no',$id);
         $sale->update(['deleted_at'=>date('Y-m-d')]);
-        return redirect()->route('admin.salesorders.index')->with('success', 'Sales entry deleted successfully.');
+        return redirect()->route('admin.leads.index')->with('success', 'Leads entry deleted successfully.');
     }
 
 

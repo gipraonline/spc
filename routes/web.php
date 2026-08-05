@@ -8,7 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\DesignationController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\SalesController;
+use App\Http\Controllers\Admin\LeadsController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminUserController;
@@ -133,16 +133,16 @@ Route::middleware(['auth', 'admin'])
     Route::delete('employees/{employee}', [EmployeeController::class, 'destroy'])
         ->middleware('permission:employees.delete')
         ->name('employees.destroy');
-    
+
     Route::post('employees/search', [EmployeeController::class, 'search'])
         ->middleware('permission:employees.view')
         ->name('employees.search');
 
     Route::get('employees/clear-search', [EmployeeController::class, 'clearSearch'])
         ->middleware('permission:employees.view')
-        ->name('employees.clearSearch'); 
-    
-    Route::get('/employees/reporting-managers/{designation}', [EmployeeController::class, 'getReportingManagers']);   
+        ->name('employees.clearSearch');
+
+    Route::get('/employees/reporting-managers/{designation}', [EmployeeController::class, 'getReportingManagers']);
 
 
     /*
@@ -183,7 +183,7 @@ Route::middleware(['auth', 'admin'])
 
     Route::get('franchises/clear-search', [StoreController::class, 'clearSearch'])
         ->middleware('permission:franchises.view')
-        ->name('franchises.clearSearch');    
+        ->name('franchises.clearSearch');
     // *********************************************
 
     /*
@@ -242,7 +242,7 @@ Route::middleware(['auth', 'admin'])
 
     Route::get('products/clear-search', [ProductController::class, 'clearSearch'])
         ->middleware('permission:products.view')
-        ->name('products.clearSearch');    
+        ->name('products.clearSearch');
 
 
     /*
@@ -250,51 +250,57 @@ Route::middleware(['auth', 'admin'])
     | District Filter
     |--------------------------------------------------------------------------
     */
-        Route::get('districts', [SalesController::class, 'districtFilter'])
+        Route::get('districts', [LeadsController::class, 'districtFilter'])
         ->name('filterDistrict');
 
     /*
     |--------------------------------------------------------------------------
-    | Sales Orders
+    | Leads
     |--------------------------------------------------------------------------
     */
 
-    Route::get('salesorders', [SalesController::class, 'index'])
-        ->middleware('permission:sales-orders.view')
-        ->name('salesorders.index');
+    Route::get('leads', [LeadsController::class, 'index'])
+        ->middleware('permission:leads.view')
+        ->name('leads.index');
 
 
-    Route::get('salesorders/create', [SalesController::class, 'create'])
-        ->middleware('permission:sales-orders.add-sale')
-        ->name('salesorders.create');
+    Route::get('leads/create', [LeadsController::class, 'create'])
+        ->middleware('permission:leads.add-lead')
+        ->name('leads.create');
 
 
-    Route::post('salesorders', [SalesController::class, 'store'])
-        ->middleware('permission:sales-orders.create')
-        ->name('salesorders.store');
+    Route::post('leads', [LeadsController::class, 'store'])
+        ->middleware('permission:leads.create')
+        ->name('leads.store');
 
 
-    Route::get('salesorders/show/{id}', [SalesController::class, 'show'])
-        ->middleware('permission:sales-orders.view-details')
-        ->name('salesorders.show');
+    Route::get('leads/show/{id}', [LeadsController::class, 'show'])
+        ->middleware('permission:leads.view-details')
+        ->name('leads.show');
 
-    Route::put('salesorders/approval', [SalesController::class, 'approve'])
-    ->name('salesorders.approval.save');
+    Route::put('leads/approval', [LeadsController::class, 'approve'])
+    ->middleware('permission:leads.approval')
+    ->name('leads.approval.save');
 
-
-    Route::get('salesorders/edit/{id}', [SalesController::class, 'edit'])
-        ->middleware('permission:sales-orders.edit')
-        ->name('salesorders.edit');
-
-
-   /*  Route::put('salesorders/update', [SalesController::class, 'update'])
-        ->middleware('permission:sales-orders.edit')
-        ->name('salesorders.update'); */
+    Route::put('leads/followup', [LeadsController::class, 'followupSave'])
+    ->middleware('permission:leads.follow-up')
+    ->name('leads.followup.store');
 
 
-    Route::delete('salesorders/delete/{id}', [SalesController::class, 'destroy'])
-        ->middleware('permission:sales-orders.delete')
-        ->name('salesorders.destroy');
+
+    Route::get('leads/edit/{id}', [LeadsController::class, 'edit'])
+        ->middleware('permission:leads.edit')
+        ->name('leads.edit');
+
+
+   /*  Route::put('leads/update', [LeadsController::class, 'update'])
+        ->middleware('permission:leads.edit')
+        ->name('leads.update'); */
+
+
+    Route::delete('leads/delete/{id}', [LeadsController::class, 'destroy'])
+        ->middleware('permission:leads.delete')
+        ->name('leads.destroy');
 
 
 
@@ -318,7 +324,7 @@ Route::middleware(['auth', 'admin'])
 
     Route::resource('permissions', PermissionController::class)
         ->middleware('permission:permission-management.view');
-    
+
     /*
     |--------------------------------------------------------------------------
     | Customers
@@ -356,10 +362,10 @@ Route::middleware(['auth', 'admin'])
     Route::get('customers/clear-search', [CustomerController::class, 'clearSearch'])
         ->middleware('permission:customers.view')
         ->name('customers.clearSearch');
-    
+
     Route::get('districts/{state}', [CustomerController::class, 'getDistricts'])
         ->name('admin.districts');
-    
+
 
 });
 
@@ -373,12 +379,12 @@ require __DIR__.'/auth.php';
 
 Route::middleware('auth')->group(function () {
 
-    Route::match(['get','post'], '/sales-report', [SalesController::class, 'salesReport'])
+    Route::match(['get','post'], '/sales-report', [LeadsController::class, 'salesReport'])
         ->middleware('permission:verified-sales.view')
         ->name('sales.report');
 
 
-    Route::get('/export-sales-report', [SalesController::class, 'exportSalesReport'])
+    Route::get('/export-sales-report', [LeadsController::class, 'exportSalesReport'])
         ->middleware('permission:verified-sales.export')
         ->name('export.sales.report');
 

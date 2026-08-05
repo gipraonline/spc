@@ -39,6 +39,25 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
             </div>
+            <div class="mb-3">
+                <label class="form-label">
+                    Identifier <span class="text-danger">*</span>
+                </label>
+
+                <input type="text" name="identifier" class="form-control" value="<?php echo e(old('identifier')); ?>"
+                    placeholder="Example: HR_MANAGER">
+
+                <?php $__errorArgs = ['identifier'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                <small class="text-danger"><?php echo e($message); ?></small>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+            </div>
 
             <button type="submit" class="btn buttonSpc">
                 Save Role

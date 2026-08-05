@@ -188,6 +188,25 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                 </div>
+                <div class="col-md-6">
+                    <label for="reporting_to" class="form-label">
+                        Reporting Manager
+                    </label>
+                    <select name="reporting_to" id="reporting_to" class="form-select">
+                        <option value="">Select Reporting Manager</option>
+                    </select>
+
+                    <?php $__errorArgs = ['reporting_to'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <small class="text-danger"><?php echo e($message); ?></small>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
 
             </div>
             <!-- Section 3: Account Details -->
@@ -326,6 +345,43 @@ unset($__errorArgs, $__bag); ?>
 
 <?php $__env->startPush('scripts'); ?>
 <script src="<?php echo e(asset('dist/js/custom.js?1')); ?>"></script>
+<script>
+$(document).ready(function() {
+
+    $('#n_designation_id').change(function() {
+
+        let designation = $(this).val();
+
+        console.log(designation);
+
+        $.ajax({
+            url: '/admin/employees/reporting-managers/' + designation,
+            type: 'GET',
+            success: function(data) {
+
+                let options = '<option value="">Select Reporting Manager</option>';
+
+                $.each(data, function(index, emp) {
+
+                    options += `
+            <option value="${emp.n_employee_id}">
+                ${emp.c_designation}
+            </option>
+        `;
+
+                });
+
+                $('#reporting_to').html(options);
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+
+    });
+
+});
+</script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
 

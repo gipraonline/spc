@@ -1,4 +1,6 @@
-<?php $__env->startPush('styles'); ?>
+@extends('layouts.app')
+
+@push('styles')
     <style>
         .card form {
             background: #fff;
@@ -17,18 +19,18 @@
             height: 45px;
         }
     </style>
-<?php $__env->stopPush(); ?>
+@endpush
 
-<?php $__env->startSection('content'); ?>
-<?php
+@section('content')
+@php
     use Illuminate\Support\Facades\Crypt;
-?>
+@endphp
 <div class="card w-100 position-relative overflow-hidden mb-4">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-products-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
-        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.create')): ?>
-        <a href="<?php echo e(route('admin.leads.create')); ?>" class="btn buttonSpc">Add Sales Entry</a>
-        <?php endif; ?>
+        @can('leads.create')
+        <a href="{{ route('admin.leads.create') }}" class="btn buttonSpc">Add Sales Entry</a>
+        @endcan
     </div>
 
 
@@ -37,14 +39,13 @@
 
     <div class="card-body p-4">
 
-        <?php if($message = Session::get('success')): ?>
+        @if ($message = Session::get('success'))
         <div class="alert alert-success" role="alert">
-            <?php echo e($message); ?>
-
+            {{ $message }}
         </div>
-        <?php endif; ?>
+        @endif
 
-        <form method="GET" action="<?php echo e(route('admin.leads.index')); ?>" class="p-2">
+        <form method="GET" action="{{ route('admin.leads.index') }}" class="p-2">
              <div class="card refine-search-card border-0 rounded-4 mb-4">
                 <div class="card-body">
 
@@ -53,31 +54,31 @@
                     <div class="col-lg-3 col-md-3">
                         <label class="form-label fw-semibold">Search</label>
                         <input type="text" name="search" class="form-control" placeholder="Farm Care Advisor name/Code"
-                            value="<?php echo e(request('search')); ?>">
+                            value="{{ request('search') }}">
                     </div>
 
                     <!-- From Date -->
                     <div class="col-lg-3 col-md-3">
                         <label class="form-label fw-semibold">From Date</label>
-                        <input type="date" name="start_date" value="<?php echo e(request('start_date')); ?>" class="form-control">
+                        <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
                     </div>
 
                     <!-- To Date -->
                     <div class="col-lg-3 col-md-3">
                         <label class="form-label fw-semibold">To Date</label>
-                        <input type="date" name="end_date" value="<?php echo e(request('end_date')); ?>" class="form-control">
+                        <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
                     </div>
 
                     <!-- Buttons -->
                     <div class="col-lg-3 col-md-3 pt-4 d-flex gap-2">
                         <button class="btn buttonSpc">Filter Report</button>
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.export')): ?>
+                        @can('leads.export')
                         <button type="submit" name="export" value="excel" class="btn btn-success">
                             <i class="ti ti-file-export me-1"></i>
                             Export to Excel
                         </button>
-                        <?php endif; ?>
-                        <a href="<?php echo e(route('admin.leads.index')); ?>" class="btn btn-outline-secondary">Reset</a>
+                        @endcan
+                        <a href="{{ route('admin.leads.index') }}" class="btn btn-outline-secondary">Reset</a>
                     </div>
                 </div>
 
@@ -93,36 +94,43 @@
                         <th scope="col">Order Date</th>
                         <th scope="col">Customer Name</th>
                         <th scope="col">Customer Address</th>
-                        
+                        {{-- <th scope="col">Farm Care Advisor</th> --}}
                         <th scope="col">Franchise</th>
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['leads.view-details', 'leads.edit', 'leads.delete'])): ?>
+                        @canany(['leads.view-details', 'leads.edit', 'leads.delete'])
                         <th scope="col">Actions</th>
-                        <?php endif; ?>
+                        @endcanany
                     </tr>
                 </thead>
                 <tbody>
 
-                    <?php $__empty_1 = true; $__currentLoopData = $sales; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$sale): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    @forelse($sales as $key=>$sale)
                     <tr>
                         <td class="border-bottom-0 text-center">
-                            <span class="fw-normal"><?php echo e($sales->firstItem() + $key); ?></span>
+                            <span class="fw-normal">{{ $sales->firstItem() + $key }}</span>
                         </td>
-                        <td><?php echo e($sale?->c_bill_no ?? 'N/A'); ?></td>
-                        <td><?php echo e(\Carbon\Carbon::parse($sale->d_date)->format('d M Y')); ?></td>
-                        <td><?php echo e($sale?->c_customer_name ?? 'N/A'); ?></td>
-                        <td><?php echo e($sale?->c_customer_address ?? 'N/A'); ?></td>
-                       
+                        <td>{{ $sale?->c_bill_no ?? 'N/A' }}</td>
+                        <td>{{ \Carbon\Carbon::parse($sale->d_date)->format('d M Y') }}</td>
+                        <td>{{ $sale?->c_customer_name ?? 'N/A' }}</td>
+                        <td>{{ $sale?->c_customer_address ?? 'N/A' }}</td>
+                       {{--  <td>
+                            <div class="d-flex align-products-center">
+                                <div>
+                                    <h6 class="mb-0 fw-semibold">{{ $sale->employee?->c_employee_name ?? 'N/A' }}</h6>
+                                    <span class="fs-2 text-muted">{{ $sale->employee?->c_employee_code ?? '' }}</span>
+                                </div>
+                            </div>
+                        </td> --}}
                         <td>
                             <div class="d-flex align-products-center">
                                 <div>
-                                    <h6 class="mb-0 fw-semibold"><?php echo e($sale->franchise?->c_store_name ?? 'N/A'); ?></h6>
-                                    <span class="fs-2 text-muted"><?php echo e($sale->franchise?->c_store_code ?? ''); ?></span>
+                                    <h6 class="mb-0 fw-semibold">{{ $sale->franchise?->c_store_name ?? 'N/A' }}</h6>
+                                    <span class="fs-2 text-muted">{{ $sale->franchise?->c_store_code ?? '' }}</span>
                                 </div>
                             </div>
                         </td>
 
 
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['leads.view-details', 'leads.edit', 'leads.delete'])): ?>
+                        @canany(['leads.view-details', 'leads.edit', 'leads.delete'])
                         <td>
                             <div class="dropdown dropstart">
                                 <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown"
@@ -131,53 +139,50 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                     <li>
-                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.view-details')): ?>
+                                        @can('leads.view-details')
                                         <a class="dropdown-item d-flex align-products-center gap-3"
-                                            href="<?php echo e(route('admin.leads.show', Crypt::encryptString($sale->n_sl_no))); ?>">
+                                            href="{{ route('admin.leads.show', Crypt::encryptString($sale->n_sl_no)) }}">
                                             <i class="fs-4 ti ti-eye"></i>View Details
                                         </a>
-                                        <?php endif; ?>
+                                        @endcan
                                     </li>
                                     <li>
-                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.edit')): ?>
+                                        @can('leads.edit')
                                         <a class="dropdown-item d-flex align-products-center gap-3"
-                                            href="<?php echo e(route('admin.leads.edit', Crypt::encryptString($sale->n_sl_no))); ?>">
+                                            href="{{ route('admin.leads.edit', Crypt::encryptString($sale->n_sl_no)) }}">
                                             <i class="fs-4 ti ti-edit"></i>Edit
                                         </a>
-                                        <?php endif; ?>
+                                        @endcan
                                     </li>
                                     <li>
-                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.delete')): ?>
-                                        <form action="<?php echo e(route('admin.leads.destroy', Crypt::encryptString($sale->n_sl_no))); ?>" method="POST"
+                                        @can('leads.delete')
+                                        <form action="{{ route('admin.leads.destroy', Crypt::encryptString($sale->n_sl_no)) }}" method="POST"
                                             onsubmit="return confirm('Are you sure?')">
-                                            <?php echo csrf_field(); ?>
-                                            <?php echo method_field('DELETE'); ?>
+                                            @csrf
+                                            @method('DELETE')
                                             <button type="submit"
                                                 class="dropdown-item d-flex align-products-center gap-3 text-danger">
                                                 <i class="fs-4 ti ti-trash"></i>Delete
                                             </button>
                                         </form>
-                                        <?php endif; ?>
+                                        @endcan
                                     </li>
                                 </ul>
                             </div>
                         </td>
-                        <?php endif; ?>
+                        @endcanany
                     </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    @empty
                     <tr>
                         <td colspan="10" class="text-center">No sales records found</td>
                     </tr>
-                    <?php endif; ?>
+                    @endforelse
                 </tbody>
             </table>
         </div>
         <div class="mt-3">
-            <?php echo e($sales->links()); ?>
-
+            {{ $sales->links() }}
         </div>
     </div>
 </div>
-<?php $__env->stopSection(); ?>
-
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/sales/index.blade.php ENDPATH**/ ?>
+@endsection

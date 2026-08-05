@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
     <style>
         .card form {
             background: #fff;
@@ -19,18 +17,18 @@
             height: 45px;
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
-@php
+<?php $__env->startSection('content'); ?>
+<?php
     use Illuminate\Support\Facades\Crypt;
-@endphp
+?>
 <div class="card w-100 position-relative overflow-hidden mb-4">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-products-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
-        @can('sales-orders.create')
-        <a href="{{ route('admin.salesorders.create') }}" class="btn buttonSpc">Add Sales Entry</a>
-        @endcan
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.create')): ?>
+        <a href="<?php echo e(route('admin.leads.create')); ?>" class="btn buttonSpc">Add Sales Entry</a>
+        <?php endif; ?>
     </div>
 
 
@@ -39,13 +37,14 @@
 
     <div class="card-body p-4">
 
-        @if ($message = Session::get('success'))
+        <?php if($message = Session::get('success')): ?>
         <div class="alert alert-success" role="alert">
-            {{ $message }}
-        </div>
-        @endif
+            <?php echo e($message); ?>
 
-        <form method="GET" action="{{ route('admin.salesorders.index') }}" class="p-2">
+        </div>
+        <?php endif; ?>
+
+        <form method="GET" action="<?php echo e(route('admin.leads.index')); ?>" class="p-2">
              <div class="card refine-search-card border-0 rounded-4 mb-4">
                 <div class="card-body">
 
@@ -54,31 +53,31 @@
                     <div class="col-lg-3 col-md-3">
                         <label class="form-label fw-semibold">Search</label>
                         <input type="text" name="search" class="form-control" placeholder="Farm Care Advisor name/Code"
-                            value="{{ request('search') }}">
+                            value="<?php echo e(request('search')); ?>">
                     </div>
 
                     <!-- From Date -->
                     <div class="col-lg-3 col-md-3">
                         <label class="form-label fw-semibold">From Date</label>
-                        <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
+                        <input type="date" name="start_date" value="<?php echo e(request('start_date')); ?>" class="form-control">
                     </div>
 
                     <!-- To Date -->
                     <div class="col-lg-3 col-md-3">
                         <label class="form-label fw-semibold">To Date</label>
-                        <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
+                        <input type="date" name="end_date" value="<?php echo e(request('end_date')); ?>" class="form-control">
                     </div>
 
                     <!-- Buttons -->
                     <div class="col-lg-3 col-md-3 pt-4 d-flex gap-2">
                         <button class="btn buttonSpc">Filter Report</button>
-                        @can('salesorders.export')
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.export')): ?>
                         <button type="submit" name="export" value="excel" class="btn btn-success">
                             <i class="ti ti-file-export me-1"></i>
                             Export to Excel
                         </button>
-                        @endcan
-                        <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Reset</a>
+                        <?php endif; ?>
+                        <a href="<?php echo e(route('admin.leads.index')); ?>" class="btn btn-outline-secondary">Reset</a>
                     </div>
                 </div>
 
@@ -90,42 +89,40 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
+                        <th scope="col">Order Id</th>
                         <th scope="col">Order Date</th>
-                        <th scope="col">Farm Care Advisor</th>
-                        <th scope="col">Franchise</th>
                         <th scope="col">Customer Name</th>
-                        @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
+                        <th scope="col">Customer Address</th>
+                        
+                        <th scope="col">Franchise</th>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['leads.view-details', 'leads.edit', 'leads.delete'])): ?>
                         <th scope="col">Actions</th>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
 
-                    @forelse($sales as $key=>$sale)
+                    <?php $__empty_1 = true; $__currentLoopData = $sales; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$sale): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
                         <td class="border-bottom-0 text-center">
-                            <span class="fw-normal">{{ $sales->firstItem() + $key }}</span>
+                            <span class="fw-normal"><?php echo e($sales->firstItem() + $key); ?></span>
                         </td>
-                        <td>{{ \Carbon\Carbon::parse($sale->d_date)->format('d M Y') }}</td>
+                        <td><?php echo e($sale?->c_bill_no ?? 'N/A'); ?></td>
+                        <td><?php echo e(\Carbon\Carbon::parse($sale->d_date)->format('d M Y')); ?></td>
+                        <td><?php echo e($sale?->c_customer_name ?? 'N/A'); ?></td>
+                        <td><?php echo e($sale?->c_customer_address ?? 'N/A'); ?></td>
+                       
                         <td>
                             <div class="d-flex align-products-center">
                                 <div>
-                                    <h6 class="mb-0 fw-semibold">{{ $sale->employee?->c_employee_name ?? 'N/A' }}</h6>
-                                    <span class="fs-2 text-muted">{{ $sale->employee?->c_employee_code ?? '' }}</span>
+                                    <h6 class="mb-0 fw-semibold"><?php echo e($sale->franchise?->c_store_name ?? 'N/A'); ?></h6>
+                                    <span class="fs-2 text-muted"><?php echo e($sale->franchise?->c_store_code ?? ''); ?></span>
                                 </div>
                             </div>
                         </td>
-                        <td>
-                            <div class="d-flex align-products-center">
-                                <div>
-                                    <h6 class="mb-0 fw-semibold">{{ $sale->franchise?->c_store_name ?? 'N/A' }}</h6>
-                                    <span class="fs-2 text-muted">{{ $sale->franchise?->c_store_code ?? '' }}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>{{ $sale?->c_customer_name ?? 'N/A' }}</td>
 
-                        @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
+
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['leads.view-details', 'leads.edit', 'leads.delete'])): ?>
                         <td>
                             <div class="dropdown dropstart">
                                 <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown"
@@ -134,50 +131,53 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                     <li>
-                                        @can('sales-orders.view-details')
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.view-details')): ?>
                                         <a class="dropdown-item d-flex align-products-center gap-3"
-                                            href="{{ route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no)) }}">
+                                            href="<?php echo e(route('admin.leads.show', Crypt::encryptString($sale->n_sl_no))); ?>">
                                             <i class="fs-4 ti ti-eye"></i>View Details
                                         </a>
-                                        @endcan
+                                        <?php endif; ?>
                                     </li>
                                     <li>
-                                        @can('sales-orders.edit')
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.edit')): ?>
                                         <a class="dropdown-item d-flex align-products-center gap-3"
-                                            href="{{ route('admin.salesorders.edit', Crypt::encryptString($sale->n_sl_no)) }}">
+                                            href="<?php echo e(route('admin.leads.edit', Crypt::encryptString($sale->n_sl_no))); ?>">
                                             <i class="fs-4 ti ti-edit"></i>Edit
                                         </a>
-                                        @endcan
+                                        <?php endif; ?>
                                     </li>
                                     <li>
-                                        @can('sales-orders.delete')
-                                        <form action="{{ route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no)) }}" method="POST"
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.delete')): ?>
+                                        <form action="<?php echo e(route('admin.leads.destroy', Crypt::encryptString($sale->n_sl_no))); ?>" method="POST"
                                             onsubmit="return confirm('Are you sure?')">
-                                            @csrf
-                                            @method('DELETE')
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('DELETE'); ?>
                                             <button type="submit"
                                                 class="dropdown-item d-flex align-products-center gap-3 text-danger">
                                                 <i class="fs-4 ti ti-trash"></i>Delete
                                             </button>
                                         </form>
-                                        @endcan
+                                        <?php endif; ?>
                                     </li>
                                 </ul>
                             </div>
                         </td>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="10" class="text-center">No sales records found</td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
         <div class="mt-3">
-            {{ $sales->links() }}
+            <?php echo e($sales->links()); ?>
+
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/leads/index.blade.php ENDPATH**/ ?>

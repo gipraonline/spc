@@ -153,7 +153,9 @@
         min-width: 110px;
     }
 
-
+    .modal-header{
+        background: linear-gradient(135deg, #5A8D3A, #074E30);
+    }
     header.app-header {
         background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(10px);

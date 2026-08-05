@@ -254,7 +254,7 @@
             <!-- Buttons -->
             <div class="mt-3 d-flex gap-2" >
                 <?php if(isset($viewmode) && $viewmode=="on"): ?>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.approve')): ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.follow-up')): ?>
                     <!--Follow-up Button-->
                         <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal" data-bs-target="#followUpModal" data-id="<?php echo e(isset($sale) ? Crypt::encryptString($sale->n_sl_no) : ''); ?>" id="followup">Update Follow-up</button>
                     <?php endif; ?>
@@ -307,29 +307,30 @@
                                    class="form-control">
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Follow-up Type</label>
-                            <select name="followup_type" class="form-select" required>
-                                <option value="">Select</option>
-                                <option value="Phone Call">Phone Call</option>
-                                <option value="WhatsApp">WhatsApp</option>
-                                <option value="Site Visit">Site Visit</option>
-                            </select>
-                        </div>
+                        <?php if(isset($user->role) && $user->role->identifier != "FCA"): ?>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Follow-up Type</label>
+                                <select name="followup_type" class="form-select" required>
+                                    <option value="">Select</option>
+                                    <option value="Phone Call">Phone Call</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="Site Visit">Site Visit</option>
+                                </select>
+                            </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Lead Status</label>
-                            <select name="status" class="form-select" required>
-                                <option value="">Select Status</option>
-                                <option value="New">New</option>
-                                <option value="Contacted">Contacted</option>
-                                <option value="Interested">Interested</option>
-                                <option value="Negotiation">Negotiation</option>
-                                <option value="Won">Won</option>
-                                <option value="Lost">Lost</option>
-                            </select>
-                        </div>
-
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Lead Status</label>
+                                <select name="status" class="form-select" required>
+                                    <option value="">Select Status</option>
+                                    <option value="New">New</option>
+                                    <option value="Contacted">Contacted</option>
+                                    <option value="Interested">Interested</option>
+                                    <option value="Negotiation">Negotiation</option>
+                                    <option value="Won">Won</option>
+                                    <option value="Lost">Lost</option>
+                                </select>
+                            </div>
+                        <?php endif; ?>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Priority</label>
                             <select name="priority" class="form-select">
@@ -555,4 +556,4 @@
     </script>
 <?php $__env->stopPush(); ?>
 
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/sales/create.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/leads/create.blade.php ENDPATH**/ ?>

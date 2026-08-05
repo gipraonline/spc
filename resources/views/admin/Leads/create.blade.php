@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}">
+        <form method="POST" id="frm_create" action="{{ route('admin.leads.store') }}">
             @csrf
 
             <input type="hidden" name="id" class="form-control"  value="{{isset($sale) ? $sale->n_sl_no : ''}}">
@@ -250,20 +250,135 @@
 
 
             <!-- Buttons -->
-            <div class="mt-3">
+            <div class="mt-3 d-flex gap-2" >
                 @if(isset($viewmode) && $viewmode=="on")
-                    @can('sales-orders.approve')
-                        <button type="button" style="width:150px;position:relative;" class="btn mb-1 buttonSpc" data-bs-toggle="modal" data-bs-target="#approveModal" data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="approve">Approve</button>
+                    @can('leads.follow-up')
+                    <!--Follow-up Button-->
+                        <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal" data-bs-target="#followUpModal" data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="followup">Update Follow-up</button>
+                    @endcan
+                    @can('leads.approve')
+                    <!--Approval Button-->
+                        <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal" data-bs-target="#approveModal" data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="approve">Approve</button>
                     @endcan
                 @else
-                    <button type="button" class="btn buttonSpc" id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
-                    <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="button" class="btn mt-1 buttonSpc" id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
+                    <a href="{{ route('admin.leads.index') }}" class="btn btn-outline-secondary">Cancel</a>
                 @endif
             </div>
         </form>
     </div>
 </div>
 
+<!-- Follow-up Modal -->
+<div class="modal fade" id="followUpModal" tabindex="-1" aria-labelledby="followUpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <form action="{{ route('admin.leads.followup.store') }}" method="POST">
+                @csrf
+
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="followUpModalLabel">
+                        Lead Follow-up Form
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden" name="lead_id" value="{{ $lead->id ?? '' }}">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Follow-up Date</label>
+                            <input type="date"
+                                   name="followup_date"
+                                   class="form-control"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Next Follow-up Date</label>
+                            <input type="date"
+                                   name="next_followup_date"
+                                   class="form-control">
+                        </div>
+
+                        @if(isset($user->role) && $user->role->identifier != "FCA")
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Follow-up Type</label>
+                                <select name="followup_type" class="form-select" required>
+                                    <option value="">Select</option>
+                                    <option value="Phone Call">Phone Call</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="Site Visit">Site Visit</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Lead Status</label>
+                                <select name="status" class="form-select" required>
+                                    <option value="">Select Status</option>
+                                    <option value="New">New</option>
+                                    <option value="Contacted">Contacted</option>
+                                    <option value="Interested">Interested</option>
+                                    <option value="Negotiation">Negotiation</option>
+                                    <option value="Won">Won</option>
+                                    <option value="Lost">Lost</option>
+                                </select>
+                            </div>
+                        @endif
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Priority</label>
+                            <select name="priority" class="form-select">
+                                <option>Low</option>
+                                <option selected>Medium</option>
+                                <option>High</option>
+                                <option>Urgent</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Reminder</label>
+                            <input type="datetime-local"
+                                   name="reminder_at"
+                                   class="form-control">
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Remarks</label>
+                            <textarea name="remarks"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Enter follow-up remarks..."
+                                      required></textarea>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="submit"
+                            class="btn buttonSpc">
+                        Save Follow-up
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
 
 <!--Approval Form modal-->
 <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
@@ -274,8 +389,8 @@
 
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="approveModalLabel">Approval</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
@@ -298,8 +413,8 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Submit</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn buttonSpc">Submit</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
 
@@ -433,7 +548,7 @@
                     document.getElementById('approval_id').value = id;
 
                     // Set form action dynamically
-                    document.getElementById('approveForm').action = "{{route('admin.salesorders.approval.save')}}" ;
+                    document.getElementById('approveForm').action = "{{route('admin.leads.approval.save')}}" ;
                 });
         });
     </script>

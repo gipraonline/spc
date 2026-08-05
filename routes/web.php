@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\StoreController;
+use App\Http\Controllers\Admin\CustomerController;
 
 
 Route::get('/', function () {
@@ -361,6 +362,9 @@ Route::middleware(['auth', 'admin'])
     Route::get('customers/clear-search', [CustomerController::class, 'clearSearch'])
         ->middleware('permission:customers.view')
         ->name('customers.clearSearch');
+
+    Route::get('districts/{state}', [CustomerController::class, 'getDistricts'])
+        ->name('admin.districts');
 
 
 });

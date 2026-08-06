@@ -164,7 +164,7 @@ public function create()
         $validator = Validator::make($request->all(), [
             'd_date' => 'required|date',
             'c_order_no' => 'required|string|max:255',
-            'farm_care_advisor_id' => 'required|integer|exists:employee_masters,n_employee_id',
+            'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
             'customer_id' => 'required|exists:customer_masters,n_customer_id',
             'c_customer_email' => 'nullable|email|max:255',
             'c_customer_address' => 'nullable|string|max:1000',
@@ -193,14 +193,16 @@ public function create()
                     'n_customer_id',
                     $validated['customer_id']
                     )->first();
-        $designation = DesignationMaster::where(
-                    'n_designation_id',
-                    $user->n_designation_id
-                    )->first();
+       $user = Auth::user();
 
-        if ($designation && $designation->identifier == 'FCA') {
-            $validated['farm_care_advisor_id'] = $user->n_employee_id;
-        }
+if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
+
+    $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
+
+    if ($employee) {
+        $validated['farm_care_advisor_id'] = $employee->n_employee_id;
+    }
+}
         //DB::beginTransaction();
 
         try {

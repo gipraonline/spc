@@ -43,4 +43,16 @@ public function district()
         'id'
     );
 }
+public static function generateCustomerCode()
+{
+    $lastCustomer = self::orderByDesc('n_customer_id')->first();
+
+    if (!$lastCustomer || !$lastCustomer->c_customer_code) {
+        return 'CUS0001';
+    }
+
+    $lastNumber = (int) str_replace('CUS', '', $lastCustomer->c_customer_code);
+
+    return 'CUS' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+}
 }

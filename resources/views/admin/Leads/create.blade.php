@@ -1,5 +1,71 @@
 @extends('layouts.app')
+@push('styles')
+<style>
+.order-number {
+    background: #f5f5f5;
+    font-weight: bold;
+    color: #086a0e;
+}
 
+.form-section {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+    background: #fff;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #086a0e;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 12px;
+}
+
+.form-box {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+    background: #ffffff;
+}
+
+.form-section-header {
+    font-size: 16px;
+    font-weight: 600;
+    color: #086a0e;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+}
+
+.payment-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px 18px;
+    margin-right: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-option:hover {
+    background: #f8f9fa;
+}
+
+.payment-option input[type="radio"] {
+    margin: 0;
+}
+
+.payment-option input[type="radio"]:checked+label {
+    color: #087f23;
+    font-weight: 600;
+}
+</style>
+@endpush
 @section('content')
 @php
 use Illuminate\Support\Facades\Crypt;
@@ -32,276 +98,518 @@ use Illuminate\Support\Facades\Crypt;
 
             <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
 
-            <!-- Row 1 -->
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Date *</label>
-                    <input type="date" name="d_date" class="form-control mandatory" data-message="Please Select a Date"
-                        value="{{ old('d_date', isset($sale) ? $sale->d_date->format('Y-m-d') : '') }}"
-                        {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Bill No *</label>
-                    <input type="text" name="c_bill_no" class="form-control mandatory"
-                        data-message="Please Enter Bill No"
-                        value="{{ old('c_bill_no',isset($sale) ? $sale->c_bill_no : '') }}"
-                        {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
-                    <div class="text-danger mt-1 fs-2"></div>
+            <!-- Section 1: Order Information -->
+            <div class="form-section mb-4">
+
+                <div class="section-title mb-3">
+                    <i class="ti ti-file-invoice fs-5"></i>
+                    Order Information
                 </div>
 
+                <!-- Row 1 -->
+                <div class="row">
 
-            </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Date *</label>
+                        <input type="date" name="d_date" class="form-control mandatory"
+                            data-message="Please Select a Date"
+                            value="{{ old('d_date', isset($sale) ? $sale->d_date->format('Y-m-d') : '') }}"
+                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
 
-            <!-- Row 2 -->
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Farm Care Advisor *</label>
-                    <select name="farm_care_advisor_id" data-message="Please Select Farm Care Advisor"
-                        class="form-select mandatory" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
-                        <option value="">Select</option>
-                        @foreach($employees as $employee)
-                        <option value="{{ $employee->n_employee_id }}"
-                            {{ old('farm_care_advisor_id', $sale->farm_care_advisor_id ?? '') == $employee->n_employee_id ? 'selected' : '' }}>
-                            {{ $employee->c_employee_name }}
-                        </option>
-                        @endforeach
-                    </select>
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-
-            </div>
-
-            <!-- Row 3 -->
-            <div class="row">
-                <label class="form-label">Order Details *</label>
-                @if(isset($viewmode) && $viewmode=='off')
-                <button type="button" style="width:180px;position:relative;" class="btn mb-1 buttonSpc" id="addRow">Add
-                    New Product</button>
-                @endif
-                <table class="table table-responsive " id="productTable">
-                    <thead>
-                        <tr>
-                            <th width="45%">Product</th>
-                            <th width="20%">Price</th>
-                            <th width="20%">Quantity</th>
-                            <th width="10%">Total</th>
-                            <th width="10%">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if(isset($sale->orderProducts))
-
-                        @foreach($sale->orderProducts as $key=>$val)
-                        <tr>
-                            <td>
-                                <select name="products[{{ $key }}][product_id]" class="form-control product mandatory">
-                                    <option value="">Select Product</option>
-                                    @foreach($products as $product)
-                                    <option value="{{ $product->n_product_id }}"
-                                        data-price="{{ $product->n_selling_price }}"
-                                        {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
-                                        {{ $product->c_product_name }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                            </td>
-
-                            <td>
-                                <input type="text" name="products[{{ $key }}][product_price]" class="form-control price"
-                                    value="{{ $val->product_price }}" readonly>
-                            </td>
-
-                            <td>
-                                <input type="number" name="products[{{ $key }}][qty]" class="form-control qty"
-                                    value="{{ $val->qty }}">
-                            </td>
-
-                            <td>
-                                <input type="text" name="products[{{ $key }}][product_total]" class="form-control total"
-                                    value="{{ $val->product_total }}" readonly>
-                            </td>
-
-                            <td>
-                                <button type="button" class="btn btn-danger removeRow">X</button>
-                            </td>
-                        </tr>
-                        @endforeach
-                        @endif
-
-
-
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Section 4: Contact & Status -->
-            <div class="form-section-header mb-3">
-                <i class="ti ti-mail fs-5"></i> Contact & Status
-            </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <label for="c_customer_name" class="form-label">Customer *</label>
-                    <select name="customer_id" id="customer_id" class="form-select mandatory">
-                        <option value="">Select Customer</option>
-
-                        @foreach($customers as $customer)
-                        <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
-                            data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
-                            data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
-                            data-district="{{ $customer->n_district_id }}">
-                            {{ $customer->c_customer_name }}
-                        </option>
-                        @endforeach
-                    </select>
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="c_customer_email" class="form-label">Customer Email *</label>
-                    <input type="text" id="c_customer_email" name="c_customer_email"
-                        value="{{ old('c_customer_email',isset($sale) ? $sale->c_customer_email : '') }}"
-                        {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
-                        data-message="Please enter Customer Email" class="form-control mandatory"
-                        placeholder="Enter Customer Email">
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-            </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <label for="c_customer_address" class="form-label">Customer Address *</label>
-                    <input type="text" id="c_customer_address" name="c_customer_address"
-                        value="{{ old('c_customer_address',isset($sale) ? $sale->c_customer_address : '') }}"
-                        {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
-                        data-message="Please add Customer Address" class="form-control mandatory"
-                        placeholder="Customer Address">
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="n_customer_mobile" class="form-label">Customer Mobile *</label>
-                    <input type="text" id="n_customer_mobile" name="n_customer_mobile"
-                        value="{{ old('n_customer_mobile',isset($sale) ? $sale->n_customer_mobile : '') }}"
-                        {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
-                        data-message="Please enter Customer Mobile" class="form-control mandatory"
-                        placeholder="Enter Customer Mobile">
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-            </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <label for="state" class="form-label">State</label>
-                    <select class="form-select mandatory" data-message="Please enter State" id="state" name="n_state_id"
-                        {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
-                        <option value="" selected>Select State</option>
-                        @if(isset($states))
-                        @foreach($states as $State)
-                        <option value="{{$State->n_state_id}}"
-                            {{ old('n_state_id', $sale->n_state_id ?? '') == $State->n_state_id ? 'selected' : '' }}>
-                            {{$State->name}}</option>
-                        @endforeach
-                        @endif
-                    </select>
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-                <div class="col-md-6">
-                    <label for="state" class="form-label">District</label>
-                    <select class="form-select mandatory" data-message="Please enter District"
-                        {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }} id="district" name="n_district_id">
-                        <option value="" selected>Select District</option>
-                        @if(isset($sale->n_district_id))
-                        @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
-                        @if(isset($districts))
-                        @foreach($districts as $district)
-                        <option value="{{$district->id}}"
-                            {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
-                            {{$district->district_name}}</option>
-                        @endforeach
-                        @endif
-                        @endif
-
-                    </select>
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-            </div>
-
-
-            <div class="row mb-3 align-items-center">
-                <label class="col-md-2 col-form-label">
-                    Mode of Payment
-                </label>
-
-                <div class="col-md-9">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input mandatory" type="radio" name="c_mode_of_payment" id="cod"
-                            data-message="Please enter Mode of Payment" value="cash_on_delivery"
-                            {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == 'cash_on_delivery' ? 'checked' : '' }}
-                            {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
-                        <label class="form-check-label" for="cod">
-                            Cash on Delivery
-                        </label>
+                        <div class="text-danger mt-1 fs-2"></div>
                     </div>
 
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="c_mode_of_payment" id="upi" value="UPI"
-                            {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == 'UPI' ? 'checked' : '' }}
-                            {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
-                        <label class="form-check-label" for="upi">
-                            UPI
-                        </label>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Order No *</label>
+
+                        <input type="text" name="c_order_no" class="form-control mandatory order-number"
+                            data-message="Please Enter Order No"
+                            value="{{ old('c_order_no', isset($sale) ? $sale->c_order_no : $orderNo) }}" readonly>
+
+                        <div class="text-danger mt-1 fs-2"></div>
                     </div>
-                    <div class="text-danger mt-1 fs-2"></div>
+
                 </div>
-            </div>
 
 
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <label for="state" class="form-label">Nearest Franchise</label>
-                    <select class="form-select mandatory" data-message="Please enter Nearest Franchise" id="franchise"
-                        name="nearest_franchise_id" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
-                        <option value="" selected>Select Franchise</option>
-                        @if(isset($franchises))
-                        @foreach($franchises as $franchise)
-                        <option value="{{$franchise->n_store_id}}"
-                            {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
-                            {{$franchise->c_store_name}}({{$franchise->c_store_code}})</option>
-                        @endforeach
+                <!-- Row 2: Farm Care Advisor -->
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+                            Farm Care Advisor *
+                        </label>
+
+
+                        @if($isFarmCareAdvisor)
+
+                        <input type="text" class="form-control" value="{{ auth()->user()->c_name }}" readonly>
+
+                        @else
+
+                        <select name="farm_care_advisor_id" class="form-control mandatory">
+                            <option value="">Select Farm Care Adviser</option>
+
+                            @foreach($employees as $employee)
+                            <option value="{{ $employee->n_employee_id }}">
+                                {{ $employee->c_employee_name }}
+                            </option>
+                            @endforeach
+                        </select>
+
                         @endif
+                        <div class="text-danger mt-1 fs-2"></div>
 
-                    </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- Row 3 : Product Details -->
+
+            <div class="form-section mb-4">
+
+                <div class="section-title d-flex justify-content-between align-items-center mb-3">
+
+                    <div>
+                        <i class="ti ti-shopping-cart fs-5"></i>
+                        Product Details *
+                    </div>
+
+
+                    @if(isset($viewmode) && $viewmode=='off')
+
+                    <button type="button" class="btn buttonSpc btn-sm" id="addRow">
+                        <i class="ti ti-plus"></i>
+                        Add New Product
+                    </button>
+
+                    @endif
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered align-middle" id="productTable">
+
+                        <thead class="table-light">
+
+                            <tr>
+                                <th width="45%">Product</th>
+                                <th width="15%">Price</th>
+                                <th width="15%">Quantity</th>
+                                <th width="15%">Total</th>
+                                <th width="10%">Action</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @if(isset($sale->orderProducts))
+
+                            @foreach($sale->orderProducts as $key=>$val)
+
+                            <tr>
+
+                                <td>
+                                    <select name="products[{{ $key }}][product_id]"
+                                        class="form-control product mandatory">
+
+                                        <option value="">
+                                            Select Product
+                                        </option>
+
+                                        @foreach($products as $product)
+
+                                        <option value="{{ $product->n_product_id }}"
+                                            data-price="{{ $product->n_selling_price }}"
+                                            {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
+
+                                            {{ $product->c_product_name }}
+
+                                        </option>
+
+                                        @endforeach
+
+                                    </select>
+                                </td>
+
+
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][product_price]"
+                                        class="form-control price" value="{{ $val->product_price }}" readonly>
+                                </td>
+
+
+                                <td>
+                                    <input type="number" name="products[{{ $key }}][qty]" class="form-control qty"
+                                        value="{{ $val->qty }}">
+                                </td>
+
+
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][product_total]"
+                                        class="form-control total" value="{{ $val->product_total }}" readonly>
+                                </td>
+
+
+                                <td class="text-center">
+
+                                    <button type="button" class="btn btn-danger btn-sm removeRow">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                            @endforeach
+
+                            @endif
+
+
+                        </tbody>
+
+                    </table>
+
                 </div>
 
             </div>
 
+            <!-- Section 3: Customer Information -->
+            <div class="border rounded p-4 mb-4">
 
-            <!-- Buttons -->
-            <div class="mt-3 d-flex gap-2">
-                @if(isset($viewmode) && $viewmode=="on")
-                @can('leads.follow-up')
-                <!--Follow-up Button-->
-                <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
-                    data-bs-toggle="modal" data-bs-target="#followUpModal"
-                    data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="followup">Update
-                    Follow-up</button>
-                @endcan
-                @can('leads.approve')
-                <!--Approval Button-->
-                <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
-                    data-bs-toggle="modal" data-bs-target="#approveModal"
-                    data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}"
-                    id="approve">Approve</button>
-                @endcan
-                @else
-                <button type="button" class="btn mt-1 buttonSpc"
-                    id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
-                <a href="{{ route('admin.leads.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                @endif
+                <div class="form-section-header mb-3">
+                    <i class="ti ti-user fs-5"></i> Customer Information
+                </div>
+
+
+                <div class="row g-4 mb-4">
+
+                    <div class="col-md-6">
+                        <label for="c_customer_name" class="form-label">Customer *</label>
+
+                        <select name="customer_id" id="customer_id" class="form-select mandatory">
+                            <option value="">Select Customer</option>
+
+                            @foreach($customers as $customer)
+                            <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
+                                data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
+                                data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
+                                data-district="{{ $customer->n_district_id }}">
+                                {{ $customer->c_customer_name }}
+                            </option>
+                            @endforeach
+
+                        </select>
+
+                        <div class="text-danger mt-1 fs-2"></div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label for="c_customer_email" class="form-label">Customer Email *</label>
+
+                        <input type="text" id="c_customer_email" name="c_customer_email"
+                            value="{{ old('c_customer_email',isset($sale) ? $sale->c_customer_email : '') }}"
+                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
+                            data-message="Please enter Customer Email" class="form-control mandatory"
+                            placeholder="Enter Customer Email">
+
+                        <div class="text-danger mt-1 fs-2"></div>
+                    </div>
+
+                </div>
+
+
+
+                <div class="row g-4 mb-4">
+
+                    <div class="col-md-6">
+                        <label for="n_customer_mobile" class="form-label">Customer Mobile *</label>
+
+                        <input type="text" id="n_customer_mobile" name="n_customer_mobile"
+                            value="{{ old('n_customer_mobile',isset($sale) ? $sale->n_customer_mobile : '') }}"
+                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
+                            data-message="Please enter Customer Mobile" class="form-control mandatory"
+                            placeholder="Enter Customer Mobile">
+
+                        <div class="text-danger mt-1 fs-2"></div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label for="c_customer_address" class="form-label">Customer Address *</label>
+
+                        <input type="text" id="c_customer_address" name="c_customer_address"
+                            value="{{ old('c_customer_address',isset($sale) ? $sale->c_customer_address : '') }}"
+                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
+                            data-message="Please add Customer Address" class="form-control mandatory"
+                            placeholder="Customer Address">
+
+                        <div class="text-danger mt-1 fs-2"></div>
+                    </div>
+
+                </div>
+
+
+
+                <div class="row g-4 mb-4">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">State</label>
+
+                        <select class="form-select mandatory" data-message="Please enter State" id="customer_state"
+                            name="n_state_id" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
+
+                            <option value="">Select State</option>
+
+                            @if(isset($states))
+                            @foreach($states as $State)
+
+                            <option value="{{$State->n_state_id}}"
+                                {{ old('n_state_id', $sale->n_state_id ?? '') == $State->n_state_id ? 'selected' : '' }}>
+                                {{$State->name}}
+                            </option>
+
+                            @endforeach
+                            @endif
+
+                        </select>
+
+                        <div class="text-danger mt-1 fs-2"></div>
+
+                    </div>
+
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">District</label>
+
+                        <select class="form-select mandatory" data-message="Please enter District"
+                            id="customer_district" name="n_district_id"
+                            {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
+
+                            <option value="">Select District</option>
+
+                            @if(isset($sale->n_district_id))
+
+                            @php
+                            $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get();
+                            @endphp
+
+                            @foreach($districts as $district)
+
+                            <option value="{{$district->id}}"
+                                {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
+                                {{$district->district_name}}
+                            </option>
+
+                            @endforeach
+
+                            @endif
+
+                        </select>
+
+                        <div class="text-danger mt-1 fs-2"></div>
+
+                    </div>
+
+                </div>
+
             </div>
+            <!-- Section 4: Payment Details -->
+            <div class="form-box">
+
+                <div class="form-section-header mb-3">
+                    <i class="ti ti-credit-card fs-5"></i>
+                    Payment Details
+                </div>
+
+
+
+                <!-- Payment Details Section -->
+                <div class="form-box mb-4">
+
+                    <div class="form-section-header mb-3">
+                        <i class="ti ti-wallet fs-5"></i>
+                        Payment Details
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+
+                        <label class="col-md-3 col-form-label fw-semibold">
+                            Mode of Payment *
+                        </label>
+
+                        <div class="col-md-9">
+
+                            <div class="payment-option">
+                                <input class="form-check-input mandatory" type="radio" name="c_mode_of_payment" id="cod"
+                                    value="cash_on_delivery">
+
+                                <label for="cod" class="mb-0">
+                                    <i class="ti ti-truck"></i>
+                                    Cash on Delivery
+                                </label>
+                            </div>
+
+
+                            <div class="payment-option">
+                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="upi"
+                                    value="UPI">
+
+                                <label for="upi" class="mb-0">
+                                    <i class="ti ti-brand-google-pay"></i>
+                                    UPI
+                                </label>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Franchise Details Section -->
+                <div class="form-box">
+
+                    <div class="form-section-header mb-3">
+                        <i class="ti ti-map-pin fs-5"></i>
+                        Franchise Details
+                    </div>
+
+
+                    <div class="row g-4 mb-4">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                State <span class="text-danger">*</span>
+                            </label>
+
+                            <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                                data-message="Please Select State">
+
+                                <option value="">Select State</option>
+
+                                @foreach($states as $state)
+
+                                <option value="{{ $state->n_state_id }}"
+                                    {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
+
+                                    {{ $state->name }}
+
+                                </option>
+
+                                @endforeach
+
+                            </select>
+
+                            @error('n_state_id')
+                            <div class="text-danger mt-1 fs-2">
+                                {{ $message }}
+                            </div>
+                            @enderror
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                District <span class="text-danger">*</span>
+                            </label>
+
+                            <select class="form-select mandatory" id="franchise_district" name="n_district_id"
+                                data-message="Please Select District">
+
+                                <option value="">
+                                    Select District
+                                </option>
+
+                            </select>
+
+                            @error('n_district_id')
+                            <div class="text-danger mt-1 fs-2">
+                                {{ $message }}
+                            </div>
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row g-4 mb-4">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Nearest Franchise
+                            </label>
+
+                            <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                                data-message="Please enter Nearest Franchise">
+
+                                <option value="">
+                                    Select Franchise
+                                </option>
+
+                                @if(isset($franchises))
+
+                                @foreach($franchises as $franchise)
+
+                                <option value="{{ $franchise->n_store_id }}"
+                                    {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
+
+                                    {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
+
+                                </option>
+
+                                @endforeach
+
+                                @endif
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Buttons -->
+                <div class="mt-3 d-flex gap-2">
+                    @if(isset($viewmode) && $viewmode=="on")
+                    @can('leads.follow-up')
+                    <!--Follow-up Button-->
+                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
+                        data-bs-toggle="modal" data-bs-target="#followUpModal"
+                        data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="followup">Update
+                        Follow-up</button>
+                    @endcan
+                    @can('leads.approve')
+                    <!--Approval Button-->
+                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
+                        data-bs-toggle="modal" data-bs-target="#approveModal"
+                        data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}"
+                        id="approve">Approve</button>
+                    @endcan
+                    @else
+                    <button type="button" class="btn mt-1 buttonSpc"
+                        id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
+                    <a href="{{ route('admin.leads.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                    @endif
+                </div>
         </form>
     </div>
 </div>
@@ -454,11 +762,7 @@ use Illuminate\Support\Facades\Crypt;
 <script>
 $(document).ready(function() {
     console.log("First script loaded");
-    let rowIndex = {
-        {
-            isset($sale) ? count($sale - > orderProducts) : 0
-        }
-    };
+    let rowIndex = "{{ isset($sale) ? count($sale->orderProducts) : 0 }}";
 
     $("#addRow").click(function() {
 
@@ -553,6 +857,7 @@ $(document).ready(function() {
                         .district_name + '</option>'
                     );
                 });
+
             }
 
             const approveModal = document.getElementById('approveModal');
@@ -597,6 +902,12 @@ $(document).ready(function() {
     });
 });
 </script>
+
+<!--  ======================================================
+ Customer Selection
+ Auto-populate customer details and load customer district
+ based on the selected customer's state.
+ ====================================================== -->
 <script>
 $(document).ready(function() {
     $("#customer_id").change(function() {
@@ -610,7 +921,7 @@ $(document).ready(function() {
         let stateId = option.data("state");
         let districtId = option.data("district");
 
-        $("#state").val(stateId);
+        $("#customer_state").val(stateId);
 
         $.ajax({
             type: "GET",
@@ -621,10 +932,10 @@ $(document).ready(function() {
             dataType: "json",
             success: function(data) {
 
-                $("#district").html('<option value="">Select District</option>');
+                $("#customer_district").html('<option value="">Select District</option>');
 
                 $.each(data.districts, function(i, district) {
-                    $("#district").append(
+                    $("#customer_district").append(
                         '<option value="' + district.id + '">' +
                         district.district_name +
                         '</option>'
@@ -632,7 +943,7 @@ $(document).ready(function() {
                 });
 
                 // Select customer's district after options are loaded
-                $("#district").val(districtId);
+                $("#customer_district").val(districtId);
 
             }
         });
@@ -640,4 +951,89 @@ $(document).ready(function() {
     });
 });
 </script>
+
+<!--======================================================
+ Franchise State Selection
+ Load districts based on the selected franchise state.
+ ====================================================== -->
+
+<script>
+$('#franchise_state').change(function() {
+
+    let stateId = $(this).val();
+
+    $('#franchise_district').html('<option value="">Loading...</option>');
+
+    $.ajax({
+
+        url: "{{ route('admin.filterDistrict') }}",
+
+        type: "GET",
+
+        data: {
+            state: stateId
+        },
+
+        success: function(response) {
+
+            $('#franchise_district').html('<option value="">Select District</option>');
+
+            $.each(response.districts, function(index, district) {
+
+                $('#franchise_district').append(
+                    '<option value="' + district.id + '">' +
+                    district.district_name +
+                    '</option>'
+                );
+
+            });
+
+        }
+
+    });
+
+});
+</script>
+
+<!--======================================================
+ Franchise District Selection
+ Load nearest franchise list based on the selected
+ franchise state and district.
+ =========================================================-->
+
+<script>
+$('#franchise_district').change(function() {
+
+    let stateId = $('#franchise_state').val();
+    let districtId = $(this).val();
+
+    $.ajax({
+        url: "{{ url('admin/filter-franchise') }}",
+        type: "GET",
+        data: {
+            state: stateId,
+            district: districtId
+        },
+        dataType: "json",
+        success: function(response) {
+
+            $('#franchise').html('<option value="">Select Franchise</option>');
+
+            $.each(response.franchises, function(i, franchise) {
+
+                $('#franchise').append(
+                    '<option value="' + franchise.n_store_id + '">' +
+                    franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
+                    '</option>'
+                );
+
+            });
+
+        }
+    });
+
+});
+</script>
+
+
 @endpush

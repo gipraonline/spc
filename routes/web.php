@@ -302,6 +302,11 @@ Route::middleware(['auth', 'admin'])
         ->middleware('permission:leads.delete')
         ->name('leads.destroy');
 
+    Route::get('filter-franchise', [LeadsController::class, 'franchiseFilter'])
+        ->name('admin.filterFranchise'); 
+    
+      
+
 
 
     /*

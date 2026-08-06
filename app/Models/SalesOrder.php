@@ -20,7 +20,7 @@ class SalesOrder extends Model
 
     protected $fillable = [
         'd_date',
-        'c_bill_no',
+        'c_order_no',
         'farm_care_advisor_id',
         'c_customer_name',
         'c_customer_address',
@@ -52,5 +52,17 @@ class SalesOrder extends Model
     public function orderProducts()
     {
         return $this->hasMany(OrderProduct::class, 'n_order_id', 'n_sl_no');
+    }
+     public static function generateOrderNo()
+    {
+        $lastOrder = self::orderByDesc('n_sl_no')->first();
+
+        if (!$lastOrder || !$lastOrder->c_order_no) {
+            return 'ORD1';
+        }
+
+        $lastNumber = (int) str_replace('ORD', '', $lastOrder->c_order_no);
+
+        return 'ORD' . ($lastNumber + 1);
     }
 }

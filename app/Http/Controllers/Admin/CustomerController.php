@@ -46,11 +46,12 @@ public function index()
 
     public function create()
 {
-     $states = State::where('status', 1)
+    $states = State::where('status', 1)
         ->orderBy('name')
         ->get();
+    $customerCode = CustomerMaster::generateCustomerCode();
         
-    return view('admin.customers.create', compact('states'));
+    return view('admin.customers.create', compact('states', 'customerCode'));
 }
 
     public function store(Request $request)
@@ -58,12 +59,8 @@ public function index()
     $validated = $request->validate([
 
         'c_customer_code' => [
-            'required',
-            'string',
-            'max:20',
-            'regex:/^[A-Za-z0-9_-]+$/',
-            'unique:customer_masters,c_customer_code',
-        ],
+    'nullable',
+],
 
         'c_customer_name' => 'required|string|max:255',
 
@@ -96,8 +93,6 @@ public function index()
         'c_status' => 'required|in:Y,N',
 
     ], [
-
-        'c_customer_code.required' => 'Customer Code is required.',
         'c_customer_code.unique' => 'Customer Code already exists.',
         'c_customer_code.regex' => 'Customer Code may contain only letters, numbers, hyphens and underscores.',
 
@@ -124,7 +119,7 @@ public function index()
 
         CustomerMaster::create([
 
-            'c_customer_code' => $validated['c_customer_code'],
+            'c_customer_code' => CustomerMaster::generateCustomerCode(),
 
             'c_customer_name' => $validated['c_customer_name'],
 

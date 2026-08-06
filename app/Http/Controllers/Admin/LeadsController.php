@@ -35,6 +35,7 @@ class LeadsController extends Controller
 {
 public function index(Request $request)
     {
+       
         $query = SalesOrder::query();
         $query=$query->with('employee','franchise')->whereNull('deleted_at');
         /*
@@ -103,20 +104,54 @@ public function index(Request $request)
         return view('admin.leads.index', compact('sales'));
     }
 
+public function create()
+{
+//     dd(
+//     auth()->user()->getRoleNames(),
+//     auth()->user()->roles->toArray()
+// );
+    $employees = EmployeeMaster::where('n_designation_id', 5)
+        ->where('c_status', 'Y')
+        ->get();
 
-    public function create()
-    {
-        $employees = EmployeeMaster::where('n_designation_id','5')->where('c_status', 'Y')->get();
-        $products = ProductMaster::where('c_status', 'Y')->get();
-        $franchises = StoreMaster::where('c_store_status', 'Y')->get();
-        $states=State::where('status', '1')->get();
-        $viewmode="off";
-       // $districts=District::where('status', '1')->get();
-       $customers = CustomerMaster::orderBy('c_customer_name')->get();
+    $products = ProductMaster::where('c_status', 'Y')->get();
+    $franchises = StoreMaster::where('c_store_status', 'Y')->get();
+    $states = State::where('status', 1)->get();
+    $customers = CustomerMaster::orderBy('c_customer_name')->get();
+    $orderNo = SalesOrder::generateOrderNo();
 
-        return view('admin.leads.create', compact('employees', 'products','franchises','states','viewmode', 'customers'));
+    $viewmode = "off";
+
+    $user = Auth::user();
+
+    $isFarmCareAdvisor = false;
+    $farmCareAdvisorId = null;
+
+    if ($user && $user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
+
+        $isFarmCareAdvisor = true;
+
+        // Fetch the corresponding employee
+        $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
+        // Or use another matching field if applicable
+
+        if ($employee) {
+            $farmCareAdvisorId = $employee->n_employee_id;
+        }
     }
 
+    return view('admin.leads.create', compact(
+        'employees',
+        'products',
+        'franchises',
+        'states',
+        'viewmode',
+        'customers',
+        'orderNo',
+        'farmCareAdvisorId',
+        'isFarmCareAdvisor'
+    ));
+}
 
     public function districtFilter(Request $request){
         $districts=District::where('state_id',$request->state)->get();
@@ -128,7 +163,7 @@ public function index(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'd_date' => 'required|date',
-            'c_bill_no' => 'required|string|max:255',
+            'c_order_no' => 'required|string|max:255',
             'farm_care_advisor_id' => 'required|integer|exists:employee_masters,n_employee_id',
             'customer_id' => 'required|exists:customer_masters,n_customer_id',
             'c_customer_email' => 'nullable|email|max:255',
@@ -153,17 +188,26 @@ public function index(Request $request)
         }
 
         $validated = $validator->validated();
-$customer = CustomerMaster::where(
-    'n_customer_id',
-    $validated['customer_id']
-)->first();
+        $user = Auth::user();
+        $customer = CustomerMaster::where(
+                    'n_customer_id',
+                    $validated['customer_id']
+                    )->first();
+        $designation = DesignationMaster::where(
+                    'n_designation_id',
+                    $user->n_designation_id
+                    )->first();
+
+        if ($designation && $designation->identifier == 'FCA') {
+            $validated['farm_care_advisor_id'] = $user->n_employee_id;
+        }
         //DB::beginTransaction();
 
         try {
 
 
             $order = [
-                'c_bill_no' => $validated['c_bill_no'],
+                'c_order_no' => $validated['c_order_no'],
                 'd_date' => $validated['d_date'],
                 'farm_care_advisor_id' => $validated['farm_care_advisor_id'],
                 'customer_id'        => $customer->n_customer_id,
@@ -266,7 +310,25 @@ $customer = CustomerMaster::where(
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='on';
         $user=Admin::with('role')->where('n_role_id',Auth::user()->n_role_id)->first();
-        return view('admin.leads.create', compact('sale','employees','products','states','franchises','viewmode','user'));
+
+        $farmCareAdvisorId = null;
+        $isFarmCareAdvisor = false;
+
+        $designation = DesignationMaster::where(
+                        'n_designation_id',
+        Auth::user()->n_designation_id
+                    )->first();
+
+
+        if ($designation && $designation->identifier == 'FCA') {
+
+            $isFarmCareAdvisor = true;
+            $farmCareAdvisorId = Auth::user()->n_employee_id;
+
+        }
+
+        return view('admin.leads.create', compact('sale','employees','products','states','franchises','viewmode','user', 'farmCareAdvisorId',
+    'isFarmCareAdvisor'));
     }
 
 
@@ -302,8 +364,26 @@ $customer = CustomerMaster::where(
         $states=State::with('districts')->where('status', '1')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='off';
+        $user = Auth::user();
 
-        return view('admin.leads.create', compact('sale','employees','products','states','franchises','viewmode'));
+$farmCareAdvisorId = null;
+$isFarmCareAdvisor = false;
+
+$designation = DesignationMaster::where(
+    'n_designation_id',
+    $user->n_designation_id
+)->first();
+
+
+if ($designation && $designation->identifier == 'FCA') {
+
+    $isFarmCareAdvisor = true;
+    $farmCareAdvisorId = $user->n_employee_id;
+
+}
+
+        return view('admin.leads.create', compact('sale','employees','products','states','franchises','viewmode', 'farmCareAdvisorId',
+    'isFarmCareAdvisor'));
     }
 
 
@@ -315,6 +395,25 @@ $customer = CustomerMaster::where(
         $sale->update(['deleted_at'=>date('Y-m-d')]);
         return redirect()->route('admin.leads.index')->with('success', 'Leads entry deleted successfully.');
     }
+
+    
+    public function franchiseFilter(Request $request)
+{
+    $franchises = StoreMaster::where('c_store_status', 'Y')
+        ->where('n_state_id', $request->state)
+        ->where('n_district_id', $request->district)
+        ->orderBy('c_store_name', 'ASC')
+        ->get([
+            'n_store_id',
+            'c_store_name',
+            'c_store_code'
+        ]);
+
+    return response()->json([
+        'franchises' => $franchises
+    ]);
+}
+
 
 
 

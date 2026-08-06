@@ -167,6 +167,46 @@
                     <div class="text-danger mt-1 fs-2">{{ $message }}</div>
                     @enderror
                 </div>
+
+                <div class="row g-4 mb-4">
+
+                    <div class="col-md-6">
+                        <label for="n_state_id" class="form-label">State *</label>
+                        <select id="n_state_id" name="n_state_id" class="form-select">
+                            <option value="">Select State</option>
+
+                            @foreach($states as $state)
+                            <option value="{{ $state->n_state_id }}"
+                                {{ old('n_state_id', $franchise->n_state_id) == $state->n_state_id ? 'selected' : '' }}>
+                                {{ $state->name }}
+                            </option>
+                            @endforeach
+                        </select>
+
+                        @error('n_state_id')
+                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="n_district_id" class="form-label">District *</label>
+                        <select id="n_district_id" name="n_district_id" class="form-select">
+                            <option value="">Select District</option>
+
+                            @foreach($districts as $district)
+                            <option value="{{ $district->id }}"
+                                {{ old('n_district_id', $franchise->n_district_id) == $district->id ? 'selected' : '' }}>
+                                {{ $district->district_name }}
+                            </option>
+                            @endforeach
+                        </select>
+
+                        @error('n_district_id')
+                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                </div>
             </div>
 
             <!-- Section 2: Contact & Operational Details -->
@@ -220,4 +260,27 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+$('#n_state_id').change(function() {
+
+    let stateId = $(this).val();
+
+    $.get('/admin/districts/' + stateId, function(response) {
+
+        let options = '<option value="">Select District</option>';
+
+        $.each(response, function(i, district) {
+            options += `<option value="${district.id}">
+                            ${district.district_name}
+                        </option>`;
+        });
+
+        $('#n_district_id').html(options);
+    });
+
+});
+</script>
+@endpush
 @endsection

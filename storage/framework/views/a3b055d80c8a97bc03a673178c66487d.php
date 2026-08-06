@@ -1,7 +1,7 @@
-@extends('layouts.app')
 
-@section('content')
-@push('styles')
+
+<?php $__env->startSection('content'); ?>
+<?php $__env->startPush('styles'); ?>
 <style>
 :root {
     --primary-green: #1b3e86;
@@ -87,7 +87,7 @@
     font-size: 1rem;
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
 <div class="card customer-card mb-4">
 
@@ -101,9 +101,9 @@
 
     <div class="card-body p-4 p-md-5">
 
-        <form method="POST" action="{{ route('admin.customers.store') }}">
+        <form method="POST" action="<?php echo e(route('admin.customers.store')); ?>">
 
-            @csrf
+            <?php echo csrf_field(); ?>
 
             <!-- Customer Information -->
 
@@ -124,7 +124,7 @@
                     </label>
 
                     <input type="text" name="c_customer_code" id="c_customer_code" class="form-control customer-code"
-                        value="{{ $customerCode }}" readonly>
+                        value="<?php echo e($customerCode); ?>" readonly>
 
                 </div>
 
@@ -134,12 +134,19 @@
                         Customer Name *
                     </label>
 
-                    <input type="text" name="c_customer_name" value="{{ old('c_customer_name') }}"
+                    <input type="text" name="c_customer_name" value="<?php echo e(old('c_customer_name')); ?>"
                         class="form-control mandatory" placeholder="Customer Name">
 
-                    @error('c_customer_name')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_customer_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
 
@@ -149,12 +156,19 @@
                         Mobile Number *
                     </label>
 
-                    <input type="text" maxlength="10" name="n_mobile" value="{{ old('n_mobile') }}"
+                    <input type="text" maxlength="10" name="n_mobile" value="<?php echo e(old('n_mobile')); ?>"
                         class="form-control mandatory">
 
-                    @error('n_mobile')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['n_mobile'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
 
@@ -164,12 +178,19 @@
                         WhatsApp Number
                     </label>
 
-                    <input type="text" maxlength="10" name="n_whatsapp" value="{{ old('n_whatsapp') }}"
+                    <input type="text" maxlength="10" name="n_whatsapp" value="<?php echo e(old('n_whatsapp')); ?>"
                         class="form-control">
 
-                    @error('n_whatsapp')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['n_whatsapp'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
 
@@ -179,11 +200,18 @@
                         Email
                     </label>
 
-                    <input type="email" name="c_email" value="{{ old('c_email') }}" class="form-control">
+                    <input type="email" name="c_email" value="<?php echo e(old('c_email')); ?>" class="form-control">
 
-                    @error('c_email')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
 
@@ -207,11 +235,18 @@
                     </label>
 
                     <textarea id="c_address" name="c_address" rows="3" class="form-control"
-                        placeholder="Enter Customer Address">{{ old('c_address') }}</textarea>
+                        placeholder="Enter Customer Address"><?php echo e(old('c_address')); ?></textarea>
 
-                    @error('c_address')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
                 <div class="col-md-4">
@@ -224,22 +259,30 @@
 
                         <option value="">Select State</option>
 
-                        @foreach($states as $state)
+                        <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                        <option value="{{ $state->n_state_id }}" data-id="{{ $state->n_state_id }}"
-                            {{ old('n_state_id') == $state->n_state_id ? 'selected' : '' }}>
+                        <option value="<?php echo e($state->n_state_id); ?>" data-id="<?php echo e($state->n_state_id); ?>"
+                            <?php echo e(old('n_state_id') == $state->n_state_id ? 'selected' : ''); ?>>
 
-                            {{ $state->name }}
+                            <?php echo e($state->name); ?>
+
 
                         </option>
 
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     </select>
 
-                    @error('n_state_id')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['n_state_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
 
@@ -255,9 +298,16 @@
 
                     </select>
 
-                    @error('n_district_id')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['n_district_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
 
@@ -268,12 +318,19 @@
                         Pincode
                     </label>
 
-                    <input type="text" id="c_pincode" name="c_pincode" maxlength="6" value="{{ old('c_pincode') }}"
+                    <input type="text" id="c_pincode" name="c_pincode" maxlength="6" value="<?php echo e(old('c_pincode')); ?>"
                         class="form-control" placeholder="Pincode">
 
-                    @error('c_pincode')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_pincode'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
 
@@ -297,19 +354,26 @@
 
                         <option value="">Select Status</option>
 
-                        <option value="Y" {{ old('c_status','Y')=='Y' ? 'selected' : '' }}>
+                        <option value="Y" <?php echo e(old('c_status','Y')=='Y' ? 'selected' : ''); ?>>
                             Active
                         </option>
 
-                        <option value="N" {{ old('c_status')=='N' ? 'selected' : '' }}>
+                        <option value="N" <?php echo e(old('c_status')=='N' ? 'selected' : ''); ?>>
                             Inactive
                         </option>
 
                     </select>
 
-                    @error('c_status')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
 
@@ -327,7 +391,7 @@
 
                 </button>
 
-                <a href="{{ route('admin.customers.index') }}" class="btn btn-outline-secondary btn-cancel-custom">
+                <a href="<?php echo e(route('admin.customers.index')); ?>" class="btn btn-outline-secondary btn-cancel-custom">
 
                     Cancel
 
@@ -341,9 +405,9 @@
 
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 
-<script src="{{ asset('dist/js/custom.js') }}"></script>
+<script src="<?php echo e(asset('dist/js/custom.js')); ?>"></script>
 
 <script>
 $(document).ready(function() {
@@ -386,6 +450,7 @@ $('#n_state_id').on('change', function() {
 });
 </script>
 
-@endpush
+<?php $__env->stopPush(); ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/customers/create.blade.php ENDPATH**/ ?>

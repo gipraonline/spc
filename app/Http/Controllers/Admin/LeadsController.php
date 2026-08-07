@@ -13,6 +13,7 @@ use App\Models\CustomerMaster;
 use App\Models\Lead;
 use App\Models\State;
 use App\Models\District;
+use App\Models\EmployeeMaster;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -27,9 +28,12 @@ class LeadsController extends Controller
         return view('admin.leads.index',compact('leads'));
     }
 
-
     public function create()
     {
+
+        $employees = EmployeeMaster::where('n_designation_id', 5)
+            ->where('c_status', 'Y')
+            ->get();
         $states=State::where('status', '1')->get();
         $lead=new Lead;
         return view('admin.leads.create',compact('states','lead'));

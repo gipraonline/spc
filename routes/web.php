@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\FieldLogController;
 use App\Http\Controllers\Admin\SalesController;
+use App\Http\Controllers\Admin\AdminFieldLogController;
 
 
 Route::get('/', function () {
@@ -440,19 +441,39 @@ Route::middleware(['auth', 'admin'])
         ->name('field-log.index');
 
     Route::post('/field-log/check-in', [FieldLogController::class, 'checkIn'])
-    ->middleware('permission:field-log.check-in')
+        ->middleware('permission:field-log.view')
         ->name('field-log.checkin');
 
-    Route::post('/field-log/task', [FieldLogController::class, 'storeTask'])
-        ->name('field-log.task.store');
+    // Route::post('/field-log/task', [FieldLogController::class, 'storeTask'])
+    //     ->name('field-log.task.store');
 
-    Route::post('/field-log/task/{task}/update', [FieldLogController::class, 'updateTask'])
+    Route::post('/field-log/task/update', [FieldLogController::class, 'updateTask'])
+        ->middleware('permission:field-log.view')
         ->name('field-log.task.update');
 
     Route::post('/field-log/check-out', [FieldLogController::class, 'checkOut'])
+        ->middleware('permission:field-log.view')
         ->name('field-log.checkout');
 
+    Route::get('/field-log/history', [FieldLogController::class, 'history'])
+        ->middleware('permission:field-log.view')
+        ->name('field-log.history');
 
+    Route::get('/field-log/{fieldLog}', [FieldLogController::class, 'show'])
+        ->middleware('permission:field-log.view')
+        ->name('field-log.show');
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Field log
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/admin-log', [AdminFieldLogController::class, 'index'])
+        ->middleware('permission:field-activity.view')
+        ->name('admin-log.index');
+
+    Route::get('/admin-log/{fieldLog}', [AdminFieldLogController::class, 'show'])
+        ->middleware('permission:field-activity.view')
+        ->name('admin-log.show');
 
 
 });

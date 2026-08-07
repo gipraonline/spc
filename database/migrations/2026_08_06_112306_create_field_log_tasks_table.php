@@ -12,9 +12,8 @@ return new class extends Migration
 
             $table->id();
 
-            $table->foreignId('field_log_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+            // No foreign key constraint
+            $table->unsignedBigInteger('field_log_id');
 
             $table->string('task');
 

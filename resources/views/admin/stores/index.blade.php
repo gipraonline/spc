@@ -2,118 +2,118 @@
 
 @push('styles')
 
-    <style>
-    .refine-search-card {
-        font-family: 'Inter', sans-serif;
-        background: #ffffff;
-        border: 1px solid rgba(226, 232, 240, 0.8) !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+<style>
+.refine-search-card {
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-    .refine-search-card:hover {
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-    }
+.refine-search-card:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+}
 
-    .icon-box {
-        background: linear-gradient(135deg, #f0f7ff 0%, #e0eeff 100%);
-        border: 1px solid #d0e4ff;
-        color: #5d87ff;
-    }
+.icon-box {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e0eeff 100%);
+    border: 1px solid #d0e4ff;
+    color: #5d87ff;
+}
 
-    .search-input-group {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
+.search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
 
-    .search-icon-inner {
-        position: absolute;
-        left: 16px;
-        color: #94a3b8;
-        pointer-events: none;
-    }
+.search-icon-inner {
+    position: absolute;
+    left: 16px;
+    color: #94a3b8;
+    pointer-events: none;
+}
 
-    .custom-input {
-        height: 52px !important;
-        padding-left: 48px !important;
-        padding-right: 110px !important;
-        border-radius: 12px !important;
-        border: 1.5px solid #e2e8f0 !important;
-        background-color: #f8fafc !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-        color: #1e293b !important;
-        transition: all 0.2s ease-in-out !important;
-        box-shadow: none !important;
-    }
+.custom-input {
+    height: 52px !important;
+    padding-left: 48px !important;
+    padding-right: 110px !important;
+    border-radius: 12px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    background-color: #f8fafc !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    transition: all 0.2s ease-in-out !important;
+    box-shadow: none !important;
+}
 
-    .custom-input:focus {
-        background-color: #ffffff !important;
-        border-color: #5d87ff !important;
-        box-shadow: 0 0 0 4px rgba(93, 135, 255, 0.1) !important;
-    }
+.custom-input:focus {
+    background-color: #ffffff !important;
+    border-color: #5d87ff !important;
+    box-shadow: 0 0 0 4px rgba(93, 135, 255, 0.1) !important;
+}
 
-    .custom-input::placeholder {
-        color: #94a3b8;
-        font-weight: 400;
-    }
+.custom-input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
 
-    .search-btn {
-        position: absolute;
-        right: 8px;
-        height: 38px;
-        padding: 0 20px;
-        background: #5d87ff;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        font-size: 13px;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
+.search-btn {
+    position: absolute;
+    right: 8px;
+    height: 38px;
+    padding: 0 20px;
+    background: #5d87ff;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
 
-    .search-btn:hover {
-        background: #4a6ee0;
-        transform: translateY(-1px);
-    }
+.search-btn:hover {
+    background: #4a6ee0;
+    transform: translateY(-1px);
+}
 
-    .search-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #64748b;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
+.search-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
 
-    .search-btn.position-static {
-        position: static;
-    }
+.search-btn.position-static {
+    position: static;
+}
 
-    .reset-btn {
-        height: 38px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-    }
+.reset-btn {
+    height: 38px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
 
-    .search-label {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: #1b3e86;
-        font-size: 14px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+.search-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1b3e86;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
 
-    .search-label svg {
-        flex-shrink: 0;
-    }
-    </style>
+.search-label svg {
+    flex-shrink: 0;
+}
+</style>
 
 @endpush
 @section('content')
@@ -210,6 +210,13 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Name</h6>
                         </th>
+                        <th>
+                            <h6 class="fw-semibold mb-0">State</h6>
+                        </th>
+
+                        <th>
+                            <h6 class="fw-semibold mb-0">District</h6>
+                        </th>
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Email</h6>
                         </th>
@@ -234,6 +241,14 @@
                         </td>
                         <td class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">{{ $store->c_store_name }}</h6>
+                        </td>
+
+                        <td>
+                            {{ $store->state->name ?? '-' }}
+                        </td>
+
+                        <td>
+                            {{ $store->district->district_name ?? '-' }}
                         </td>
                         <td class="border-bottom-0">
                             <span class="fw-normal">{{ $store->c_store_email ?? '-' }}</span>

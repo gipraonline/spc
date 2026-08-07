@@ -1,27 +1,27 @@
 <?php $__env->startPush('styles'); ?>
-    <style>
-        .card form {
-            background: #fff;
-            border-bottom: 1px solid #eee;
-        }
+<style>
+.card form {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
 
-        .form-label {
-            margin-bottom: 8px;
-        }
+.form-label {
+    margin-bottom: 8px;
+}
 
-        .form-control {
-            height: 45px;
-        }
+.form-control {
+    height: 45px;
+}
 
-        .btn {
-            height: 45px;
-        }
-    </style>
+.btn {
+    height: 45px;
+}
+</style>
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startSection('content'); ?>
 <?php
-    use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Crypt;
 ?>
 <div class="card w-100 position-relative overflow-hidden mb-4">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">

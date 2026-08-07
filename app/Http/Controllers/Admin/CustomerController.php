@@ -37,19 +37,21 @@ public function index()
         $query->where('c_status', $status);
     }
 
-    $customers = $query
-                    ->orderBy('n_customer_id', 'desc')
-                    ->paginate(10);
+   $customers = CustomerMaster::with(['state', 'district'])
+    ->orderBy('n_customer_id', 'desc')
+    ->paginate(10);
 
     return view('admin.customers.index', compact('customers'));
 }
 
     public function create()
 {
-     $states = State::where('status', 1)
+    $states = State::where('status', 1)
         ->orderBy('name')
         ->get();
-    return view('admin.customers.create', compact('states'));
+    $customerCode = CustomerMaster::generateCustomerCode();
+
+    return view('admin.customers.create', compact('states', 'customerCode'));
 }
 
     public function store(Request $request)
@@ -57,12 +59,8 @@ public function index()
     $validated = $request->validate([
 
         'c_customer_code' => [
-            'required',
-            'string',
-            'max:20',
-            'regex:/^[A-Za-z0-9_-]+$/',
-            'unique:customer_masters,c_customer_code',
-        ],
+    'nullable',
+],
 
         'c_customer_name' => 'required|string|max:255',
 
@@ -86,17 +84,15 @@ public function index()
 
         'c_address' => 'nullable|string',
 
-        'c_district' => 'nullable|string|max:255',
+        'n_state_id' => 'nullable|exists:states,n_state_id',
 
-        'c_state' => 'nullable|string|max:255',
+        'n_district_id' => 'nullable|exists:districts,id',
 
         'c_pincode' => 'nullable|digits:6',
 
         'c_status' => 'required|in:Y,N',
 
     ], [
-
-        'c_customer_code.required' => 'Customer Code is required.',
         'c_customer_code.unique' => 'Customer Code already exists.',
         'c_customer_code.regex' => 'Customer Code may contain only letters, numbers, hyphens and underscores.',
 
@@ -123,7 +119,7 @@ public function index()
 
         CustomerMaster::create([
 
-            'c_customer_code' => $validated['c_customer_code'],
+            'c_customer_code' => CustomerMaster::generateCustomerCode(),
 
             'c_customer_name' => $validated['c_customer_name'],
 
@@ -135,9 +131,9 @@ public function index()
 
             'c_address' => $validated['c_address'] ?? null,
 
-            'c_district' => $validated['c_district'] ?? null,
+            'n_state_id' => $validated['n_state_id'] ?? null,
 
-            'c_state' => $validated['c_state'] ?? null,
+            'n_district_id' => $validated['n_district_id'] ?? null,
 
             'c_pincode' => $validated['c_pincode'] ?? null,
 
@@ -170,15 +166,21 @@ public function index()
         ->orderBy('name')
         ->get();
 
-    $selectedState = State::where('name', $customer->c_state)->first();
+    // $selectedState = State::where('name', $customer->c_state)->first();
+    $districts = District::where(
+    'state_id',
+    $customer->n_state_id
+    )
+    ->orderBy('district_name')
+    ->get();
 
-    $districts = [];
+    // $districts = [];
 
-    if ($selectedState) {
-        $districts = District::where('state_id', $selectedState->n_state_id)
-            ->orderBy('district_name')
-            ->get();
-    }
+    // if ($selectedState) {
+    //     $districts = District::where('state_id', $selectedState->n_state_id)
+    //         ->orderBy('district_name')
+    //         ->get();
+    // }
 
     return view('admin.customers.edit', compact(
         'customer',
@@ -213,9 +215,9 @@ public function index()
 
         'c_address' => 'nullable|string',
 
-        'c_district' => 'nullable|string|max:255',
+        'n_state_id' => 'nullable|exists:states,n_state_id',
 
-        'c_state' => 'nullable|string|max:255',
+        'n_district_id' => 'nullable|exists:districts,id',
 
         'c_pincode' => 'nullable|digits:6',
 
@@ -252,10 +254,9 @@ public function index()
 
             'c_address' => $validated['c_address'] ?? null,
 
-            'c_district' => $validated['c_district'] ?? null,
+            'n_state_id' => $validated['n_state_id'] ?? null,
 
-            'c_state' => $validated['c_state'] ?? null,
-
+            'n_district_id' => $validated['n_district_id'] ?? null,
             'c_pincode' => $validated['c_pincode'] ?? null,
 
             'c_status' => $validated['c_status'],
@@ -293,7 +294,7 @@ public function index()
 
     public function search(Request $request)
 {
-    
+
     session([
         'customer_search' => $request->customer_search,
         'customer_status' => $request->c_status,

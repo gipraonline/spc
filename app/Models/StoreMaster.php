@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
+
 class StoreMaster extends Model
 {
     use SoftDeletes;
@@ -18,17 +19,21 @@ class StoreMaster extends Model
         'n_clustor_manager_id',
         'c_store_name',
         'c_store_address',
+        'n_state_id',
+        'n_district_id',
         'c_store_email',
         'n_store_phone',
         'c_store_status',
     ];
 
-    /**
-     * Cluster Manager Relationship
-     * Update the model and key names if different.
-     */
-    public function clusterManager()
-    {
-        return $this->belongsTo(ClusterManager::class, 'n_clustor_manager_id');
-    }
+    
+   public function state()
+{
+    return $this->belongsTo(State::class, 'n_state_id', 'n_state_id');
+}
+
+public function district()
+{
+    return $this->belongsTo(District::class, 'n_district_id', 'id');
+}
 }

@@ -269,12 +269,12 @@
                         </td>
 
                         <td class="border-bottom-0">
-                            <?php echo e($customer->c_district ?? '-'); ?>
+                            <?php echo e($customer->district?->district_name ?? '-'); ?>
 
                         </td>
 
                         <td class="border-bottom-0">
-                            <?php echo e($customer->c_state ?? '-'); ?>
+                            <?php echo e($customer->state?->name ?? '-'); ?>
 
                         </td>
 

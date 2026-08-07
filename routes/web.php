@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\FieldLogController;
 use App\Http\Controllers\Admin\SalesController;
 
 
@@ -251,7 +252,7 @@ Route::middleware(['auth', 'admin'])
     | District Filter
     |--------------------------------------------------------------------------
     */
-        Route::get('districts', [LeadsController::class, 'districtFilter'])
+        Route::get('districts', [SalesController::class, 'districtFilter'])
         ->name('filterDistrict');
 
     /*
@@ -303,14 +304,14 @@ Route::middleware(['auth', 'admin'])
         ->middleware('permission:leads.delete')
         ->name('leads.destroy');
 
+
     Route::post('leads/existingCustomer', [LeadsController::class, 'existingCustomer'])
-        ->middleware('permission:leads.edit')
         ->name('leads.existingCustomer');
 
 
- /*
+  /*
     |--------------------------------------------------------------------------
-    | Leads
+    | Sales Orders
     |--------------------------------------------------------------------------
     */
 
@@ -333,11 +334,9 @@ Route::middleware(['auth', 'admin'])
         ->middleware('permission:sales-orders.view-details')
         ->name('salesorders.show');
 
-
     Route::put('salesorders/approval', [SalesController::class, 'approve'])
-        ->middleware('permission:sales-orders.approval')
-        ->name('salesorders.approval.save');
-
+    ->middleware('permission:sales-orders.approval')
+    ->name('salesorders.approval.save');
 
     Route::put('salesorders/followup', [SalesController::class, 'followupSave'])
     ->middleware('permission:sales-orders.follow-up')
@@ -350,15 +349,20 @@ Route::middleware(['auth', 'admin'])
         ->name('salesorders.edit');
 
 
-   /*  Route::put('salesorders/update', [SalesController::class, 'update'])
+    Route::put('salesorders/update', [SalesController::class, 'update'])
         ->middleware('permission:sales-orders.edit')
-        ->name('salesorders.update'); */
+        ->name('salesorders.update');
 
 
     Route::delete('salesorders/delete/{id}', [SalesController::class, 'destroy'])
         ->middleware('permission:sales-orders.delete')
         ->name('salesorders.destroy');
 
+    Route::get('filterDistrict', [SalesController::class, 'franchiseFilter'])
+        ->name('salesorders.filterDistrict');
+
+    Route::get('filter-franchise', [SalesController::class, 'franchiseFilter'])
+        ->name('admin.filterFranchise');
 
 
 
@@ -423,6 +427,32 @@ Route::middleware(['auth', 'admin'])
 
     Route::get('districts/{state}', [CustomerController::class, 'getDistricts'])
         ->name('admin.districts');
+
+
+     /*
+    |--------------------------------------------------------------------------
+    | Field log
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/field-log', [FieldLogController::class, 'index'])
+        ->middleware('permission:field-log.view')
+        ->name('field-log.index');
+
+    Route::post('/field-log/check-in', [FieldLogController::class, 'checkIn'])
+    ->middleware('permission:field-log.check-in')
+        ->name('field-log.checkin');
+
+    Route::post('/field-log/task', [FieldLogController::class, 'storeTask'])
+        ->name('field-log.task.store');
+
+    Route::post('/field-log/task/{task}/update', [FieldLogController::class, 'updateTask'])
+        ->name('field-log.task.update');
+
+    Route::post('/field-log/check-out', [FieldLogController::class, 'checkOut'])
+        ->name('field-log.checkout');
+
+
 
 
 });

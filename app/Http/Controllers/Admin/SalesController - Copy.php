@@ -18,7 +18,6 @@ use App\Models\OrderProduct;
 use App\Models\State;
 use App\Models\District;
 use App\Models\SalesApproval;
-use App\Models\CustomerMaster;
 use App\Models\Admin;
 
 use Illuminate\Http\Request;
@@ -35,7 +34,6 @@ class SalesController extends Controller
 {
 public function index(Request $request)
     {
-
         $query = SalesOrder::query();
         $query=$query->with('employee','franchise')->whereNull('deleted_at');
         /*
@@ -104,51 +102,19 @@ public function index(Request $request)
         return view('admin.sales.index', compact('sales'));
     }
 
-public function create()
-{
 
-    $employees = EmployeeMaster::where('n_designation_id', 5)
-        ->where('c_status', 'Y')
-        ->get();
+    public function create()
+    {
+        $employees = EmployeeMaster::where('n_designation_id','5')->where('c_status', 'Y')->get();
+        $products = ProductMaster::where('c_status', 'Y')->get();
+        $franchises = StoreMaster::where('c_store_status', 'Y')->get();
+        $states=State::where('status', '1')->get();
+        $viewmode="off";
+       // $districts=District::where('status', '1')->get();
 
-    $products = ProductMaster::where('c_status', 'Y')->get();
-    $franchises = StoreMaster::where('c_store_status', 'Y')->get();
-    $states = State::where('status', 1)->get();
-    $customers = CustomerMaster::orderBy('c_customer_name')->get();
-    $orderNo = SalesOrder::generateOrderNo();
-
-    $viewmode = "off";
-
-    $user = Auth::user();
-
-    $isFarmCareAdvisor = false;
-    $farmCareAdvisorId = null;
-
-    if ($user && $user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
-
-        $isFarmCareAdvisor = true;
-
-        // Fetch the corresponding employee
-        $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
-        // Or use another matching field if applicable
-
-        if ($employee) {
-            $farmCareAdvisorId = $employee->n_employee_id;
-        }
+        return view('admin.sales.create', compact('employees', 'products','franchises','states','viewmode'));
     }
 
-    return view('admin.sales.create', compact(
-        'employees',
-        'products',
-        'franchises',
-        'states',
-        'viewmode',
-        'customers',
-        'orderNo',
-        'farmCareAdvisorId',
-        'isFarmCareAdvisor'
-    ));
-}
 
     public function districtFilter(Request $request){
         $districts=District::where('state_id',$request->state)->get();
@@ -160,9 +126,9 @@ public function create()
     {
         $validator = Validator::make($request->all(), [
             'd_date' => 'required|date',
-            'c_order_no' => 'required|string|max:255',
-            'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
-            'customer_id' => 'required|exists:customer_masters,n_customer_id',
+            'c_bill_no' => 'required|string|max:255',
+            'farm_care_advisor_id' => 'required|integer|exists:employee_masters,n_employee_id',
+            'c_customer_name' => 'required|string|max:255',
             'c_customer_email' => 'nullable|email|max:255',
             'c_customer_address' => 'nullable|string|max:1000',
             'n_customer_mobile' => 'required|digits_between:10,15',
@@ -185,31 +151,16 @@ public function create()
         }
 
         $validated = $validator->validated();
-        $user = Auth::user();
-        $customer = CustomerMaster::where(
-                    'n_customer_id',
-                    $validated['customer_id']
-                    )->first();
-       $user = Auth::user();
 
-if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
-
-    $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
-
-    if ($employee) {
-        $validated['farm_care_advisor_id'] = $employee->n_employee_id;
-    }
-}
         //DB::beginTransaction();
 
         try {
 
 
             $order = [
-                'c_order_no' => $validated['c_order_no'],
+                'c_bill_no' => $validated['c_bill_no'],
                 'd_date' => $validated['d_date'],
                 'farm_care_advisor_id' => $validated['farm_care_advisor_id'],
-                'customer_id'        => $customer->n_customer_id,
                 'c_customer_name' => $validated['c_customer_name'],
                 'c_customer_email' => $validated['c_customer_email'],
                 'c_customer_address' => $validated['c_customer_address'],
@@ -256,7 +207,7 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
                     }
                 }
 
-            $message = 'Sales updated successfully.';
+            $message = 'Sales Order updated successfully.';
 
         } else {
 
@@ -280,7 +231,7 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
                     }
                 }
             }
-            $message = 'Sales created successfully.';
+            $message = 'Sales Order created successfully.';
         }
            //DB::commit();
 
@@ -308,26 +259,50 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
         $states=State::with('districts')->where('status', '1')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='on';
-        $user=Admin::with('role')->where('n_role_id',Auth::user()->n_role_id)->first();
+        $user=Admin::join('model_has_roles as mr','mr.model_id','admins.n_role_id')
+                ->join('roles','roles.id','mr.role_id')
+                ->where('admins.n_role_id',Auth::user()->n_role_id)->first();
 
-        $farmCareAdvisorId = null;
-        $isFarmCareAdvisor = false;
+        return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode','user'));
+    }
 
-        $designation = DesignationMaster::where(
-                        'n_designation_id',
-        Auth::user()->n_designation_id
-                    )->first();
+    public function followupSave(){
+           $validator = Validator::make($request->all(), [
+            'lead_id'              => 'required|exists:sales_leads,n_sl_no',
+            'followup_date'        => 'required|date',
+            'next_followup_date'   => 'nullable|date|after_or_equal:followup_date',
+            'followup_type'        => 'nullable|string|max:100',
+            'lead_status'          => 'nullable|string|max:50',
+            'lead_priority'        => 'nullable|in:Low,Medium,High,Urgent',
+            'reminder_at'          => 'nullable|date',
+            'lead_remarks'         => 'required|string|max:1000',
+        ], [
+            'lead_id.required'            => 'Lead ID is required.',
+            'lead_id.exists'              => 'Selected lead does not exist.',
+            'followup_date.required'      => 'Follow-up date is required.',
+            'next_followup_date.after_or_equal' => 'Next follow-up date must be after or equal to the follow-up date.',
+            'lead_remarks.required'       => 'Remarks are required.',
+        ]);
 
-
-        if ($designation && $designation->identifier == 'FCA') {
-
-            $isFarmCareAdvisor = true;
-            $farmCareAdvisorId = Auth::user()->n_employee_id;
-
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode','user', 'farmCareAdvisorId',
-    'isFarmCareAdvisor'));
+        LeadFollowup::create([
+            'lead_id'             => $request->lead_id,
+            'followup_date'       => $request->followup_date,
+            'next_followup_date'  => $request->next_followup_date,
+            'followup_type'       => $request->followup_type,
+            'lead_status'         => $request->lead_status,
+            'lead_priority'       => $request->lead_priority,
+            'reminder_at'         => $request->reminder_at,
+            'lead_remarks'        => $request->lead_remarks,
+            'created_by'          => Auth::user()->n_role_id,
+        ]);
+
+        return redirect()->back()->with('success', 'Follow-up saved successfully.');
     }
 
 
@@ -363,26 +338,8 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
         $states=State::with('districts')->where('status', '1')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='off';
-        $user = Auth::user();
 
-        $farmCareAdvisorId = null;
-        $isFarmCareAdvisor = false;
-
-        $designation = DesignationMaster::where(
-            'n_designation_id',
-            $user->n_designation_id
-        )->first();
-
-
-        if ($designation && $designation->identifier == 'FCA') {
-
-            $isFarmCareAdvisor = true;
-            $farmCareAdvisorId = $user->n_employee_id;
-
-        }
-
-        return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode', 'farmCareAdvisorId',
-    'isFarmCareAdvisor'));
+        return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode'));
     }
 
 
@@ -392,27 +349,8 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
         $id = Crypt::decryptString($id);
         $sale=SalesOrder::where('n_sl_no',$id);
         $sale->update(['deleted_at'=>date('Y-m-d')]);
-        return redirect()->route('admin.sales.index')->with('success', 'Sales entry deleted successfully.');
+        return redirect()->route('admin.sales.index')->with('success', 'Sales Order entry deleted successfully.');
     }
-
-
-    public function franchiseFilter(Request $request)
-{
-    $franchises = StoreMaster::where('c_store_status', 'Y')
-        ->where('n_state_id', $request->state)
-        ->where('n_district_id', $request->district)
-        ->orderBy('c_store_name', 'ASC')
-        ->get([
-            'n_store_id',
-            'c_store_name',
-            'c_store_code'
-        ]);
-
-    return response()->json([
-        'franchises' => $franchises
-    ]);
-}
-
 
 
 

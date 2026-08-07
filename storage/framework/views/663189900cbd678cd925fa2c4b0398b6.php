@@ -1,101 +1,99 @@
-<?php $__env->startPush('styles'); ?>
-    <style>
-        :root {
-            --primary-green: #1b3e86;
-            --accent-orange: #F7941E;
-            --text-muted: #64748b;
-            --border-radius: 12px;
-            --shadow: 0 10px 30px rgba(0, 0, 0, .05);
-        }
-
-        .customer-card {
-            background: #fff;
-            border: 1px solid #eef2f6;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .card-header-styled {
-            padding: 1.5rem 2rem;
-            border-bottom: 2px solid #f8fafc;
-            border-top: 4px solid var(--primary-green);
-            background: #fff;
-        }
-
-        .card-title-custom {
-            font-weight: 800;
-            color: #1a202c;
-        }
-
-        .form-section-header {
-            font-size: .8rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: var(--primary-green);
-            letter-spacing: 1px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .form-section-header::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #f1f5f9;
-        }
-
-        .form-label {
-            font-weight: 700;
-            color: #4a5568;
-            font-size: .85rem;
-        }
-
-        .form-control,
-        .form-select {
-
-            border-radius: 10px;
-            padding: .75rem 1rem;
-            background: #fdfdfe;
-
-        }
-
-        .form-control:focus,
-        .form-select:focus {
-
-            border-color: var(--primary-green);
-            box-shadow: 0 0 0 4px rgba(57, 181, 74, .08);
-
-        }
-
-        .btn-cancel-custom {
-
-            border-radius: 10px;
-            padding: 10px 25px;
-
-        }
-    </style>
-<?php $__env->stopPush(); ?>
-
 <?php $__env->startSection('content'); ?>
+
+<style>
+:root {
+    --primary-green: #1b3e86;
+    --accent-orange: #F7941E;
+    --text-muted: #64748b;
+    --border-radius: 12px;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .05);
+}
+
+.customer-card {
+    background: #fff;
+    border: 1px solid #eef2f6;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.card-header-styled {
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid #f8fafc;
+    border-top: 4px solid var(--primary-green);
+    background: #fff;
+}
+
+.card-title-custom {
+    font-weight: 800;
+    color: #1a202c;
+}
+
+.form-section-header {
+    font-size: .8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--primary-green);
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-section-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #f1f5f9;
+}
+
+.form-label {
+    font-weight: 700;
+    color: #4a5568;
+    font-size: .85rem;
+}
+
+.form-control,
+.form-select {
+
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    background: #fdfdfe;
+
+}
+
+.form-control:focus,
+.form-select:focus {
+
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(57, 181, 74, .08);
+
+}
+
+.btn-cancel-custom {
+
+    border-radius: 10px;
+    padding: 10px 25px;
+
+}
+</style>
 
 <div class="card customer-card mb-4">
 
     <div class="card-header-styled d-flex justify-content-between align-items-center">
 
         <h5 class="card-title-custom mb-0">
-            Add Customer
+            EditCustomer
         </h5>
 
     </div>
 
     <div class="card-body p-4 p-md-5">
 
-        <form method="POST" action="<?php echo e(route('admin.customers.store')); ?>">
-
+        <form method="POST" action="<?php echo e(route('admin.customers.update', $customer)); ?>">
             <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
 
             <!-- Customer Information -->
 
@@ -112,11 +110,23 @@
                 <div class="col-md-6">
 
                     <label class="form-label">
-                        Customer Code
+                        Customer Code *
                     </label>
 
-                    <input type="text" name="c_customer_code" id="c_customer_code" class="form-control customer-code"
-                        value="<?php echo e($customerCode); ?>" readonly>
+                    <input type="text" name="c_customer_code"
+                        value="<?php echo e(old('c_customer_code', $customer->c_customer_code)); ?>" readonly
+                        class="form-control mandatory" placeholder="CUS-001">
+
+                    <?php $__errorArgs = ['c_customer_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                 </div>
 
@@ -126,8 +136,9 @@
                         Customer Name *
                     </label>
 
-                    <input type="text" name="c_customer_name" value="<?php echo e(old('c_customer_name')); ?>"
-                        class="form-control mandatory" placeholder="Customer Name">
+                    <input type="text" name="c_customer_name"
+                        value="<?php echo e(old('c_customer_name', $customer->c_customer_name)); ?>" class="form-control mandatory"
+                        placeholder="Customer Name">
 
                     <?php $__errorArgs = ['c_customer_name'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -148,7 +159,7 @@ unset($__errorArgs, $__bag); ?>
                         Mobile Number *
                     </label>
 
-                    <input type="text" maxlength="10" name="n_mobile" value="<?php echo e(old('n_mobile')); ?>"
+                    <input type="text" maxlength="10" name="n_mobile" value="<?php echo e(old('n_mobile', $customer->n_mobile)); ?>"
                         class="form-control mandatory">
 
                     <?php $__errorArgs = ['n_mobile'];
@@ -170,8 +181,8 @@ unset($__errorArgs, $__bag); ?>
                         WhatsApp Number
                     </label>
 
-                    <input type="text" maxlength="10" name="n_whatsapp" value="<?php echo e(old('n_whatsapp')); ?>"
-                        class="form-control">
+                    <input type="text" maxlength="10" name="n_whatsapp"
+                        value="<?php echo e(old('n_whatsapp', $customer->n_whatsapp)); ?>" class="form-control">
 
                     <?php $__errorArgs = ['n_whatsapp'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -192,7 +203,8 @@ unset($__errorArgs, $__bag); ?>
                         Email
                     </label>
 
-                    <input type="email" name="c_email" value="<?php echo e(old('c_email')); ?>" class="form-control">
+                    <input type="email" name="c_email" value="<?php echo e(old('c_email', $customer->c_email)); ?>"
+                        class="form-control">
 
                     <?php $__errorArgs = ['c_email'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -227,7 +239,7 @@ unset($__errorArgs, $__bag); ?>
                     </label>
 
                     <textarea id="c_address" name="c_address" rows="3" class="form-control"
-                        placeholder="Enter Customer Address"><?php echo e(old('c_address')); ?></textarea>
+                        placeholder="Enter Customer Address"><?php echo e(old('c_address', $customer->c_address)); ?></textarea>
 
                     <?php $__errorArgs = ['c_address'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -243,21 +255,12 @@ unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="col-md-4">
 
-                    <label for="c_state" class="form-label">
-                        State
-                    </label>
-
                     <select name="n_state_id" id="n_state_id" class="form-select">
-
                         <option value="">Select State</option>
-
                         <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                        <option value="<?php echo e($state->n_state_id); ?>" data-id="<?php echo e($state->n_state_id); ?>"
-                            <?php echo e(old('n_state_id') == $state->n_state_id ? 'selected' : ''); ?>>
-
+                        <option value="<?php echo e($state->n_state_id); ?>"
+                            <?php echo e(old('n_state_id', $customer->n_state_id) == $state->n_state_id ? 'selected' : ''); ?>>
                             <?php echo e($state->name); ?>
-
 
                         </option>
 
@@ -265,51 +268,33 @@ unset($__errorArgs, $__bag); ?>
 
                     </select>
 
-                    <?php $__errorArgs = ['n_state_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
-                    <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-
                 </div>
+
 
                 <div class="col-md-4">
 
-                    <label for="c_district" class="form-label">
-                        District
-                    </label>
-
                     <select name="n_district_id" id="n_district_id" class="form-select">
-
                         <option value="">Select District</option>
+
+                        <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                        <option value="<?php echo e($district->id); ?>"
+                            <?php echo e(old('n_district_id', $customer->n_district_id) == $district->id ? 'selected' : ''); ?>>
+                            <?php echo e($district->district_name); ?>
+
+                        </option>
+
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     </select>
 
-                    <?php $__errorArgs = ['n_district_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
-                    <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-
                 </div>
 
 
                 <div class="col-md-4">
-                     <label for="c_district" class="form-label">
-                        Pincode
-                    </label>
-                    <input type="text" id="c_pincode" name="c_pincode" maxlength="6" value="<?php echo e(old('c_pincode')); ?>"
-                        class="form-control" placeholder="Pincode">
+
+                    <input type="text" id="c_pincode" name="c_pincode" maxlength="6"
+                        value="<?php echo e(old('c_pincode', $customer->c_pincode)); ?>" class="form-control" placeholder="Pincode">
 
                     <?php $__errorArgs = ['c_pincode'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -344,14 +329,13 @@ unset($__errorArgs, $__bag); ?>
 
                         <option value="">Select Status</option>
 
-                        <option value="Y" <?php echo e(old('c_status','Y')=='Y' ? 'selected' : ''); ?>>
+                        <option value="Y" <?php echo e(old('c_status', $customer->c_status) == 'Y' ? 'selected' : ''); ?>>
                             Active
                         </option>
 
-                        <option value="N" <?php echo e(old('c_status')=='N' ? 'selected' : ''); ?>>
+                        <option value="N" <?php echo e(old('c_status', $customer->c_status) == 'N' ? 'selected' : ''); ?>>
                             Inactive
                         </option>
-
                     </select>
 
                     <?php $__errorArgs = ['c_status'];
@@ -375,9 +359,9 @@ unset($__errorArgs, $__bag); ?>
 
                 <button type="submit" class="btn buttonSpc">
 
-                    <i class="ti ti-plus me-1"></i>
+                    <i class="ti ti-device-floppy me-1"></i>
 
-                    Create Customer
+                    Update Customer
 
                 </button>
 
@@ -396,7 +380,9 @@ unset($__errorArgs, $__bag); ?>
 </div>
 
 
+
 <?php $__env->stopSection(); ?>
+
 <?php $__env->startPush('scripts'); ?>
 
 <script src="<?php echo e(asset('dist/js/custom.js')); ?>"></script>
@@ -417,17 +403,17 @@ $(document).ready(function() {
 });
 </script>
 <script>
-$('#n_state_id').on('change', function() {
+$('#n_state_id').change(function() {
 
     let stateId = $(this).val();
 
     $('#n_district_id').html('<option>Loading...</option>');
 
-    $.get('/admin/districts/' + stateId, function(response) {
+    $.get('/admin/districts/' + stateId, function(data) {
 
         $('#n_district_id').html('<option value="">Select District</option>');
 
-        $.each(response, function(index, district) {
+        $.each(data, function(index, district) {
 
             $('#n_district_id').append(
                 '<option value="' + district.id + '">' +
@@ -441,7 +427,6 @@ $('#n_state_id').on('change', function() {
 
 });
 </script>
-
 <?php $__env->stopPush(); ?>
 
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/customers/create.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/customers/edit.blade.php ENDPATH**/ ?>

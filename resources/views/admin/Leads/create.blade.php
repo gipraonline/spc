@@ -38,7 +38,7 @@
 
 @section('content')
 @php
-    use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Crypt;
 @endphp
 <div class="card w-100 position-relative overflow-hidden mb-4">
 
@@ -296,8 +296,9 @@
 
                 </div>
 
-            </div>
+                    </div>
 
+                </div>
 
             <!-- ============================= -->
             <!-- Lead Status -->
@@ -685,6 +686,9 @@
 
             let mobile = document.getElementById('lookupMobile').value;
 
+
+
+
             if (mobile.length !== 10) {
                 alert('Please enter a valid mobile number.');
                 return;
@@ -718,7 +722,7 @@
             })
             .then(function(data) {
 
-                console.log("JSON Data:", data);
+                console.log( data);
 
                 if (data.status == true) {
 
@@ -736,14 +740,10 @@
                         }
                     });
 
-                    // Select District by ID
-                     const districtDropdown = document.querySelector('[name="n_district_id"]');
+                    var selectState=data.customer.n_state_id;
+                    var selectedDistrict = data.customer.n_district_id;
 
-                    Array.from(districtDropdown.options).forEach(option => {
-                        if (option.text.trim() === data.customer.c_district.trim()) {
-                            option.selected = true;
-                        }
-                    });
+                    districtFilter(selectState,selectedDistrict);
 
 
 
@@ -762,32 +762,51 @@
         });
     }
 
-$(document).ready(function(){
+    $(document).ready(function(){
 
-     $(document).on("change","#state",function(){
+        $(document).on("change","#state",function(){
                 var state=$(this).val();
-                $.ajax({
-                        type: "get",
-                        url:"{{route('admin.filterDistrict')}}",
-                        data: { state:state },
-                        cache: false,
-                        dataType:'json',
-                        success: function(data)
-                        {
-                            console.log(data);
-                                $("#district").empty();
-                                $("#district").append('<option value="">Select District</option>');
+                districtFilter(state);
 
-                                $.each(data.districts, function (index, district) {
-                                    $("#district").append(
-                                        '<option value="' + district.id + '">' + district.district_name + '</option>'
-                                    );
-                                });
-                        }
+        });
+
+    })
+
+
+    function districtFilter(state, selectedDistrict = null) {
+
+        $.ajax({
+            type: "GET",
+            url: "{{ route('admin.filterDistrict') }}",
+            data: { state: state },
+            cache: false,
+            dataType: "json",
+
+            success: function(data) {
+
+                $("#district").empty();
+                $("#district").append('<option value="">Select District</option>');
+
+                $.each(data.districts, function(index, district) {
+
+                    $("#district").append(
+                        '<option value="' + district.id + '">' +
+                        district.district_name +
+                        '</option>'
+                    );
+
                 });
-     });
 
-})
+                // Select the district after loading
+                if (selectedDistrict) {
+                    $("#district").val(selectedDistrict);
+                }
+
+            }
+        });
+
+    }
+
 
 </script>
 

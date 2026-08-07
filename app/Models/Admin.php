@@ -34,22 +34,28 @@ class Admin extends Authenticatable
         return $this->c_password;
     }
 
-    // Display Name
-   public function getNameAttribute()
-{
-    return $this->c_name;
-}
+        // Display Name
+    public function getNameAttribute()
+    {
+        return $this->c_name;
+    }
 
-public function getUsernameAttribute()
-{
-    return $this->c_username;
-}
+    public function getUsernameAttribute()
+    {
+        return $this->c_username;
+    }
 
-public function getEmailAttribute()
-{
-    return $this->c_username;
-}
+    public function getEmailAttribute()
+    {
+        return $this->c_username;
+    }
 
-
-
+    public function role()
+        {
+            return $this->belongsTo(Role::class, 'n_role_id', 'id');
+        }
+    public function fieldLogs()
+    {
+        return $this->hasMany(FieldLog::class, 'user_id');
+    }
 }

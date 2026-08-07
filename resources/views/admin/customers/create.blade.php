@@ -83,7 +83,6 @@
 
 @section('content')
 
-
 <div class="card customer-card mb-4">
 
     <div class="card-header-styled d-flex justify-content-between align-items-center">
@@ -115,15 +114,11 @@
                 <div class="col-md-6">
 
                     <label class="form-label">
-                        Customer Code *
+                        Customer Code
                     </label>
 
-                    <input type="text" name="c_customer_code" value="{{ old('c_customer_code') }}"
-                        class="form-control mandatory" placeholder="CUS-001">
-
-                    @error('c_customer_code')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <input type="text" name="c_customer_code" id="c_customer_code" class="form-control customer-code"
+                        value="{{ $customerCode }}" readonly>
 
                 </div>
 
@@ -219,14 +214,14 @@
                         State
                     </label>
 
-                    <select name="c_state" id="c_state" class="form-select">
+                    <select name="n_state_id" id="n_state_id" class="form-select">
 
                         <option value="">Select State</option>
 
                         @foreach($states as $state)
 
-                        <option value="{{ $state->name }}" data-id="{{ $state->n_state_id }}"
-                            {{ old('c_state') == $state->name ? 'selected' : '' }}>
+                        <option value="{{ $state->n_state_id }}" data-id="{{ $state->n_state_id }}"
+                            {{ old('n_state_id') == $state->n_state_id ? 'selected' : '' }}>
 
                             {{ $state->name }}
 
@@ -236,7 +231,7 @@
 
                     </select>
 
-                    @error('c_state')
+                    @error('n_state_id')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
 
@@ -248,13 +243,13 @@
                         District
                     </label>
 
-                    <select name="c_district" id="c_district" class="form-select">
+                    <select name="n_district_id" id="n_district_id" class="form-select">
 
                         <option value="">Select District</option>
 
                     </select>
 
-                    @error('c_district')
+                    @error('n_district_id')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
 
@@ -262,11 +257,9 @@
 
 
                 <div class="col-md-4">
-
-                    <label for="c_pincode" class="form-label">
+                     <label for="c_district" class="form-label">
                         Pincode
                     </label>
-
                     <input type="text" id="c_pincode" name="c_pincode" maxlength="6" value="{{ old('c_pincode') }}"
                         class="form-control" placeholder="Pincode">
 
@@ -340,6 +333,8 @@
 
 </div>
 
+
+@endsection
 @push('scripts')
 
 <script src="{{ asset('dist/js/custom.js') }}"></script>
@@ -360,20 +355,20 @@ $(document).ready(function() {
 });
 </script>
 <script>
-$('#c_state').on('change', function() {
+$('#n_state_id').on('change', function() {
 
-    let stateId = $(this).find(':selected').data('id');
+    let stateId = $(this).val();
 
-    $('#c_district').html('<option>Loading...</option>');
+    $('#n_district_id').html('<option>Loading...</option>');
 
     $.get('/admin/districts/' + stateId, function(response) {
 
-        $('#c_district').html('<option value="">Select District</option>');
+        $('#n_district_id').html('<option value="">Select District</option>');
 
         $.each(response, function(index, district) {
 
-            $('#c_district').append(
-                '<option value="' + district.district_name + '">' +
+            $('#n_district_id').append(
+                '<option value="' + district.id + '">' +
                 district.district_name +
                 '</option>'
             );
@@ -386,5 +381,3 @@ $('#c_state').on('change', function() {
 </script>
 
 @endpush
-
-@endsection

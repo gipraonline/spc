@@ -253,7 +253,7 @@ Route::middleware(['auth', 'admin'])
     |--------------------------------------------------------------------------
     */
         Route::get('districts', [LeadsController::class, 'districtFilter'])
-        ->name('filterDistrict');
+               ->name('filterDistrict');
 
     /*
     |--------------------------------------------------------------------------

@@ -19,6 +19,7 @@ class Admin extends Authenticatable
     public $incrementing = true;
 
     protected $fillable = [
+    'n_employee_id',
     'c_name',
     'c_username',
     'c_password',
@@ -58,4 +59,10 @@ public function fieldLogs()
 {
     return $this->hasMany(FieldLog::class, 'user_id');
 }
+
+public function employee()
+{
+    return $this->belongsTo(EmployeeMaster::class, 'n_employee_id', 'n_employee_id');
+}
+
 }

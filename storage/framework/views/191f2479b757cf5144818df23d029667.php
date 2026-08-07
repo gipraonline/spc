@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
     <style>
         .card form {
             background: #fff;
@@ -19,33 +17,34 @@
             height: 45px;
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
-@php
+<?php $__env->startSection('content'); ?>
+<?php
     use Illuminate\Support\Facades\Crypt;
-@endphp
+?>
 <div class="card w-100 position-relative overflow-hidden mb-4">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Leads</h5>
 
-        @can('leads.create')
-        <a href="{{ route('admin.leads.create') }}" class="btn buttonSpc">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.create')): ?>
+        <a href="<?php echo e(route('admin.leads.create')); ?>" class="btn buttonSpc">
             Add Lead Entry
         </a>
-        @endcan
+        <?php endif; ?>
     </div>
 
     <div class="card-body p-4">
 
-        @if(session('success'))
+        <?php if(session('success')): ?>
             <div class="alert alert-success">
-                {{ session('success') }}
+                <?php echo e(session('success')); ?>
+
             </div>
-        @endif
+        <?php endif; ?>
 
         <!-- Filters -->
-        <form method="GET" action="{{ route('admin.leads.index') }}">
+        <form method="GET" action="<?php echo e(route('admin.leads.index')); ?>">
             <div class="card refine-search-card border-0 rounded-4 mb-4">
                 <div class="card-body">
 
@@ -57,7 +56,7 @@
                                    name="search"
                                    class="form-control"
                                    placeholder="Customer / Mobile / Advisor"
-                                   value="{{ request('search') }}">
+                                   value="<?php echo e(request('search')); ?>">
                         </div>
 
                         <div class="col-lg-2">
@@ -65,7 +64,7 @@
                             <input type="date"
                                    name="from_date"
                                    class="form-control"
-                                   value="{{ request('from_date') }}">
+                                   value="<?php echo e(request('from_date')); ?>">
                         </div>
 
                         <div class="col-lg-2">
@@ -73,7 +72,7 @@
                             <input type="date"
                                    name="to_date"
                                    class="form-control"
-                                   value="{{ request('to_date') }}">
+                                   value="<?php echo e(request('to_date')); ?>">
                         </div>
 
                         <div class="col-lg-2">
@@ -95,7 +94,7 @@
                                 <i class="ti ti-search"></i> Filter
                             </button>
 
-                            <a href="{{ route('admin.leads.index') }}"
+                            <a href="<?php echo e(route('admin.leads.index')); ?>"
                                class="btn btn-outline-secondary">
                                 Reset
                             </a>
@@ -113,7 +112,7 @@
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card border-0 bg-primary-subtle">
                     <div class="card-body text-center">
-                        <h3>{{ $totalLeads ?? 0 }}</h3>
+                        <h3><?php echo e($totalLeads ?? 0); ?></h3>
                         <p class="mb-0">Total Leads</p>
                     </div>
                 </div>
@@ -122,7 +121,7 @@
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card border-0 bg-warning-subtle">
                     <div class="card-body text-center">
-                        <h3>{{ $pendingFollowups ?? 0 }}</h3>
+                        <h3><?php echo e($pendingFollowups ?? 0); ?></h3>
                         <p class="mb-0">Follow-ups Pending</p>
                     </div>
                 </div>
@@ -131,7 +130,7 @@
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card border-0 bg-success-subtle">
                     <div class="card-body text-center">
-                        <h3>{{ $readyToBuy ?? 0 }}</h3>
+                        <h3><?php echo e($readyToBuy ?? 0); ?></h3>
                         <p class="mb-0">Ready to Buy</p>
                     </div>
                 </div>
@@ -140,7 +139,7 @@
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card border-0 bg-info-subtle">
                     <div class="card-body text-center">
-                        <h3>{{ $newCustomers ?? 0 }}</h3>
+                        <h3><?php echo e($newCustomers ?? 0); ?></h3>
                         <p class="mb-0">New Customers</p>
                     </div>
                 </div>
@@ -166,55 +165,58 @@
                         <th>Advisor</th>
                         <th>Remarks</th>
 
-                        @canany(['leads.view','leads.edit','leads.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['leads.view','leads.edit','leads.delete'])): ?>
                         <th>Actions</th>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
                 </thead>
 
                 <tbody>
 
-                    @if(isset($leads))
-                        @forelse($leads as $key => $lead)
+                    <?php if(isset($leads)): ?>
+                        <?php $__empty_1 = true; $__currentLoopData = $leads; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $lead): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
 
                         <tr>
 
-                            <td>{{isset($leads) ?? $leads->firstItem() + $key }}</td>
+                            <td><?php echo e(isset($leads) ?? $leads->firstItem() + $key); ?></td>
 
-                            <td>{{ \Carbon\Carbon::parse($lead->followup_date)->format('d M Y') }}</td>
+                            <td><?php echo e(\Carbon\Carbon::parse($lead->followup_date)->format('d M Y')); ?></td>
 
                             <td>
-                                <strong>{{ $lead->customer_name }}</strong><br>
-                                <small>{{ $lead->mobile }}</small>
+                                <strong><?php echo e($lead->customer_name); ?></strong><br>
+                                <small><?php echo e($lead->mobile); ?></small>
                             </td>
 
-                            <td>{{ $lead->location }}</td>
+                            <td><?php echo e($lead->location); ?></td>
 
-                            <td>{{ $lead->crop }}</td>
+                            <td><?php echo e($lead->crop); ?></td>
 
-                            <td>{{ $lead->product }}</td>
+                            <td><?php echo e($lead->product); ?></td>
 
                             <td>
                                 <span class="badge bg-success">
-                                    {{ $lead->status }}
+                                    <?php echo e($lead->status); ?>
+
                                 </span>
                             </td>
 
                             <td>
-                                {{ optional($lead->next_followup_date)->format('d M Y') }}
+                                <?php echo e(optional($lead->next_followup_date)->format('d M Y')); ?>
+
                             </td>
 
                             <td>
                                 <span class="badge bg-warning text-dark">
-                                    {{ $lead->priority }}
+                                    <?php echo e($lead->priority); ?>
+
                                 </span>
                             </td>
 
-                            <td>{{ $lead->advisor }}</td>
+                            <td><?php echo e($lead->advisor); ?></td>
 
-                            <td>{{ $lead->remarks }}</td>
+                            <td><?php echo e($lead->remarks); ?></td>
 
-                            @canany(['leads.view','leads.edit','leads.delete'])
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['leads.view','leads.edit','leads.delete'])): ?>
                             <td>
 
                                 <div class="dropdown dropstart">
@@ -242,8 +244,8 @@
                                         <li>
 
                                             <form method="POST">
-                                                @csrf
-                                                @method('DELETE')
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('DELETE'); ?>
 
                                                 <button class="dropdown-item text-danger">
                                                     <i class="ti ti-trash me-2"></i>Delete
@@ -258,11 +260,11 @@
                                 </div>
 
                             </td>
-                            @endcanany
+                            <?php endif; ?>
 
                         </tr>
 
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 
                         <tr>
                             <td colspan="12" class="text-center">
@@ -270,19 +272,22 @@
                             </td>
                         </tr>
 
-                        @endforelse
-                    @endif
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </tbody>
 
             </table>
         </div>
 
         <div class="mt-3">
-            @if(isset($leads))
-                {{ $leads->links() }}
-            @endif
+            <?php if(isset($leads)): ?>
+                <?php echo e($leads->links()); ?>
+
+            <?php endif; ?>
         </div>
 
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/leads/index.blade.php ENDPATH**/ ?>

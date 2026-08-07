@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     .customer-toggle{
         display:flex;
@@ -34,12 +32,12 @@
         background: linear-gradient(135deg, #5A8D3A, #074E30);
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
-@php
+<?php $__env->startSection('content'); ?>
+<?php
     use Illuminate\Support\Facades\Crypt;
-@endphp
+?>
 <div class="card w-100 position-relative overflow-hidden mb-4">
 
     <!-- Header -->
@@ -48,7 +46,7 @@
             Lead Entry
         </h5>
 
-        <a href="{{ route('admin.leads.index') }}" class="btn buttonSpc">
+        <a href="<?php echo e(route('admin.leads.index')); ?>" class="btn buttonSpc">
             <i class="ti ti-list-details me-1"></i>
             View Leads
         </a>
@@ -56,20 +54,20 @@
 
     <div class="card-body p-4">
 
-        @if ($errors->any())
+        <?php if($errors->any()): ?>
         <div class="alert alert-danger">
             <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
+                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <li><?php echo e($error); ?></li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
         </div>
-        @endif
+        <?php endif; ?>
 
-        <form action="{{ route('admin.leads.store') }}"
+        <form action="<?php echo e(route('admin.leads.store')); ?>"
               method="POST" id="frm_create">
 
-            @csrf
+            <?php echo csrf_field(); ?>
 
             <!-- Customer Type -->
             <div class="customer-toggle mb-4">
@@ -162,15 +160,30 @@
 
                             <input type="text"
                                    name="c_customer_name"
-                                   class="form-control @error('customer_name') is-invalid @enderror"
-                                   value="{{ old('c_customer_name') }}"
+                                   class="form-control <?php $__errorArgs = ['customer_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                   value="<?php echo e(old('c_customer_name')); ?>"
                                    placeholder="Enter Customer Name">
 
-                            @error('customer_name')
+                            <?php $__errorArgs = ['customer_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                             <div class="invalid-feedback">
-                                {{ $message }}
+                                <?php echo e($message); ?>
+
                             </div>
-                            @enderror
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                         </div>
 
@@ -185,16 +198,31 @@
 
                             <input type="text"
                                    name="n_mobile"
-                                   class="form-control @error('n_mobile') is-invalid @enderror"
-                                   value="{{ old('n_mobile') }}"
+                                   class="form-control <?php $__errorArgs = ['n_mobile'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                   value="<?php echo e(old('n_mobile')); ?>"
                                    maxlength="10"
                                    placeholder="Enter Mobile Number">
 
-                            @error('mobile')
+                            <?php $__errorArgs = ['mobile'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                             <div class="invalid-feedback">
-                                {{ $message }}
+                                <?php echo e($message); ?>
+
                             </div>
-                            @enderror
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                         </div>
 
@@ -202,7 +230,7 @@
 
                        <div class="col-md-4">
                             <label for="c_email" class="form-label">Email</label>
-                            <input type="text" id="c_email" name="c_email" value="{{ old('c_email') }}"
+                            <input type="text" id="c_email" name="c_email" value="<?php echo e(old('c_email')); ?>"
                                 data-message="Please enter Customer Email" class="form-control "
                                 placeholder="Enter Customer Email">
                             <div class="text-danger mt-1 fs-2"></div>
@@ -212,7 +240,7 @@
 
                          <div class="col-md-12">
                             <label for="c_customer_address" class="form-label">Customer Address *</label>
-                            <input type="text" id="c_address" name="c_address" value="{{ old('c_address',isset($lead) ? $lead->c_address : '') }}"
+                            <input type="text" id="c_address" name="c_address" value="<?php echo e(old('c_address',isset($lead) ? $lead->c_address : '')); ?>"
                                data-message="Please add Customer Address" class="form-control mandatory" placeholder="Customer Address">
                             <div class="text-danger mt-1 fs-2"></div>
                         </div>
@@ -221,13 +249,13 @@
 
                         <div class="col-md-6">
                             <label for="state" class="form-label">State</label>
-                            <select class="form-select mandatory" data-message="Please enter State" id="state" name="n_state_id" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
+                            <select class="form-select mandatory" data-message="Please enter State" id="state" name="n_state_id" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>>
                                 <option value="" selected>Select State</option>
-                                @if(isset($states))
-                                    @foreach($states as $State)
-                                        <option value="{{$State->n_state_id}}" {{ old('n_state_id', $lead->n_state_id ?? '') == $lead->n_state_id ? 'selected' : '' }}>{{$State->name}}</option>
-                                    @endforeach
-                                @endif
+                                <?php if(isset($states)): ?>
+                                    <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $State): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($State->n_state_id); ?>" <?php echo e(old('n_state_id', $lead->n_state_id ?? '') == $lead->n_state_id ? 'selected' : ''); ?>><?php echo e($State->name); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </select>
                             <div class="text-danger mt-1 fs-2"></div>
                         </div>
@@ -237,16 +265,16 @@
 
                         <div class="col-md-6">
                             <label for="state" class="form-label">District</label>
-                            <select class="form-select mandatory" data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="district" name="n_district_id">
+                            <select class="form-select mandatory" data-message="Please enter District" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>  id="district" name="n_district_id">
                                 <option value="" selected>Select District</option>
-                                @if(isset($sale->n_district_id))
-                                    @php $districts = \App\Models\District::where('state_id', $lead->n_state_id)->get(); @endphp
-                                    @if(isset($districts))
-                                        @foreach($districts as $district)
-                                            <option value="{{$district->id}}" {{ old('n_district_id', $lead->n_district_id ?? '') == $district->id ? 'selected' : '' }}>{{$district->district_name}}</option>
-                                        @endforeach
-                                    @endif
-                                @endif
+                                <?php if(isset($sale->n_district_id)): ?>
+                                    <?php $districts = \App\Models\District::where('state_id', $lead->n_state_id)->get(); ?>
+                                    <?php if(isset($districts)): ?>
+                                        <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($district->id); ?>" <?php echo e(old('n_district_id', $lead->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>><?php echo e($district->district_name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endif; ?>
+                                <?php endif; ?>
 
                             </select>
                             <div class="text-danger mt-1 fs-2"></div>
@@ -283,12 +311,26 @@
 
                             <input type="date"
                                    name="d_visit_date"
-                                   class="form-control @error('visit_date') is-invalid @enderror"
-                                   value="{{ old('visit_date', date('Y-m-d')) }}">
+                                   class="form-control <?php $__errorArgs = ['visit_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                   value="<?php echo e(old('visit_date', date('Y-m-d'))); ?>">
 
-                            @error('visit_date')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <?php $__errorArgs = ['visit_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
 
 
@@ -349,7 +391,7 @@
                             <input type="date"
                                    name="d_expected_availability_date"
                                    class="form-control"
-                                   value="{{ old('d_expected_availability_date') }}">
+                                   value="<?php echo e(old('d_expected_availability_date')); ?>">
 
                         </div>
 
@@ -386,7 +428,7 @@
                             <input type="date"
                                    name="next_followup_date"
                                    class="form-control"
-                                   value="{{ old('next_followup_date') }}">
+                                   value="<?php echo e(old('next_followup_date')); ?>">
 
                         </div>
 
@@ -399,7 +441,7 @@
                             <input type="time"
                                    name="next_followup_time"
                                    class="form-control"
-                                   value="{{ old('next_followup_time') }}">
+                                   value="<?php echo e(old('next_followup_time')); ?>">
 
                         </div>
 
@@ -562,14 +604,29 @@
 
                             <textarea name="remarks"
                                       rows="5"
-                                      class="form-control @error('remarks') is-invalid @enderror"
-                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc.">{{ old('remarks') }}</textarea>
+                                      class="form-control <?php $__errorArgs = ['remarks'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc."><?php echo e(old('remarks')); ?></textarea>
 
-                            @error('remarks')
+                            <?php $__errorArgs = ['remarks'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                 <div class="invalid-feedback">
-                                    {{ $message }}
+                                    <?php echo e($message); ?>
+
                                 </div>
-                            @enderror
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                         </div>
 
@@ -585,7 +642,7 @@
 
             <div class="d-flex justify-content-end gap-2">
 
-                <a href="{{ route('admin.leads.index') }}"
+                <a href="<?php echo e(route('admin.leads.index')); ?>"
                    class="btn btn-outline-secondary">
 
                     <i class="ti ti-arrow-left me-1"></i>
@@ -609,10 +666,10 @@
 
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 
 <script>
 
@@ -690,12 +747,12 @@
                 return;
             }
 
-            fetch("{{ route('admin.leads.existingCustomer') }}", {
+            fetch("<?php echo e(route('admin.leads.existingCustomer')); ?>", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    "X-CSRF-TOKEN": "<?php echo e(csrf_token()); ?>"
                 },
                 body: JSON.stringify({
                     mobile: mobile
@@ -768,7 +825,7 @@ $(document).ready(function(){
                 var state=$(this).val();
                 $.ajax({
                         type: "get",
-                        url:"{{route('admin.filterDistrict')}}",
+                        url:"<?php echo e(route('admin.filterDistrict')); ?>",
                         data: { state:state },
                         cache: false,
                         dataType:'json',
@@ -791,5 +848,7 @@ $(document).ready(function(){
 
 </script>
 
-@endpush
+<?php $__env->stopPush(); ?>
 
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/leads/create.blade.php ENDPATH**/ ?>

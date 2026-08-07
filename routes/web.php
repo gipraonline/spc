@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\SalesController;
 
 
 Route::get('/', function () {
@@ -293,14 +294,71 @@ Route::middleware(['auth', 'admin'])
         ->name('leads.edit');
 
 
-   /*  Route::put('leads/update', [LeadsController::class, 'update'])
+    Route::put('leads/update', [LeadsController::class, 'update'])
         ->middleware('permission:leads.edit')
-        ->name('leads.update'); */
+        ->name('leads.update');
 
 
     Route::delete('leads/delete/{id}', [LeadsController::class, 'destroy'])
         ->middleware('permission:leads.delete')
         ->name('leads.destroy');
+
+    Route::post('leads/existingCustomer', [LeadsController::class, 'existingCustomer'])
+        ->middleware('permission:leads.edit')
+        ->name('leads.existingCustomer');
+
+
+ /*
+    |--------------------------------------------------------------------------
+    | Leads
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('salesorders', [SalesController::class, 'index'])
+        ->middleware('permission:sales-orders.view')
+        ->name('salesorders.index');
+
+
+    Route::get('salesorders/create', [SalesController::class, 'create'])
+        ->middleware('permission:sales-orders.create')
+        ->name('salesorders.create');
+
+
+    Route::post('salesorders', [SalesController::class, 'store'])
+        ->middleware('permission:sales-orders.create')
+        ->name('salesorders.store');
+
+
+    Route::get('salesorders/show/{id}', [SalesController::class, 'show'])
+        ->middleware('permission:sales-orders.view-details')
+        ->name('salesorders.show');
+
+
+    Route::put('salesorders/approval', [SalesController::class, 'approve'])
+        ->middleware('permission:sales-orders.approval')
+        ->name('salesorders.approval.save');
+
+
+    Route::put('salesorders/followup', [SalesController::class, 'followupSave'])
+    ->middleware('permission:sales-orders.follow-up')
+    ->name('salesorders.followup.store');
+
+
+
+    Route::get('salesorders/edit/{id}', [SalesController::class, 'edit'])
+        ->middleware('permission:sales-orders.edit')
+        ->name('salesorders.edit');
+
+
+   /*  Route::put('salesorders/update', [SalesController::class, 'update'])
+        ->middleware('permission:sales-orders.edit')
+        ->name('salesorders.update'); */
+
+
+    Route::delete('salesorders/delete/{id}', [SalesController::class, 'destroy'])
+        ->middleware('permission:sales-orders.delete')
+        ->name('salesorders.destroy');
+
 
 
 

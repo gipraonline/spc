@@ -50,10 +50,6 @@ public function getEmailAttribute()
     return $this->c_username;
 }
 
-public function role()
-    {
-        return $this->belongsTo(Role::class, 'n_role_id', 'id');
-    }
 
 
 }

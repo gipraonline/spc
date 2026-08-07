@@ -106,10 +106,7 @@ public function index(Request $request)
 
 public function create()
 {
-//     dd(
-//     auth()->user()->getRoleNames(),
-//     auth()->user()->roles->toArray()
-// );
+
     $employees = EmployeeMaster::where('n_designation_id', 5)
         ->where('c_status', 'Y')
         ->get();

@@ -11,17 +11,11 @@
         </h5>
 
         @if(!$fieldLog)
-
-        <span class="badge bg-warning">
-            Not Checked In
-        </span>
-
+        <span class="badge bg-warning">Not Checked In</span>
+        @elseif($fieldLog->status == 'Checked Out')
+        <span class="badge bg-secondary">Checked Out</span>
         @else
-
-        <span class="badge bg-success">
-            Working
-        </span>
-
+        <span class="badge bg-success">Working</span>
         @endif
 
     </div>
@@ -61,7 +55,7 @@
 
         {{-- ================= CHECK IN ================== --}}
 
-        <form action="">
+        <form action="{{ route('admin.field-log.checkin') }}" method="POST">
 
             @csrf
 
@@ -316,11 +310,11 @@
 
                                 <button class="btn btn-sm buttonSpc editTaskBtn" data-id="{{ $task->id }}"
                                     data-task="{{ $task->task }}" data-status="{{ $task->status }}"
-                                    data-remark="{{ $task->pending_remark }}" data-bs-toggle="modal"
-                                    data-bs-target="#taskModal">
-
+                                    data-remark="{{ $task->pending_remark }}"
+                                    data-bs-toggle="{{ $fieldLog->status == 'Checked Out' ? '' : 'modal' }}"
+                                    data-bs-target="{{ $fieldLog->status == 'Checked Out' ? '' : '#taskModal' }}"
+                                    {{ $fieldLog->status == 'Checked Out' ? 'disabled' : '' }}>
                                     Update
-
                                 </button>
 
                             </td>
@@ -431,10 +425,8 @@
 
                     <div class="text-end">
 
-                        <button class="btn btn-danger" {{ $done!=$total ? 'disabled' : '' }}>
-
+                        <button class="btn btn-danger" {{ $done != $total ? 'disabled' : '' }}>
                             Check Out
-
                         </button>
 
                     </div>
@@ -455,7 +447,7 @@
 
     <div class="modal-dialog">
 
-        <form action="" method="POST">
+        <form action="{{ route('admin.field-log.task.update') }}" method="POST">
 
             @csrf
 

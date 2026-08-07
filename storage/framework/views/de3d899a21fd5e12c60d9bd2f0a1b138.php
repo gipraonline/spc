@@ -11,17 +11,11 @@
         </h5>
 
         <?php if(!$fieldLog): ?>
-
-        <span class="badge bg-warning">
-            Not Checked In
-        </span>
-
+        <span class="badge bg-warning">Not Checked In</span>
+        <?php elseif($fieldLog->status == 'Checked Out'): ?>
+        <span class="badge bg-secondary">Checked Out</span>
         <?php else: ?>
-
-        <span class="badge bg-success">
-            Working
-        </span>
-
+        <span class="badge bg-success">Working</span>
         <?php endif; ?>
 
     </div>
@@ -62,7 +56,7 @@
 
         
 
-        <form action="">
+        <form action="<?php echo e(route('admin.field-log.checkin')); ?>" method="POST">
 
             <?php echo csrf_field(); ?>
 
@@ -322,11 +316,11 @@
 
                                 <button class="btn btn-sm buttonSpc editTaskBtn" data-id="<?php echo e($task->id); ?>"
                                     data-task="<?php echo e($task->task); ?>" data-status="<?php echo e($task->status); ?>"
-                                    data-remark="<?php echo e($task->pending_remark); ?>" data-bs-toggle="modal"
-                                    data-bs-target="#taskModal">
-
+                                    data-remark="<?php echo e($task->pending_remark); ?>"
+                                    data-bs-toggle="<?php echo e($fieldLog->status == 'Checked Out' ? '' : 'modal'); ?>"
+                                    data-bs-target="<?php echo e($fieldLog->status == 'Checked Out' ? '' : '#taskModal'); ?>"
+                                    <?php echo e($fieldLog->status == 'Checked Out' ? 'disabled' : ''); ?>>
                                     Update
-
                                 </button>
 
                             </td>
@@ -438,10 +432,8 @@
 
                     <div class="text-end">
 
-                        <button class="btn btn-danger" <?php echo e($done!=$total ? 'disabled' : ''); ?>>
-
+                        <button class="btn btn-danger" <?php echo e($done != $total ? 'disabled' : ''); ?>>
                             Check Out
-
                         </button>
 
                     </div>
@@ -462,7 +454,7 @@
 
     <div class="modal-dialog">
 
-        <form action="" method="POST">
+        <form action="<?php echo e(route('admin.field-log.task.update')); ?>" method="POST">
 
             <?php echo csrf_field(); ?>
 

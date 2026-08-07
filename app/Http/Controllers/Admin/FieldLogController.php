@@ -97,8 +97,55 @@ class FieldLogController extends Controller
     }
 
     public function checkOut(Request $request)
-    {
+{
+    $request->validate([
+        'check_out_remark' => 'nullable|string',
+    ]);
 
+    $fieldLog = FieldLog::with('tasks')
+        ->where('user_id', auth()->id())
+        ->whereDate('work_date', today())
+        ->firstOrFail();
+
+    // Prevent multiple checkouts
+    if ($fieldLog->check_out_time) {
+        return back()->with('error', 'Already checked out.');
     }
+
+    // Ensure all tasks are completed
+    $pendingTasks = $fieldLog->tasks()
+        ->where('status', 'Pending')
+        ->count();
+
+    if ($pendingTasks > 0) {
+        return back()->with('error', 'Complete all tasks before checking out.');
+    }
+
+    $fieldLog->update([
+        'check_out_time'   => now(),
+        'check_out_remark' => $request->check_out_remark,
+        'status'           => 'Checked Out',
+    ]);
+
+    return back()->with('success', 'Checked Out Successfully.');
+}
+
+public function history()
+{
+    $fieldLogs = FieldLog::withCount('tasks')
+        ->where('user_id', auth()->id())
+        ->latest('work_date')
+        ->paginate(10);
+
+    return view('admin.field-log.history', compact('fieldLogs'));
+}
+public function show(FieldLog $fieldLog)
+{
+    abort_if($fieldLog->user_id != auth()->id(), 403);
+
+    $fieldLog->load('tasks');
+
+    return view('admin.field-log.show', compact('fieldLog'));
+}
 
 }

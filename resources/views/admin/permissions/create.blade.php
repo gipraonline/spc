@@ -87,6 +87,8 @@
             'process-batch',
             'add-sale',
             'follow-up',
+            //Field Log
+            'check-in',
 
             // Dashboard Cards
             'employees-card',

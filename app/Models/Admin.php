@@ -54,6 +54,8 @@ public function role()
     {
         return $this->belongsTo(Role::class, 'n_role_id', 'id');
     }
-
-
+public function fieldLogs()
+{
+    return $this->hasMany(FieldLog::class, 'user_id');
+}
 }

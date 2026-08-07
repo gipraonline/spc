@@ -20,4 +20,10 @@ protected $fillable = [
 protected $hidden = [
 'password'
 ];
+
+public function fieldLogs()
+{
+    return $this->hasMany(FieldLog::class, 'user_id');
+}
+
 }

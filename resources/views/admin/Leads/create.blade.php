@@ -64,6 +64,24 @@
     color: #087f23;
     font-weight: 600;
 }
+
+.advisor-highlight {
+
+    /* Light yellow */
+    background: #f5f5f5;
+     !important;
+    color: #087f23;
+     !important;
+    font-weight: 700;
+
+}
+
+.advisor-highlight:focus {
+
+    border-color: #087f23;
+     !important;
+
+}
 </style>
 @endpush
 @section('content')
@@ -145,8 +163,8 @@ use Illuminate\Support\Facades\Crypt;
 
                         @if($isFarmCareAdvisor)
 
-                        <input type="text" class="form-control" value="{{ auth()->user()->c_name }}" readonly>
-
+                        <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}"
+                            readonly>
                         @else
 
                         <select name="farm_care_advisor_id" class="form-control mandatory">
@@ -469,6 +487,25 @@ use Illuminate\Support\Facades\Crypt;
                                 <label for="upi" class="mb-0">
                                     <i class="ti ti-brand-google-pay"></i>
                                     UPI
+                                </label>
+                            </div>
+
+                            <div class="payment-option">
+                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="bkd"
+                                    value="Bank Deposit">
+
+                                <label for="bkd" class="mb-0">
+                                    <i class="ti ti-building-bank"></i>
+                                    Bank Deposit
+                                </label>
+                            </div>
+                            <div class="payment-option">
+                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="pf"
+                                    value="Paid to Franchise">
+
+                                <label for="pf" class="mb-0">
+                                    <i class="ti ti-cash"></i>
+                                    Paid to Franchise
                                 </label>
                             </div>
 

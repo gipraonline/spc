@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\FieldLogController;
 
 
 Route::get('/', function () {
@@ -370,6 +371,32 @@ Route::middleware(['auth', 'admin'])
 
     Route::get('districts/{state}', [CustomerController::class, 'getDistricts'])
         ->name('admin.districts');
+
+
+     /*
+    |--------------------------------------------------------------------------
+    | Field log
+    |--------------------------------------------------------------------------
+    */    
+
+    Route::get('/field-log', [FieldLogController::class, 'index'])
+        ->middleware('permission:field-log.view')
+        ->name('field-log.index');
+
+    Route::post('/field-log/check-in', [FieldLogController::class, 'checkIn'])
+    ->middleware('permission:field-log.check-in')
+        ->name('field-log.checkin');
+
+    Route::post('/field-log/task', [FieldLogController::class, 'storeTask'])
+        ->name('field-log.task.store');
+
+    Route::post('/field-log/task/{task}/update', [FieldLogController::class, 'updateTask'])
+        ->name('field-log.task.update');
+
+    Route::post('/field-log/check-out', [FieldLogController::class, 'checkOut'])
+        ->name('field-log.checkout');
+
+   
 
 
 });

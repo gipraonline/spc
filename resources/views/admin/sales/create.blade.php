@@ -314,7 +314,7 @@ use Illuminate\Support\Facades\Crypt;
 
                         <select name="customer_id" id="customer_id" class="form-select mandatory">
                             <option value="">Select Customer</option>
-
+                            @if(isset($customers))
                             @foreach($customers as $customer)
                             <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
                                 data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
@@ -323,7 +323,7 @@ use Illuminate\Support\Facades\Crypt;
                                 {{ $customer->c_customer_name }}
                             </option>
                             @endforeach
-
+                            @endif
                         </select>
 
                         <div class="text-danger mt-1 fs-2"></div>
@@ -799,7 +799,11 @@ use Illuminate\Support\Facades\Crypt;
 <script>
 $(document).ready(function() {
     console.log("First script loaded");
-    let rowIndex = {{ isset($sale) ? $sale->orderProducts->count() : 0 }};
+    let rowIndex = {
+        {
+            isset($sale) ? $sale - > orderProducts - > count() : 0
+        }
+    };
     $("#addRow").click(function() {
 
         let row = `
@@ -1027,37 +1031,37 @@ $('#franchise_state').change(function() {
  =========================================================-->
 
 <script>
-    $('#franchise_district').change(function() {
+$('#franchise_district').change(function() {
 
-        let stateId = $('#franchise_state').val();
-        let districtId = $(this).val();
+    let stateId = $('#franchise_state').val();
+    let districtId = $(this).val();
 
-        $.ajax({
-            url: "{{ url('admin/filter-franchise') }}",
-            type: "GET",
-            data: {
-                state: stateId,
-                district: districtId
-            },
-            dataType: "json",
-            success: function(response) {
+    $.ajax({
+        url: "{{ url('admin/filter-franchise') }}",
+        type: "GET",
+        data: {
+            state: stateId,
+            district: districtId
+        },
+        dataType: "json",
+        success: function(response) {
 
-                $('#franchise').html('<option value="">Select Franchise</option>');
+            $('#franchise').html('<option value="">Select Franchise</option>');
 
-                $.each(response.franchises, function(i, franchise) {
+            $.each(response.franchises, function(i, franchise) {
 
-                    $('#franchise').append(
-                        '<option value="' + franchise.n_store_id + '">' +
-                        franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
-                        '</option>'
-                    );
+                $('#franchise').append(
+                    '<option value="' + franchise.n_store_id + '">' +
+                    franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
+                    '</option>'
+                );
 
-                });
+            });
 
-            }
-        });
-
+        }
     });
+
+});
 </script>
 
 

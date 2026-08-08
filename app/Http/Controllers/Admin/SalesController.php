@@ -326,7 +326,7 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
 
         }
 
-        return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode','user', 'farmCareAdvisorId',
+        return view('admin.sales.show', compact('sale','employees','products','states','franchises','viewmode','user', 'farmCareAdvisorId',
     'isFarmCareAdvisor'));
     }
 

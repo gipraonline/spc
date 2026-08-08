@@ -21,6 +21,9 @@ class ProductMaster extends Model
         'n_purchase_price',
         'n_selling_price',
         'n_mrp',
+        'c_unit',
+        'c_hsn_code',
+        'n_gst_percentage',
         'c_status',
     ];
 

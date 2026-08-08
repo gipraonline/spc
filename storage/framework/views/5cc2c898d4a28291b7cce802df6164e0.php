@@ -208,8 +208,8 @@
                                 </button>
 
 
-                                <a href="<?php echo e(route('admin.products.clearSearch')); ?>"
-                                    class="btn btn-outline-secondary" style="width:200px;--bs-btn-padding-y: 15px;">
+                                <a href="<?php echo e(route('admin.products.clearSearch')); ?>" class="btn btn-outline-secondary"
+                                    style="width:200px;--bs-btn-padding-y: 15px;">
                                     <i class="ti ti-refresh"></i>
                                     Reset
                                 </a>
@@ -233,7 +233,7 @@
 
         <div class="table-responsive" id="productTable">
             <table class="table text-nowrap mb-0 align-middle">
-                <thead class="text-dark fs-4">
+                <!-- <thead class="text-dark fs-4">
                     <tr>
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Sl No</h6>
@@ -262,6 +262,55 @@
                         </th>
                         <?php endif; ?>
                     </tr>
+                </thead> -->
+                <thead class="text-dark fs-4">
+                    <tr>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Sl No</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Product ID</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Name</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Unit</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">HSN Code</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">GST %</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">MRP</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Selling Price</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Purchase Price</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Status</h6>
+                        </th>
+
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['products.edit', 'products.delete'])): ?>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Actions</h6>
+                        </th>
+                        <?php endif; ?>
+                    </tr>
                 </thead>
                 <tbody>
                     <?php $__empty_1 = true; $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
@@ -280,6 +329,24 @@
                             <h6 class="fw-semibold mb-0"><?php echo e($product->c_product_name); ?></h6>
                         </td>
                         <td class="border-bottom-0">
+                            <span class="fw-normal">
+                                <?php echo e($product->c_unit); ?>
+
+                            </span>
+                        </td>
+                        <td class="border-bottom-0">
+                            <span class="fw-normal">
+                                <?php echo e($product->c_hsn_code); ?>
+
+                            </span>
+                        </td>
+                        <td class="border-bottom-0">
+                            <span class="fw-normal">
+                                <?php echo e(number_format($product->n_gst_percentage, 2)); ?>%
+                            </span>
+                        </td>
+
+                        <td class="border-bottom-0">
                             <span class="fw-normal">₹<?php echo e(number_format($product->n_mrp, 2)); ?></span>
                         </td>
                         <td class="border-bottom-0">
@@ -288,6 +355,7 @@
                         <td class="border-bottom-0">
                             <span class="fw-normal">₹<?php echo e(number_format($product->n_purchase_price, 2)); ?></span>
                         </td>
+
                         <td class="border-bottom-0">
                             <span
                                 class="badge <?php echo e($product->c_status === 'Y' ? 'bg-success' : 'bg-danger'); ?> rounded-3 fw-semibold">
@@ -344,5 +412,4 @@ document.getElementById('search').addEventListener('keyup', function() {
 </script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/products/index.blade.php ENDPATH**/ ?>

@@ -33,77 +33,170 @@ use App\Exports\IncentiveSalesReportExport;
 
 class SalesController extends Controller
 {
+// public function index(Request $request)
+//     {
+
+//         $query = SalesOrder::query();
+//         $query=$query->with('employee','franchise')->whereNull('deleted_at');
+//         /*
+//         |--------------------------------------------------------------------------
+//         | Search by Employee Name or Code
+//         |--------------------------------------------------------------------------
+//         */
+//         if ($request->filled('search')) {
+//             $search = $request->search;
+
+//             $query->whereHas('employee', function ($q) use ($search) {
+//                 $q->where('c_employee_name', 'like', "%{$search}%")
+//                 ->orWhere('c_employee_code', 'like', "%{$search}%");
+//             });
+//         }
+
+//         /*
+//         |--------------------------------------------------------------------------
+//         | Date Filters
+//         |--------------------------------------------------------------------------
+//         */
+
+//         // Date range
+//         if ($request->filled('start_date') && $request->filled('end_date')) {
+//             $query->where('d_date','>=',$request->start_date,)
+//                 ->where('d_date','<=',$request->end_date,);
+//         }
+
+//         // From date only
+//         elseif ($request->filled('start_date')) {
+//             $query->whereDate('d_date', '>=', $request->start_date);
+//         }
+
+//         // To date only
+//         elseif ($request->filled('end_date')) {
+//             $query->whereDate('d_date', '<=', $request->end_date);
+//         }
+
+//         /*
+//         |--------------------------------------------------------------------------
+//         | Export Excel
+//         |--------------------------------------------------------------------------
+//         */
+//         if ($request->export === 'excel') {
+
+//             $sales = $query
+//                 ->orderBy('d_date', 'desc')
+//                 ->get();
+
+//             return Excel::download(
+//                 new IncentiveSalesReportExport($sales),
+//                 'sales-report.xlsx'
+//             );
+//         }
+
+//         /*
+//         |--------------------------------------------------------------------------
+//         | Page Display
+//         |--------------------------------------------------------------------------
+//         */
+//         $sales = $query
+//             ->orderBy('d_date', 'desc')
+//             ->paginate(20)
+//             ->withQueryString();
+//     //dd($sales);
+//         return view('admin.sales.index', compact('sales'));
+//     }
+
 public function index(Request $request)
-    {
+{
+    $query = SalesOrder::with('employee', 'franchise', 'customer')
+        ->whereNull('deleted_at');
 
-        $query = SalesOrder::query();
-        $query=$query->with('employee','franchise')->whereNull('deleted_at');
-        /*
-        |--------------------------------------------------------------------------
-        | Search by Employee Name or Code
-        |--------------------------------------------------------------------------
-        */
-        if ($request->filled('search')) {
-            $search = $request->search;
+    $user = Auth::user();
 
-            $query->whereHas('employee', function ($q) use ($search) {
-                $q->where('c_employee_name', 'like', "%{$search}%")
-                ->orWhere('c_employee_code', 'like', "%{$search}%");
-            });
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | Farm Care Advisor Access
+    |--------------------------------------------------------------------------
+    | FCA can see only their own sales.
+    | Admin can see all sales.
+    |--------------------------------------------------------------------------
+    */
 
-        /*
-        |--------------------------------------------------------------------------
-        | Date Filters
-        |--------------------------------------------------------------------------
-        */
+    if ($user && $user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
 
-        // Date range
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->where('d_date','>=',$request->start_date,)
-                ->where('d_date','<=',$request->end_date,);
-        }
+        // Logged-in FCA's employee ID
+        $employeeId = $user->n_employee_id;
 
-        // From date only
-        elseif ($request->filled('start_date')) {
-            $query->whereDate('d_date', '>=', $request->start_date);
-        }
-
-        // To date only
-        elseif ($request->filled('end_date')) {
-            $query->whereDate('d_date', '<=', $request->end_date);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Export Excel
-        |--------------------------------------------------------------------------
-        */
-        if ($request->export === 'excel') {
-
-            $sales = $query
-                ->orderBy('d_date', 'desc')
-                ->get();
-
-            return Excel::download(
-                new IncentiveSalesReportExport($sales),
-                'sales-report.xlsx'
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Page Display
-        |--------------------------------------------------------------------------
-        */
-        $sales = $query
-            ->orderBy('d_date', 'desc')
-            ->paginate(20)
-            ->withQueryString();
-    //dd($sales);
-        return view('admin.sales.index', compact('sales'));
+        $query->where('farm_care_advisor_id', $employeeId);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Search by Employee Name or Code
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('search')) {
+
+        $search = $request->search;
+
+        $query->whereHas('employee', function ($q) use ($search) {
+
+            $q->where('c_employee_name', 'like', "%{$search}%")
+              ->orWhere('c_employee_code', 'like', "%{$search}%");
+
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Date Filters
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+
+        $query->whereDate('d_date', '>=', $request->start_date)
+              ->whereDate('d_date', '<=', $request->end_date);
+
+    } elseif ($request->filled('start_date')) {
+
+        $query->whereDate('d_date', '>=', $request->start_date);
+
+    } elseif ($request->filled('end_date')) {
+
+        $query->whereDate('d_date', '<=', $request->end_date);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Export Excel
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->export === 'excel') {
+
+        $sales = $query
+            ->orderBy('d_date', 'desc')
+            ->get();
+
+        return Excel::download(
+            new IncentiveSalesReportExport($sales),
+            'sales-report.xlsx'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    $sales = $query
+        ->orderBy('d_date', 'desc')
+        ->paginate(20)
+        ->withQueryString();
+
+    return view('admin.sales.index', compact('sales'));
+}
 public function create()
 {
 

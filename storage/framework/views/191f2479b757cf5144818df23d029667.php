@@ -156,13 +156,12 @@ use Illuminate\Support\Facades\Crypt;
                         <th>No</th>
                         <th>Date</th>
                         <th>Customer</th>
-                        <th>Location</th>
-                        <th>Crop</th>
-                        <th>Product</th>
                         <th>Status</th>
                         <th>Next Follow-up</th>
                         <th>Priority</th>
-                        <th>Advisor</th>
+                        <?php if(isset($user) && $user->identifier != "FCA"): ?>
+                          <th>Farm Care Advisor</th>
+                        <?php endif; ?>
                         <th>Remarks</th>
 
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['leads.view','leads.edit','leads.delete'])): ?>
@@ -183,19 +182,13 @@ use Illuminate\Support\Facades\Crypt;
                             <td><?php echo e(\Carbon\Carbon::parse($lead->followup_date)->format('d M Y')); ?></td>
 
                             <td>
-                                <strong><?php echo e($lead->customer_name); ?></strong><br>
-                                <small><?php echo e($lead->mobile); ?></small>
+                                <strong><?php echo e($lead->c_customer_name); ?></strong><br>
+                                <small><?php echo e($lead->n_mobile); ?></small>
                             </td>
-
-                            <td><?php echo e($lead->location); ?></td>
-
-                            <td><?php echo e($lead->crop); ?></td>
-
-                            <td><?php echo e($lead->product); ?></td>
 
                             <td>
                                 <span class="badge bg-success">
-                                    <?php echo e($lead->status); ?>
+                                    <?php echo e($lead->c_lead_status); ?>
 
                                 </span>
                             </td>
@@ -212,7 +205,9 @@ use Illuminate\Support\Facades\Crypt;
                                 </span>
                             </td>
 
-                            <td><?php echo e($lead->advisor); ?></td>
+                            <?php if(isset($user) && $user->identifier != "FCA"): ?>
+                                <td><?php echo e($lead->advisor); ?></td>
+                            <?php endif; ?>
 
                             <td><?php echo e($lead->remarks); ?></td>
 
@@ -225,36 +220,36 @@ use Illuminate\Support\Facades\Crypt;
                                         <i class="ti ti-dots-vertical fs-6"></i>
                                     </a>
 
-                                    <ul class="dropdown-menu">
-
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <li>
-                                            <a class="dropdown-item"
-                                            href="#">
-                                                <i class="ti ti-eye me-2"></i>View
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.view-details')): ?>
+                                            <a class="dropdown-item d-flex align-products-center gap-3"
+                                                href="<?php echo e(route('admin.leads.show', Crypt::encryptString($lead->n_lead_id))); ?>">
+                                                <i class="fs-4 ti ti-eye"></i>View Details
                                             </a>
+                                            <?php endif; ?>
                                         </li>
-
                                         <li>
-                                            <a class="dropdown-item"
-                                            href="#">
-                                                <i class="ti ti-edit me-2"></i>Edit
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.edit')): ?>
+                                            <a class="dropdown-item d-flex align-products-center gap-3"
+                                                href="<?php echo e(route('admin.leads.edit', Crypt::encryptString($lead->n_lead_id))); ?>">
+                                                <i class="fs-4 ti ti-edit"></i>Edit
                                             </a>
+                                            <?php endif; ?>
                                         </li>
-
                                         <li>
-
-                                            <form method="POST">
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.delete')): ?>
+                                            <form action="<?php echo e(route('admin.leads.destroy', Crypt::encryptString($lead->n_lead_id))); ?>" method="POST"
+                                                onsubmit="return confirm('Are you sure?')">
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('DELETE'); ?>
-
-                                                <button class="dropdown-item text-danger">
-                                                    <i class="ti ti-trash me-2"></i>Delete
+                                                <button type="submit"
+                                                    class="dropdown-item d-flex align-products-center gap-3 text-danger">
+                                                    <i class="fs-4 ti ti-trash"></i>Delete
                                                 </button>
-
                                             </form>
-
+                                            <?php endif; ?>
                                         </li>
-
                                     </ul>
 
                                 </div>

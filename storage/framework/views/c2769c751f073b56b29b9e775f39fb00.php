@@ -316,16 +316,17 @@ use Illuminate\Support\Facades\Crypt;
 
                         <select name="customer_id" id="customer_id" class="form-select mandatory">
                             <option value="">Select Customer</option>
+                            <?php if(isset($customers)): ?>
+                                <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($customer->n_customer_id); ?>" data-name="<?php echo e($customer->c_customer_name); ?>"
+                                    data-email="<?php echo e($customer->c_email); ?>" data-mobile="<?php echo e($customer->n_mobile); ?>"
+                                    data-address="<?php echo e($customer->c_address); ?>" data-state="<?php echo e($customer->n_state_id); ?>"
+                                    data-district="<?php echo e($customer->n_district_id); ?>" <?php echo e(isset($sale->n_customer_id) && $sale->n_customer_id==$customer->n_customer_id ? "selected": ''); ?>>
+                                    <?php echo e($customer->c_customer_name); ?>
 
-                            <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($customer->n_customer_id); ?>" data-name="<?php echo e($customer->c_customer_name); ?>"
-                                data-email="<?php echo e($customer->c_email); ?>" data-mobile="<?php echo e($customer->n_mobile); ?>"
-                                data-address="<?php echo e($customer->c_address); ?>" data-state="<?php echo e($customer->n_state_id); ?>"
-                                data-district="<?php echo e($customer->n_district_id); ?>">
-                                <?php echo e($customer->c_customer_name); ?>
-
-                            </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
 
                         </select>
 
@@ -707,7 +708,7 @@ unset($__errorArgs, $__bag); ?>
                             <input type="date" name="next_followup_date" class="form-control">
                         </div>
 
-                        <?php if(isset($user->role) && $user->role->identifier != "FCA"): ?>
+                        <?php if(isset($user) && $user->identifier != "FCA"): ?>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Type</label>
                             <select name="followup_type" class="form-select" required>

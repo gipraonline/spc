@@ -157,13 +157,12 @@ use Illuminate\Support\Facades\Crypt;
                         <th>No</th>
                         <th>Date</th>
                         <th>Customer</th>
-                        <th>Location</th>
-                        <th>Crop</th>
-                        <th>Product</th>
                         <th>Status</th>
                         <th>Next Follow-up</th>
                         <th>Priority</th>
-                        <th>Advisor</th>
+                        @if(isset($user) && $user->identifier != "FCA")
+                          <th>Farm Care Advisor</th>
+                        @endif
                         <th>Remarks</th>
 
                         @canany(['leads.view','leads.edit','leads.delete'])
@@ -184,19 +183,13 @@ use Illuminate\Support\Facades\Crypt;
                             <td>{{ \Carbon\Carbon::parse($lead->followup_date)->format('d M Y') }}</td>
 
                             <td>
-                                <strong>{{ $lead->customer_name }}</strong><br>
-                                <small>{{ $lead->mobile }}</small>
+                                <strong>{{ $lead->c_customer_name }}</strong><br>
+                                <small>{{ $lead->n_mobile }}</small>
                             </td>
-
-                            <td>{{ $lead->location }}</td>
-
-                            <td>{{ $lead->crop }}</td>
-
-                            <td>{{ $lead->product }}</td>
 
                             <td>
                                 <span class="badge bg-success">
-                                    {{ $lead->status }}
+                                    {{ $lead->c_lead_status }}
                                 </span>
                             </td>
 
@@ -210,7 +203,9 @@ use Illuminate\Support\Facades\Crypt;
                                 </span>
                             </td>
 
-                            <td>{{ $lead->advisor }}</td>
+                            @if(isset($user) && $user->identifier != "FCA")
+                                <td>{{ $lead->advisor }}</td>
+                            @endif
 
                             <td>{{ $lead->remarks }}</td>
 
@@ -223,36 +218,36 @@ use Illuminate\Support\Facades\Crypt;
                                         <i class="ti ti-dots-vertical fs-6"></i>
                                     </a>
 
-                                    <ul class="dropdown-menu">
-
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <li>
-                                            <a class="dropdown-item"
-                                            href="#">
-                                                <i class="ti ti-eye me-2"></i>View
+                                            @can('leads.view-details')
+                                            <a class="dropdown-item d-flex align-products-center gap-3"
+                                                href="{{ route('admin.leads.show', Crypt::encryptString($lead->n_lead_id)) }}">
+                                                <i class="fs-4 ti ti-eye"></i>View Details
                                             </a>
+                                            @endcan
                                         </li>
-
                                         <li>
-                                            <a class="dropdown-item"
-                                            href="#">
-                                                <i class="ti ti-edit me-2"></i>Edit
+                                            @can('leads.edit')
+                                            <a class="dropdown-item d-flex align-products-center gap-3"
+                                                href="{{ route('admin.leads.edit', Crypt::encryptString($lead->n_lead_id)) }}">
+                                                <i class="fs-4 ti ti-edit"></i>Edit
                                             </a>
+                                            @endcan
                                         </li>
-
                                         <li>
-
-                                            <form method="POST">
+                                            @can('leads.delete')
+                                            <form action="{{ route('admin.leads.destroy', Crypt::encryptString($lead->n_lead_id)) }}" method="POST"
+                                                onsubmit="return confirm('Are you sure?')">
                                                 @csrf
                                                 @method('DELETE')
-
-                                                <button class="dropdown-item text-danger">
-                                                    <i class="ti ti-trash me-2"></i>Delete
+                                                <button type="submit"
+                                                    class="dropdown-item d-flex align-products-center gap-3 text-danger">
+                                                    <i class="fs-4 ti ti-trash"></i>Delete
                                                 </button>
-
                                             </form>
-
+                                            @endcan
                                         </li>
-
                                     </ul>
 
                                 </div>

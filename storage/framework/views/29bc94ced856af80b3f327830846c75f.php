@@ -253,7 +253,7 @@ unset($__errorArgs, $__bag); ?>
                                 <option value="" selected>Select State</option>
                                 <?php if(isset($states)): ?>
                                     <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $State): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($State->n_state_id); ?>" <?php echo e(old('n_state_id', $lead->n_state_id ?? '') == $lead->n_state_id ? 'selected' : ''); ?>><?php echo e($State->name); ?></option>
+                                        <option value="<?php echo e($State->n_state_id); ?>" <?php echo e(old('n_state_id', $lead->n_state_id ?? '') == $State->n_state_id ? 'selected' : ''); ?>><?php echo e($State->name); ?></option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 <?php endif; ?>
                             </select>
@@ -267,7 +267,7 @@ unset($__errorArgs, $__bag); ?>
                             <label for="state" class="form-label">District</label>
                             <select class="form-select mandatory" data-message="Please enter District" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>  id="district" name="n_district_id">
                                 <option value="" selected>Select District</option>
-                                <?php if(isset($sale->n_district_id)): ?>
+                                <?php if(isset($lead->n_district_id)): ?>
                                     <?php $districts = \App\Models\District::where('state_id', $lead->n_state_id)->get(); ?>
                                     <?php if(isset($districts)): ?>
                                         <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -338,11 +338,12 @@ unset($__errorArgs, $__bag); ?>
 
                 </div>
 
-                    </div>
+            </div>
 
-                </div>
 
-            <!-- ============================= -->
+
+
+                <!-- ============================= -->
             <!-- Lead Status -->
             <!-- ============================= -->
 
@@ -672,200 +673,289 @@ unset($__errorArgs, $__bag); ?>
 
 <?php $__env->startPush('scripts'); ?>
 
-<script>
 
-
-
-    //-------------------------------------------------------
-    // Existing Customer Toggle
-    //-------------------------------------------------------
+    <script>
+        //-------------------------------------------------------
+        // Existing Customer Toggle
+        //-------------------------------------------------------
 
         const lookupCard = document.getElementById('lookupCard');
+        const newCustomer = document.getElementById('newCustomer');
+        const existingCustomer = document.getElementById('existingCustomer');
 
         function toggleCustomerType() {
 
-            if (document.getElementById('existingCustomer').checked) {
+            if (existingCustomer && existingCustomer.checked) {
                 lookupCard.classList.remove('d-none');
             } else {
                 lookupCard.classList.add('d-none');
             }
         }
 
-        document.getElementById('newCustomer')
-            .addEventListener('change', toggleCustomerType);
+        if (newCustomer) {
+            newCustomer.addEventListener('change', toggleCustomerType);
+        }
 
-        document.getElementById('existingCustomer')
-            .addEventListener('change', toggleCustomerType);
+        if (existingCustomer) {
+            existingCustomer.addEventListener('change', toggleCustomerType);
+        }
 
         toggleCustomerType();
 
-    //-------------------------------------------------------
-    // Follow-up Card
-    //-------------------------------------------------------
 
-    const leadStatus = document.getElementById('leadStatus');
-    const followupCard = document.getElementById('followupCard');
+        //-------------------------------------------------------
+        // Follow-up Card
+        //-------------------------------------------------------
 
-    function toggleFollowup() {
+        const leadStatus = document.getElementById('leadStatus');
+        const followupCard = document.getElementById('followupCard');
 
-        let value = leadStatus.value;
+        function toggleFollowup() {
 
-        if (
-            value === 'Follow-up' ||
-            value === 'Interested' ||
-            value === 'Negotiation'
-        ) {
-
-            followupCard.style.display = 'block';
-
-        } else {
-
-            followupCard.style.display = 'none';
-
-        }
-
-    }
-
-    leadStatus.addEventListener('change', toggleFollowup);
-
-    toggleFollowup();
-
-
-    //-------------------------------------------------------
-    // Mobile Lookup (AJAX)
-    //-------------------------------------------------------
-
-    const lookupBtn = document.getElementById('lookupBtn');
-
-    if (lookupBtn) {
-
-        lookupBtn.addEventListener('click', function () {
-
-            let mobile = document.getElementById('lookupMobile').value;
-
-
-
-
-            if (mobile.length !== 10) {
-                alert('Please enter a valid mobile number.');
+            if (!leadStatus || !followupCard) {
                 return;
             }
 
-            fetch("<?php echo e(route('admin.leads.existingCustomer')); ?>", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "X-CSRF-TOKEN": "<?php echo e(csrf_token()); ?>"
-                },
-                body: JSON.stringify({
-                    mobile: mobile
+            const value = leadStatus.value;
+
+            if (
+                value === 'Follow-up' ||
+                value === 'Interested' ||
+                value === 'Negotiation'
+            ) {
+                followupCard.style.display = 'block';
+            } else {
+                followupCard.style.display = 'none';
+            }
+        }
+
+        if (leadStatus) {
+            leadStatus.addEventListener('change', toggleFollowup);
+            toggleFollowup();
+        }
+
+
+        //-------------------------------------------------------
+        // Mobile Lookup
+        //-------------------------------------------------------
+
+        const lookupBtn = document.getElementById('lookupBtn');
+
+        if (lookupBtn) {
+
+            lookupBtn.addEventListener('click', function () {
+
+                const mobileInput = document.getElementById('lookupMobile');
+                const mobile = mobileInput.value.trim();
+
+                if (!/^[0-9]{10}$/.test(mobile)) {
+                    alert('Please enter a valid 10 digit mobile number.');
+                    return;
+                }
+
+                fetch("<?php echo e(route('admin.leads.existingCustomer')); ?>", {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": "<?php echo e(csrf_token()); ?>"
+                    },
+
+                    body: JSON.stringify({
+                        mobile: mobile
+                    })
                 })
-            })
-            .then(async response => {
+                .then(function (response) {
 
-                console.log("HTTP Status:", response.status);
+                    console.log("HTTP Status:", response.status);
 
-                let result = await response.text();
+                    if (!response.ok) {
+                        return response.text().then(function (text) {
+                            throw new Error(text);
+                        });
+                    }
 
-                console.log("Raw Response:", result);
+                    return response.json();
+                })
+                .then(function (data) {
 
-                if (!response.ok) {
-                    throw new Error(result);
-                }
+                    console.log("Customer Response:", data);
 
-                return JSON.parse(result);
+                    if (data.status === true) {
 
-            })
-            .then(function(data) {
+                        //-------------------------------------------------------
+                        // Customer Details
+                        //-------------------------------------------------------
 
-                console.log( data);
+                        document.querySelector('[name="c_customer_name"]').value =
+                            data.customer.c_customer_name || '';
 
-                if (data.status == true) {
+                        document.querySelector('[name="n_mobile"]').value =
+                            data.customer.n_mobile || '';
 
-                    document.querySelector('[name="c_customer_name"]').value = data.customer.c_customer_name ?? '';
-                    document.querySelector('[name="n_mobile"]').value = data.customer.n_mobile ?? '';
-                    document.querySelector('[name="c_email"]').value = data.customer.c_email ?? '';
-                    document.querySelector('[name="c_address"]').value = data.customer.c_address ?? '';
+                        document.querySelector('[name="c_email"]').value =
+                            data.customer.c_email || '';
 
-                    // Select State by ID
-                    const stateDropdown = document.querySelector('[name="n_state_id"]');
+                        document.querySelector('[name="c_address"]').value =
+                            data.customer.c_address || '';
 
-                    Array.from(stateDropdown.options).forEach(option => {
-                        if (option.text.trim() === data.customer.c_state.trim()) {
-                            option.selected = true;
+
+                        //-------------------------------------------------------
+                        // State
+                        //-------------------------------------------------------
+
+                        const stateDropdown =
+                            document.querySelector('[name="n_state_id"]');
+
+                        const selectedState =
+                            data.customer.n_state_id;
+
+                        if (selectedState) {
+
+                            stateDropdown.value = selectedState;
+
+                        } else if (data.customer.c_state) {
+
+                            Array.from(stateDropdown.options).forEach(function (option) {
+
+                                if (
+                                    option.text.trim().toLowerCase() ===
+                                    data.customer.c_state.trim().toLowerCase()
+                                ) {
+                                    option.selected = true;
+                                }
+
+                            });
                         }
-                    });
-
-                    var selectState=data.customer.n_state_id;
-                    var selectedDistrict = data.customer.n_district_id;
-
-                    districtFilter(selectState,selectedDistrict);
 
 
+                        //-------------------------------------------------------
+                        // District
+                        //-------------------------------------------------------
 
-                } else {
+                        const selectedDistrict =
+                            data.customer.n_district_id || null;
 
-                    alert('Customer not found.');
+                        districtFilter(
+                            selectedState,
+                            selectedDistrict
+                        );
 
-                }
+                    } else {
 
-            })
-            .catch(function(error) {
+                        alert('Customer not found.');
 
-                console.error("Fetch Error:", error.message);
+                    }
 
-            });
-        });
-    }
+                })
+                .catch(function (error) {
 
-    $(document).ready(function(){
+                    console.error('Fetch Error:', error);
 
-        $(document).on("change","#state",function(){
-                var state=$(this).val();
-                districtFilter(state);
-
-        });
-
-    })
-
-
-    function districtFilter(state, selectedDistrict = null) {
-
-        $.ajax({
-            type: "GET",
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
-            data: { state: state },
-            cache: false,
-            dataType: "json",
-
-            success: function(data) {
-
-                $("#district").empty();
-                $("#district").append('<option value="">Select District</option>');
-
-                $.each(data.districts, function(index, district) {
-
-                    $("#district").append(
-                        '<option value="' + district.id + '">' +
-                        district.district_name +
-                        '</option>'
-                    );
+                    alert('Unable to find customer. Please try again.');
 
                 });
 
-                // Select the district after loading
-                if (selectedDistrict) {
-                    $("#district").val(selectedDistrict);
-                }
+            });
+        }
 
-            }
+
+        //-------------------------------------------------------
+        // State Change
+        //-------------------------------------------------------
+
+        $(document).ready(function () {
+
+            $(document).on('change', '#state', function () {
+
+                const state = $(this).val();
+
+                districtFilter(state);
+
+            });
+
         });
 
-    }
+
+        //-------------------------------------------------------
+        // District Filter
+        //-------------------------------------------------------
+
+        function districtFilter(state, selectedDistrict = null) {
+
+            if (!state) {
+
+                $('#district').empty();
+
+                $('#district').append(
+                    '<option value="">Select District</option>'
+                );
+
+                return;
+            }
+
+            $.ajax({
+
+                type: 'GET',
+
+                url: "<?php echo e(route('admin.filterDistrict')); ?>",
+
+                data: {
+                    state: state
+                },
+
+                cache: false,
+
+                dataType: 'json',
+
+                success: function (data) {
+
+                    $('#district').empty();
+
+                    $('#district').append(
+                        '<option value="">Select District</option>'
+                    );
+
+                    $.each(data.districts, function (index, district) {
+
+                        $('#district').append(
+                            '<option value="' +
+                            district.id +
+                            '">' +
+                            district.district_name +
+                            '</option>'
+                        );
+
+                    });
 
 
-</script>
+                    //-------------------------------------------------------
+                    // Select Existing Customer District
+                    //-------------------------------------------------------
+
+                    if (selectedDistrict !== null && selectedDistrict !== '') {
+
+                        $('#district').val(selectedDistrict);
+
+                    }
+
+                },
+
+                error: function (xhr) {
+
+                    console.error(
+                        'District AJAX Error:',
+                        xhr.responseText
+                    );
+
+                }
+
+            });
+
+        }
+    </script>
+
 
 <?php $__env->stopPush(); ?>
 

@@ -14,6 +14,7 @@ use App\Models\Lead;
 use App\Models\State;
 use App\Models\District;
 use App\Models\EmployeeMaster;
+use App\Models\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -24,25 +25,34 @@ class LeadsController extends Controller
 {
     public function index(Request $request)
     {
+
         $leads=Lead::paginate(20);
-        return view('admin.leads.index',compact('leads'));
+
+        $user=Admin::join('model_has_roles as mr','mr.model_id','admins.n_role_id')
+                ->join('roles','roles.id','mr.role_id')
+                ->where('admins.n_role_id',Auth::user()->n_role_id)->first();
+
+        return view('admin.leads.index',compact('leads','user'));
     }
 
     public function create()
     {
-
-        $employees = EmployeeMaster::where('n_designation_id', 5)
-            ->where('c_status', 'Y')
-            ->get();
         $states=State::where('status', '1')->get();
         $lead=new Lead;
         return view('admin.leads.create',compact('states','lead'));
     }
 
-    public function districtFilter(Request $request){
-        $districts=District::where('state_id',$request->state)->get();
-        return response()->json(['districts'=>$districts]);
+    public function show(Request $request,$id)
+    {
+        $id = Crypt::decryptString($id);
+        $leads=Lead::findOrFail($id );
+        $user=Admin::join('model_has_roles as mr','mr.model_id','admins.n_role_id')
+                ->join('roles','roles.id','mr.role_id')
+                ->where('admins.n_role_id',Auth::user()->n_role_id)->first();
+
+        return view('admin.leads.create', compact('leads','user'));
     }
+
 
 
     public function existingCustomer(Request $request)
@@ -94,7 +104,7 @@ class LeadsController extends Controller
         ]);
 
         $data = [
-
+            'n_fca_id' => isset($request->n_fca_id) ? $request->n_fca_id : Auth::user()->n_role_id,
             'c_customer_type' => $request->c_customer_type,
             'c_customer_name' => $request->c_customer_name,
             'n_mobile' => $request->n_mobile,

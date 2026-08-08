@@ -306,9 +306,12 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
         $products = ProductMaster::where('c_status', 'Y')->get();
         $sale = SalesOrder::with('orderProducts')->find($id);
         $states=State::with('districts')->where('status', '1')->get();
+        $customers = CustomerMaster::orderBy('c_customer_name')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='on';
-        $user=Admin::with('role')->where('n_role_id',Auth::user()->n_role_id)->first();
+        $user=Admin::join('model_has_roles as mr','mr.model_id','admins.n_role_id')
+                ->join('roles','roles.id','mr.role_id')
+                ->where('admins.n_role_id',Auth::user()->n_role_id)->first();
 
         $farmCareAdvisorId = null;
         $isFarmCareAdvisor = false;
@@ -326,7 +329,7 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
 
         }
 
-        return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode','user', 'farmCareAdvisorId',
+        return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode','user', 'farmCareAdvisorId','customers',
     'isFarmCareAdvisor'));
     }
 

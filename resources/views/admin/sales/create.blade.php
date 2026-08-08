@@ -314,15 +314,16 @@ use Illuminate\Support\Facades\Crypt;
 
                         <select name="customer_id" id="customer_id" class="form-select mandatory">
                             <option value="">Select Customer</option>
-
-                            @foreach($customers as $customer)
-                            <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
-                                data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
-                                data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
-                                data-district="{{ $customer->n_district_id }}">
-                                {{ $customer->c_customer_name }}
-                            </option>
-                            @endforeach
+                            @if(isset($customers))
+                                @foreach($customers as $customer)
+                                <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
+                                    data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
+                                    data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
+                                    data-district="{{ $customer->n_district_id }}" {{isset($sale->n_customer_id) && $sale->n_customer_id==$customer->n_customer_id ? "selected": ''}}>
+                                    {{ $customer->c_customer_name }}
+                                </option>
+                                @endforeach
+                            @endif
 
                         </select>
 
@@ -682,7 +683,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date" name="next_followup_date" class="form-control">
                         </div>
 
-                        @if(isset($user->role) && $user->role->identifier != "FCA")
+                        @if(isset($user) && $user->identifier != "FCA")
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Type</label>
                             <select name="followup_type" class="form-select" required>

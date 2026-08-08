@@ -82,7 +82,7 @@
     flex-direction: column;
     justify-content: space-between;
     color: #ffffff;
-    background: linear-gradient(135deg, #024d93, #003366) !important;
+    background: linear-gradient(135deg, #5A8D3A, #074E30);
     min-height: 150px;
 }
 
@@ -93,7 +93,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+    background: linear-gradient(135deg, #5A8D3A, #074E30);
     pointer-events: none;
 }
 

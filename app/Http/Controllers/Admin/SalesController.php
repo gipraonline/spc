@@ -162,7 +162,7 @@ public function create()
             'd_date' => 'required|date',
             'c_order_no' => 'required|string|max:255',
             'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
-            'customer_id' => 'required|exists:customer_masters,n_customer_id',
+            'n_customer_id' => 'required|exists:customer_masters,n_customer_id',
             'c_customer_email' => 'nullable|email|max:255',
             'c_customer_address' => 'nullable|string|max:1000',
             'n_customer_mobile' => 'required|digits_between:10,15',
@@ -186,10 +186,9 @@ public function create()
 
         $validated = $validator->validated();
         $user = Auth::user();
-        $customer = CustomerMaster::where(
-                    'n_customer_id',
-                    $validated['customer_id']
-                    )->first();
+        $customer = CustomerMaster::findOrFail(
+        $validated['n_customer_id']
+        );
        $user = Auth::user();
 
 if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
@@ -209,7 +208,7 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
                 'c_order_no' => $validated['c_order_no'],
                 'd_date' => $validated['d_date'],
                 'farm_care_advisor_id' => $validated['farm_care_advisor_id'],
-                'customer_id'        => $customer->n_customer_id,
+                'n_customer_id'        => $customer->n_customer_id,
                 'c_customer_name' => $validated['c_customer_name'],
                 'c_customer_email' => $validated['c_customer_email'],
                 'c_customer_address' => $validated['c_customer_address'],
@@ -304,7 +303,10 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
         $id = Crypt::decryptString($id);
         $employees = EmployeeMaster::where('c_status', 'Y')->get();
         $products = ProductMaster::where('c_status', 'Y')->get();
-        $sale = SalesOrder::with('orderProducts')->find($id);
+        $sale = SalesOrder::with([
+            'orderProducts',
+            'customer',
+        ])->findOrFail($id);
         $states=State::with('districts')->where('status', '1')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='on';
@@ -326,7 +328,7 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
 
         }
 
-        return view('admin.sales.show', compact('sale','employees','products','states','franchises','viewmode','user', 'farmCareAdvisorId',
+    return view('admin.sales.show', compact('sale','employees','products','states','franchises','viewmode','user', 'farmCareAdvisorId',
     'isFarmCareAdvisor'));
     }
 
@@ -359,7 +361,11 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
         $id = Crypt::decryptString($id);
         $employees = EmployeeMaster::where('c_status', 'Y')->get();
         $products = ProductMaster::where('c_status', 'Y')->get();
-        $sale = SalesOrder::with('orderProducts')->find($id);
+                $sale = SalesOrder::with([
+            'orderProducts',
+            'customer',
+        ])->findOrFail($id);
+        $customers = CustomerMaster::orderBy('c_customer_name')->get();
         $states=State::with('districts')->where('status', '1')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='off';
@@ -382,7 +388,7 @@ if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
         }
 
         return view('admin.sales.create', compact('sale','employees','products','states','franchises','viewmode', 'farmCareAdvisorId',
-    'isFarmCareAdvisor'));
+    'isFarmCareAdvisor','customers'));
     }
 
 

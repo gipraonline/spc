@@ -312,7 +312,7 @@ use Illuminate\Support\Facades\Crypt;
                     <div class="col-md-6">
                         <label for="c_customer_name" class="form-label">Customer *</label>
 
-                        <select name="customer_id" id="customer_id" class="form-select mandatory">
+                        <select name="n_customer_id" id="n_customer_id" class="form-select mandatory">
                             <option value="">Select Customer</option>
                             @if(isset($customers))
                             @foreach($customers as $customer)
@@ -939,7 +939,7 @@ $(document).ready(function() {
  ====================================================== -->
 <script>
 $(document).ready(function() {
-    $("#customer_id").change(function() {
+    $("#n_customer_id").change(function() {
 
         let option = $(this).find(":selected");
 

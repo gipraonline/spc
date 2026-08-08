@@ -57,6 +57,7 @@ class StoreController extends Controller
         $validated = $request->validate([
             'c_store_code' => 'required|string|max:30|regex:/^[A-Za-z0-9\s\-]+$/|unique:store_masters,c_store_code',
             'c_store_name' => 'required|string|max:100|regex:/^[A-Za-z0-9\s\-]+$/',
+             'c_owner_name' => 'required|string|max:100|regex:/^[A-Za-z\s\-]+$/',
             'c_store_address' => 'required|string|max:255',
             'n_state_id'       => 'required|integer',
             'n_district_id'    => 'required|integer',
@@ -67,6 +68,9 @@ class StoreController extends Controller
             'c_store_code.regex' => 'Special characters are not allowed. Use letters, numbers, spaces',
             'c_store_name.required' => 'Store name is required',
             'c_store_name.regex' => 'Special characters are not allowed.Use letters, numbers, spaces',
+            'c_owner_name.required' => 'Owner name is required',
+
+            'c_owner_name.regex' => 'Owner name can contain only letters, spaces and hyphens',
             'c_store_address.required' => 'Address is required',
             'n_state_id.required'      => 'Please select a state',
             'n_district_id.required'   => 'Please select a district',
@@ -110,6 +114,7 @@ class StoreController extends Controller
         $validated = $request->validate([
             'c_store_code' => 'required|string|max:30|regex:/^[A-Za-z0-9\s\-]+$/|unique:store_masters,c_store_code,'.$franchise->n_store_id.',n_store_id',
             'c_store_name' => 'required|string|max:100|regex:/^[A-Za-z0-9\s\-]+$/',
+            'c_owner_name' => 'required|string|max:100|regex:/^[A-Za-z\s\-]+$/',
             'c_store_address' => 'nullable|string|max:255',
             'n_state_id'      => 'required|integer',
             'n_district_id'   => 'required|integer',
@@ -120,6 +125,8 @@ class StoreController extends Controller
             'c_store_code.regex' => 'Special characters are not allowed. Use letters, numbers, spaces',
             'c_store_name.required' => 'Store name is required',
             'c_store_name.regex' => 'Special characters are not allowed.Use letters, numbers, spaces',
+            'c_owner_name.required' => 'Owner name is required',
+            'c_owner_name.regex' => 'Owner name can contain only letters, spaces and hyphens',
             'c_store_address.required' => 'Address is required',
             'c_store_email.email' => 'Enter a valid Email id',
             'n_store_phone.regex' => 'Enter a valid Phone number',

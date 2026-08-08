@@ -18,6 +18,7 @@ class StoreMaster extends Model
         'c_store_code',
         'n_clustor_manager_id',
         'c_store_name',
+        'c_owner_name',
         'c_store_address',
         'n_state_id',
         'n_district_id',

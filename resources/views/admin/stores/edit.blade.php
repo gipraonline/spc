@@ -159,6 +159,18 @@
                     @enderror
                 </div>
 
+                <div class="col-md-6">
+                    <label for="c_owner_name" class="form-label">Owner Name *</label>
+
+                    <input type="text" id="c_owner_name" name="c_owner_name"
+                        value="{{ old('c_owner_name', $franchise->c_owner_name) }}" maxlength="100"
+                        class="form-control mandatory" placeholder="Franchise owner name">
+
+                    @error('c_owner_name')
+                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <div class="col-12">
                     <label for="c_store_address" class="form-label">Address</label>
                     <input type="text" id="c_store_address" name="c_store_address" maxlength="255"

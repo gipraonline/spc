@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 :root {
     --primary-green: #1b3e86;
@@ -155,8 +153,8 @@
     </div>
 
     <div class="form-body">
-        <form id="frm_create" method="POST" action="{{ route('admin.products.store') }}">
-            @csrf
+        <form id="frm_create" method="POST" action="<?php echo e(route('admin.products.store')); ?>">
+            <?php echo csrf_field(); ?>
 
             <div class="row g-4">
                 <!-- General Information Section -->
@@ -169,21 +167,35 @@
                 <div class="col-md-6">
                     <label for="c_product_name" class="form-label">Product Name *</label>
                     <input type="text" id="c_product_name" data-message="Please enter Product Name"
-                        name="c_product_name" value="{{ old('c_product_name') }}" class="form-control mandatory"
+                        name="c_product_name" value="<?php echo e(old('c_product_name')); ?>" class="form-control mandatory"
                         placeholder="Enter product name">
 
-                    @error('c_product_name')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_product_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-6">
                     <label for="c_product_code" class="form-label">Product Code *</label>
                     <input type="text" id="c_product_code" data-message="Please enter Product Code"
-                        name="c_product_code" value="{{ old('c_product_code') }}" class="form-control mandatory"
+                        name="c_product_code" value="<?php echo e(old('c_product_code')); ?>" class="form-control mandatory"
                         placeholder="Enter product code">
                     <div id="code_error" class="text-danger mt-1 fs-2">
-                        @error('c_product_code') {{ $message }} @enderror
+                        <?php $__errorArgs = ['c_product_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <?php echo e($message); ?> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
                 </div>
 
@@ -196,29 +208,50 @@
                 <div class="col-md-6">
                     <label for="n_mrp" class="form-label">MRP *</label>
                     <input type="text" id="n_mrp" name="n_mrp" data-message="Please enter Maximum Retail Price"
-                        value="{{ old('n_mrp') }}" class="form-control mandatory" placeholder="0.00">
-                    @error('n_mrp')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                        value="<?php echo e(old('n_mrp')); ?>" class="form-control mandatory" placeholder="0.00">
+                    <?php $__errorArgs = ['n_mrp'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-6">
                     <label for="n_purchase_price" class="form-label">Purchase Price *</label>
                     <input type="text" id="n_purchase_price" name="n_purchase_price"
-                        data-message="Please enter Purchase Price" value="{{ old('n_purchase_price') }}"
+                        data-message="Please enter Purchase Price" value="<?php echo e(old('n_purchase_price')); ?>"
                         class="form-control mandatory" placeholder="0.00">
-                    @error('n_purchase_price')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['n_purchase_price'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-6">
                     <label for="n_selling_price" class="form-label">Selling Price *</label>
                     <input type="text" id="n_selling_price" name="n_selling_price"
-                        data-message="Please enter Selling Price" value="{{ old('n_selling_price') }}"
+                        data-message="Please enter Selling Price" value="<?php echo e(old('n_selling_price')); ?>"
                         class="form-control mandatory" placeholder="0.00">
                     <div id="selling_error" class="text-danger mt-1 fs-2">
-                        @error('n_selling_price') {{ $message }} @enderror
+                        <?php $__errorArgs = ['n_selling_price'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <?php echo e($message); ?> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
                 </div>
 
@@ -227,42 +260,70 @@
                     <select id="c_status" name="c_status" data-message="Please enter Status"
                         class="form-select mandatory">
                         <option value="">Select Status</option>
-                        <option value="Y" {{ old('c_status') === 'Y' ? 'selected' : '' }}>Active</option>
-                        <option value="N" {{ old('c_status') === 'N' ? 'selected' : '' }}>Inactive</option>
+                        <option value="Y" <?php echo e(old('c_status') === 'Y' ? 'selected' : ''); ?>>Active</option>
+                        <option value="N" <?php echo e(old('c_status') === 'N' ? 'selected' : ''); ?>>Inactive</option>
                     </select>
-                    @error('c_status')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div> -->
                 <div class="col-md-6">
                     <label for="c_unit" class="form-label">Unit *</label>
-                    <input type="text" id="c_unit" name="c_unit" value="{{ old('c_unit') }}"
+                    <input type="text" id="c_unit" name="c_unit" value="<?php echo e(old('c_unit')); ?>"
                         class="form-control mandatory" data-message="Please enter Unit" placeholder="e.g. 1 ltr">
 
-                    @error('c_unit')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_unit'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-6">
                     <label for="c_hsn_code" class="form-label">HSN Code *</label>
-                    <input type="text" id="c_hsn_code" name="c_hsn_code" value="{{ old('c_hsn_code') }}"
+                    <input type="text" id="c_hsn_code" name="c_hsn_code" value="<?php echo e(old('c_hsn_code')); ?>"
                         class="form-control mandatory" data-message="Please enter HSN Code" placeholder="e.g. 31010099">
 
-                    @error('c_hsn_code')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_hsn_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-6">
                     <label for="n_gst_percentage" class="form-label">GST % *</label>
                     <input type="number" id="n_gst_percentage" name="n_gst_percentage"
-                        value="{{ old('n_gst_percentage') }}" class="form-control mandatory"
+                        value="<?php echo e(old('n_gst_percentage')); ?>" class="form-control mandatory"
                         data-message="Please enter GST Percentage" placeholder="e.g. 5" min="0" max="100" step="0.01">
 
-                    @error('n_gst_percentage')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['n_gst_percentage'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-6">
@@ -272,114 +333,37 @@
 
                         <option value="">Select Status</option>
 
-                        <option value="Y" {{ old('c_status') === 'Y' ? 'selected' : '' }}>
+                        <option value="Y" <?php echo e(old('c_status') === 'Y' ? 'selected' : ''); ?>>
                             Active
                         </option>
 
-                        <option value="N" {{ old('c_status') === 'N' ? 'selected' : '' }}>
+                        <option value="N" <?php echo e(old('c_status') === 'N' ? 'selected' : ''); ?>>
                             Inactive
                         </option>
                     </select>
 
-                    @error('c_status')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
-                {{--    <!-- Incentive Splits Toggle -->
-                <div class="col-12 mt-4">
-                    <label class="checkbox-container">
-                        <input type="checkbox" value="1" name="c_active_incentive" id="active_incentive">
-                        <span class="form-label mb-0">Enable Incentive Splits</span>
-                        <div id="incentive_danger" class="text-danger mt-1 fs-2 ms-2"></div>
-                    </label>
-                </div>
-
-                <!-- Incentive Reveal Grid -->
-                <div id="incentive_percentages" class="col-12" style="display:none;">
-                    <div class="incentive-grid">
-                        <div class="incentive-item">
-                            <label class="form-label">CSA</label>
-                            <div class="d-flex align-items-center">
-                                <input type="text" id="csa" name="n_customer_service_associate"
-                                    class="form-control incentive" placeholder="0"
-                                    value="{{ old('n_customer_service_associate', 60) }}" readonly>
-                <span class="input-group-text-custom">%</span>
-            </div>
-    </div>
-
-    <div class="incentive-item">
-        <label class="form-label">C&A</label>
-        <div class="d-flex align-items-center">
-            <input type="text" id="n_cash_accountant" name="n_cash_accountant" class="form-control incentive"
-                placeholder="0" value="{{ old('n_cash_accountant', 5) }}" readonly>
-            <span class="input-group-text-custom">%</span>
-        </div>
-    </div>
-
-    <div class="incentive-item">
-        <label class="form-label">SM</label>
-        <div class="d-flex align-items-center">
-            <input type="text" id="n_sales_manager" name="n_sales_manager" class="form-control incentive"
-                placeholder="0" value="{{ old('n_sales_manager', 10) }}" readonly>
-            <span class="input-group-text-custom">%</span>
-        </div>
-    </div>
-
-    <div class="incentive-item">
-        <label class="form-label">Clustor</label>
-        <div class="d-flex align-items-center">
-            <input type="text" id="n_clustor_manager" name="n_clustor_manager" class="form-control incentive"
-                placeholder="0" value="{{ old('n_clustor_manager', 5) }}" readonly>
-            <span class="input-group-text-custom">%</span>
-        </div>
-    </div>
-
-    <div class="incentive-item">
-        <label class="form-label">Operations</label>
-        <div class="d-flex align-items-center">
-            <input type="text" id="n_operations" name="n_operations" class="form-control incentive" placeholder="0"
-                value="{{ old('n_operations', 3) }}" readonly>
-            <span class="input-group-text-custom">%</span>
-        </div>
-    </div>
-
-    <div class="incentive-item">
-        <label class="form-label">BM</label>
-        <div class="d-flex align-items-center">
-            <input type="text" id="n_bm_teams" name="n_bm_teams" class="form-control incentive" placeholder="0"
-                placeholder="0" value="{{ old('n_bm_teams', 7) }}" readonly>
-            <span class="input-group-text-custom">%</span>
-        </div>
-    </div>
-
-    <div class="incentive-item">
-        <label class="form-label">DC</label>
-        <div class="d-flex align-items-center">
-            <input type="text" id="n_dc_teams" name="n_dc_teams" class="form-control incentive" placeholder="0"
-                value="{{ old('n_dc_teams', 5) }}" readonly>
-            <span class="input-group-text-custom">%</span>
-        </div>
-    </div>
-
-    <div class="incentive-item">
-        <label class="form-label">HO</label>
-        <div class="d-flex align-items-center">
-            <input type="text" id="n_head_office" name="n_head_office" class="form-control incentive" placeholder="0"
-                value="{{ old('n_head_office', 5) }}" readonly>
-            <span class="input-group-text-custom">%</span>
-        </div>
-    </div>
-</div>
-</div> --}}
+                
 
 <div class="col-12 mt-4 pt-3 border-top d-flex gap-3">
     <button type="submit" id="btn_create" class="btn buttonSpc incentive_perc">Create
         Item</button>
-    <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary btn-cancel-custom">Cancel</a>
+    <a href="<?php echo e(route('admin.products.index')); ?>" class="btn btn-outline-secondary btn-cancel-custom">Cancel</a>
 </div>
 </div>
 </form>
 </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/products/create.blade.php ENDPATH**/ ?>

@@ -124,7 +124,7 @@ public function create()
     $isFarmCareAdvisor = false;
     $farmCareAdvisorId = null;
 
-    if ($user && $user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
+    if ($user && $user->roles()->where('identifier', 'FCA')->exists()) {
 
         $isFarmCareAdvisor = true;
 
@@ -192,7 +192,7 @@ public function create()
                     )->first();
        $user = Auth::user();
 
-if ($user->roles()->where('identifier', 'FARM_CARE_ADVISER')->exists()) {
+if ($user->roles()->where('identifier', 'FCA')->exists()) {
 
     $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
 

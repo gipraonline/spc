@@ -74,6 +74,9 @@ class ProductController extends Controller
                 'n_purchase_price'  => 'required|numeric|min:0',
                 'n_selling_price'   => 'required|numeric|min:0|gt:n_purchase_price',
                 'n_mrp'             => 'required|numeric|min:0|gte:n_selling_price',
+                'c_unit'               => 'required|string|max:50',
+        'c_hsn_code'           => 'required|string|max:20',
+        'n_gst_percentage'     => 'required|numeric|min:0|max:100',
                 'c_status'          => 'required|in:Y,N',
             ], [
                 'c_product_name.required'   => 'Product name cannot be empty.',
@@ -84,6 +87,10 @@ class ProductController extends Controller
                 'n_selling_price.gt'        => 'Selling price must be greater than purchase price.',
                 'n_mrp.required'            => 'MRP cannot be empty.',
                 'n_mrp.gte'                 => 'MRP must be greater than or equal to selling price.',
+                 'c_unit.required'           => 'Unit cannot be empty.',
+        'c_hsn_code.required'       => 'HSN code cannot be empty.',
+        'n_gst_percentage.required' => 'GST percentage cannot be empty.',
+        'n_gst_percentage.max'      => 'GST percentage cannot be greater than 100.',
             ]);
             ProductMaster::create($validated);
 
@@ -107,6 +114,9 @@ class ProductController extends Controller
             'n_purchase_price' => 'required|numeric|min:0',
             'n_selling_price'  => 'required|numeric|min:0|gt:n_purchase_price',
             'n_mrp'            => 'required|numeric|min:0|gte:n_selling_price',
+             'c_unit'               => 'required|string|max:50',
+        'c_hsn_code'           => 'required|string|max:20',
+        'n_gst_percentage'     => 'required|numeric|min:0|max:100',
             'c_status'         => 'required|in:Y,N',
         ], [
             'c_product_name.required'   => 'Product name cannot be empty.',
@@ -117,6 +127,10 @@ class ProductController extends Controller
             'n_selling_price.gt'        => 'Selling price must be greater than purchase price.',
             'n_mrp.required'            => 'MRP cannot be empty.',
             'n_mrp.gte'                 => 'MRP must be greater than or equal to selling price.',
+             'c_unit.required'           => 'Unit cannot be empty.',
+        'c_hsn_code.required'       => 'HSN code cannot be empty.',
+        'n_gst_percentage.required' => 'GST percentage cannot be empty.',
+        'n_gst_percentage.max'      => 'GST percentage cannot be greater than 100.',
         ]);
 
         $product->update($validated);

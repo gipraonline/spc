@@ -210,6 +210,9 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Name</h6>
                         </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Owner Name</h6>
+                        </th>
                         <th>
                             <h6 class="fw-semibold mb-0">State</h6>
                         </th>
@@ -242,13 +245,19 @@
                         <td class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">{{ $store->c_store_name }}</h6>
                         </td>
-
-                        <td>
-                            {{ $store->state->name ?? '-' }}
+                        <!-- Owner Name -->
+                        <td class="border-bottom-0"> <span class="fw-normal"> {{ $store->c_owner_name ?? '-' }}
+                            </span>
                         </td>
 
-                        <td>
-                            {{ $store->district->district_name ?? '-' }}
+                        <td class="border-bottom-0"><span class="fw-normal">
+                                {{ $store->state->name ?? '-' }} </span>
+                        </td>
+
+
+
+                        <td class="border-bottom-0"><span class="fw-normal">
+                                {{ $store->district->district_name ?? '-' }} </span>
                         </td>
                         <td class="border-bottom-0">
                             <span class="fw-normal">{{ $store->c_store_email ?? '-' }}</span>

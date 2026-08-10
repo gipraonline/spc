@@ -236,9 +236,9 @@ class LeadsController extends Controller
             'c_lead_status' => $request->c_lead_status,
             'd_expected_availability_date' => $request->d_expected_availability_date,
 
-           /*  'next_followup_date' => $request->next_followup_date,
+           'next_followup_date' => $request->next_followup_date,
             'next_followup_time' => $request->next_followup_time,
-            'followup_type' => $request->followup_type, */
+            'followup_type' => $request->followup_type,
 
             'priority' => $request->priority,
             'remarks' => $request->remarks,

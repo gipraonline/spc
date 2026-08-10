@@ -427,8 +427,73 @@ unset($__errorArgs, $__bag); ?>
             <!-- ============================= -->
             <!-- Follow-up -->
             <!-- ============================= -->
+            <?php if(isset($lead->n_lead_id)): ?>
+            <div class="card border rounded-4 mb-4"
+                 id="followupCard">
 
-            
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 fw-semibold">
+                        Follow-up Details
+                    </h6>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-lg-4 mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Next Follow-up Date
+                            </label>
+
+                            <input type="date"
+                                   name="next_followup_date"
+                                   class="form-control"
+                                   value="<?php echo e(old('next_followup_date', $lead->next_followup_date ? \Carbon\Carbon::parse($lead->next_followup_date)->format('Y-m-d') : '')); ?>">
+
+                        </div>
+
+                        <div class="col-lg-4 mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Follow-up Time
+                            </label>
+
+                            <input type="time"
+                            name="next_followup_time"
+                            class="form-control"
+                            value="<?php echo e(old('next_followup_time', $lead->next_followup_time ? \Carbon\Carbon::parse($lead->next_followup_time)->format('H:i') : '')); ?>">
+
+                        </div>
+
+                        <div class="col-lg-4 mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Follow-up Type
+                            </label>
+
+                            <select name="followup_type"
+                                    class="form-select">
+
+                                <option value="">Select</option>
+
+                                <option value="phone_call" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "phone_call" ? 'selected' : ''); ?>>Phone Call</option>
+                                <option value="whats_app" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "whats_app" ? 'selected' : ''); ?>>WhatsApp</option>
+                                <option value="farm_visit" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "farm_visit" ? 'selected' : ''); ?>>Farm Visit</option>
+                                <option value="office_visit" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "office_visit" ? 'selected' : ''); ?>>Office Visit</option>
+                                <option value="video_call" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "video_call" ? 'selected' : ''); ?>>Video Call</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <?php endif; ?>
 
             <!-- ============================= -->
             <!-- Priority -->

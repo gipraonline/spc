@@ -384,8 +384,8 @@ use Illuminate\Support\Facades\Crypt;
             <!-- ============================= -->
             <!-- Follow-up -->
             <!-- ============================= -->
-
-            {{-- <div class="card border rounded-4 mb-4"
+            @if(isset($lead->n_lead_id))
+            <div class="card border rounded-4 mb-4"
                  id="followupCard">
 
                 <div class="card-header bg-light">
@@ -407,7 +407,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date"
                                    name="next_followup_date"
                                    class="form-control"
-                                   value="{{ old('next_followup_date') }}">
+                                   value="{{ old('next_followup_date', $lead->next_followup_date ? \Carbon\Carbon::parse($lead->next_followup_date)->format('Y-m-d') : '') }}">
 
                         </div>
 
@@ -418,9 +418,9 @@ use Illuminate\Support\Facades\Crypt;
                             </label>
 
                             <input type="time"
-                                   name="next_followup_time"
-                                   class="form-control"
-                                   value="{{ old('next_followup_time') }}">
+                            name="next_followup_time"
+                            class="form-control"
+                            value="{{ old('next_followup_time', $lead->next_followup_time ? \Carbon\Carbon::parse($lead->next_followup_time)->format('H:i') : '') }}">
 
                         </div>
 
@@ -435,11 +435,11 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select</option>
 
-                                <option>Phone Call</option>
-                                <option>WhatsApp</option>
-                                <option>Farm Visit</option>
-                                <option>Office Visit</option>
-                                <option>Video Call</option>
+                                <option value="phone_call" {{ old('followup_type', $lead->followup_type ?? '') == "phone_call" ? 'selected' : '' }}>Phone Call</option>
+                                <option value="whats_app" {{ old('followup_type', $lead->followup_type ?? '') == "whats_app" ? 'selected' : '' }}>WhatsApp</option>
+                                <option value="farm_visit" {{ old('followup_type', $lead->followup_type ?? '') == "farm_visit" ? 'selected' : '' }}>Farm Visit</option>
+                                <option value="office_visit" {{ old('followup_type', $lead->followup_type ?? '') == "office_visit" ? 'selected' : '' }}>Office Visit</option>
+                                <option value="video_call" {{ old('followup_type', $lead->followup_type ?? '') == "video_call" ? 'selected' : '' }}>Video Call</option>
 
                             </select>
 
@@ -450,7 +450,7 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
             </div>
- --}}
+            @endif
 
             <!-- ============================= -->
             <!-- Priority -->

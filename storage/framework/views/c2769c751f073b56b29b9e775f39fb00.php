@@ -246,7 +246,8 @@ use Illuminate\Support\Facades\Crypt;
                                         <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
                                         <option value="<?php echo e($product->n_product_id); ?>"
-                                            data-price="<?php echo e($product->n_selling_price); ?>"
+                                            
+                                            data-price="<?php echo e($product->n_mrp); ?>"
                                             <?php echo e($val->product_id == $product->n_product_id ? 'selected' : ''); ?>>
 
                                             <?php echo e($product->c_product_name); ?>
@@ -314,7 +315,7 @@ use Illuminate\Support\Facades\Crypt;
                     <div class="col-md-6">
                         <label for="c_customer_name" class="form-label">Customer *</label>
 
-                        <select name="customer_id" id="customer_id" class="form-select mandatory">
+                        <select name="n_customer_id" id="n_customer_id" class="form-select mandatory">
                             <option value="">Select Customer</option>
                             <?php if(isset($customers)): ?>
                                 <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -665,7 +666,7 @@ unset($__errorArgs, $__bag); ?>
                     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
                         data-bs-toggle="modal" data-bs-target="#approveModal"
                         data-id="<?php echo e(isset($sale) ? Crypt::encryptString($sale->n_sl_no) : ''); ?>"
-                        id="approve">Approve</button>
+                        id="approveModal">Approve</button>
                     <?php endif; ?>
                     <?php else: ?>
                     <button type="button" class="btn mt-1 buttonSpc"
@@ -776,44 +777,109 @@ unset($__errorArgs, $__bag); ?>
 </div>
 
 <!--Approval Form modal-->
-<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+<div class="modal fade"
+     id="approveModal"
+     tabindex="-1"
+     aria-labelledby="approveModalLabel"
+     aria-hidden="true">
+
     <div class="modal-dialog">
-        <form method="POST" id="approveForm">
+
+        <form method="POST"
+              id="approveForm"
+              action="<?php echo e(route('admin.leads.approval.save')); ?>">
+
             <?php echo csrf_field(); ?>
             <?php echo method_field('PUT'); ?>
 
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+
+                <div class="modal-header"
+                     style="background: linear-gradient(135deg, #5A8D3A, #074E30);">
+
+                    <h5 class="modal-title text-white"
+                        id="approveModalLabel">
+                        Approval
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                    </button>
+
                 </div>
 
                 <div class="modal-body">
 
-                    <input type="hidden" name="id" id="approval_id">
+                    <input type="hidden"
+                           name="id"
+                           id="approval_id">
 
                     <div class="mb-3">
-                        <label class="form-label">Remarks</label>
-                        <textarea class="form-control" name="remarks" rows="3" required></textarea>
+
+                        <label class="form-label">
+                            Remarks <span class="text-danger">*</span>
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            name="remarks"
+                            id="approval_remarks"
+                            rows="3"
+                            required></textarea>
+
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Approval Status</label>
-                        <select class="form-select" name="status">
-                            <option value="Approved">Pending</option>
-                            <option value="Approved">Approve</option>
-                            <option value="Rejected">Reject</option>
+
+                        <label class="form-label">
+                            Approval Status
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select class="form-select"
+                                name="status"
+                                id="approval_status"
+                                required>
+
+                            <option value="">
+                                Select Status
+                            </option>
+
+                            <option value="Approved">
+                                Approve
+                            </option>
+
+                            <option value="Rejected">
+                                Reject
+                            </option>
+
                         </select>
+
                     </div>
 
                 </div>
+
                 <div class="modal-footer">
-                    <button type="submit" class="btn buttonSpc">Submit</button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                    <button type="button"
+                            class="btn buttonSpc"
+                            id="approvalSubmit">
+                        Submit
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
                 </div>
+
             </div>
 
         </form>
+
     </div>
 </div>
 
@@ -825,7 +891,7 @@ unset($__errorArgs, $__bag); ?>
 <script>
 $(document).ready(function() {
     console.log("First script loaded");
-    let rowIndex = <?php echo e(isset($sale) ? $sale->orderProducts->count() : 0); ?>;
+    let rowIndex = <?php echo e(isset($sale) && $sale->orderProducts ? $sale->orderProducts->count() : 0); ?>;
     $("#addRow").click(function() {
 
         let row = `
@@ -927,6 +993,9 @@ $(document).ready(function() {
     });
 
 
+});
+
+
     function productTotal(id) {
         let row = id.closest("tr");
 
@@ -939,18 +1008,54 @@ $(document).ready(function() {
         row.find(".total").val(price * qty);
     }
 
+
+
+ $(document).ready(function () {
+
+    console.log("First script loaded");
+
     const approveModal = document.getElementById('approveModal');
 
-    approveModal.addEventListener('show.bs.modal', function(event) {
+    if (approveModal) {
 
-        let button = event.relatedTarget;
-        let id = button.getAttribute('data-id');
+        approveModal.addEventListener('show.bs.modal', function (event) {
 
-        document.getElementById('approval_id').value = id;
+            let button = event.relatedTarget;
 
-        // Set form action dynamically
-        document.getElementById('approveForm').action = "<?php echo e(route('admin.leads.approval.save')); ?>";
+            let id = button.getAttribute('data-id');
+
+            console.log("Approval ID:", id);
+
+            document.getElementById('approval_id').value = id;
+
+            document.getElementById('approveForm').action =
+                "<?php echo e(route('admin.leads.approval.save')); ?>";
+
+        });
+
+    }
+
+
+
+});
+ $(document).ready(function () {
+
+    $('#approvalSubmit').on('click', function () {
+
+        console.log('==============================');
+        console.log('APPROVAL SUBMIT CLICKED');
+        console.log('==============================');
+
+        console.log('Approval ID:', $('#approval_id').val());
+        console.log('Status:', $('#approval_status').val());
+        console.log('Remarks:', $('#approval_remarks').val());
+        console.log('Form:', document.getElementById('approveForm'));
+        console.log('Action:', $('#approveForm').attr('action'));
+
+        document.getElementById('approveForm').submit();
+
     });
+
 });
 </script>
 
@@ -961,7 +1066,7 @@ $(document).ready(function() {
  ====================================================== -->
 <script>
 $(document).ready(function() {
-    $("#customer_id").change(function() {
+    $("#n_customer_id").change(function() {
 
         let option = $(this).find(":selected");
 
@@ -1053,37 +1158,37 @@ $('#franchise_state').change(function() {
  =========================================================-->
 
 <script>
-    $('#franchise_district').change(function() {
+$('#franchise_district').change(function() {
 
-        let stateId = $('#franchise_state').val();
-        let districtId = $(this).val();
+    let stateId = $('#franchise_state').val();
+    let districtId = $(this).val();
 
-        $.ajax({
-            url: "<?php echo e(url('admin/filter-franchise')); ?>",
-            type: "GET",
-            data: {
-                state: stateId,
-                district: districtId
-            },
-            dataType: "json",
-            success: function(response) {
+    $.ajax({
+        url: "<?php echo e(url('admin/filter-franchise')); ?>",
+        type: "GET",
+        data: {
+            state: stateId,
+            district: districtId
+        },
+        dataType: "json",
+        success: function(response) {
 
-                $('#franchise').html('<option value="">Select Franchise</option>');
+            $('#franchise').html('<option value="">Select Franchise</option>');
 
-                $.each(response.franchises, function(i, franchise) {
+            $.each(response.franchises, function(i, franchise) {
 
-                    $('#franchise').append(
-                        '<option value="' + franchise.n_store_id + '">' +
-                        franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
-                        '</option>'
-                    );
+                $('#franchise').append(
+                    '<option value="' + franchise.n_store_id + '">' +
+                    franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
+                    '</option>'
+                );
 
-                });
+            });
 
-            }
-        });
-
+        }
     });
+
+});
 </script>
 
 

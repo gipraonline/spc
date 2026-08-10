@@ -268,7 +268,7 @@ Route::middleware(['auth', 'admin'])
 
 
     Route::get('leads/create', [LeadsController::class, 'create'])
-        ->middleware('permission:leads.add-lead')
+        ->middleware('permission:leads.create')
         ->name('leads.create');
 
 

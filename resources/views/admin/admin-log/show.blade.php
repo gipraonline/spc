@@ -71,12 +71,34 @@
 
         <hr>
 
-        @php
+        <!-- @php
         $total = $fieldLog->tasks->count();
         $done = $fieldLog->tasks->where('status','Done')->count();
         $pending = $total - $done;
         $percent = $total > 0 ? round(($done/$total)*100) : 0;
+        @endphp -->
+
+        @php
+        $total = $fieldLog->tasks->count();
+
+        $done = $fieldLog->tasks
+        ->where('status', 'Done')
+        ->count();
+
+        $inProgress = $fieldLog->tasks
+        ->where('status', 'In Progress')
+        ->count();
+
+        $pending = $fieldLog->tasks
+        ->where('status', 'Pending')
+        ->count();
+
+        $percent = $total > 0
+        ? round(($done / $total) * 100)
+        : 0;
         @endphp
+
+
 
         {{-- Summary --}}
         <div class="row mb-4">
@@ -189,7 +211,7 @@
 
                         <td>
 
-                            @if($task->status=='Done')
+                            @if($task->status=='Checked Out')
 
                             <span class="badge bg-success">
                                 Done
@@ -198,7 +220,7 @@
                             @else
 
                             <span class="badge bg-warning text-dark">
-                                Pending
+                                In Progress
                             </span>
 
                             @endif

@@ -251,6 +251,7 @@ class FieldLogController extends Controller
      */
     public function show(FieldLog $fieldLog)
     {
+       
         abort_if(
             $fieldLog->user_id != auth()->id(),
             403

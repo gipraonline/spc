@@ -49,15 +49,31 @@ use Illuminate\Support\Facades\Crypt;
                 <div class="card-body">
 
                     <div class="row g-3">
+                        <?php if(isset($user) && $user->identifier != "FCA"): ?>
+                            <div class="col-lg-3">
+                                <label class="form-label fw-semibold">Farm Care Advisors</label>
+                                <select name="n_fca_id" class="form-control mandatory">
+                                        <option value="">Select Farm Care Adviser</option>
 
+                                        <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($employee->n_employee_id); ?>" <?php echo e(isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''); ?>>
+                                            <?php echo e($employee->c_employee_name); ?>
+
+                                        </option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
                         <div class="col-lg-3">
                             <label class="form-label fw-semibold">Search</label>
                             <input type="text"
                                    name="search"
                                    class="form-control"
-                                   placeholder="Customer / Mobile / Advisor"
+                                   placeholder="Customer / Mobile "
                                    value="<?php echo e(request('search')); ?>">
                         </div>
+
+
 
                         <div class="col-lg-2">
                             <label class="form-label fw-semibold">From Date</label>
@@ -107,6 +123,7 @@ use Illuminate\Support\Facades\Crypt;
         </form>
 
         <!-- Statistics -->
+        <?php if(isset($user) && $user->identifier != "FCA"): ?>
         <div class="row mb-4">
 
             <div class="col-lg-3 col-md-6 mb-3">
@@ -146,10 +163,10 @@ use Illuminate\Support\Facades\Crypt;
             </div>
 
         </div>
-
+        <?php endif; ?>
         <!-- Table -->
         <div class="table-responsive">
-            <table class="table table-hover align-middle text-nowrap">
+            <table class="table table-responsive table-hover align-middle text-nowrap">
 
                 <thead>
                     <tr>
@@ -179,7 +196,7 @@ use Illuminate\Support\Facades\Crypt;
 
                             <td><?php echo e(isset($leads) ?? $leads->firstItem() + $key); ?></td>
 
-                            <td><?php echo e(\Carbon\Carbon::parse($lead->followup_date)->format('d M Y')); ?></td>
+                            <td><?php echo e(\Carbon\Carbon::parse($lead->created_at)->format('d M Y')); ?></td>
 
                             <td>
                                 <strong><?php echo e($lead->c_customer_name); ?></strong><br>
@@ -206,7 +223,7 @@ use Illuminate\Support\Facades\Crypt;
                             </td>
 
                             <?php if(isset($user) && $user->identifier != "FCA"): ?>
-                                <td><?php echo e($lead->advisor); ?></td>
+                                <td><?php echo e($lead->fca->c_employee_name); ?></td>
                             <?php endif; ?>
 
                             <td><?php echo e($lead->remarks); ?></td>
@@ -239,7 +256,7 @@ use Illuminate\Support\Facades\Crypt;
                                         </li>
                                         <li>
                                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.delete')): ?>
-                                            <form action="<?php echo e(route('admin.leads.destroy', Crypt::encryptString($lead->n_lead_id))); ?>" method="POST"
+                                            <form action="<?php echo e(route('admin.leads.destroy', $lead)); ?>" method="POST"
                                                 onsubmit="return confirm('Are you sure?')">
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('DELETE'); ?>

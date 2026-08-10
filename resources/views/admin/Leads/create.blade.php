@@ -72,19 +72,34 @@ use Illuminate\Support\Facades\Crypt;
             @csrf
 
             <input type="hidden" name="n_lead_id" value="{{$lead->n_lead_id}}">
-            @if(!isset($lead->n_lead_id))
+
+
+
+            @if(isset($user) && $user->identifier != "FCA")
+                <div class="customer-toggle mb-4">
+                    <select name="n_fca_id" class="form-control mandatory">
+                                    <option value="">Select Farm Care Adviser</option>
+
+                                    @foreach($employees as $employee)
+                                    <option value="{{ $employee->n_employee_id }}" {{isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''}}>
+                                        {{ $employee->c_employee_name }}
+                                    </option>
+                                    @endforeach
+                    </select>
+                </div>
+            @endif
             <!-- Customer Type -->
             <div class="customer-toggle mb-4">
 
-                <input type="radio" class="btn-check" name="c_customer_type"
-                    id="newCustomer" value="new" checked>
+                <input type="radio" class="btn-check " name="c_customer_type"
+                    id="newCustomer" value="new" {{isset($lead) && $lead->c_customer_type=="new" ? "checked" : ''}}>
 
                 <label class="toggle-btn" for="newCustomer">
                     New Customer
                 </label>
 
                 <input type="radio" class="btn-check" name="c_customer_type"
-                    id="existingCustomer" value="existing">
+                    id="existingCustomer" value="existing" {{isset($lead) && $lead->c_customer_type=="existing" ? "checked" : ''}}>
 
                 <label class="toggle-btn" for="existingCustomer">
                     Existing Customer
@@ -93,7 +108,7 @@ use Illuminate\Support\Facades\Crypt;
             </div>
 
 
-
+            @if(!isset($lead->n_lead_id))
             <!-- Existing Customer Lookup -->
             <div class="card border rounded-4 mb-4 d-none" id="lookupCard">
 
@@ -165,7 +180,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="text"
                                    name="c_customer_name"
                                    class="form-control @error('customer_name') is-invalid @enderror"
-                                   value="{{ old('c_customer_name'),$lead }}"
+                                   value="{{ old('c_customer_name',$lead->c_customer_name ?? '') }}"
                                    placeholder="Enter Customer Name">
 
                             @error('customer_name')
@@ -188,7 +203,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="text"
                                    name="n_mobile"
                                    class="form-control @error('n_mobile') is-invalid @enderror"
-                                   value="{{ old('n_mobile') }}"
+                                   value="{{ old('n_mobile',$lead->n_mobile ?? '') }}"
                                    maxlength="10"
                                    placeholder="Enter Mobile Number">
 
@@ -204,7 +219,7 @@ use Illuminate\Support\Facades\Crypt;
 
                        <div class="col-md-4">
                             <label for="c_email" class="form-label">Email</label>
-                            <input type="text" id="c_email" name="c_email" value="{{ old('c_email') }}"
+                            <input type="text" id="c_email" name="c_email" value="{{ old('c_email',$lead->c_email ?? '') }}"
                                 data-message="Please enter Customer Email" class="form-control "
                                 placeholder="Enter Customer Email">
                             <div class="text-danger mt-1 fs-2"></div>
@@ -284,11 +299,13 @@ use Illuminate\Support\Facades\Crypt;
                             </label>
 
                             <input type="date"
-                                   name="d_visit_date"
-                                   class="form-control @error('visit_date') is-invalid @enderror"
-                                   value="{{ old('visit_date', date('Y-m-d')) }}">
+                                name="d_visit_date"
+                                id="d_visit_date"
+                                class="form-control @error('d_visit_date') is-invalid @enderror"
+                                value="{{ old('d_visit_date', $lead->d_visit_date ? \Carbon\Carbon::parse($lead->d_visit_date)->format('Y-m-d') : '') }}">
 
-                            @error('visit_date')
+
+                            @error('d_visit_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -331,14 +348,14 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select Status</option>
 
-                                <option value="New">New</option>
-                                <option value="Contacted">Contacted</option>
-                                <option value="Interested">Interested</option>
-                                <option value="Follow-up">Follow-up Required</option>
-                                <option value="Negotiation">Negotiation</option>
-                                <option value="Won">Won</option>
-                                <option value="Lost">Lost</option>
-                                <option value="Not Interested">Not Interested</option>
+                                <option value="new" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "new" ? 'selected' : '' }}>New</option>
+                                <option value="contacted"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "contacted" ? 'selected' : '' }}>Contacted</option>
+                                <option value="interested"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "interested" ? 'selected' : '' }}>Interested</option>
+                                <option value="follow-up"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "follow-up" ? 'selected' : '' }}>Follow-up Required</option>
+                                <option value="negotiation"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "negotiation" ? 'selected' : '' }}>Negotiation</option>
+                                <option value="won" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "won" ? 'selected' : '' }}>Won</option>
+                                <option value="lost" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "lost" ? 'selected' : '' }}>Lost</option>
+                                <option value="not-nterested"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "not-nterested" ? 'selected' : '' }}>Not Interested</option>
 
                             </select>
 
@@ -353,7 +370,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date"
                                    name="d_expected_availability_date"
                                    class="form-control"
-                                   value="{{ old('d_expected_availability_date') }}">
+                                   value="{{ old('d_expected_availability_date', $lead->d_expected_availability_date ? \Carbon\Carbon::parse($lead->d_expected_availability_date)->format('Y-m-d') : '') }}">
 
                         </div>
 
@@ -368,7 +385,7 @@ use Illuminate\Support\Facades\Crypt;
             <!-- Follow-up -->
             <!-- ============================= -->
 
-            <div class="card border rounded-4 mb-4"
+            {{-- <div class="card border rounded-4 mb-4"
                  id="followupCard">
 
                 <div class="card-header bg-light">
@@ -433,7 +450,7 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
             </div>
-
+ --}}
 
             <!-- ============================= -->
             <!-- Priority -->
@@ -459,7 +476,8 @@ use Illuminate\Support\Facades\Crypt;
                                        type="radio"
                                        name="priority"
                                        value="Low"
-                                       id="priorityLow">
+                                       id="priorityLow"
+                                       {{ old('priority', $lead->priority ?? '') == "Low" ? 'checked' : '' }}>
 
                                 <label class="form-check-label"
                                        for="priorityLow">
@@ -481,7 +499,7 @@ use Illuminate\Support\Facades\Crypt;
                                        name="priority"
                                        value="Medium"
                                        id="priorityMedium"
-                                       checked>
+                                        {{ old('priority', $lead->priority ?? '') == "Medium" ? 'checked' : '' }}>
 
                                 <label class="form-check-label"
                                        for="priorityMedium">
@@ -502,7 +520,8 @@ use Illuminate\Support\Facades\Crypt;
                                        type="radio"
                                        name="priority"
                                        value="High"
-                                       id="priorityHigh">
+                                       id="priorityHigh"
+                                       {{ old('priority', $lead->priority ?? '') == "High" ? 'checked' : '' }}>
 
                                 <label class="form-check-label"
                                        for="priorityHigh">
@@ -523,7 +542,8 @@ use Illuminate\Support\Facades\Crypt;
                                        type="radio"
                                        name="priority"
                                        value="Urgent"
-                                       id="priorityUrgent">
+                                       id="priorityUrgent"
+                                       {{ old('priority', $lead->priority ?? '') == "Urgent" ? 'checked' : '' }}>
 
                                 <label class="form-check-label"
                                        for="priorityUrgent">
@@ -550,7 +570,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 <div class="card-header bg-light">
                     <h6 class="mb-0 fw-semibold">
-                        Remarks / Discussion Notes
+                        Remarks
                     </h6>
                 </div>
 
@@ -567,7 +587,7 @@ use Illuminate\Support\Facades\Crypt;
                             <textarea name="remarks"
                                       rows="5"
                                       class="form-control @error('remarks') is-invalid @enderror"
-                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc.">{{ old('remarks') }}</textarea>
+                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc.">{{ old('remarks',$lead->remarks ?? '') }}</textarea>
 
                             @error('remarks')
                                 <div class="invalid-feedback">
@@ -588,23 +608,24 @@ use Illuminate\Support\Facades\Crypt;
             <!-- ========================================= -->
 
             <div class="d-flex justify-content-end gap-2">
+                @if(isset($viewMode) && $viewMode=="Off")
 
-                <a href="{{ route('admin.leads.index') }}"
-                   class="btn btn-outline-secondary">
+                        <a href="{{ route('admin.leads.index') }}"
+                        class="btn btn-outline-secondary">
 
-                    <i class="ti ti-arrow-left me-1"></i>
-                    Cancel
+                            <i class="ti ti-arrow-left me-1"></i>
+                            Cancel
 
-                </a>
+                        </a>
 
-                <button type="button"
-                        class="btn buttonSpc"  id="btn_create">
+                        <button type="button"
+                                class="btn buttonSpc"  id="btn_create">
 
-                    <i class="ti ti-device-floppy me-1"></i>
-                    Save Lead
+                            <i class="ti ti-device-floppy me-1"></i>
+                            Save Lead
 
-                </button>
-
+                        </button>
+                 @endif
             </div>
 
         </form>
@@ -613,6 +634,7 @@ use Illuminate\Support\Facades\Crypt;
 
 </div>
 
+
 @endsection
 
 
@@ -620,6 +642,22 @@ use Illuminate\Support\Facades\Crypt;
 
 
     <script>
+        //-------------------------------------------------------
+        // Existing Customer Onload
+        //-------------------------------------------------------
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('input[name="c_customer_type"]')
+                .forEach(function (radio) {
+
+                    radio.addEventListener('change', toggleCustomerType);
+
+                });
+
+            toggleCustomerType();
+        });
+
         //-------------------------------------------------------
         // Existing Customer Toggle
         //-------------------------------------------------------
@@ -630,7 +668,22 @@ use Illuminate\Support\Facades\Crypt;
 
         function toggleCustomerType() {
 
-            if (existingCustomer && existingCustomer.checked) {
+            const selected = document.querySelector(
+                'input[name="c_customer_type"]:checked'
+            );
+
+            if (!selected) {
+                return;
+            }
+
+            const lookupCard = document.getElementById('lookupCard');
+
+            // lookupCard doesn't exist on edit page
+            if (!lookupCard) {
+                return;
+            }
+
+            if (selected.value === 'existing') {
                 lookupCard.classList.remove('d-none');
             } else {
                 lookupCard.classList.add('d-none');
@@ -652,7 +705,7 @@ use Illuminate\Support\Facades\Crypt;
         // Follow-up Card
         //-------------------------------------------------------
 
-        const leadStatus = document.getElementById('leadStatus');
+      /*   const leadStatus = document.getElementById('leadStatus');
         const followupCard = document.getElementById('followupCard');
 
         function toggleFollowup() {
@@ -678,7 +731,7 @@ use Illuminate\Support\Facades\Crypt;
             leadStatus.addEventListener('change', toggleFollowup);
             toggleFollowup();
         }
-
+ */
 
         //-------------------------------------------------------
         // Mobile Lookup

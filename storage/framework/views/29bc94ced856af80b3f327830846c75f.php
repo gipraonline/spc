@@ -69,18 +69,36 @@ use Illuminate\Support\Facades\Crypt;
 
             <?php echo csrf_field(); ?>
 
+            <input type="hidden" name="n_lead_id" value="<?php echo e($lead->n_lead_id); ?>">
+
+
+
+            <?php if(isset($user) && $user->identifier != "FCA"): ?>
+                <div class="customer-toggle mb-4">
+                    <select name="n_fca_id" class="form-control mandatory">
+                                    <option value="">Select Farm Care Adviser</option>
+
+                                    <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($employee->n_employee_id); ?>" <?php echo e(isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''); ?>>
+                                        <?php echo e($employee->c_employee_name); ?>
+
+                                    </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                </div>
+            <?php endif; ?>
             <!-- Customer Type -->
             <div class="customer-toggle mb-4">
 
-                <input type="radio" class="btn-check" name="c_customer_type"
-                    id="newCustomer" value="new" checked>
+                <input type="radio" class="btn-check " name="c_customer_type"
+                    id="newCustomer" value="new" <?php echo e(isset($lead) && $lead->c_customer_type=="new" ? "checked" : ''); ?>>
 
                 <label class="toggle-btn" for="newCustomer">
                     New Customer
                 </label>
 
                 <input type="radio" class="btn-check" name="c_customer_type"
-                    id="existingCustomer" value="existing">
+                    id="existingCustomer" value="existing" <?php echo e(isset($lead) && $lead->c_customer_type=="existing" ? "checked" : ''); ?>>
 
                 <label class="toggle-btn" for="existingCustomer">
                     Existing Customer
@@ -89,7 +107,7 @@ use Illuminate\Support\Facades\Crypt;
             </div>
 
 
-
+            <?php if(!isset($lead->n_lead_id)): ?>
             <!-- Existing Customer Lookup -->
             <div class="card border rounded-4 mb-4 d-none" id="lookupCard">
 
@@ -134,7 +152,7 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
             </div>
-
+            <?php endif; ?>
             <!-- Customer Details -->
 
             <div class="card border rounded-4 mb-4">
@@ -168,7 +186,7 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                                   value="<?php echo e(old('c_customer_name')); ?>"
+                                   value="<?php echo e(old('c_customer_name',$lead->c_customer_name ?? '')); ?>"
                                    placeholder="Enter Customer Name">
 
                             <?php $__errorArgs = ['customer_name'];
@@ -206,7 +224,7 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                                   value="<?php echo e(old('n_mobile')); ?>"
+                                   value="<?php echo e(old('n_mobile',$lead->n_mobile ?? '')); ?>"
                                    maxlength="10"
                                    placeholder="Enter Mobile Number">
 
@@ -230,7 +248,7 @@ unset($__errorArgs, $__bag); ?>
 
                        <div class="col-md-4">
                             <label for="c_email" class="form-label">Email</label>
-                            <input type="text" id="c_email" name="c_email" value="<?php echo e(old('c_email')); ?>"
+                            <input type="text" id="c_email" name="c_email" value="<?php echo e(old('c_email',$lead->c_email ?? '')); ?>"
                                 data-message="Please enter Customer Email" class="form-control "
                                 placeholder="Enter Customer Email">
                             <div class="text-danger mt-1 fs-2"></div>
@@ -310,8 +328,9 @@ unset($__errorArgs, $__bag); ?>
                             </label>
 
                             <input type="date"
-                                   name="d_visit_date"
-                                   class="form-control <?php $__errorArgs = ['visit_date'];
+                                name="d_visit_date"
+                                id="d_visit_date"
+                                class="form-control <?php $__errorArgs = ['d_visit_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -319,9 +338,10 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                                   value="<?php echo e(old('visit_date', date('Y-m-d'))); ?>">
+                                value="<?php echo e(old('d_visit_date', $lead->d_visit_date ? \Carbon\Carbon::parse($lead->d_visit_date)->format('Y-m-d') : '')); ?>">
 
-                            <?php $__errorArgs = ['visit_date'];
+
+                            <?php $__errorArgs = ['d_visit_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -371,14 +391,14 @@ unset($__errorArgs, $__bag); ?>
 
                                 <option value="">Select Status</option>
 
-                                <option value="New">New</option>
-                                <option value="Contacted">Contacted</option>
-                                <option value="Interested">Interested</option>
-                                <option value="Follow-up">Follow-up Required</option>
-                                <option value="Negotiation">Negotiation</option>
-                                <option value="Won">Won</option>
-                                <option value="Lost">Lost</option>
-                                <option value="Not Interested">Not Interested</option>
+                                <option value="new" <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "new" ? 'selected' : ''); ?>>New</option>
+                                <option value="contacted"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "contacted" ? 'selected' : ''); ?>>Contacted</option>
+                                <option value="interested"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "interested" ? 'selected' : ''); ?>>Interested</option>
+                                <option value="follow-up"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "follow-up" ? 'selected' : ''); ?>>Follow-up Required</option>
+                                <option value="negotiation"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "negotiation" ? 'selected' : ''); ?>>Negotiation</option>
+                                <option value="won" <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "won" ? 'selected' : ''); ?>>Won</option>
+                                <option value="lost" <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "lost" ? 'selected' : ''); ?>>Lost</option>
+                                <option value="not-nterested"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "not-nterested" ? 'selected' : ''); ?>>Not Interested</option>
 
                             </select>
 
@@ -393,7 +413,7 @@ unset($__errorArgs, $__bag); ?>
                             <input type="date"
                                    name="d_expected_availability_date"
                                    class="form-control"
-                                   value="<?php echo e(old('d_expected_availability_date')); ?>">
+                                   value="<?php echo e(old('d_expected_availability_date', $lead->d_expected_availability_date ? \Carbon\Carbon::parse($lead->d_expected_availability_date)->format('Y-m-d') : '')); ?>">
 
                         </div>
 
@@ -408,72 +428,7 @@ unset($__errorArgs, $__bag); ?>
             <!-- Follow-up -->
             <!-- ============================= -->
 
-            <div class="card border rounded-4 mb-4"
-                 id="followupCard">
-
-                <div class="card-header bg-light">
-                    <h6 class="mb-0 fw-semibold">
-                        Follow-up Details
-                    </h6>
-                </div>
-
-                <div class="card-body">
-
-                    <div class="row">
-
-                        <div class="col-lg-4 mb-3">
-
-                            <label class="form-label fw-semibold">
-                                Next Follow-up Date
-                            </label>
-
-                            <input type="date"
-                                   name="next_followup_date"
-                                   class="form-control"
-                                   value="<?php echo e(old('next_followup_date')); ?>">
-
-                        </div>
-
-                        <div class="col-lg-4 mb-3">
-
-                            <label class="form-label fw-semibold">
-                                Follow-up Time
-                            </label>
-
-                            <input type="time"
-                                   name="next_followup_time"
-                                   class="form-control"
-                                   value="<?php echo e(old('next_followup_time')); ?>">
-
-                        </div>
-
-                        <div class="col-lg-4 mb-3">
-
-                            <label class="form-label fw-semibold">
-                                Follow-up Type
-                            </label>
-
-                            <select name="followup_type"
-                                    class="form-select">
-
-                                <option value="">Select</option>
-
-                                <option>Phone Call</option>
-                                <option>WhatsApp</option>
-                                <option>Farm Visit</option>
-                                <option>Office Visit</option>
-                                <option>Video Call</option>
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+            
 
             <!-- ============================= -->
             <!-- Priority -->
@@ -499,7 +454,8 @@ unset($__errorArgs, $__bag); ?>
                                        type="radio"
                                        name="priority"
                                        value="Low"
-                                       id="priorityLow">
+                                       id="priorityLow"
+                                       <?php echo e(old('priority', $lead->priority ?? '') == "Low" ? 'checked' : ''); ?>>
 
                                 <label class="form-check-label"
                                        for="priorityLow">
@@ -521,7 +477,7 @@ unset($__errorArgs, $__bag); ?>
                                        name="priority"
                                        value="Medium"
                                        id="priorityMedium"
-                                       checked>
+                                        <?php echo e(old('priority', $lead->priority ?? '') == "Medium" ? 'checked' : ''); ?>>
 
                                 <label class="form-check-label"
                                        for="priorityMedium">
@@ -542,7 +498,8 @@ unset($__errorArgs, $__bag); ?>
                                        type="radio"
                                        name="priority"
                                        value="High"
-                                       id="priorityHigh">
+                                       id="priorityHigh"
+                                       <?php echo e(old('priority', $lead->priority ?? '') == "High" ? 'checked' : ''); ?>>
 
                                 <label class="form-check-label"
                                        for="priorityHigh">
@@ -563,7 +520,8 @@ unset($__errorArgs, $__bag); ?>
                                        type="radio"
                                        name="priority"
                                        value="Urgent"
-                                       id="priorityUrgent">
+                                       id="priorityUrgent"
+                                       <?php echo e(old('priority', $lead->priority ?? '') == "Urgent" ? 'checked' : ''); ?>>
 
                                 <label class="form-check-label"
                                        for="priorityUrgent">
@@ -590,7 +548,7 @@ unset($__errorArgs, $__bag); ?>
 
                 <div class="card-header bg-light">
                     <h6 class="mb-0 fw-semibold">
-                        Remarks / Discussion Notes
+                        Remarks
                     </h6>
                 </div>
 
@@ -614,7 +572,7 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc."><?php echo e(old('remarks')); ?></textarea>
+                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc."><?php echo e(old('remarks',$lead->remarks ?? '')); ?></textarea>
 
                             <?php $__errorArgs = ['remarks'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -643,23 +601,24 @@ unset($__errorArgs, $__bag); ?>
             <!-- ========================================= -->
 
             <div class="d-flex justify-content-end gap-2">
+                <?php if(isset($viewMode) && $viewMode=="Off"): ?>
 
-                <a href="<?php echo e(route('admin.leads.index')); ?>"
-                   class="btn btn-outline-secondary">
+                        <a href="<?php echo e(route('admin.leads.index')); ?>"
+                        class="btn btn-outline-secondary">
 
-                    <i class="ti ti-arrow-left me-1"></i>
-                    Cancel
+                            <i class="ti ti-arrow-left me-1"></i>
+                            Cancel
 
-                </a>
+                        </a>
 
-                <button type="button"
-                        class="btn buttonSpc"  id="btn_create">
+                        <button type="button"
+                                class="btn buttonSpc"  id="btn_create">
 
-                    <i class="ti ti-device-floppy me-1"></i>
-                    Save Lead
+                            <i class="ti ti-device-floppy me-1"></i>
+                            Save Lead
 
-                </button>
-
+                        </button>
+                 <?php endif; ?>
             </div>
 
         </form>
@@ -668,6 +627,7 @@ unset($__errorArgs, $__bag); ?>
 
 </div>
 
+
 <?php $__env->stopSection(); ?>
 
 
@@ -675,6 +635,22 @@ unset($__errorArgs, $__bag); ?>
 
 
     <script>
+        //-------------------------------------------------------
+        // Existing Customer Onload
+        //-------------------------------------------------------
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('input[name="c_customer_type"]')
+                .forEach(function (radio) {
+
+                    radio.addEventListener('change', toggleCustomerType);
+
+                });
+
+            toggleCustomerType();
+        });
+
         //-------------------------------------------------------
         // Existing Customer Toggle
         //-------------------------------------------------------
@@ -685,7 +661,22 @@ unset($__errorArgs, $__bag); ?>
 
         function toggleCustomerType() {
 
-            if (existingCustomer && existingCustomer.checked) {
+            const selected = document.querySelector(
+                'input[name="c_customer_type"]:checked'
+            );
+
+            if (!selected) {
+                return;
+            }
+
+            const lookupCard = document.getElementById('lookupCard');
+
+            // lookupCard doesn't exist on edit page
+            if (!lookupCard) {
+                return;
+            }
+
+            if (selected.value === 'existing') {
                 lookupCard.classList.remove('d-none');
             } else {
                 lookupCard.classList.add('d-none');
@@ -707,7 +698,7 @@ unset($__errorArgs, $__bag); ?>
         // Follow-up Card
         //-------------------------------------------------------
 
-        const leadStatus = document.getElementById('leadStatus');
+      /*   const leadStatus = document.getElementById('leadStatus');
         const followupCard = document.getElementById('followupCard');
 
         function toggleFollowup() {
@@ -733,7 +724,7 @@ unset($__errorArgs, $__bag); ?>
             leadStatus.addEventListener('change', toggleFollowup);
             toggleFollowup();
         }
-
+ */
 
         //-------------------------------------------------------
         // Mobile Lookup

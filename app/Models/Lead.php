@@ -60,4 +60,9 @@ class Lead extends Model
     {
         return $this->belongsTo(Admin::class, 'updated_by', 'n_role_id');
     }
+
+    public function fca()
+    {
+        return $this->hasOne(EmployeeMaster::class, 'n_employee_id', 'n_fca_id');
+    }
 }

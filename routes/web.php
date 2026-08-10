@@ -301,7 +301,7 @@ Route::middleware(['auth', 'admin'])
         ->name('leads.update');
 
 
-    Route::delete('leads/delete/{id}', [LeadsController::class, 'destroy'])
+    Route::delete('leads/{lead}', [LeadsController::class, 'destroy'])
         ->middleware('permission:leads.delete')
         ->name('leads.destroy');
 

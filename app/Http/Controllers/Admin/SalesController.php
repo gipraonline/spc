@@ -107,8 +107,10 @@ public function index(Request $request)
 public function create()
 {
 
-    $employees = EmployeeMaster::where('n_designation_id', 5)
-        ->where('c_status', 'Y')
+    $employees = Admin::join('employee_masters as em','em.n_employee_id','admins.n_employee_id')
+        ->join('designation_masters as dm','dm.n_designation_id','em.n_designation_id')
+        ->where('em.c_status', 'Y')
+        ->select('em.n_employee_id','em.c_employee_name','dm.identifier')
         ->get();
 
     $products = ProductMaster::where('c_status', 'Y')->get();

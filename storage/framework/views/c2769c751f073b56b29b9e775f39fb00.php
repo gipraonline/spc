@@ -212,7 +212,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 <div class="table-responsive">
 
-                    <table class="table table-bordered align-middle" id="productTable">
+                    <table class="table table-bordered table-responsive align-middle" id="productTable">
 
                         <thead class="table-light">
 

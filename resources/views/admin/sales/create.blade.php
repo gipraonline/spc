@@ -863,7 +863,7 @@ use Illuminate\Support\Facades\Crypt;
 @endsection
 
 @push('scripts')
-<script>
+<!-- <script>
 $(document).ready(function() {
     console.log("First script loaded");
     let rowIndex = {{ isset($sale) && $sale->orderProducts ? $sale->orderProducts->count() : 0 }};
@@ -1032,7 +1032,502 @@ $(document).ready(function() {
     });
 
 });
+</script> -->
+
+<script>
+$(document).ready(function() {
+
+    console.log("Sales Order JS loaded");
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product Rows
+    |--------------------------------------------------------------------------
+    */
+
+    // IMPORTANT:
+    // Do not use Blade here.
+    // Count existing product rows directly from the table.
+    let rowIndex = $('#productTable tbody tr').length;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Add New Product
+    |--------------------------------------------------------------------------
+    */
+
+    $('#addRow').on('click', function() {
+
+        let row = `
+            <tr>
+
+                <td>
+                    <select
+                        name="products[${rowIndex}][product_id]"
+                        class="form-control product mandatory"
+                        data-message="Please Select Product">
+
+                        <option value="">Select Product</option>
+
+                        @foreach($products as $product)
+                            <option
+                                value="{{ $product->n_product_id }}"
+                                data-price="{{ $product->n_selling_price }}">
+                                {{ $product->c_product_name }} ({{ $product->c_product_code }})
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    <div class="text-danger mt-1 fs-2"></div>
+                </td>
+
+                <td>
+                    <input
+                        type="text"
+                        name="products[${rowIndex}][product_price]"
+                        class="form-control price"
+                        readonly>
+                </td>
+
+                <td>
+                    <input
+                        type="number"
+                        name="products[${rowIndex}][qty]"
+                        class="form-control qty"
+                        value="1"
+                        min="1">
+                </td>
+
+                <td>
+                    <input
+                        type="text"
+                        name="products[${rowIndex}][product_total]"
+                        class="form-control total"
+                        readonly>
+                </td>
+
+                <td class="text-center">
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm removeRow">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </td>
+
+            </tr>
+        `;
+
+        $('#productTable tbody').append(row);
+
+        rowIndex++;
+
+        console.log("Product row added. Current rowIndex:", rowIndex);
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product Selection - Calculate Price & Total
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on('change', '.product', function() {
+
+        let product = $(this);
+
+        productTotal(product);
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Quantity Change - Recalculate Total
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on('input change', '.qty', function() {
+
+        let row = $(this).closest('tr');
+
+        let product = row.find('.product');
+
+        productTotal(product);
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product Total Function
+    |--------------------------------------------------------------------------
+    */
+
+    function productTotal(productSelect) {
+
+        let row = productSelect.closest('tr');
+
+        let selectedOption = productSelect.find(':selected');
+
+        let price = parseFloat(selectedOption.attr('data-price')) || 0;
+
+        let qty = parseFloat(row.find('.qty').val()) || 0;
+
+        let total = price * qty;
+
+        row.find('.price').val(price.toFixed(2));
+
+        row.find('.total').val(total.toFixed(2));
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove Product Row
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on('click', '.removeRow', function() {
+
+        $(this).closest('tr').remove();
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Customer Selection
+    |--------------------------------------------------------------------------
+    */
+
+    $('#n_customer_id').on('change', function() {
+
+        let option = $(this).find(':selected');
+
+        let email = option.data('email') || '';
+        let mobile = option.data('mobile') || '';
+        let address = option.data('address') || '';
+
+        let stateId = option.data('state') || '';
+        let districtId = option.data('district') || '';
+
+        $('#c_customer_email').val(email);
+        $('#n_customer_mobile').val(mobile);
+        $('#c_customer_address').val(address);
+
+        $('#customer_state').val(stateId);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Load Customer Districts
+        |--------------------------------------------------------------------------
+        */
+
+        if (!stateId) {
+
+            $('#customer_district').html(
+                '<option value="">Select District</option>'
+            );
+
+            return;
+        }
+
+        $.ajax({
+
+            type: 'GET',
+
+            url: "{{ route('admin.filterDistrict') }}",
+
+            data: {
+                state: stateId
+            },
+
+            dataType: 'json',
+
+            beforeSend: function() {
+
+                $('#customer_district').html(
+                    '<option value="">Loading...</option>'
+                );
+
+            },
+
+            success: function(data) {
+
+                $('#customer_district').html(
+                    '<option value="">Select District</option>'
+                );
+
+                if (data.districts) {
+
+                    $.each(data.districts, function(index, district) {
+
+                        $('#customer_district').append(
+
+                            '<option value="' +
+                            district.id +
+                            '">' +
+                            district.district_name +
+                            '</option>'
+
+                        );
+
+                    });
+                }
+
+                $('#customer_district').val(districtId);
+            },
+
+            error: function(xhr) {
+
+                console.error(
+                    'Customer district loading failed:',
+                    xhr.responseText
+                );
+
+                $('#customer_district').html(
+                    '<option value="">Unable to load districts</option>'
+                );
+            }
+
+        });
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Franchise State Selection
+    |--------------------------------------------------------------------------
+    */
+
+    $('#franchise_state').on('change', function() {
+
+        let stateId = $(this).val();
+
+        $('#franchise_district').html(
+            '<option value="">Loading...</option>'
+        );
+
+        $('#franchise').html(
+            '<option value="">Select Franchise</option>'
+        );
+
+        if (!stateId) {
+
+            $('#franchise_district').html(
+                '<option value="">Select District</option>'
+            );
+
+            return;
+        }
+
+        $.ajax({
+
+            url: "{{ route('admin.filterDistrict') }}",
+
+            type: 'GET',
+
+            data: {
+                state: stateId
+            },
+
+            dataType: 'json',
+
+            success: function(response) {
+
+                $('#franchise_district').html(
+                    '<option value="">Select District</option>'
+                );
+
+                if (response.districts) {
+
+                    $.each(response.districts, function(index, district) {
+
+                        $('#franchise_district').append(
+
+                            '<option value="' +
+                            district.id +
+                            '">' +
+                            district.district_name +
+                            '</option>'
+
+                        );
+
+                    });
+                }
+
+            },
+
+            error: function(xhr) {
+
+                console.error(
+                    'Franchise district loading failed:',
+                    xhr.responseText
+                );
+
+                $('#franchise_district').html(
+                    '<option value="">Unable to load districts</option>'
+                );
+            }
+
+        });
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Franchise District Selection
+    |--------------------------------------------------------------------------
+    */
+
+    $('#franchise_district').on('change', function() {
+
+        let stateId = $('#franchise_state').val();
+
+        let districtId = $(this).val();
+
+        $('#franchise').html(
+            '<option value="">Loading...</option>'
+        );
+
+        if (!stateId || !districtId) {
+
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+            return;
+        }
+
+        $.ajax({
+
+            url: "{{ url('admin/filter-franchise') }}",
+
+            type: 'GET',
+
+            data: {
+                state: stateId,
+                district: districtId
+            },
+
+            dataType: 'json',
+
+            success: function(response) {
+
+                $('#franchise').html(
+                    '<option value="">Select Franchise</option>'
+                );
+
+                if (response.franchises) {
+
+                    $.each(response.franchises, function(index, franchise) {
+
+                        $('#franchise').append(
+
+                            '<option value="' +
+                            franchise.n_store_id +
+                            '">' +
+                            franchise.c_store_name +
+                            ' (' +
+                            franchise.c_store_code +
+                            ')' +
+                            '</option>'
+
+                        );
+
+                    });
+                }
+
+            },
+
+            error: function(xhr) {
+
+                console.error(
+                    'Franchise loading failed:',
+                    xhr.responseText
+                );
+
+                $('#franchise').html(
+                    '<option value="">Unable to load franchise</option>'
+                );
+            }
+
+        });
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Approval Modal
+    |--------------------------------------------------------------------------
+    */
+
+    const approveModal = document.getElementById('approveModal');
+
+    if (approveModal) {
+
+        approveModal.addEventListener(
+            'show.bs.modal',
+            function(event) {
+
+                let button = event.relatedTarget;
+
+                if (!button) {
+                    return;
+                }
+
+                let id = button.getAttribute('data-id');
+
+                let approvalId =
+                    document.getElementById('approval_id');
+
+                let approveForm =
+                    document.getElementById('approveForm');
+
+                if (approvalId) {
+                    approvalId.value = id;
+                }
+
+                if (approveForm) {
+
+                    approveForm.action =
+                        "{{ route('admin.leads.approval.save') }}";
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Existing Product Rows
+    |--------------------------------------------------------------------------
+    |
+    | If editing an existing order, calculate totals for
+    | products already present in the table.
+    |
+    */
+
+    $('#productTable tbody .product').each(function() {
+
+        if ($(this).val()) {
+
+            productTotal($(this));
+
+        }
+
+    });
+
+
+});
 </script>
+
+
 
 <!--  ======================================================
  Customer Selection

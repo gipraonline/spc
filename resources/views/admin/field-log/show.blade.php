@@ -172,7 +172,7 @@
 
                         <td>
 
-                            @if($task->status=='Done')
+                            @if($task->status=='Checked Out')
 
                             <span class="badge bg-success">
                                 Done

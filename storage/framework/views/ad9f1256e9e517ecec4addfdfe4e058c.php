@@ -175,7 +175,7 @@
 
                         <td>
 
-                            <?php if($task->status=='Done'): ?>
+                            <?php if($task->status=='Checked Out'): ?>
 
                             <span class="badge bg-success">
                                 Done

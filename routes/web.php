@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\FieldLogController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\AdminFieldLogController;
+use App\Http\Controllers\Admin\InvoiceController;
 
 
 Route::get('/', function () {
@@ -474,6 +475,14 @@ Route::middleware(['auth', 'admin'])
     Route::get('/admin-log/{fieldLog}', [AdminFieldLogController::class, 'show'])
         ->middleware('permission:field-activity.view')
         ->name('admin-log.show');
+ /*
+    |--------------------------------------------------------------------------
+    | Invoice Download
+    |--------------------------------------------------------------------------
+    */
+
+        Route::get('/invoice/{id}/download', [InvoiceController::class, 'download'])
+    ->name('invoice.download');
 
 
 });

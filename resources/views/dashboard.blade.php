@@ -943,6 +943,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const workStatusDisplay = document.getElementById('workStatusDisplay');
     const statusPill = document.getElementById('statusPill');
 
+    <<
+    << << < HEAD
     let isCheckedOut = false;
 
     btnCheckOut.addEventListener('click', function() {
@@ -999,3 +1001,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+=======
+@endsection
+>>>>>>> 13339861159c52e27ff24ccca3e843fa287f5c59

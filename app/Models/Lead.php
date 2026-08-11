@@ -15,6 +15,7 @@ class Lead extends Model
     protected $primaryKey = 'n_lead_id';
 
     protected $fillable = [
+        'n_fca_id',
         'c_customer_type',
         'c_customer_name',
         'n_mobile',
@@ -59,5 +60,10 @@ class Lead extends Model
     public function updatedBy()
     {
         return $this->belongsTo(Admin::class, 'updated_by', 'n_role_id');
+    }
+
+    public function fca()
+    {
+        return $this->hasOne(EmployeeMaster::class, 'n_employee_id', 'n_fca_id');
     }
 }

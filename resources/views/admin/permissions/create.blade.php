@@ -79,7 +79,7 @@
             'export',
             'upload',
             'calculate',
-            'approve',
+            'approval',
             'reject',
             'view-details',
             'confirm',
@@ -96,17 +96,13 @@
             'products-card',
             'sales-card',
             'incentives-card',
-            'centreal-sales-card',
-            'centreal-incentives-card',
-            'vanitham-sales-card',
-            'vanitham-incentives-card',
+
 
             // Dashboard Data Cards
             'recent-sales-card',
             'top-stores-card',
             'pending-sales-card',
-            'top-centreal-performers-card',
-            'top-vanitham-performers-card',
+
             ];
             @endphp
             <div class="mb-3">

@@ -36,6 +36,7 @@ class SalesOrder extends Model
         'n_district_id',
 
         'c_mode_of_payment',
+        'payment_image',
         'nearest_franchise_id',
         'payment_status',
         'delivery_status',
@@ -56,7 +57,7 @@ class SalesOrder extends Model
 
     public function customer()
     {
-        return $this->belongsTo(
+        return $this->hasOne(
             CustomerMaster::class,
             'n_customer_id',
             'n_customer_id'

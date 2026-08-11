@@ -30,7 +30,13 @@
     margin-bottom: 25px;
     background: #ffffff;
 }
+#approveModal {
+    z-index: 1060 !important;
+}
 
+.modal-backdrop {
+    z-index: 1050 !important;
+}
 .form-section-header {
     font-size: 16px;
     font-weight: 600;
@@ -111,7 +117,7 @@ use Illuminate\Support\Facades\Crypt;
         </div>
         @endif
 
-        <form method="POST" id="frm_create" action="{{ route('admin.leads.store') }}">
+        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}" enctype="multipart/form-data">
             @csrf
 
             <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
@@ -171,7 +177,7 @@ use Illuminate\Support\Facades\Crypt;
                             <option value="">Select Farm Care Adviser</option>
 
                             @foreach($employees as $employee)
-                            <option value="{{ $employee->n_employee_id }}">
+                            <option value="{{ $employee->n_employee_id }}" {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
                                 {{ $employee->c_employee_name }}
                             </option>
                             @endforeach
@@ -211,7 +217,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 <div class="table-responsive">
 
-                    <table class="table table-bordered align-middle" id="productTable">
+                    <table class="table table-bordered table-responsive align-middle" id="productTable">
 
                         <thead class="table-light">
 
@@ -245,7 +251,8 @@ use Illuminate\Support\Facades\Crypt;
                                         @foreach($products as $product)
 
                                         <option value="{{ $product->n_product_id }}"
-                                            data-price="{{ $product->n_selling_price }}"
+                                            {{-- data-price="{{ $product->n_selling_price }}" --}}
+                                            data-price="{{ $product->n_mrp }}"
                                             {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
 
                                             {{ $product->c_product_name }}
@@ -306,7 +313,7 @@ use Illuminate\Support\Facades\Crypt;
                     <i class="ti ti-user fs-5"></i> Customer Information
                 </div>
 
-
+                <input type="hidden" name="c_customer_name" id="c_customer_name" value="">
                 <div class="row g-4 mb-4">
 
                     <div class="col-md-6">
@@ -315,15 +322,16 @@ use Illuminate\Support\Facades\Crypt;
                         <select name="n_customer_id" id="n_customer_id" class="form-select mandatory">
                             <option value="">Select Customer</option>
                             @if(isset($customers))
-                            @foreach($customers as $customer)
-                            <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
-                                data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
-                                data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
-                                data-district="{{ $customer->n_district_id }}">
-                                {{ $customer->c_customer_name }}
-                            </option>
-                            @endforeach
+                                @foreach($customers as $customer)
+                                <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
+                                    data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
+                                    data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
+                                    data-district="{{ $customer->n_district_id }}" {{isset($sale->n_customer_id) && $sale->n_customer_id==$customer->n_customer_id ? "selected": ''}}>
+                                    {{ $customer->c_customer_name }}
+                                </option>
+                                @endforeach
                             @endif
+
                         </select>
 
                         <div class="text-danger mt-1 fs-2"></div>
@@ -470,8 +478,8 @@ use Illuminate\Support\Facades\Crypt;
                         <div class="col-md-9">
 
                             <div class="payment-option">
-                                <input class="form-check-input mandatory" type="radio" name="c_mode_of_payment" id="cod"
-                                    value="cash_on_delivery">
+                                <input class="form-check-input mandatory mode_of_payment" type="radio" name="c_mode_of_payment" id="cod"
+                                    value="Cash on delivery"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : '' }}>
 
                                 <label for="cod" class="mb-0">
                                     <i class="ti ti-truck"></i>
@@ -481,8 +489,8 @@ use Illuminate\Support\Facades\Crypt;
 
 
                             <div class="payment-option">
-                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="upi"
-                                    value="UPI">
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
+                                    value="UPI" {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
 
                                 <label for="upi" class="mb-0">
                                     <i class="ti ti-brand-google-pay"></i>
@@ -491,8 +499,8 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
 
                             <div class="payment-option">
-                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="bkd"
-                                    value="Bank Deposit">
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
+                                    value="Bank Deposit"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
 
                                 <label for="bkd" class="mb-0">
                                     <i class="ti ti-building-bank"></i>
@@ -500,8 +508,8 @@ use Illuminate\Support\Facades\Crypt;
                                 </label>
                             </div>
                             <div class="payment-option">
-                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="pf"
-                                    value="Paid to Franchise">
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
+                                    value="Paid to Franchise"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
 
                                 <label for="pf" class="mb-0">
                                     <i class="ti ti-cash"></i>
@@ -561,26 +569,20 @@ use Illuminate\Support\Facades\Crypt;
 
 
                         <div class="col-md-6">
-
-                            <label class="form-label">
-                                District <span class="text-danger">*</span>
-                            </label>
-
-                            <select class="form-select mandatory" id="franchise_district" name="n_district_id"
-                                data-message="Please Select District">
-
-                                <option value="">
-                                    Select District
-                                </option>
+                            <label for="state" class="form-label">District</label>
+                            <select class="form-select mandatory" data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="franchise_district" name="n_district_id">
+                                <option value="" selected>Select District</option>
+                                @if(isset($sale->n_district_id))
+                                    @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
+                                    @if(isset($districts))
+                                        @foreach($districts as $district)
+                                            <option value="{{$district->id}}" {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>{{$district->district_name}}</option>
+                                        @endforeach
+                                    @endif
+                                @endif
 
                             </select>
-
-                            @error('n_district_id')
-                            <div class="text-danger mt-1 fs-2">
-                                {{ $message }}
-                            </div>
-                            @enderror
-
+                            <div class="text-danger mt-1 fs-2"></div>
                         </div>
 
                     </div>
@@ -620,31 +622,54 @@ use Illuminate\Support\Facades\Crypt;
 
                         </div>
 
+                         <div class="col-md-6" style="position:relative;display:none;" id="payment_image">
+
+                            <label class="form-label">
+                                Image
+                            </label>
+                            <input type="file" name="payment_image">
+                        </div>
+
                     </div>
 
-                </div>
+
+
+
+
+                    </div>
 
                 <!-- Buttons -->
                 <div class="mt-3 d-flex gap-2">
                     @if(isset($viewmode) && $viewmode=="on")
-                    @can('leads.follow-up')
+                    @can('sales-orders.follow-up')
                     <!--Follow-up Button-->
                     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
                         data-bs-toggle="modal" data-bs-target="#followUpModal"
                         data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="followup">Update
                         Follow-up</button>
                     @endcan
-                    @can('leads.approve')
+                    @can('sales-orders.approval')
                     <!--Approval Button-->
-                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
-                        data-bs-toggle="modal" data-bs-target="#approveModal"
-                        data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}"
-                        id="approve">Approve</button>
+                    <button type="button"
+                        style="width:150px;position:relative;"
+                        class="btn mt-1 buttonSpc"
+                        data-bs-toggle="modal"
+                        data-bs-target="#approveModal"
+                        data-bs-dismiss="modal"
+                        data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
+                        Approve
+                    </button>
                     @endcan
+                    @if(isset($sale) && $sale->n_sl_no)
+                         <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button" class="btn mt-1 buttonSpc"
+                        id="btn_create">Download Invoice</button></a>
+                   @endif
                     @else
                     <button type="button" class="btn mt-1 buttonSpc"
                         id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
-                    <a href="{{ route('admin.leads.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
+
+                    {{-- <a href="{{route('')}}" class="btn buttonSpc">Download Invoice</a> --}}
                     @endif
                 </div>
         </form>
@@ -656,7 +681,7 @@ use Illuminate\Support\Facades\Crypt;
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-            <form action="{{ route('admin.leads.followup.store') }}" method="POST">
+            <form action="{{ route('admin.salesorders.followup.store') }}" method="POST">
                 @csrf
 
                 <div class="modal-header">
@@ -682,7 +707,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date" name="next_followup_date" class="form-control">
                         </div>
 
-                        @if(isset($user->role) && $user->role->identifier != "FCA")
+                        @if(isset($user) && $user->identifier != "FCA")
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Type</label>
                             <select name="followup_type" class="form-select" required>
@@ -750,190 +775,122 @@ use Illuminate\Support\Facades\Crypt;
 </div>
 
 <!--Approval Form modal-->
-<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+{{-- <div class="modal fade"
+     id="approveModal"
+     tabindex="-1"
+     aria-labelledby="approveModalLabel"
+     aria-hidden="true">
+
     <div class="modal-dialog">
-        <form method="POST" id="approveForm">
+
+        <form method="POST"
+              id="approveForm"
+              action="{{ route('admin.salesorders.approval.save') }}">
+
             @csrf
             @method('PUT')
 
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+
+                <div class="modal-header"
+                     style="background: linear-gradient(135deg, #5A8D3A, #074E30);">
+
+                    <h5 class="modal-title text-white"
+                        id="approveModalLabel">
+                        Approval
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                    </button>
+
                 </div>
 
                 <div class="modal-body">
 
-                    <input type="hidden" name="id" id="approval_id">
+                    <input type="hidden"
+                           name="id"
+                           id="approval_id">
 
                     <div class="mb-3">
-                        <label class="form-label">Remarks</label>
-                        <textarea class="form-control" name="remarks" rows="3" required></textarea>
+
+                        <label class="form-label">
+                            Remarks <span class="text-danger">*</span>
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            name="remarks"
+                            id="approval_remarks"
+                            rows="3"
+                            required></textarea>
+
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Approval Status</label>
-                        <select class="form-select" name="status">
-                            <option value="Approved">Pending</option>
-                            <option value="Approved">Approve</option>
-                            <option value="Rejected">Reject</option>
+
+                        <label class="form-label">
+                            Approval Status
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select class="form-select"
+                                name="status"
+                                id="approval_status"
+                                required>
+
+                            <option value="">
+                                Select Status
+                            </option>
+
+                            <option value="Approved">
+                                Approve
+                            </option>
+
+                            <option value="Rejected">
+                                Reject
+                            </option>
+
                         </select>
+
                     </div>
 
                 </div>
+
                 <div class="modal-footer">
-                    <button type="submit" class="btn buttonSpc">Submit</button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                    <button type="button"
+                            class="btn buttonSpc"
+                            id="approvalSubmit">
+                        Submit
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
                 </div>
+
             </div>
 
         </form>
+
     </div>
 </div>
-
+ --}}
 
 
 @endsection
 
 @push('scripts')
-<!-- <script>
-$(document).ready(function() {
-    console.log("First script loaded");
-    let rowIndex = {
-        {
-            isset($sale) ? $sale - > orderProducts - > count() : 0
-        }
-    };
-    $("#addRow").click(function() {
 
-        let row = `
-                <tr>
-                    <td>
-                        <select name="products[${rowIndex}][product_id]" class="form-control product mandatory" data-message="Please Select Product">
-                            <option value="">Select Product</option>
-
-                            @foreach($products as $product)
-                                <option value="{{ $product->n_product_id }}"
-                                        data-price="{{ $product->n_selling_price }}">
-                                    {{ $product->c_product_name }}({{$product->c_product_code}})
-                                </option>
-                            @endforeach
-
-                        </select>
-                        <div class="text-danger mt-1 fs-2"></div>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                            name="products[${rowIndex}][product_price]"
-                            class="form-control price"
-                            readonly>
-                    </td>
-
-                    <td>
-                        <input type="number"
-                            min="1"
-                            value="1"
-                            name="products[${rowIndex}][qty]"
-                            class="form-control qty">
-                    </td>
-
-                    <td>
-                        <input type="text"
-                            class="form-control total"
-                            name="products[${rowIndex}][product_total]"
-                            readonly>
-                    </td>
-
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger removeRow">
-                            X
-                        </button>
-                    </td>
-                </tr>`;
-
-        $("#productTable tbody").append(row);
-
-        rowIndex++;
-    });
-
-
-    $(document).on("change", ".product", function() {
-
-        productTotal($(this));
-
-    });
-
-    $(document).on("change", ".qty", function() {
-
-        productTotal($(this).parent().siblings().find(".product"));
-
-    });
-
-
-
-    $(document).on("click", ".removeRow", function() {
-        $(this).closest("tr").remove();
-    });
-
-    $(document).on("change", "#state", function() {
-        var state = $(this).val();
-        $.ajax({
-            type: "get",
-            url: "{{route('admin.filterDistrict')}}",
-            data: {
-                state: state
-            },
-            cache: false,
-            dataType: 'json',
-            success: function(data) {
-                console.log(data);
-                $("#district").empty();
-                $("#district").append('<option value="">Select District</option>');
-
-                $.each(data.districts, function(index, district) {
-                    $("#district").append(
-                        '<option value="' + district.id + '">' + district
-                        .district_name + '</option>'
-                    );
-                });
-
-            }
-
-
-        });
-    });
-
-
-    function productTotal(id) {
-        let row = id.closest("tr");
-
-        let price = id.find(":selected").data("price");
-
-        row.find(".price").val(price);
-
-        let qty = row.find(".qty").val();
-
-        row.find(".total").val(price * qty);
-    }
-
-    const approveModal = document.getElementById('approveModal');
-
-    approveModal.addEventListener('show.bs.modal', function(event) {
-
-        let button = event.relatedTarget;
-        let id = button.getAttribute('data-id');
-
-        document.getElementById('approval_id').value = id;
-
-        // Set form action dynamically
-        document.getElementById('approveForm').action = "{{route('admin.leads.approval.save')}}";
-    });
-});
-</script> -->
 
 <script>
 $(document).ready(function() {
+
 
     console.log("Sales Order JS loaded");
 
@@ -970,8 +927,8 @@ $(document).ready(function() {
                         @foreach($products as $product)
                             <option
                                 value="{{ $product->n_product_id }}"
-                                data-price="{{ $product->n_selling_price }}">
-                                {{ $product->c_product_name }} ({{ $product->c_product_code }})
+                                data-price="{{ $product->n_mrp }}">
+                                {{ $product->c_product_name }} ({{ $product->c_product_code }})({{$product->c_unit}})
                             </option>
                         @endforeach
 
@@ -1107,12 +1064,15 @@ $(document).ready(function() {
 
         let stateId = option.data('state') || '';
         let districtId = option.data('district') || '';
+        let customer_name = option.data('name') || '';
+
 
         $('#c_customer_email').val(email);
         $('#n_customer_mobile').val(mobile);
         $('#c_customer_address').val(address);
 
         $('#customer_state').val(stateId);
+        $("#c_customer_name").val(customer_name);
 
         /*
         |--------------------------------------------------------------------------
@@ -1186,6 +1146,7 @@ $(document).ready(function() {
                     '<option value="">Unable to load districts</option>'
                 );
             }
+
 
         });
 
@@ -1362,45 +1323,42 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    const approveModal = document.getElementById('approveModal');
+document.getElementById('approveModal').addEventListener('show.bs.modal', function (event) {
 
-    if (approveModal) {
+     const button = event.relatedTarget;
 
-        approveModal.addEventListener(
-            'show.bs.modal',
-            function(event) {
-
-                let button = event.relatedTarget;
-
-                if (!button) {
-                    return;
-                }
-
-                let id = button.getAttribute('data-id');
-
-                let approvalId =
-                    document.getElementById('approval_id');
-
-                let approveForm =
-                    document.getElementById('approveForm');
-
-                if (approvalId) {
-                    approvalId.value = id;
-                }
-
-                if (approveForm) {
-
-                    approveForm.action =
-                        "{{ route('admin.leads.approval.save') }}";
-
-                }
-
-            }
-        );
-
+    if (!button) {
+        return;
     }
 
+    const id = button.getAttribute('data-id');
 
+    console.log('Approval ID:', id);
+
+    document.getElementById('approval_id').value = id;
+
+    document.getElementById('approval_remarks').value = '';
+    document.getElementById('approval_status').value = '';
+
+});
+
+  $(document).on('click', '.approvalSubmit', function () {
+
+    const id = $(this).attr('data-id');
+
+    console.log('Encrypted ID:', id);
+
+    $('#approval_id').val(id);
+
+    $('#approvalForm').attr(
+        'action',
+        "{{ route('admin.salesorders.approval.save') }}"
+    );
+
+    $('#approval_remarks').val('');
+    $('#approval_status').val('');
+
+});
     /*
     |--------------------------------------------------------------------------
     | Existing Product Rows
@@ -1433,47 +1391,47 @@ $(document).ready(function() {
  based on the selected customer's state.
  ====================================================== -->
 <script>
-$(document).ready(function() {
-    $("#n_customer_id").change(function() {
+    $(document).ready(function() {
+        $("#n_customer_id").change(function() {
 
-        let option = $(this).find(":selected");
+            let option = $(this).find(":selected");
 
-        $("#c_customer_email").val(option.data("email"));
-        $("#n_customer_mobile").val(option.data("mobile"));
-        $("#c_customer_address").val(option.data("address"));
+            $("#c_customer_email").val(option.data("email"));
+            $("#n_customer_mobile").val(option.data("mobile"));
+            $("#c_customer_address").val(option.data("address"));
 
-        let stateId = option.data("state");
-        let districtId = option.data("district");
+            let stateId = option.data("state");
+            let districtId = option.data("district");
 
-        $("#customer_state").val(stateId);
+            $("#customer_state").val(stateId);
 
-        $.ajax({
-            type: "GET",
-            url: "{{ route('admin.filterDistrict') }}",
-            data: {
-                state: stateId
-            },
-            dataType: "json",
-            success: function(data) {
+            $.ajax({
+                type: "GET",
+                url: "{{ route('admin.filterDistrict') }}",
+                data: {
+                    state: stateId
+                },
+                dataType: "json",
+                success: function(data) {
 
-                $("#customer_district").html('<option value="">Select District</option>');
+                    $("#customer_district").html('<option value="">Select District</option>');
 
-                $.each(data.districts, function(i, district) {
-                    $("#customer_district").append(
-                        '<option value="' + district.id + '">' +
-                        district.district_name +
-                        '</option>'
-                    );
-                });
+                    $.each(data.districts, function(i, district) {
+                        $("#customer_district").append(
+                            '<option value="' + district.id + '">' +
+                            district.district_name +
+                            '</option>'
+                        );
+                    });
 
-                // Select customer's district after options are loaded
-                $("#customer_district").val(districtId);
+                    // Select customer's district after options are loaded
+                    $("#customer_district").val(districtId);
 
-            }
+                }
+            });
+
         });
-
     });
-});
 </script>
 
 <!--======================================================
@@ -1482,41 +1440,55 @@ $(document).ready(function() {
  ====================================================== -->
 
 <script>
-$('#franchise_state').change(function() {
+$(document).ready(function(){
 
-    let stateId = $(this).val();
+    $('#franchise_state').change(function() {
 
-    $('#franchise_district').html('<option value="">Loading...</option>');
+        let stateId = $(this).val();
 
-    $.ajax({
+        $('#franchise_district').html('<option value="">Loading...</option>');
 
-        url: "{{ route('admin.filterDistrict') }}",
+        $.ajax({
 
-        type: "GET",
+            url: "{{ route('admin.filterDistrict') }}",
 
-        data: {
-            state: stateId
-        },
+            type: "GET",
 
-        success: function(response) {
+            data: {
+                state: stateId
+            },
 
-            $('#franchise_district').html('<option value="">Select District</option>');
+            success: function(response) {
 
-            $.each(response.districts, function(index, district) {
+                $('#franchise_district').html('<option value="">Select District</option>');
 
-                $('#franchise_district').append(
-                    '<option value="' + district.id + '">' +
-                    district.district_name +
-                    '</option>'
-                );
+                $.each(response.districts, function(index, district) {
 
-            });
+                    $('#franchise_district').append(
+                        '<option value="' + district.id + '">' +
+                        district.district_name +
+                        '</option>'
+                    );
 
-        }
+                });
+
+            }
+
+        });
 
     });
 
-});
+    $(".mode_of_payment").click(function(){
+        var payment_mode=$(this).val();
+        if(payment_mode=="UPI" || payment_mode=="Bank Deposit" || payment_mode=="Paid to Franchise" ){
+            $("#payment_image").show();
+        }
+        else{
+            $("#payment_image").hide();
+        }
+    })
+
+})
 </script>
 
 <!--======================================================
@@ -1526,37 +1498,39 @@ $('#franchise_state').change(function() {
  =========================================================-->
 
 <script>
-$('#franchise_district').change(function() {
+$(document).ready(function(){
+    $('#franchise_district').change(function() {
 
-    let stateId = $('#franchise_state').val();
-    let districtId = $(this).val();
+        let stateId = $('#franchise_state').val();
+        let districtId = $(this).val();
 
-    $.ajax({
-        url: "{{ url('admin/filter-franchise') }}",
-        type: "GET",
-        data: {
-            state: stateId,
-            district: districtId
-        },
-        dataType: "json",
-        success: function(response) {
+        $.ajax({
+            url: "{{ url('admin/filter-franchise') }}",
+            type: "GET",
+            data: {
+                state: stateId,
+                district: districtId
+            },
+            dataType: "json",
+            success: function(response) {
 
-            $('#franchise').html('<option value="">Select Franchise</option>');
+                $('#franchise').html('<option value="">Select Franchise</option>');
 
-            $.each(response.franchises, function(i, franchise) {
+                $.each(response.franchises, function(i, franchise) {
 
-                $('#franchise').append(
-                    '<option value="' + franchise.n_store_id + '">' +
-                    franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
-                    '</option>'
-                );
+                    $('#franchise').append(
+                        '<option value="' + franchise.n_store_id + '">' +
+                        franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
+                        '</option>'
+                    );
 
-            });
+                });
 
-        }
+            }
+        });
+
     });
-
-});
+})
 </script>
 
 

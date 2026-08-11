@@ -273,7 +273,7 @@ Route::middleware(['auth', 'admin'])
 
 
     Route::get('leads/create', [LeadsController::class, 'create'])
-        ->middleware('permission:leads.add-lead')
+        ->middleware('permission:leads.create')
         ->name('leads.create');
 
 
@@ -286,9 +286,6 @@ Route::middleware(['auth', 'admin'])
         ->middleware('permission:leads.view-details')
         ->name('leads.show');
 
-    Route::put('leads/approval', [LeadsController::class, 'approve'])
-    ->middleware('permission:leads.approval')
-    ->name('leads.approval.save');
 
     Route::put('leads/followup', [LeadsController::class, 'followupSave'])
     ->middleware('permission:leads.follow-up')
@@ -306,7 +303,7 @@ Route::middleware(['auth', 'admin'])
         ->name('leads.update');
 
 
-    Route::delete('leads/delete/{id}', [LeadsController::class, 'destroy'])
+    Route::delete('leads/{lead}', [LeadsController::class, 'destroy'])
         ->middleware('permission:leads.delete')
         ->name('leads.destroy');
 

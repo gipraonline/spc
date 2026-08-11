@@ -415,10 +415,10 @@
                     Sign In
                 </button>
 
-                <div class="footer-text animated delay-2">
+                {{-- <div class="footer-text animated delay-2">
                     New to SPC?
                     <a href="{{route('register')}}"></a>
-                </div>
+                </div> --}}
             </form>
         </div>
     </div>

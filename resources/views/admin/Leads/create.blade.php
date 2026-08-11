@@ -71,18 +71,35 @@ use Illuminate\Support\Facades\Crypt;
 
             @csrf
 
+            <input type="hidden" name="n_lead_id" value="{{$lead->n_lead_id}}">
+
+
+
+            @if(isset($user) && $user->identifier != "FCA")
+                <div class="customer-toggle mb-4">
+                    <select name="n_fca_id" class="form-control mandatory">
+                                    <option value="">Select Farm Care Adviser</option>
+
+                                    @foreach($employees as $employee)
+                                    <option value="{{ $employee->n_employee_id }}" {{isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''}}>
+                                        {{ $employee->c_employee_name }}
+                                    </option>
+                                    @endforeach
+                    </select>
+                </div>
+            @endif
             <!-- Customer Type -->
             <div class="customer-toggle mb-4">
 
-                <input type="radio" class="btn-check" name="c_customer_type"
-                    id="newCustomer" value="new" checked>
+                <input type="radio" class="btn-check " name="c_customer_type"
+                    id="newCustomer" value="new" {{isset($lead) && $lead->c_customer_type=="new" ? "checked" : ''}}>
 
                 <label class="toggle-btn" for="newCustomer">
                     New Customer
                 </label>
 
                 <input type="radio" class="btn-check" name="c_customer_type"
-                    id="existingCustomer" value="existing">
+                    id="existingCustomer" value="existing" {{isset($lead) && $lead->c_customer_type=="existing" ? "checked" : ''}}>
 
                 <label class="toggle-btn" for="existingCustomer">
                     Existing Customer
@@ -91,7 +108,7 @@ use Illuminate\Support\Facades\Crypt;
             </div>
 
 
-
+            @if(!isset($lead->n_lead_id))
             <!-- Existing Customer Lookup -->
             <div class="card border rounded-4 mb-4 d-none" id="lookupCard">
 
@@ -136,7 +153,7 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
             </div>
-
+            @endif
             <!-- Customer Details -->
 
             <div class="card border rounded-4 mb-4">
@@ -163,7 +180,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="text"
                                    name="c_customer_name"
                                    class="form-control @error('customer_name') is-invalid @enderror"
-                                   value="{{ old('c_customer_name') }}"
+                                   value="{{ old('c_customer_name',$lead->c_customer_name ?? '') }}"
                                    placeholder="Enter Customer Name">
 
                             @error('customer_name')
@@ -186,7 +203,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="text"
                                    name="n_mobile"
                                    class="form-control @error('n_mobile') is-invalid @enderror"
-                                   value="{{ old('n_mobile') }}"
+                                   value="{{ old('n_mobile',$lead->n_mobile ?? '') }}"
                                    maxlength="10"
                                    placeholder="Enter Mobile Number">
 
@@ -202,7 +219,7 @@ use Illuminate\Support\Facades\Crypt;
 
                        <div class="col-md-4">
                             <label for="c_email" class="form-label">Email</label>
-                            <input type="text" id="c_email" name="c_email" value="{{ old('c_email') }}"
+                            <input type="text" id="c_email" name="c_email" value="{{ old('c_email',$lead->c_email ?? '') }}"
                                 data-message="Please enter Customer Email" class="form-control "
                                 placeholder="Enter Customer Email">
                             <div class="text-danger mt-1 fs-2"></div>
@@ -225,7 +242,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <option value="" selected>Select State</option>
                                 @if(isset($states))
                                     @foreach($states as $State)
-                                        <option value="{{$State->n_state_id}}" {{ old('n_state_id', $lead->n_state_id ?? '') == $lead->n_state_id ? 'selected' : '' }}>{{$State->name}}</option>
+                                        <option value="{{$State->n_state_id}}" {{ old('n_state_id', $lead->n_state_id ?? '') == $State->n_state_id ? 'selected' : '' }}>{{$State->name}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -239,7 +256,7 @@ use Illuminate\Support\Facades\Crypt;
                             <label for="state" class="form-label">District</label>
                             <select class="form-select mandatory" data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="district" name="n_district_id">
                                 <option value="" selected>Select District</option>
-                                @if(isset($sale->n_district_id))
+                                @if(isset($lead->n_district_id))
                                     @php $districts = \App\Models\District::where('state_id', $lead->n_state_id)->get(); @endphp
                                     @if(isset($districts))
                                         @foreach($districts as $district)
@@ -282,11 +299,13 @@ use Illuminate\Support\Facades\Crypt;
                             </label>
 
                             <input type="date"
-                                   name="d_visit_date"
-                                   class="form-control @error('visit_date') is-invalid @enderror"
-                                   value="{{ old('visit_date', date('Y-m-d')) }}">
+                                name="d_visit_date"
+                                id="d_visit_date"
+                                class="form-control @error('d_visit_date') is-invalid @enderror"
+                                value="{{ old('d_visit_date', $lead->d_visit_date ? \Carbon\Carbon::parse($lead->d_visit_date)->format('Y-m-d') : '') }}">
 
-                            @error('visit_date')
+
+                            @error('d_visit_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -296,11 +315,12 @@ use Illuminate\Support\Facades\Crypt;
 
                 </div>
 
-                    </div>
+            </div>
 
-                </div>
 
-            <!-- ============================= -->
+
+
+                <!-- ============================= -->
             <!-- Lead Status -->
             <!-- ============================= -->
 
@@ -328,14 +348,14 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select Status</option>
 
-                                <option value="New">New</option>
-                                <option value="Contacted">Contacted</option>
-                                <option value="Interested">Interested</option>
-                                <option value="Follow-up">Follow-up Required</option>
-                                <option value="Negotiation">Negotiation</option>
-                                <option value="Won">Won</option>
-                                <option value="Lost">Lost</option>
-                                <option value="Not Interested">Not Interested</option>
+                                <option value="new" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "new" ? 'selected' : '' }}>New</option>
+                                <option value="contacted"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "contacted" ? 'selected' : '' }}>Contacted</option>
+                                <option value="interested"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "interested" ? 'selected' : '' }}>Interested</option>
+                                <option value="follow-up"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "follow-up" ? 'selected' : '' }}>Follow-up Required</option>
+                                <option value="negotiation"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "negotiation" ? 'selected' : '' }}>Negotiation</option>
+                                <option value="won" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "won" ? 'selected' : '' }}>Won</option>
+                                <option value="lost" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "lost" ? 'selected' : '' }}>Lost</option>
+                                <option value="not-nterested"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "not-nterested" ? 'selected' : '' }}>Not Interested</option>
 
                             </select>
 
@@ -350,7 +370,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date"
                                    name="d_expected_availability_date"
                                    class="form-control"
-                                   value="{{ old('d_expected_availability_date') }}">
+                                   value="{{ old('d_expected_availability_date', $lead->d_expected_availability_date ? \Carbon\Carbon::parse($lead->d_expected_availability_date)->format('Y-m-d') : '') }}">
 
                         </div>
 
@@ -364,7 +384,7 @@ use Illuminate\Support\Facades\Crypt;
             <!-- ============================= -->
             <!-- Follow-up -->
             <!-- ============================= -->
-
+            @if(isset($lead->n_lead_id))
             <div class="card border rounded-4 mb-4"
                  id="followupCard">
 
@@ -387,7 +407,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date"
                                    name="next_followup_date"
                                    class="form-control"
-                                   value="{{ old('next_followup_date') }}">
+                                   value="{{ old('next_followup_date', $lead->next_followup_date ? \Carbon\Carbon::parse($lead->next_followup_date)->format('Y-m-d') : '') }}">
 
                         </div>
 
@@ -398,9 +418,9 @@ use Illuminate\Support\Facades\Crypt;
                             </label>
 
                             <input type="time"
-                                   name="next_followup_time"
-                                   class="form-control"
-                                   value="{{ old('next_followup_time') }}">
+                            name="next_followup_time"
+                            class="form-control"
+                            value="{{ old('next_followup_time', $lead->next_followup_time ? \Carbon\Carbon::parse($lead->next_followup_time)->format('H:i') : '') }}">
 
                         </div>
 
@@ -415,11 +435,11 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select</option>
 
-                                <option>Phone Call</option>
-                                <option>WhatsApp</option>
-                                <option>Farm Visit</option>
-                                <option>Office Visit</option>
-                                <option>Video Call</option>
+                                <option value="phone_call" {{ old('followup_type', $lead->followup_type ?? '') == "phone_call" ? 'selected' : '' }}>Phone Call</option>
+                                <option value="whats_app" {{ old('followup_type', $lead->followup_type ?? '') == "whats_app" ? 'selected' : '' }}>WhatsApp</option>
+                                <option value="farm_visit" {{ old('followup_type', $lead->followup_type ?? '') == "farm_visit" ? 'selected' : '' }}>Farm Visit</option>
+                                <option value="office_visit" {{ old('followup_type', $lead->followup_type ?? '') == "office_visit" ? 'selected' : '' }}>Office Visit</option>
+                                <option value="video_call" {{ old('followup_type', $lead->followup_type ?? '') == "video_call" ? 'selected' : '' }}>Video Call</option>
 
                             </select>
 
@@ -430,7 +450,7 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
             </div>
-
+            @endif
 
             <!-- ============================= -->
             <!-- Priority -->
@@ -456,7 +476,8 @@ use Illuminate\Support\Facades\Crypt;
                                        type="radio"
                                        name="priority"
                                        value="Low"
-                                       id="priorityLow">
+                                       id="priorityLow"
+                                       {{ old('priority', $lead->priority ?? '') == "Low" ? 'checked' : '' }}>
 
                                 <label class="form-check-label"
                                        for="priorityLow">
@@ -478,7 +499,7 @@ use Illuminate\Support\Facades\Crypt;
                                        name="priority"
                                        value="Medium"
                                        id="priorityMedium"
-                                       checked>
+                                        {{ old('priority', $lead->priority ?? '') == "Medium" ? 'checked' : '' }}>
 
                                 <label class="form-check-label"
                                        for="priorityMedium">
@@ -499,7 +520,8 @@ use Illuminate\Support\Facades\Crypt;
                                        type="radio"
                                        name="priority"
                                        value="High"
-                                       id="priorityHigh">
+                                       id="priorityHigh"
+                                       {{ old('priority', $lead->priority ?? '') == "High" ? 'checked' : '' }}>
 
                                 <label class="form-check-label"
                                        for="priorityHigh">
@@ -520,7 +542,8 @@ use Illuminate\Support\Facades\Crypt;
                                        type="radio"
                                        name="priority"
                                        value="Urgent"
-                                       id="priorityUrgent">
+                                       id="priorityUrgent"
+                                       {{ old('priority', $lead->priority ?? '') == "Urgent" ? 'checked' : '' }}>
 
                                 <label class="form-check-label"
                                        for="priorityUrgent">
@@ -547,7 +570,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 <div class="card-header bg-light">
                     <h6 class="mb-0 fw-semibold">
-                        Remarks / Discussion Notes
+                        Remarks
                     </h6>
                 </div>
 
@@ -564,7 +587,7 @@ use Illuminate\Support\Facades\Crypt;
                             <textarea name="remarks"
                                       rows="5"
                                       class="form-control @error('remarks') is-invalid @enderror"
-                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc.">{{ old('remarks') }}</textarea>
+                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc.">{{ old('remarks',$lead->remarks ?? '') }}</textarea>
 
                             @error('remarks')
                                 <div class="invalid-feedback">
@@ -585,23 +608,24 @@ use Illuminate\Support\Facades\Crypt;
             <!-- ========================================= -->
 
             <div class="d-flex justify-content-end gap-2">
+                @if(isset($viewMode) && $viewMode=="Off")
 
-                <a href="{{ route('admin.leads.index') }}"
-                   class="btn btn-outline-secondary">
+                        <a href="{{ route('admin.leads.index') }}"
+                        class="btn btn-outline-secondary">
 
-                    <i class="ti ti-arrow-left me-1"></i>
-                    Cancel
+                            <i class="ti ti-arrow-left me-1"></i>
+                            Cancel
 
-                </a>
+                        </a>
 
-                <button type="button"
-                        class="btn buttonSpc"  id="btn_create">
+                        <button type="button"
+                                class="btn buttonSpc"  id="btn_create">
 
-                    <i class="ti ti-device-floppy me-1"></i>
-                    Save Lead
+                            <i class="ti ti-device-floppy me-1"></i>
+                            Save Lead
 
-                </button>
-
+                        </button>
+                 @endif
             </div>
 
         </form>
@@ -610,205 +634,326 @@ use Illuminate\Support\Facades\Crypt;
 
 </div>
 
+
 @endsection
 
 
 @push('scripts')
 
-<script>
 
+    <script>
+        //-------------------------------------------------------
+        // Existing Customer Onload
+        //-------------------------------------------------------
 
+        document.addEventListener('DOMContentLoaded', function () {
 
-    //-------------------------------------------------------
-    // Existing Customer Toggle
-    //-------------------------------------------------------
+            document.querySelectorAll('input[name="c_customer_type"]')
+                .forEach(function (radio) {
+
+                    radio.addEventListener('change', toggleCustomerType);
+
+                });
+
+            toggleCustomerType();
+        });
+
+        //-------------------------------------------------------
+        // Existing Customer Toggle
+        //-------------------------------------------------------
 
         const lookupCard = document.getElementById('lookupCard');
+        const newCustomer = document.getElementById('newCustomer');
+        const existingCustomer = document.getElementById('existingCustomer');
 
         function toggleCustomerType() {
 
-            if (document.getElementById('existingCustomer').checked) {
+            const selected = document.querySelector(
+                'input[name="c_customer_type"]:checked'
+            );
+
+            if (!selected) {
+                return;
+            }
+
+            const lookupCard = document.getElementById('lookupCard');
+
+            // lookupCard doesn't exist on edit page
+            if (!lookupCard) {
+                return;
+            }
+
+            if (selected.value === 'existing') {
                 lookupCard.classList.remove('d-none');
             } else {
                 lookupCard.classList.add('d-none');
             }
         }
 
-        document.getElementById('newCustomer')
-            .addEventListener('change', toggleCustomerType);
+        if (newCustomer) {
+            newCustomer.addEventListener('change', toggleCustomerType);
+        }
 
-        document.getElementById('existingCustomer')
-            .addEventListener('change', toggleCustomerType);
+        if (existingCustomer) {
+            existingCustomer.addEventListener('change', toggleCustomerType);
+        }
 
         toggleCustomerType();
 
-    //-------------------------------------------------------
-    // Follow-up Card
-    //-------------------------------------------------------
 
-    const leadStatus = document.getElementById('leadStatus');
-    const followupCard = document.getElementById('followupCard');
+        //-------------------------------------------------------
+        // Follow-up Card
+        //-------------------------------------------------------
 
-    function toggleFollowup() {
+      /*   const leadStatus = document.getElementById('leadStatus');
+        const followupCard = document.getElementById('followupCard');
 
-        let value = leadStatus.value;
+        function toggleFollowup() {
 
-        if (
-            value === 'Follow-up' ||
-            value === 'Interested' ||
-            value === 'Negotiation'
-        ) {
-
-            followupCard.style.display = 'block';
-
-        } else {
-
-            followupCard.style.display = 'none';
-
-        }
-
-    }
-
-    leadStatus.addEventListener('change', toggleFollowup);
-
-    toggleFollowup();
-
-
-    //-------------------------------------------------------
-    // Mobile Lookup (AJAX)
-    //-------------------------------------------------------
-
-    const lookupBtn = document.getElementById('lookupBtn');
-
-    if (lookupBtn) {
-
-        lookupBtn.addEventListener('click', function () {
-
-            let mobile = document.getElementById('lookupMobile').value;
-
-
-
-
-            if (mobile.length !== 10) {
-                alert('Please enter a valid mobile number.');
+            if (!leadStatus || !followupCard) {
                 return;
             }
 
-            fetch("{{ route('admin.leads.existingCustomer') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    mobile: mobile
+            const value = leadStatus.value;
+
+            if (
+                value === 'Follow-up' ||
+                value === 'Interested' ||
+                value === 'Negotiation'
+            ) {
+                followupCard.style.display = 'block';
+            } else {
+                followupCard.style.display = 'none';
+            }
+        }
+
+        if (leadStatus) {
+            leadStatus.addEventListener('change', toggleFollowup);
+            toggleFollowup();
+        }
+ */
+
+        //-------------------------------------------------------
+        // Mobile Lookup
+        //-------------------------------------------------------
+
+        const lookupBtn = document.getElementById('lookupBtn');
+
+        if (lookupBtn) {
+
+            lookupBtn.addEventListener('click', function () {
+
+                const mobileInput = document.getElementById('lookupMobile');
+                const mobile = mobileInput.value.trim();
+
+                if (!/^[0-9]{10}$/.test(mobile)) {
+                    alert('Please enter a valid 10 digit mobile number.');
+                    return;
+                }
+
+                fetch("{{ route('admin.leads.existingCustomer') }}", {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+
+                    body: JSON.stringify({
+                        mobile: mobile
+                    })
                 })
-            })
-            .then(async response => {
+                .then(function (response) {
 
-                console.log("HTTP Status:", response.status);
+                    console.log("HTTP Status:", response.status);
 
-                let result = await response.text();
+                    if (!response.ok) {
+                        return response.text().then(function (text) {
+                            throw new Error(text);
+                        });
+                    }
 
-                console.log("Raw Response:", result);
+                    return response.json();
+                })
+                .then(function (data) {
 
-                if (!response.ok) {
-                    throw new Error(result);
-                }
+                    console.log("Customer Response:", data);
 
-                return JSON.parse(result);
+                    if (data.status === true) {
 
-            })
-            .then(function(data) {
+                        //-------------------------------------------------------
+                        // Customer Details
+                        //-------------------------------------------------------
 
-                console.log( data);
+                        document.querySelector('[name="c_customer_name"]').value =
+                            data.customer.c_customer_name || '';
 
-                if (data.status == true) {
+                        document.querySelector('[name="n_mobile"]').value =
+                            data.customer.n_mobile || '';
 
-                    document.querySelector('[name="c_customer_name"]').value = data.customer.c_customer_name ?? '';
-                    document.querySelector('[name="n_mobile"]').value = data.customer.n_mobile ?? '';
-                    document.querySelector('[name="c_email"]').value = data.customer.c_email ?? '';
-                    document.querySelector('[name="c_address"]').value = data.customer.c_address ?? '';
+                        document.querySelector('[name="c_email"]').value =
+                            data.customer.c_email || '';
 
-                    // Select State by ID
-                    const stateDropdown = document.querySelector('[name="n_state_id"]');
+                        document.querySelector('[name="c_address"]').value =
+                            data.customer.c_address || '';
 
-                    Array.from(stateDropdown.options).forEach(option => {
-                        if (option.text.trim() === data.customer.c_state.trim()) {
-                            option.selected = true;
+
+                        //-------------------------------------------------------
+                        // State
+                        //-------------------------------------------------------
+
+                        const stateDropdown =
+                            document.querySelector('[name="n_state_id"]');
+
+                        const selectedState =
+                            data.customer.n_state_id;
+
+                        if (selectedState) {
+
+                            stateDropdown.value = selectedState;
+
+                        } else if (data.customer.c_state) {
+
+                            Array.from(stateDropdown.options).forEach(function (option) {
+
+                                if (
+                                    option.text.trim().toLowerCase() ===
+                                    data.customer.c_state.trim().toLowerCase()
+                                ) {
+                                    option.selected = true;
+                                }
+
+                            });
                         }
-                    });
-
-                    var selectState=data.customer.n_state_id;
-                    var selectedDistrict = data.customer.n_district_id;
-
-                    districtFilter(selectState,selectedDistrict);
 
 
+                        //-------------------------------------------------------
+                        // District
+                        //-------------------------------------------------------
 
-                } else {
+                        const selectedDistrict =
+                            data.customer.n_district_id || null;
 
-                    alert('Customer not found.');
+                        districtFilter(
+                            selectedState,
+                            selectedDistrict
+                        );
 
-                }
+                    } else {
 
-            })
-            .catch(function(error) {
+                        alert('Customer not found.');
 
-                console.error("Fetch Error:", error.message);
+                    }
 
-            });
-        });
-    }
+                })
+                .catch(function (error) {
 
-    $(document).ready(function(){
+                    console.error('Fetch Error:', error);
 
-        $(document).on("change","#state",function(){
-                var state=$(this).val();
-                districtFilter(state);
-
-        });
-
-    })
-
-
-    function districtFilter(state, selectedDistrict = null) {
-
-        $.ajax({
-            type: "GET",
-            url: "{{ route('admin.filterDistrict') }}",
-            data: { state: state },
-            cache: false,
-            dataType: "json",
-
-            success: function(data) {
-
-                $("#district").empty();
-                $("#district").append('<option value="">Select District</option>');
-
-                $.each(data.districts, function(index, district) {
-
-                    $("#district").append(
-                        '<option value="' + district.id + '">' +
-                        district.district_name +
-                        '</option>'
-                    );
+                    alert('Unable to find customer. Please try again.');
 
                 });
 
-                // Select the district after loading
-                if (selectedDistrict) {
-                    $("#district").val(selectedDistrict);
-                }
+            });
+        }
 
-            }
+
+        //-------------------------------------------------------
+        // State Change
+        //-------------------------------------------------------
+
+        $(document).ready(function () {
+
+            $(document).on('change', '#state', function () {
+
+                const state = $(this).val();
+
+                districtFilter(state);
+
+            });
+
         });
 
-    }
+
+        //-------------------------------------------------------
+        // District Filter
+        //-------------------------------------------------------
+
+        function districtFilter(state, selectedDistrict = null) {
+
+            if (!state) {
+
+                $('#district').empty();
+
+                $('#district').append(
+                    '<option value="">Select District</option>'
+                );
+
+                return;
+            }
+
+            $.ajax({
+
+                type: 'GET',
+
+                url: "{{ route('admin.filterDistrict') }}",
+
+                data: {
+                    state: state
+                },
+
+                cache: false,
+
+                dataType: 'json',
+
+                success: function (data) {
+
+                    $('#district').empty();
+
+                    $('#district').append(
+                        '<option value="">Select District</option>'
+                    );
+
+                    $.each(data.districts, function (index, district) {
+
+                        $('#district').append(
+                            '<option value="' +
+                            district.id +
+                            '">' +
+                            district.district_name +
+                            '</option>'
+                        );
+
+                    });
 
 
-</script>
+                    //-------------------------------------------------------
+                    // Select Existing Customer District
+                    //-------------------------------------------------------
+
+                    if (selectedDistrict !== null && selectedDistrict !== '') {
+
+                        $('#district').val(selectedDistrict);
+
+                    }
+
+                },
+
+                error: function (xhr) {
+
+                    console.error(
+                        'District AJAX Error:',
+                        xhr.responseText
+                    );
+
+                }
+
+            });
+
+        }
+    </script>
+
 
 @endpush
 

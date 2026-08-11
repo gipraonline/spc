@@ -188,6 +188,10 @@ Route::middleware(['auth', 'admin'])
     Route::get('franchises/clear-search', [StoreController::class, 'clearSearch'])
         ->middleware('permission:franchises.view')
         ->name('franchises.clearSearch');
+
+    Route::get('districts/{stateId}',[StoreController::class, 'getDistricts'])
+        ->middleware('permission:franchises.view')
+        ->name('districts');    
     // *********************************************
 
     /*

@@ -197,6 +197,7 @@ class LeadsController extends Controller
     {
         $id=isset($request->n_lead_id) ? $request->n_lead_id : '';
         $request->validate([
+
             'c_customer_type' => 'required|in:new,existing',
             'c_customer_name' => 'required|string|max:255',
             'n_mobile' => 'required|digits:10',
@@ -220,8 +221,10 @@ class LeadsController extends Controller
             'remarks' => 'nullable|string',
         ]);
 
+
+
         $data = [
-            'n_fca_id' => isset($request->n_fca_id) ? $request->n_fca_id : Auth::user()->n_role_id,
+            'n_fca_id' => isset($request->n_fca_id) ? $request->n_fca_id : Auth::user()->n_employee_id,
             'c_customer_type' => $request->c_customer_type,
             'c_customer_name' => $request->c_customer_name,
             'n_mobile' => $request->n_mobile,

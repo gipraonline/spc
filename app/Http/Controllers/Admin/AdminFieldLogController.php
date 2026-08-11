@@ -46,7 +46,7 @@ class AdminFieldLogController extends Controller
         $total = $tasks->count();
 
         $done = $tasks
-            ->where('status', 'Checked Out')
+            ->where('status', 'Done')
             ->count();
 
         $pending = $tasks

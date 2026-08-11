@@ -15,6 +15,7 @@ class Lead extends Model
     protected $primaryKey = 'n_lead_id';
 
     protected $fillable = [
+        'n_fca_id',
         'c_customer_type',
         'c_customer_name',
         'n_mobile',

@@ -587,7 +587,7 @@ unset($__errorArgs, $__bag); ?>
 
                         <div class="col-md-6">
                             <label for="state" class="form-label">District</label>
-                            <select class="form-select mandatory" data-message="Please enter District" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>  id="district" name="n_district_id">
+                            <select class="form-select mandatory" data-message="Please enter District" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>  id="franchise_district" name="n_district_id">
                                 <option value="" selected>Select District</option>
                                 <?php if(isset($sale->n_district_id)): ?>
                                     <?php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); ?>

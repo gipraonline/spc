@@ -570,7 +570,7 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="col-md-6">
                             <label for="state" class="form-label">District</label>
-                            <select class="form-select mandatory" data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="district" name="n_district_id">
+                            <select class="form-select mandatory" data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="franchise_district" name="n_district_id">
                                 <option value="" selected>Select District</option>
                                 @if(isset($sale->n_district_id))
                                     @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp

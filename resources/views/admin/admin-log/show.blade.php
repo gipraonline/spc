@@ -21,74 +21,167 @@
 
     <div class="card-body">
 
+
         {{-- ========================================================= --}}
-        {{-- Employee Details --}}
+        {{-- Field Log Information --}}
         {{-- ========================================================= --}}
 
-        <div class="row">
+        <div class="row g-3 mb-4">
 
             {{-- Employee --}}
-            <div class="col-md-3 mb-3">
+            <div class="col-xl-3 col-md-6">
 
-                <label class="form-label fw-bold">
-                    Employee
-                </label>
+                <div class="card border-0 shadow-sm h-100">
 
-                <p>
-                    {{ $fieldLog->admin->c_name ?? '-' }}
-                </p>
+                    <div class="card-body p-3">
+
+                        <div class="d-flex align-items-center">
+
+                            <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
+                                style="width: 48px; height: 48px;">
+                                <i class="bi bi-person-fill fs-5"></i>
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <small class="text-muted d-block mb-1">
+                                    Employee
+                                </small>
+
+                                <h6 class="fw-bold mb-0 text-dark">
+                                    {{ $fieldLog->admin->c_name ?? '-' }}
+                                </h6>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
 
             {{-- Date --}}
-            <div class="col-md-3 mb-3">
+            <div class="col-xl-3 col-md-6">
 
-                <label class="form-label fw-bold">
-                    Date
-                </label>
+                <div class="card border-0 shadow-sm h-100">
 
-                <p>
-                    {{ $fieldLog->work_date
-                    ? $fieldLog->work_date->format('d-m-Y')
-                    : '-' }}
-                </p>
+                    <div class="card-body p-3">
+
+                        <div class="d-flex align-items-center">
+
+                            <div class="rounded-3 bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center me-3"
+                                style="width: 48px; height: 48px;">
+                                <i class="bi bi-calendar3 fs-5"></i>
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <small class="text-muted d-block mb-1">
+                                    Work Date
+                                </small>
+
+                                <h6 class="fw-bold mb-0 text-dark">
+
+                                    {{ $fieldLog->work_date
+                            ? $fieldLog->work_date->format('d M Y')
+                            : '-' }}
+
+                                </h6>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
 
             {{-- Check In --}}
-            <div class="col-md-3 mb-3">
+            <div class="col-xl-3 col-md-6">
 
-                <label class="form-label fw-bold">
-                    Check In
-                </label>
+                <div class="card border-0 shadow-sm h-100">
 
-                <p>
-                    {{ $fieldLog->check_in_time
-                    ? $fieldLog->check_in_time->format('h:i A')
-                    : '--' }}
-                </p>
+                    <div class="card-body p-3">
+
+                        <div class="d-flex align-items-center">
+
+                            <div class="rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-3"
+                                style="width: 48px; height: 48px;">
+                                <i class="bi bi-box-arrow-in-right fs-5"></i>
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <small class="text-muted d-block mb-1">
+                                    Check In
+                                </small>
+
+                                <h6 class="fw-bold text-success mb-0">
+
+                                    {{ $fieldLog->check_in_time
+                            ? $fieldLog->check_in_time->format('h:i A')
+                            : '--' }}
+
+                                </h6>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
 
             {{-- Check Out --}}
-            <div class="col-md-3 mb-3">
+            <div class="col-xl-3 col-md-6">
 
-                <label class="form-label fw-bold">
-                    Check Out
-                </label>
+                <div class="card border-0 shadow-sm h-100">
 
-                <p>
-                    {{ $fieldLog->check_out_time
-                    ? $fieldLog->check_out_time->format('h:i A')
-                    : '--' }}
-                </p>
+                    <div class="card-body p-3">
+
+                        <div class="d-flex align-items-center">
+
+                            <div class="rounded-3 bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center me-3"
+                                style="width: 48px; height: 48px;">
+                                <i class="bi bi-box-arrow-right fs-5"></i>
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <small class="text-muted d-block mb-1">
+                                    Check Out
+                                </small>
+
+                                <h6 class="fw-bold text-danger mb-0">
+
+                                    {{ $fieldLog->check_out_time
+                            ? $fieldLog->check_out_time->format('h:i A')
+                            : '--' }}
+
+                                </h6>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
+
         </div>
+
 
 
         {{-- ========================================================= --}}

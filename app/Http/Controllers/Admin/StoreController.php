@@ -13,37 +13,92 @@ class StoreController extends Controller
 
     public function search(Request $request)
     {
-        session(['store_search' => $request->search]);
+        session(['store_search' => $request->search,
+        'store_state_id'     => $request->state_id,
+        'store_district_id'  => $request->district_id,]);
 
         return redirect()->route('admin.franchises.index');
     }
 
     public function clearSearch()
     {
-        session()->forget('store_search');
-
+      session()->forget([
+        'store_search',
+        'store_state_id',
+        'store_district_id',
+    ]);
         return redirect()->route('admin.franchises.index');
     }
 
-       public function index(Request $request)
+//        public function index(Request $request)
+// {
+//     $stores = StoreMaster::with(['state', 'district']);
+
+//     $search = session('store_search');
+
+//     if (!empty($search)) {
+
+//         $stores->where(function ($query) use ($search) {
+//             $query->where('c_store_code', 'LIKE', "%{$search}%")
+//                   ->orWhere('c_store_name', 'LIKE', "%{$search}%");
+//         });
+//     }
+
+//     $stores = $stores->paginate(15);
+
+//     return view('admin.stores.index', compact('stores'));
+// }
+
+public function index(Request $request)
 {
+    $search = session('store_search');
+    $stateId = session('store_state_id');
+    $districtId = session('store_district_id');
+
     $stores = StoreMaster::with(['state', 'district']);
 
-    $search = session('store_search');
-
+    // Search
     if (!empty($search)) {
-
         $stores->where(function ($query) use ($search) {
             $query->where('c_store_code', 'LIKE', "%{$search}%")
                   ->orWhere('c_store_name', 'LIKE', "%{$search}%");
         });
     }
 
-    $stores = $stores->paginate(15);
+    // State
+    if (!empty($stateId)) {
+        $stores->where('n_state_id', $stateId);
+    }
 
-    return view('admin.stores.index', compact('stores'));
+    // District
+    if (!empty($districtId)) {
+        $stores->where('n_district_id', $districtId);
+    }
+
+    $stores = $stores
+        ->orderBy('n_store_id', 'desc')
+        ->paginate(15);
+
+    // ALWAYS load states
+    $states = State::where('status', 1)
+        ->orderBy('name')
+        ->get();
+
+    // Load districts for selected state
+    $districts = collect();
+
+    if (!empty($stateId)) {
+        $districts = District::where('state_id', $stateId)
+            ->orderBy('district_name')
+            ->get();
+    }
+
+    return view('admin.stores.index', compact(
+        'stores',
+        'states',
+        'districts'
+    ));
 }
-
     public function create()
     {
         $states = State::where('status', 1)
@@ -136,6 +191,15 @@ class StoreController extends Controller
 
         return redirect()->route('admin.franchises.index')->with('success', 'Franchise updated successfully');
     }
+
+    public function getDistricts($stateId)
+{
+    $districts = District::where('state_id', $stateId)
+        ->orderBy('district_name')
+        ->get(['id', 'district_name']);
+
+    return response()->json($districts);
+}
 
    public function destroy(StoreMaster $franchise)
 {

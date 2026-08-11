@@ -177,7 +177,7 @@ use Illuminate\Support\Facades\Crypt;
                             <option value="">Select Farm Care Adviser</option>
 
                             <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($employee->n_employee_id); ?>  " <?php echo e(isset($sale) && $sale->n_employee_id == $employee->n_employee_id  ? 'selected' : ''); ?>>
+                            <option value="<?php echo e($employee->n_employee_id); ?>" <?php echo e(isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : ''); ?>>
                                 <?php echo e($employee->c_employee_name); ?>
 
                             </option>
@@ -487,7 +487,7 @@ use Illuminate\Support\Facades\Crypt;
 
                             <div class="payment-option">
                                 <input class="form-check-input mandatory mode_of_payment" type="radio" name="c_mode_of_payment" id="cod"
-                                    value="cash_on_delivery">
+                                    value="Cash on delivery"  <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : ''); ?>>
 
                                 <label for="cod" class="mb-0">
                                     <i class="ti ti-truck"></i>
@@ -498,7 +498,7 @@ use Illuminate\Support\Facades\Crypt;
 
                             <div class="payment-option">
                                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
-                                    value="UPI">
+                                    value="UPI" <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : ''); ?>>
 
                                 <label for="upi" class="mb-0">
                                     <i class="ti ti-brand-google-pay"></i>
@@ -508,7 +508,7 @@ use Illuminate\Support\Facades\Crypt;
 
                             <div class="payment-option">
                                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
-                                    value="Bank Deposit">
+                                    value="Bank Deposit"  <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : ''); ?>>
 
                                 <label for="bkd" class="mb-0">
                                     <i class="ti ti-building-bank"></i>
@@ -517,7 +517,7 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
                             <div class="payment-option">
                                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
-                                    value="Paid to Franchise">
+                                    value="Paid to Franchise"  <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : ''); ?>>
 
                                 <label for="pf" class="mb-0">
                                     <i class="ti ti-cash"></i>
@@ -586,34 +586,20 @@ unset($__errorArgs, $__bag); ?>
 
 
                         <div class="col-md-6">
-
-                            <label class="form-label">
-                                District <span class="text-danger">*</span>
-                            </label>
-
-                            <select class="form-select mandatory" id="franchise_district" name="n_district_id"
-                                data-message="Please Select District">
-
-                                <option value="">
-                                    Select District
-                                </option>
+                            <label for="state" class="form-label">District</label>
+                            <select class="form-select mandatory" data-message="Please enter District" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>  id="district" name="n_district_id">
+                                <option value="" selected>Select District</option>
+                                <?php if(isset($sale->n_district_id)): ?>
+                                    <?php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); ?>
+                                    <?php if(isset($districts)): ?>
+                                        <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($district->id); ?>" <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>><?php echo e($district->district_name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endif; ?>
+                                <?php endif; ?>
 
                             </select>
-
-                            <?php $__errorArgs = ['n_district_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <div class="text-danger mt-1 fs-2">
-                                <?php echo e($message); ?>
-
-                            </div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-
+                            <div class="text-danger mt-1 fs-2"></div>
                         </div>
 
                     </div>
@@ -691,10 +677,16 @@ unset($__errorArgs, $__bag); ?>
                         Approve
                     </button>
                     <?php endif; ?>
+                    <?php if(isset($sale) && $sale->n_sl_no): ?>
+                         <a href="<?php echo e(route('admin.invoice.download', $sale->n_sl_no)); ?>"><button type="button" class="btn mt-1 buttonSpc"
+                        id="btn_create">Download Invoice</button></a>
+                   <?php endif; ?>
                     <?php else: ?>
                     <button type="button" class="btn mt-1 buttonSpc"
                         id="btn_create"><?php echo e(isset($sale->n_sl_no) ? 'Update' : 'Create'); ?></button>
                     <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Cancel</a>
+
+                    
                     <?php endif; ?>
                 </div>
         </form>

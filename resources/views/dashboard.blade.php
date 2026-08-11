@@ -729,7 +729,7 @@
                         <i data-lucide="minus"></i>
                         {{ number_format(abs($growthPercentageSales), 2) }}%
                         @endif
-                @endif
+                        @endif
                 </span>
             </div>
             <div class="stat-content">
@@ -1314,4 +1314,3 @@
 
 
 @endsection
-

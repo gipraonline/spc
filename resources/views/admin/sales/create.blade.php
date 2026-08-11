@@ -177,7 +177,7 @@ use Illuminate\Support\Facades\Crypt;
                             <option value="">Select Farm Care Adviser</option>
 
                             @foreach($employees as $employee)
-                            <option value="{{ $employee->n_employee_id }}" {{isset($sale) && $sale->n_employee_id == $employee->n_employee_id  ? 'selected' : '' }}>
+                            <option value="{{ $employee->n_employee_id }}" {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
                                 {{ $employee->c_employee_name }}
                             </option>
                             @endforeach
@@ -479,7 +479,7 @@ use Illuminate\Support\Facades\Crypt;
 
                             <div class="payment-option">
                                 <input class="form-check-input mandatory mode_of_payment" type="radio" name="c_mode_of_payment" id="cod"
-                                    value="cash_on_delivery">
+                                    value="Cash on delivery"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : '' }}>
 
                                 <label for="cod" class="mb-0">
                                     <i class="ti ti-truck"></i>
@@ -490,7 +490,7 @@ use Illuminate\Support\Facades\Crypt;
 
                             <div class="payment-option">
                                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
-                                    value="UPI">
+                                    value="UPI" {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
 
                                 <label for="upi" class="mb-0">
                                     <i class="ti ti-brand-google-pay"></i>
@@ -500,7 +500,7 @@ use Illuminate\Support\Facades\Crypt;
 
                             <div class="payment-option">
                                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
-                                    value="Bank Deposit">
+                                    value="Bank Deposit"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
 
                                 <label for="bkd" class="mb-0">
                                     <i class="ti ti-building-bank"></i>
@@ -509,7 +509,7 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
                             <div class="payment-option">
                                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
-                                    value="Paid to Franchise">
+                                    value="Paid to Franchise"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
 
                                 <label for="pf" class="mb-0">
                                     <i class="ti ti-cash"></i>
@@ -569,26 +569,20 @@ use Illuminate\Support\Facades\Crypt;
 
 
                         <div class="col-md-6">
-
-                            <label class="form-label">
-                                District <span class="text-danger">*</span>
-                            </label>
-
-                            <select class="form-select mandatory" id="franchise_district" name="n_district_id"
-                                data-message="Please Select District">
-
-                                <option value="">
-                                    Select District
-                                </option>
+                            <label for="state" class="form-label">District</label>
+                            <select class="form-select mandatory" data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="district" name="n_district_id">
+                                <option value="" selected>Select District</option>
+                                @if(isset($sale->n_district_id))
+                                    @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
+                                    @if(isset($districts))
+                                        @foreach($districts as $district)
+                                            <option value="{{$district->id}}" {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>{{$district->district_name}}</option>
+                                        @endforeach
+                                    @endif
+                                @endif
 
                             </select>
-
-                            @error('n_district_id')
-                            <div class="text-danger mt-1 fs-2">
-                                {{ $message }}
-                            </div>
-                            @enderror
-
+                            <div class="text-danger mt-1 fs-2"></div>
                         </div>
 
                     </div>
@@ -666,10 +660,16 @@ use Illuminate\Support\Facades\Crypt;
                         Approve
                     </button>
                     @endcan
+                    @if(isset($sale) && $sale->n_sl_no)
+                         <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button" class="btn mt-1 buttonSpc"
+                        id="btn_create">Download Invoice</button></a>
+                   @endif
                     @else
                     <button type="button" class="btn mt-1 buttonSpc"
                         id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
                     <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
+
+                    {{-- <a href="{{route('')}}" class="btn buttonSpc">Download Invoice</a> --}}
                     @endif
                 </div>
         </form>

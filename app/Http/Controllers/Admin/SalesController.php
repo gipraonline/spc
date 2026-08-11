@@ -281,15 +281,15 @@ public function create()
             'image' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
 
         ]);
-/*
+
          if ($validator->fails()) {
             return back()
                 ->withErrors($validator)
                 ->withInput();
-        } */
-        if ($validator->fails()) {
-            dd($validator->errors()->toArray());
         }
+        /* if ($validator->fails()) {
+            dd($validator->errors()->toArray());
+        } */
 
         $validated = $validator->validated();
 

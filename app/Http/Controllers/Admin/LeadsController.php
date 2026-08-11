@@ -196,8 +196,7 @@ class LeadsController extends Controller
     public function store(Request $request)
     {
         $id=isset($request->n_lead_id) ? $request->n_lead_id : '';
-        $request->validate([
-
+         $validator = Validator::make($request->all(), [
             'c_customer_type' => 'required|in:new,existing',
             'c_customer_name' => 'required|string|max:255',
             'n_mobile' => 'required|digits:10',
@@ -221,7 +220,11 @@ class LeadsController extends Controller
             'remarks' => 'nullable|string',
         ]);
 
-
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         $data = [
             'n_fca_id' => isset($request->n_fca_id) ? $request->n_fca_id : Auth::user()->n_employee_id,

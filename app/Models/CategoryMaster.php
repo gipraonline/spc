@@ -18,6 +18,26 @@ class CategoryMaster extends Model
     protected $fillable = [
         'c_category_code',
         'c_category_name',
+        'n_parent_category_id',
         'c_status',
     ];
+
+
+    public function parent()
+{
+    return $this->belongsTo(
+        self::class,
+        'n_parent_category_id',
+        'n_category_id'
+    );
+}
+
+public function children()
+{
+    return $this->hasMany(
+        self::class,
+        'n_parent_category_id',
+        'n_category_id'
+    );
+}
 }

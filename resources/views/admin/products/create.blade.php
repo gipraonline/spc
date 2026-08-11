@@ -165,6 +165,50 @@
                         <i class="ti ti-info-circle"></i> Basic Information
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <label for="n_category_id" class="form-label">
+                        Category <span class="text-danger">*</span>
+                    </label>
+
+                    <select id="n_category_id" name="n_category_id" class="form-select mandatory"
+                        data-message="Please select Category">
+                        <option value="">Select Category</option>
+
+                        @foreach ($categories as $category)
+
+                        {{-- Category with children --}}
+                        @if ($category->children->count() > 0)
+
+                        <option disabled>
+                            {{ $category->c_category_name }}
+                        </option>
+
+                        @foreach ($category->children as $child)
+                        <option value="{{ $child->n_category_id }}"
+                            {{ old('n_category_id') == $child->n_category_id ? 'selected' : '' }}>
+                            &nbsp;&nbsp;&nbsp;— {{ $child->c_category_name }}
+                        </option>
+                        @endforeach
+
+                        {{-- Category without children --}}
+                        @else
+
+                        <option value="{{ $category->n_category_id }}"
+                            {{ old('n_category_id') == $category->n_category_id ? 'selected' : '' }}>
+                            {{ $category->c_category_name }}
+                        </option>
+
+                        @endif
+
+                        @endforeach
+                    </select>
+
+                    @error('n_category_id')
+                    <div class="text-danger mt-1">
+                        {{ $message }}
+                    </div>
+                    @enderror
+                </div>
 
                 <div class="col-md-6">
                     <label for="c_product_name" class="form-label">Product Name *</label>

@@ -662,22 +662,6 @@
         </table>
 
 
-        
-
-        <?php
-        /*
-        * IMPORTANT:
-        *
-        * product_price is GST-INCLUSIVE.
-        *
-        */
-
-        $subtotal = 0;
-        $totalQty = 0;
-        $gstTotal = 0;
-        $grandTotal = 0;
-        ?>
-
 
         
 
@@ -726,80 +710,7 @@
 
             <tbody>
 
-                <?php $__currentLoopData = $order->orderProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                <?php
-
-                /*
-                * qty = actual quantity ordered
-                *
-                * product_price = GST-INCLUSIVE selling price / MRP
-                *
-                * c_unit = product unit / pack size
-                */
-
-                $qty = (float) ($item->qty ?? 0);
-
-                $rateInclusive = (float) ($item->product_price ?? 0);
-
-                $gstPercentage = (float) (
-                $item->product?->n_gst_percentage ?? 0
-                );
-
-
-                /*
-                * Extract GST from GST-inclusive price.
-                *
-                * Formula:
-                *
-                * Taxable Rate =
-                * Inclusive Rate / (1 + GST / 100)
-                */
-
-                if ($gstPercentage > 0) {
-
-                $rateExclusive = $rateInclusive
-                / (1 + ($gstPercentage / 100));
-
-                } else {
-
-                $rateExclusive = $rateInclusive;
-
-                }
-
-
-                /*
-                * GST per unit
-                */
-
-                $gstPerUnit = $rateInclusive - $rateExclusive;
-
-
-                /*
-                * Line totals
-                */
-
-                $amountInclusive = $rateInclusive * $qty;
-
-                $amountExclusive = $rateExclusive * $qty;
-
-                $gstAmount = $gstPerUnit * $qty;
-
-
-                /*
-                * Running totals
-                */
-
-                $subtotal += $amountExclusive;
-
-                $gstTotal += $gstAmount;
-
-                $totalQty += $qty;
-
-                $grandTotal += $amountInclusive;
-
-                ?>
-
+                <?php $__currentLoopData = $calculation['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
                 <tr>
 
@@ -814,7 +725,7 @@
                     
 
                     <td class="description">
-                        <?php echo e($item->product?->c_product_name ?? 'Product'); ?>
+                        <?php echo e($item['product_name']); ?>
 
                     </td>
 
@@ -822,7 +733,7 @@
                     
 
                     <td>
-                        <?php echo e($item->product?->c_hsn_code ?? '-'); ?>
+                        <?php echo e($item['hsn']); ?>
 
                     </td>
 
@@ -830,22 +741,14 @@
                     
 
                     <td>
-                        <?php echo e(number_format($qty, 0)); ?> Nos
+                        <?php echo e(number_format($item['qty'], 0)); ?> Nos
                     </td>
 
 
                     
 
                     <td>
-                        ₹ <?php echo e(number_format($rateInclusive, 2)); ?>
-
-                    </td>
-
-
-                    
-
-                    <td>
-                        ₹ <?php echo e(number_format($rateExclusive, 2)); ?>
+                        ₹ <?php echo e(number_format($item['rate_inclusive'], 2)); ?>
 
                     </td>
 
@@ -853,7 +756,15 @@
                     
 
                     <td>
-                        <?php echo e($item->product?->c_unit ?? '-'); ?>
+                        ₹ <?php echo e(number_format($item['rate_exclusive'], 2)); ?>
+
+                    </td>
+
+
+                    
+
+                    <td>
+                        <?php echo e($item['unit']); ?>
 
                     </td>
 
@@ -861,7 +772,7 @@
                     
 
                     <td class="right">
-                        ₹ <?php echo e(number_format($amountInclusive, 2)); ?>
+                        ₹ <?php echo e(number_format($item['amount_inclusive'], 2)); ?>
 
                     </td>
 
@@ -885,7 +796,7 @@
                     </td>
 
                     <td class="summary-value">
-                        ₹ <?php echo e(number_format($subtotal, 2)); ?>
+                        <?php echo e(number_format($calculation['subtotal'], 2)); ?>
 
                     </td>
 
@@ -903,7 +814,7 @@
                     </td>
 
                     <td class="summary-value">
-                        ₹ <?php echo e(number_format($gstTotal, 2)); ?>
+                        <?php echo e(number_format($calculation['gst_total'], 2)); ?>
 
                     </td>
 
@@ -919,7 +830,7 @@
                     </td>
 
                     <td class="total-label">
-                        <?php echo e(number_format($totalQty, 0)); ?> Nos
+                        <?php echo e(number_format($calculation['total_qty'], 0)); ?> Nos
                     </td>
 
                     <td colspan="3" class="total-label">
@@ -927,7 +838,7 @@
                     </td>
 
                     <td class="total-value">
-                        ₹ <?php echo e(number_format($grandTotal, 2)); ?>
+                        <?php echo e(number_format($calculation['grand_total'], 2)); ?>
 
                     </td>
 
@@ -947,7 +858,8 @@
             </div>
 
             <div class="words">
-                INR <?php echo e(number_format($grandTotal, 2)); ?> Only
+                <?php echo e($calculation['grand_total_words']); ?>
+
             </div>
 
             <div class="currency">

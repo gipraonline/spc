@@ -650,22 +650,6 @@
         </table>
 
 
-        {{-- ================= CALCULATIONS ================= --}}
-
-        @php
-        /*
-        * IMPORTANT:
-        *
-        * product_price is GST-INCLUSIVE.
-        *
-        */
-
-        $subtotal = 0;
-        $totalQty = 0;
-        $gstTotal = 0;
-        $grandTotal = 0;
-        @endphp
-
 
         {{-- ================= PRODUCTS ================= --}}
 
@@ -714,80 +698,7 @@
 
             <tbody>
 
-                @foreach($order->orderProducts as $index => $item)
-
-                @php
-
-                /*
-                * qty = actual quantity ordered
-                *
-                * product_price = GST-INCLUSIVE selling price / MRP
-                *
-                * c_unit = product unit / pack size
-                */
-
-                $qty = (float) ($item->qty ?? 0);
-
-                $rateInclusive = (float) ($item->product_price ?? 0);
-
-                $gstPercentage = (float) (
-                $item->product?->n_gst_percentage ?? 0
-                );
-
-
-                /*
-                * Extract GST from GST-inclusive price.
-                *
-                * Formula:
-                *
-                * Taxable Rate =
-                * Inclusive Rate / (1 + GST / 100)
-                */
-
-                if ($gstPercentage > 0) {
-
-                $rateExclusive = $rateInclusive
-                / (1 + ($gstPercentage / 100));
-
-                } else {
-
-                $rateExclusive = $rateInclusive;
-
-                }
-
-
-                /*
-                * GST per unit
-                */
-
-                $gstPerUnit = $rateInclusive - $rateExclusive;
-
-
-                /*
-                * Line totals
-                */
-
-                $amountInclusive = $rateInclusive * $qty;
-
-                $amountExclusive = $rateExclusive * $qty;
-
-                $gstAmount = $gstPerUnit * $qty;
-
-
-                /*
-                * Running totals
-                */
-
-                $subtotal += $amountExclusive;
-
-                $gstTotal += $gstAmount;
-
-                $totalQty += $qty;
-
-                $grandTotal += $amountInclusive;
-
-                @endphp
-
+                @foreach($calculation['items'] as $index => $item)
 
                 <tr>
 
@@ -801,49 +712,49 @@
                     {{-- PRODUCT NAME --}}
 
                     <td class="description">
-                        {{ $item->product?->c_product_name ?? 'Product' }}
+                        {{ $item['product_name'] }}
                     </td>
 
 
                     {{-- HSN --}}
 
                     <td>
-                        {{ $item->product?->c_hsn_code ?? '-' }}
+                        {{ $item['hsn'] }}
                     </td>
 
 
                     {{-- QUANTITY --}}
 
                     <td>
-                        {{ number_format($qty, 0) }} Nos
+                        {{ number_format($item['qty'], 0) }} Nos
                     </td>
 
 
                     {{-- RATE INCLUDING GST --}}
 
                     <td>
-                        ₹ {{ number_format($rateInclusive, 2) }}
+                        ₹ {{ number_format($item['rate_inclusive'], 2) }}
                     </td>
 
 
                     {{-- RATE EXCLUDING GST --}}
 
                     <td>
-                        ₹ {{ number_format($rateExclusive, 2) }}
+                        ₹ {{ number_format($item['rate_exclusive'], 2) }}
                     </td>
 
 
                     {{-- PRODUCT UNIT --}}
 
                     <td>
-                        {{ $item->product?->c_unit ?? '-' }}
+                        {{ $item['unit'] }}
                     </td>
 
 
                     {{-- TOTAL AMOUNT INCLUDING GST --}}
 
                     <td class="right">
-                        ₹ {{ number_format($amountInclusive, 2) }}
+                        ₹ {{ number_format($item['amount_inclusive'], 2) }}
                     </td>
 
                 </tr>
@@ -866,7 +777,7 @@
                     </td>
 
                     <td class="summary-value">
-                        ₹ {{ number_format($subtotal, 2) }}
+                        {{ number_format($calculation['subtotal'], 2) }}
                     </td>
 
                 </tr>
@@ -883,7 +794,7 @@
                     </td>
 
                     <td class="summary-value">
-                        ₹ {{ number_format($gstTotal, 2) }}
+                        {{ number_format($calculation['gst_total'], 2) }}
                     </td>
 
                 </tr>
@@ -898,7 +809,7 @@
                     </td>
 
                     <td class="total-label">
-                        {{ number_format($totalQty, 0) }} Nos
+                        {{ number_format($calculation['total_qty'], 0) }} Nos
                     </td>
 
                     <td colspan="3" class="total-label">
@@ -906,7 +817,7 @@
                     </td>
 
                     <td class="total-value">
-                        ₹ {{ number_format($grandTotal, 2) }}
+                        {{ number_format($calculation['grand_total'], 2) }}
                     </td>
 
                 </tr>
@@ -925,7 +836,7 @@
             </div>
 
             <div class="words">
-                INR {{ number_format($grandTotal, 2) }} Only
+                {{ $calculation['grand_total_words'] }}
             </div>
 
             <div class="currency">

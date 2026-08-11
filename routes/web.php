@@ -485,8 +485,8 @@ Route::middleware(['auth', 'admin'])
     |--------------------------------------------------------------------------
     */
 
-        Route::get('/invoice/{id}/download', [InvoiceController::class, 'download'])
-    ->name('invoice.download');
+    Route::get('/invoice/{id}/download', [InvoiceController::class, 'download'])
+        ->name('invoice.download');
 
 
 });

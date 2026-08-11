@@ -1,18 +1,18 @@
-@extends('layouts.app')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 
 <div class="card">
 
 
-    {{-- Header --}}
+    
     <div class="card-header d-flex justify-content-between align-items-center">
 
         <h5 class="mb-0">
             Field Log Details
         </h5>
 
-        <a href="{{ route('admin.admin-log.index') }}" class="btn btn-secondary">
+        <a href="<?php echo e(route('admin.admin-log.index')); ?>" class="btn btn-secondary">
             Back
         </a>
 
@@ -21,13 +21,13 @@
 
     <div class="card-body">
 
-        {{-- ========================================================= --}}
-        {{-- Employee Details --}}
-        {{-- ========================================================= --}}
+        
+        
+        
 
         <div class="row">
 
-            {{-- Employee --}}
+            
             <div class="col-md-3 mb-3">
 
                 <label class="form-label fw-bold">
@@ -35,13 +35,14 @@
                 </label>
 
                 <p>
-                    {{ $fieldLog->admin->c_name ?? '-' }}
+                    <?php echo e($fieldLog->admin->c_name ?? '-'); ?>
+
                 </p>
 
             </div>
 
 
-            {{-- Date --}}
+            
             <div class="col-md-3 mb-3">
 
                 <label class="form-label fw-bold">
@@ -49,15 +50,16 @@
                 </label>
 
                 <p>
-                    {{ $fieldLog->work_date
+                    <?php echo e($fieldLog->work_date
                     ? $fieldLog->work_date->format('d-m-Y')
-                    : '-' }}
+                    : '-'); ?>
+
                 </p>
 
             </div>
 
 
-            {{-- Check In --}}
+            
             <div class="col-md-3 mb-3">
 
                 <label class="form-label fw-bold">
@@ -65,15 +67,16 @@
                 </label>
 
                 <p>
-                    {{ $fieldLog->check_in_time
+                    <?php echo e($fieldLog->check_in_time
                     ? $fieldLog->check_in_time->format('h:i A')
-                    : '--' }}
+                    : '--'); ?>
+
                 </p>
 
             </div>
 
 
-            {{-- Check Out --}}
+            
             <div class="col-md-3 mb-3">
 
                 <label class="form-label fw-bold">
@@ -81,9 +84,10 @@
                 </label>
 
                 <p>
-                    {{ $fieldLog->check_out_time
+                    <?php echo e($fieldLog->check_out_time
                     ? $fieldLog->check_out_time->format('h:i A')
-                    : '--' }}
+                    : '--'); ?>
+
                 </p>
 
             </div>
@@ -91,32 +95,32 @@
         </div>
 
 
-        {{-- ========================================================= --}}
-        {{-- Remarks --}}
-        {{-- ========================================================= --}}
+        
+        
+        
 
         <div class="row">
 
-            {{-- Check In Remark --}}
+            
             <div class="col-md-6 mb-3">
 
                 <label class="form-label fw-bold">
                     Check In Remark
                 </label>
 
-                <textarea class="form-control" rows="3" readonly>{{ $fieldLog->check_in_remark ?? '' }}</textarea>
+                <textarea class="form-control" rows="3" readonly><?php echo e($fieldLog->check_in_remark ?? ''); ?></textarea>
 
             </div>
 
 
-            {{-- Check Out Remark --}}
+            
             <div class="col-md-6 mb-3">
 
                 <label class="form-label fw-bold">
                     Check Out Remark
                 </label>
 
-                <textarea class="form-control" rows="3" readonly>{{ $fieldLog->check_out_remark ?? '' }}</textarea>
+                <textarea class="form-control" rows="3" readonly><?php echo e($fieldLog->check_out_remark ?? ''); ?></textarea>
 
             </div>
 
@@ -126,14 +130,14 @@
         <hr>
 
 
-        {{-- ========================================================= --}}
-        {{-- Task Summary --}}
-        {{-- ========================================================= --}}
+        
+        
+        
 
         <div class="row g-4 mb-4">
 
 
-            {{-- Total Tasks --}}
+            
             <div class="col-xl-3 col-md-6">
 
                 <div class="card border-0 shadow-sm h-100 overflow-hidden">
@@ -149,7 +153,8 @@
                                 </p>
 
                                 <h2 class="fw-bold mb-1">
-                                    {{ $total }}
+                                    <?php echo e($total); ?>
+
                                 </h2>
 
                                 <small class="text-muted">
@@ -174,7 +179,7 @@
             </div>
 
 
-            {{-- Completed --}}
+            
             <div class="col-xl-3 col-md-6">
 
                 <div class="card border-0 shadow-sm h-100 overflow-hidden">
@@ -190,7 +195,8 @@
                                 </p>
 
                                 <h2 class="fw-bold text-success mb-1">
-                                    {{ $done }}
+                                    <?php echo e($done); ?>
+
                                 </h2>
 
                                 <small class="text-muted">
@@ -215,7 +221,7 @@
             </div>
 
 
-            {{-- In Progress --}}
+            
             <div class="col-xl-3 col-md-6">
 
                 <div class="card border-0 shadow-sm h-100 overflow-hidden">
@@ -231,7 +237,8 @@
                                 </p>
 
                                 <h2 class="fw-bold text-warning mb-1">
-                                    {{ $inProgress }}
+                                    <?php echo e($inProgress); ?>
+
                                 </h2>
 
                                 <small class="text-muted">
@@ -256,7 +263,7 @@
             </div>
 
 
-            {{-- Pending --}}
+            
             <div class="col-xl-3 col-md-6">
 
                 <div class="card border-0 shadow-sm h-100 overflow-hidden">
@@ -272,7 +279,8 @@
                                 </p>
 
                                 <h2 class="fw-bold text-danger mb-1">
-                                    {{ $pending }}
+                                    <?php echo e($pending); ?>
+
                                 </h2>
 
                                 <small class="text-muted">
@@ -298,9 +306,9 @@
 
             </div>
 
-            {{-- ========================================================= --}}
-            {{-- Task Progress --}}
-            {{-- ========================================================= --}}
+            
+            
+            
 
             <div class="card border-0 shadow-sm mb-4">
 
@@ -315,7 +323,7 @@
                             </h6>
 
                             <small class="text-muted">
-                                {{ $done }} of {{ $total }} tasks completed
+                                <?php echo e($done); ?> of <?php echo e($total); ?> tasks completed
                             </small>
 
                         </div>
@@ -323,7 +331,7 @@
                         <div class="text-end">
 
                             <h4 class="fw-bold text-success mb-0">
-                                {{ $percent }}%
+                                <?php echo e($percent); ?>%
                             </h4>
 
                         </div>
@@ -334,7 +342,7 @@
                     <div class="progress rounded-pill" style="height: 12px;">
 
                         <div class="progress-bar bg-success rounded-pill" role="progressbar"
-                            style="width: {{ $percent }}%;" aria-valuenow="{{ $percent }}" aria-valuemin="0"
+                            style="width: <?php echo e($percent); ?>%;" aria-valuenow="<?php echo e($percent); ?>" aria-valuemin="0"
                             aria-valuemax="100">
                         </div>
 
@@ -348,7 +356,8 @@
                         </small>
 
                         <small class="text-muted">
-                            {{ $percent == 100 ? 'All tasks completed' : 'Work in progress' }}
+                            <?php echo e($percent == 100 ? 'All tasks completed' : 'Work in progress'); ?>
+
                         </small>
 
                     </div>
@@ -360,9 +369,9 @@
 
 
 
-            {{-- ========================================================= --}}
-            {{-- Task List --}}
-            {{-- ========================================================= --}}
+            
+            
+            
 
             <div class="table-responsive">
 
@@ -391,103 +400,109 @@
 
                     <tbody>
 
-                        @forelse($tasks as $key => $task)
+                        <?php $__empty_1 = true; $__currentLoopData = $tasks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $task): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
 
                         <tr>
 
-                            {{-- Number --}}
+                            
                             <td>
-                                {{ $key + 1 }}
+                                <?php echo e($key + 1); ?>
+
                             </td>
 
 
-                            {{-- Task --}}
+                            
                             <td>
-                                {{ $task->task ?? '-' }}
+                                <?php echo e($task->task ?? '-'); ?>
+
                             </td>
 
 
-                            {{-- Status --}}
+                            
                             <td>
 
-                                @if($task->status === 'Checked Out')
+                                <?php if($task->status === 'Checked Out'): ?>
 
                                 <span class="badge bg-success">
                                     Done
                                 </span>
 
-                                @elseif($task->status === 'In Progress')
+                                <?php elseif($task->status === 'In Progress'): ?>
 
                                 <span class="badge bg-warning text-dark">
                                     In Progress
                                 </span>
 
-                                @elseif($task->status === 'Pending')
+                                <?php elseif($task->status === 'Pending'): ?>
 
                                 <span class="badge bg-danger">
                                     Pending
                                 </span>
 
-                                @else
+                                <?php else: ?>
 
                                 <span class="badge bg-secondary">
-                                    {{ $task->status ?? 'Unknown' }}
+                                    <?php echo e($task->status ?? 'Unknown'); ?>
+
                                 </span>
 
-                                @endif
+                                <?php endif; ?>
 
                             </td>
 
 
-                            {{-- Pending Remark --}}
+                            
                             <td>
 
-                                {{ $task->pending_remark ?: '--' }}
+                                <?php echo e($task->pending_remark ?: '--'); ?>
+
 
                             </td>
 
 
-                            {{-- Completed At --}}
+                            
                             <td>
 
-                                @if($task->completed_at)
+                                <?php if($task->completed_at): ?>
 
-                                {{ $task->completed_at->format('d-m-Y h:i A') }}
+                                <?php echo e($task->completed_at->format('d-m-Y h:i A')); ?>
 
-                                @else
+
+                                <?php else: ?>
 
                                 --
 
-                                @endif
+                                <?php endif; ?>
 
                             </td>
 
 
-                            {{-- Time Taken --}}
+                            
                             <td>
 
-                                @if($task->completed_at && $fieldLog->check_in_time)
+                                <?php if($task->completed_at && $fieldLog->check_in_time): ?>
 
-                                {{ $fieldLog->check_in_time->diffForHumans(
+                                <?php echo e($fieldLog->check_in_time->diffForHumans(
                                     $task->completed_at,
                                     [
                                         'parts' => 2,
                                         'short' => true,
                                         'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE
                                     ]
-                                ) }}
+                                )); ?>
 
-                                @else
+
+                                <?php else: ?>
 
                                 --
 
-                                @endif
+                                <?php endif; ?>
 
                             </td>
 
                         </tr>
 
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 
                         <tr>
 
@@ -497,7 +512,7 @@
 
                         </tr>
 
-                        @endforelse
+                        <?php endif; ?>
 
                     </tbody>
 
@@ -510,4 +525,5 @@
 
     </div>
 
-    @endsection
+    <?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/admin-log/show.blade.php ENDPATH**/ ?>

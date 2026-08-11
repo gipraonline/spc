@@ -624,7 +624,6 @@
 <section class="content-wrapper">
     <div class="welcome-header">
         <h1>Dashboard</h1>
-        <p>Overview of your store performance and employee incentives.</p>
     </div>
 
     <!-- 3x3 Stats Grid -->

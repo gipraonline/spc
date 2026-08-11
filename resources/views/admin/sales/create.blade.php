@@ -30,7 +30,13 @@
     margin-bottom: 25px;
     background: #ffffff;
 }
+#approveModal {
+    z-index: 1060 !important;
+}
 
+.modal-backdrop {
+    z-index: 1050 !important;
+}
 .form-section-header {
     font-size: 16px;
     font-weight: 600;
@@ -111,7 +117,7 @@ use Illuminate\Support\Facades\Crypt;
         </div>
         @endif
 
-        <form method="POST" id="frm_create" action="{{ route('admin.leads.store') }}">
+        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}" enctype="multipart/form-data">
             @csrf
 
             <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
@@ -171,7 +177,7 @@ use Illuminate\Support\Facades\Crypt;
                             <option value="">Select Farm Care Adviser</option>
 
                             @foreach($employees as $employee)
-                            <option value="{{ $employee->n_employee_id }}">
+                            <option value="{{ $employee->n_employee_id }}" {{isset($sale) && $sale->n_employee_id == $employee->n_employee_id  ? 'selected' : '' }}>
                                 {{ $employee->c_employee_name }}
                             </option>
                             @endforeach
@@ -307,7 +313,7 @@ use Illuminate\Support\Facades\Crypt;
                     <i class="ti ti-user fs-5"></i> Customer Information
                 </div>
 
-
+                <input type="hidden" name="c_customer_name" id="c_customer_name" value="">
                 <div class="row g-4 mb-4">
 
                     <div class="col-md-6">
@@ -472,7 +478,7 @@ use Illuminate\Support\Facades\Crypt;
                         <div class="col-md-9">
 
                             <div class="payment-option">
-                                <input class="form-check-input mandatory" type="radio" name="c_mode_of_payment" id="cod"
+                                <input class="form-check-input mandatory mode_of_payment" type="radio" name="c_mode_of_payment" id="cod"
                                     value="cash_on_delivery">
 
                                 <label for="cod" class="mb-0">
@@ -483,7 +489,7 @@ use Illuminate\Support\Facades\Crypt;
 
 
                             <div class="payment-option">
-                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="upi"
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
                                     value="UPI">
 
                                 <label for="upi" class="mb-0">
@@ -493,7 +499,7 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
 
                             <div class="payment-option">
-                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="bkd"
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
                                     value="Bank Deposit">
 
                                 <label for="bkd" class="mb-0">
@@ -502,7 +508,7 @@ use Illuminate\Support\Facades\Crypt;
                                 </label>
                             </div>
                             <div class="payment-option">
-                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="pf"
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
                                     value="Paid to Franchise">
 
                                 <label for="pf" class="mb-0">
@@ -622,31 +628,48 @@ use Illuminate\Support\Facades\Crypt;
 
                         </div>
 
+                         <div class="col-md-6" style="position:relative;display:none;" id="payment_image">
+
+                            <label class="form-label">
+                                Image
+                            </label>
+                            <input type="file" name="payment_image">
+                        </div>
+
                     </div>
 
-                </div>
+
+
+
+
+                    </div>
 
                 <!-- Buttons -->
                 <div class="mt-3 d-flex gap-2">
                     @if(isset($viewmode) && $viewmode=="on")
-                    @can('leads.follow-up')
+                    @can('sales-orders.follow-up')
                     <!--Follow-up Button-->
                     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
                         data-bs-toggle="modal" data-bs-target="#followUpModal"
                         data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="followup">Update
                         Follow-up</button>
                     @endcan
-                    @can('leads.approve')
+                    @can('sales-orders.approval')
                     <!--Approval Button-->
-                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
-                        data-bs-toggle="modal" data-bs-target="#approveModal"
-                        data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}"
-                        id="approveModal">Approve</button>
+                    <button type="button"
+                        style="width:150px;position:relative;"
+                        class="btn mt-1 buttonSpc"
+                        data-bs-toggle="modal"
+                        data-bs-target="#approveModal"
+                        data-bs-dismiss="modal"
+                        data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
+                        Approve
+                    </button>
                     @endcan
                     @else
                     <button type="button" class="btn mt-1 buttonSpc"
                         id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
-                    <a href="{{ route('admin.leads.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
                     @endif
                 </div>
         </form>
@@ -658,7 +681,7 @@ use Illuminate\Support\Facades\Crypt;
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-            <form action="{{ route('admin.leads.followup.store') }}" method="POST">
+            <form action="{{ route('admin.salesorders.followup.store') }}" method="POST">
                 @csrf
 
                 <div class="modal-header">
@@ -752,7 +775,7 @@ use Illuminate\Support\Facades\Crypt;
 </div>
 
 <!--Approval Form modal-->
-<div class="modal fade"
+{{-- <div class="modal fade"
      id="approveModal"
      tabindex="-1"
      aria-labelledby="approveModalLabel"
@@ -762,7 +785,7 @@ use Illuminate\Support\Facades\Crypt;
 
         <form method="POST"
               id="approveForm"
-              action="{{ route('admin.leads.approval.save') }}">
+              action="{{ route('admin.salesorders.approval.save') }}">
 
             @csrf
             @method('PUT')
@@ -857,185 +880,17 @@ use Illuminate\Support\Facades\Crypt;
 
     </div>
 </div>
-
+ --}}
 
 
 @endsection
 
 @push('scripts')
-<!-- <script>
-$(document).ready(function() {
-    console.log("First script loaded");
-    let rowIndex = {{ isset($sale) && $sale->orderProducts ? $sale->orderProducts->count() : 0 }};
-    $("#addRow").click(function() {
 
-        let row = `
-                <tr>
-                    <td>
-                        <select name="products[${rowIndex}][product_id]" class="form-control product mandatory" data-message="Please Select Product">
-                            <option value="">Select Product</option>
-
-                            @foreach($products as $product)
-                                <option value="{{ $product->n_product_id }}"
-                                        data-price="{{ $product->n_selling_price }}">
-                                    {{ $product->c_product_name }}({{$product->c_product_code}})
-                                </option>
-                            @endforeach
-
-                        </select>
-                        <div class="text-danger mt-1 fs-2"></div>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                            name="products[${rowIndex}][product_price]"
-                            class="form-control price"
-                            readonly>
-                    </td>
-
-                    <td>
-                        <input type="number"
-                            min="1"
-                            value="1"
-                            name="products[${rowIndex}][qty]"
-                            class="form-control qty">
-                    </td>
-
-                    <td>
-                        <input type="text"
-                            class="form-control total"
-                            name="products[${rowIndex}][product_total]"
-                            readonly>
-                    </td>
-
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger removeRow">
-                            X
-                        </button>
-                    </td>
-                </tr>`;
-
-        $("#productTable tbody").append(row);
-
-        rowIndex++;
-    });
-
-
-    $(document).on("change", ".product", function() {
-
-        productTotal($(this));
-
-    });
-
-    $(document).on("change", ".qty", function() {
-
-        productTotal($(this).parent().siblings().find(".product"));
-
-    });
-
-
-
-    $(document).on("click", ".removeRow", function() {
-        $(this).closest("tr").remove();
-    });
-
-    $(document).on("change", "#state", function() {
-        var state = $(this).val();
-        $.ajax({
-            type: "get",
-            url: "{{route('admin.filterDistrict')}}",
-            data: {
-                state: state
-            },
-            cache: false,
-            dataType: 'json',
-            success: function(data) {
-                console.log(data);
-                $("#district").empty();
-                $("#district").append('<option value="">Select District</option>');
-
-                $.each(data.districts, function(index, district) {
-                    $("#district").append(
-                        '<option value="' + district.id + '">' + district
-                        .district_name + '</option>'
-                    );
-                });
-
-            }
-
-
-        });
-    });
-
-
-});
-
-
-    function productTotal(id) {
-        let row = id.closest("tr");
-
-        let price = id.find(":selected").data("price");
-
-        row.find(".price").val(price);
-
-        let qty = row.find(".qty").val();
-
-        row.find(".total").val(price * qty);
-    }
-
-
-
- $(document).ready(function () {
-
-    console.log("First script loaded");
-
-    const approveModal = document.getElementById('approveModal');
-
-    if (approveModal) {
-
-        approveModal.addEventListener('show.bs.modal', function (event) {
-
-            let button = event.relatedTarget;
-
-            let id = button.getAttribute('data-id');
-
-            console.log("Approval ID:", id);
-
-            document.getElementById('approval_id').value = id;
-
-            document.getElementById('approveForm').action =
-                "{{ route('admin.leads.approval.save') }}";
-
-        });
-
-    }
-
-
-
-});
- $(document).ready(function () {
-
-    $('#approvalSubmit').on('click', function () {
-
-        console.log('==============================');
-        console.log('APPROVAL SUBMIT CLICKED');
-        console.log('==============================');
-
-        console.log('Approval ID:', $('#approval_id').val());
-        console.log('Status:', $('#approval_status').val());
-        console.log('Remarks:', $('#approval_remarks').val());
-        console.log('Form:', document.getElementById('approveForm'));
-        console.log('Action:', $('#approveForm').attr('action'));
-
-        document.getElementById('approveForm').submit();
-
-    });
-
-});
-</script> -->
 
 <script>
 $(document).ready(function() {
+
 
     console.log("Sales Order JS loaded");
 
@@ -1072,8 +927,8 @@ $(document).ready(function() {
                         @foreach($products as $product)
                             <option
                                 value="{{ $product->n_product_id }}"
-                                data-price="{{ $product->n_selling_price }}">
-                                {{ $product->c_product_name }} ({{ $product->c_product_code }})
+                                data-price="{{ $product->n_mrp }}">
+                                {{ $product->c_product_name }} ({{ $product->c_product_code }})({{$product->c_unit}})
                             </option>
                         @endforeach
 
@@ -1209,12 +1064,15 @@ $(document).ready(function() {
 
         let stateId = option.data('state') || '';
         let districtId = option.data('district') || '';
+        let customer_name = option.data('name') || '';
+
 
         $('#c_customer_email').val(email);
         $('#n_customer_mobile').val(mobile);
         $('#c_customer_address').val(address);
 
         $('#customer_state').val(stateId);
+        $("#c_customer_name").val(customer_name);
 
         /*
         |--------------------------------------------------------------------------
@@ -1288,6 +1146,7 @@ $(document).ready(function() {
                     '<option value="">Unable to load districts</option>'
                 );
             }
+
 
         });
 
@@ -1464,45 +1323,42 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    const approveModal = document.getElementById('approveModal');
+document.getElementById('approveModal').addEventListener('show.bs.modal', function (event) {
 
-    if (approveModal) {
+     const button = event.relatedTarget;
 
-        approveModal.addEventListener(
-            'show.bs.modal',
-            function(event) {
-
-                let button = event.relatedTarget;
-
-                if (!button) {
-                    return;
-                }
-
-                let id = button.getAttribute('data-id');
-
-                let approvalId =
-                    document.getElementById('approval_id');
-
-                let approveForm =
-                    document.getElementById('approveForm');
-
-                if (approvalId) {
-                    approvalId.value = id;
-                }
-
-                if (approveForm) {
-
-                    approveForm.action =
-                        "{{ route('admin.leads.approval.save') }}";
-
-                }
-
-            }
-        );
-
+    if (!button) {
+        return;
     }
 
+    const id = button.getAttribute('data-id');
 
+    console.log('Approval ID:', id);
+
+    document.getElementById('approval_id').value = id;
+
+    document.getElementById('approval_remarks').value = '';
+    document.getElementById('approval_status').value = '';
+
+});
+
+  $(document).on('click', '.approvalSubmit', function () {
+
+    const id = $(this).attr('data-id');
+
+    console.log('Encrypted ID:', id);
+
+    $('#approval_id').val(id);
+
+    $('#approvalForm').attr(
+        'action',
+        "{{ route('admin.salesorders.approval.save') }}"
+    );
+
+    $('#approval_remarks').val('');
+    $('#approval_status').val('');
+
+});
     /*
     |--------------------------------------------------------------------------
     | Existing Product Rows
@@ -1535,47 +1391,47 @@ $(document).ready(function() {
  based on the selected customer's state.
  ====================================================== -->
 <script>
-$(document).ready(function() {
-    $("#n_customer_id").change(function() {
+    $(document).ready(function() {
+        $("#n_customer_id").change(function() {
 
-        let option = $(this).find(":selected");
+            let option = $(this).find(":selected");
 
-        $("#c_customer_email").val(option.data("email"));
-        $("#n_customer_mobile").val(option.data("mobile"));
-        $("#c_customer_address").val(option.data("address"));
+            $("#c_customer_email").val(option.data("email"));
+            $("#n_customer_mobile").val(option.data("mobile"));
+            $("#c_customer_address").val(option.data("address"));
 
-        let stateId = option.data("state");
-        let districtId = option.data("district");
+            let stateId = option.data("state");
+            let districtId = option.data("district");
 
-        $("#customer_state").val(stateId);
+            $("#customer_state").val(stateId);
 
-        $.ajax({
-            type: "GET",
-            url: "{{ route('admin.filterDistrict') }}",
-            data: {
-                state: stateId
-            },
-            dataType: "json",
-            success: function(data) {
+            $.ajax({
+                type: "GET",
+                url: "{{ route('admin.filterDistrict') }}",
+                data: {
+                    state: stateId
+                },
+                dataType: "json",
+                success: function(data) {
 
-                $("#customer_district").html('<option value="">Select District</option>');
+                    $("#customer_district").html('<option value="">Select District</option>');
 
-                $.each(data.districts, function(i, district) {
-                    $("#customer_district").append(
-                        '<option value="' + district.id + '">' +
-                        district.district_name +
-                        '</option>'
-                    );
-                });
+                    $.each(data.districts, function(i, district) {
+                        $("#customer_district").append(
+                            '<option value="' + district.id + '">' +
+                            district.district_name +
+                            '</option>'
+                        );
+                    });
 
-                // Select customer's district after options are loaded
-                $("#customer_district").val(districtId);
+                    // Select customer's district after options are loaded
+                    $("#customer_district").val(districtId);
 
-            }
+                }
+            });
+
         });
-
     });
-});
 </script>
 
 <!--======================================================
@@ -1584,41 +1440,55 @@ $(document).ready(function() {
  ====================================================== -->
 
 <script>
-$('#franchise_state').change(function() {
+$(document).ready(function(){
 
-    let stateId = $(this).val();
+    $('#franchise_state').change(function() {
 
-    $('#franchise_district').html('<option value="">Loading...</option>');
+        let stateId = $(this).val();
 
-    $.ajax({
+        $('#franchise_district').html('<option value="">Loading...</option>');
 
-        url: "{{ route('admin.filterDistrict') }}",
+        $.ajax({
 
-        type: "GET",
+            url: "{{ route('admin.filterDistrict') }}",
 
-        data: {
-            state: stateId
-        },
+            type: "GET",
 
-        success: function(response) {
+            data: {
+                state: stateId
+            },
 
-            $('#franchise_district').html('<option value="">Select District</option>');
+            success: function(response) {
 
-            $.each(response.districts, function(index, district) {
+                $('#franchise_district').html('<option value="">Select District</option>');
 
-                $('#franchise_district').append(
-                    '<option value="' + district.id + '">' +
-                    district.district_name +
-                    '</option>'
-                );
+                $.each(response.districts, function(index, district) {
 
-            });
+                    $('#franchise_district').append(
+                        '<option value="' + district.id + '">' +
+                        district.district_name +
+                        '</option>'
+                    );
 
-        }
+                });
+
+            }
+
+        });
 
     });
 
-});
+    $(".mode_of_payment").click(function(){
+        var payment_mode=$(this).val();
+        if(payment_mode=="UPI" || payment_mode=="Bank Deposit" || payment_mode=="Paid to Franchise" ){
+            $("#payment_image").show();
+        }
+        else{
+            $("#payment_image").hide();
+        }
+    })
+
+})
 </script>
 
 <!--======================================================
@@ -1628,37 +1498,39 @@ $('#franchise_state').change(function() {
  =========================================================-->
 
 <script>
-$('#franchise_district').change(function() {
+$(document).ready(function(){
+    $('#franchise_district').change(function() {
 
-    let stateId = $('#franchise_state').val();
-    let districtId = $(this).val();
+        let stateId = $('#franchise_state').val();
+        let districtId = $(this).val();
 
-    $.ajax({
-        url: "{{ url('admin/filter-franchise') }}",
-        type: "GET",
-        data: {
-            state: stateId,
-            district: districtId
-        },
-        dataType: "json",
-        success: function(response) {
+        $.ajax({
+            url: "{{ url('admin/filter-franchise') }}",
+            type: "GET",
+            data: {
+                state: stateId,
+                district: districtId
+            },
+            dataType: "json",
+            success: function(response) {
 
-            $('#franchise').html('<option value="">Select Franchise</option>');
+                $('#franchise').html('<option value="">Select Franchise</option>');
 
-            $.each(response.franchises, function(i, franchise) {
+                $.each(response.franchises, function(i, franchise) {
 
-                $('#franchise').append(
-                    '<option value="' + franchise.n_store_id + '">' +
-                    franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
-                    '</option>'
-                );
+                    $('#franchise').append(
+                        '<option value="' + franchise.n_store_id + '">' +
+                        franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
+                        '</option>'
+                    );
 
-            });
+                });
 
-        }
+            }
+        });
+
     });
-
-});
+})
 </script>
 
 

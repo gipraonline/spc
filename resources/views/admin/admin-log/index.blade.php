@@ -77,7 +77,7 @@
 
                         <td>{{ $fieldLog->work_date->format('d-m-Y') }}</td>
 
-                        <td>{{ $fieldLog->admin->c_name }}</td>
+                        <td>{{ $fieldLog->admin->c_name ?? ''}}</td>
 
                         <td>{{ $fieldLog->check_in_time->format('h:i A') }}</td>
 

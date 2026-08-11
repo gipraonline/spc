@@ -608,7 +608,9 @@
                 <?php echo $__env->yieldContent('content'); ?>
                 <?php echo e($slot ?? ''); ?>
 
+
             </div>
+
             <p style="
     text-align: center;
     color: #15386f;
@@ -620,6 +622,114 @@
     </div>
 
 
+    <div class="modal fade" id="approveModal" tabindex="-1"
+     aria-labelledby="approveModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+        <form method="POST"
+              id="approveForm"
+              action="<?php echo e(route('admin.salesorders.approval.save')); ?>">
+
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
+
+
+            <div class="modal-content">
+
+                <div class="modal-header"
+                     style="background: linear-gradient(135deg, #5A8D3A, #074E30);">
+
+                    <h5 class="modal-title text-white"
+                        id="approveModalLabel">
+                        Approval
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden"
+                           name="id"
+                           id="approval_id">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Remarks <span class="text-danger">*</span>
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            name="remarks"
+                            id="approval_remarks"
+                            rows="3"
+                            required></textarea>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Approval Status
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select class="form-select"
+                                name="status"
+                                id="approval_status"
+                                required>
+
+                            <option value="">
+                                Select Status
+                            </option>
+
+                            <option value="Approved">
+                                Approve
+                            </option>
+
+                            <option value="Rejected">
+                                Reject
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="submit"
+                            class="btn buttonSpc"
+                            id="approvalSubmit">
+                        Submit
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+
+        </div>
+    </div>
+</div>
+<
 
 
 

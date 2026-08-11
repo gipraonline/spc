@@ -58,7 +58,7 @@ use Illuminate\Support\Facades\Crypt;
 
                                         @foreach($employees as $employee)
                                         <option value="{{ $employee->n_employee_id }}" {{isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''}}>
-                                            {{ $employee->c_employee_name }}
+                                            {{ $employee->c_employee_name ?? '' }}
                                         </option>
                                         @endforeach
                                 </select>
@@ -220,7 +220,7 @@ use Illuminate\Support\Facades\Crypt;
                             </td>
 
                             @if(isset($user) && $user->identifier != "FCA")
-                                <td>{{ $lead->fca->c_employee_name }}</td>
+                                <td>{{ $lead->fca->c_employee_name ?? '' }}</td>
                             @endif
 
                             <td>{{ $lead->remarks }}</td>

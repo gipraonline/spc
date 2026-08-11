@@ -282,9 +282,6 @@ Route::middleware(['auth', 'admin'])
         ->middleware('permission:leads.view-details')
         ->name('leads.show');
 
-    Route::put('leads/approval', [LeadsController::class, 'approve'])
-    ->middleware('permission:leads.approval')
-    ->name('leads.approval.save');
 
     Route::put('leads/followup', [LeadsController::class, 'followupSave'])
     ->middleware('permission:leads.follow-up')

@@ -95,8 +95,12 @@ use Illuminate\Support\Facades\Crypt;
                         <th scope="col">Order Date</th>
                         <th scope="col">Customer Name</th>
                         <th scope="col">Customer Address</th>
-                        {{-- <th scope="col">Farm Care Advisor</th> --}}
+                        @if(isset($isFarmCareAdvisor))
+                        <th scope="col">Farm Care Advisor</th>
+                        @endif
                         <th scope="col">Franchise</th>
+                        <th scope="col">Payment Image</th>
+                        <th scope="col">Payment status</th>
                         @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
                         <th scope="col">Actions</th>
                         @endcanany
@@ -113,75 +117,93 @@ use Illuminate\Support\Facades\Crypt;
                         <td>{{ \Carbon\Carbon::parse($sale->d_date)->format('d M Y') }}</td>
                         <td>{{ $sale?->c_customer_name ?? 'N/A' }}</td>
                         <td>{{ $sale?->c_customer_address ?? 'N/A' }}</td>
-                        {{--  <td>
+
+                        @if(isset($isFarmCareAdvisor))
+                         <td>
                             <div class="d-flex align-products-center">
                                 <div>
                                     <h6 class="mb-0 fw-semibold">{{ $sale->employee?->c_employee_name ?? 'N/A' }}</h6>
-                        <span class="fs-2 text-muted">{{ $sale->employee?->c_employee_code ?? '' }}</span>
-        </div>
-    </div>
-    </td> --}}
-    <td>
-        <div class="d-flex align-products-center">
-            <div>
-                <h6 class="mb-0 fw-semibold">{{ $sale->franchise?->c_store_name ?? 'N/A' }}</h6>
-                <span class="fs-2 text-muted">{{ $sale->franchise?->c_store_code ?? '' }}</span>
+                                    <span class="fs-2 text-muted">{{ $sale->employee?->c_employee_code ?? '' }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        @endif
+                        <td>
+                            <div class="d-flex align-products-center">
+                                <div>
+                                    <h6 class="mb-0 fw-semibold">{{ $sale->franchise?->c_store_name ?? 'N/A' }}</h6>
+                                    <span class="fs-2 text-muted">{{ $sale->franchise?->c_store_code ?? '' }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                           @if($sale->payment_image)
+                                <a href="{{ asset('uploads/payment_images/' . $sale->payment_image) }}"
+                                target="_blank">
+
+                                    <img src="{{ asset('uploads/payment_images/' . $sale->payment_image) }}"
+                                        width="60"
+                                        height="60"
+                                        style="object-fit: cover; border-radius: 5px; cursor: pointer;">
+
+                                </a>
+                            @else
+                                <span class="text-muted">No Image</span>
+                            @endif
+                        </td>
+                         <td>{{ $sale?->payment_image ? "Confirmed" : 'Pending' }}</td>
+
+                        @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
+                        <td>
+                            <div class="dropdown dropstart">
+                                <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ti ti-dots-vertical fs-6"></i>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <li>
+                                        @can('sales-orders.view-details')
+                                        <a class="dropdown-item d-flex align-products-center gap-3"
+                                            href="{{ route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no)) }}">
+                                            <i class="fs-4 ti ti-eye"></i>View Details
+                                        </a>
+                                        @endcan
+                                    </li>
+                                    <li>
+                                        @can('sales-orders.edit')
+                                        <a class="dropdown-item d-flex align-products-center gap-3"
+                                            href="{{ route('admin.salesorders.edit', Crypt::encryptString($sale->n_sl_no)) }}">
+                                            <i class="fs-4 ti ti-edit"></i>Edit
+                                        </a>
+                                        @endcan
+                                    </li>
+                                    <li>
+                                        @can('sales-orders.delete')
+                                        <form action="{{ route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no)) }}"
+                                            method="POST" onsubmit="return confirm('Are you sure?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="dropdown-item d-flex align-products-center gap-3 text-danger">
+                                                <i class="fs-4 ti ti-trash"></i>Delete
+                                            </button>
+                                        </form>
+                                        @endcan
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        @endcanany
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="10" class="text-center">No sales records found</td>
+                        </tr>
+                        @endforelse
+                        </tbody>
+                </table>
+                    </div>
+                    <div class="mt-3">
+                        {{ $sales->links() }}
+                    </div>
+                </div>
             </div>
-        </div>
-    </td>
-
-
-    @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
-    <td>
-        <div class="dropdown dropstart">
-            <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="ti ti-dots-vertical fs-6"></i>
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li>
-                    @can('sales-orders.view-details')
-                    <a class="dropdown-item d-flex align-products-center gap-3"
-                        href="{{ route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no)) }}">
-                        <i class="fs-4 ti ti-eye"></i>View Details
-                    </a>
-                    @endcan
-                </li>
-                <li>
-                    @can('sales-orders.edit')
-                    <a class="dropdown-item d-flex align-products-center gap-3"
-                        href="{{ route('admin.salesorders.edit', Crypt::encryptString($sale->n_sl_no)) }}">
-                        <i class="fs-4 ti ti-edit"></i>Edit
-                    </a>
-                    @endcan
-                </li>
-                <li>
-                    @can('sales-orders.delete')
-                    <form action="{{ route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no)) }}"
-                        method="POST" onsubmit="return confirm('Are you sure?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="dropdown-item d-flex align-products-center gap-3 text-danger">
-                            <i class="fs-4 ti ti-trash"></i>Delete
-                        </button>
-                    </form>
-                    @endcan
-                </li>
-            </ul>
-        </div>
-    </td>
-    @endcanany
-    </tr>
-    @empty
-    <tr>
-        <td colspan="10" class="text-center">No sales records found</td>
-    </tr>
-    @endforelse
-    </tbody>
-    </table>
-</div>
-<div class="mt-3">
-    {{ $sales->links() }}
-</div>
-</div>
-</div>
 @endsection

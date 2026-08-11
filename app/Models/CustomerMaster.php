@@ -55,4 +55,6 @@ public static function generateCustomerCode()
 
     return 'CUS' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
 }
+
+
 }

@@ -24,6 +24,7 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 use DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -111,6 +112,11 @@ public function index(Request $request)
 
     $user = Auth::user();
 
+    $isFarmCareAdvisor = false;
+    if ($user && $user->roles()->where('identifier', 'FCA')->exists()) {
+
+        $isFarmCareAdvisor = true;
+    }
     /*
     |--------------------------------------------------------------------------
     | Farm Care Advisor Access
@@ -253,11 +259,12 @@ public function create()
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+         $validator = Validator::make($request->all(), [
             'd_date' => 'required|date',
             'c_order_no' => 'required|string|max:255',
             'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
             'n_customer_id' => 'required|exists:customer_masters,n_customer_id',
+            'c_customer_name' => 'required|exists:customer_masters,c_customer_name',
             'c_customer_email' => 'nullable|email|max:255',
             'c_customer_address' => 'nullable|string|max:1000',
             'n_customer_mobile' => 'required|digits_between:10,15',
@@ -271,49 +278,77 @@ public function create()
             'products.*.product_price' => 'required|numeric',
             'products.*.qty' => 'required|integer|min:1',
             'products.*.product_total' => 'required|numeric',
-        ]);
+            'image' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
 
-        if ($validator->fails()) {
+        ]);
+/*
+         if ($validator->fails()) {
             return back()
                 ->withErrors($validator)
                 ->withInput();
+        } */
+        if ($validator->fails()) {
+            dd($validator->errors()->toArray());
         }
 
         $validated = $validator->validated();
+
         $user = Auth::user();
         $customer = CustomerMaster::findOrFail(
         $validated['n_customer_id']
         );
-       $user = Auth::user();
 
-if ($user->roles()->where('identifier', 'FCA')->exists()) {
 
-    $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
+        if ($user->roles()->where('identifier', 'FCA')->exists()) {
 
-    if ($employee) {
-        $validated['farm_care_advisor_id'] = $employee->n_employee_id;
-    }
-}
+            $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
+
+            if ($employee) {
+                $validated['farm_care_advisor_id'] = $employee->n_employee_id;
+            }
+        }
         //DB::beginTransaction();
-
+//dd($request);
         try {
 
+           $imageName = null;
+
+            if ($request->hasFile('payment_image')) {
+
+                $image = $request->file('payment_image');
+
+                $uploadPath = public_path('uploads/payment_images');
+
+                // Create directory if it doesn't exist
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                // Generate unique filename
+                $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
+
+                // Upload image
+                $image->move($uploadPath, $imageName);
+
+            }
 
             $order = [
-                'c_order_no' => $validated['c_order_no'],
-                'd_date' => $validated['d_date'],
+                'c_order_no'           => $validated['c_order_no'],
+                'd_date'               => $validated['d_date'],
                 'farm_care_advisor_id' => $validated['farm_care_advisor_id'],
                 'n_customer_id'        => $customer->n_customer_id,
-                'c_customer_name' => $validated['c_customer_name'],
-                'c_customer_email' => $validated['c_customer_email'],
-                'c_customer_address' => $validated['c_customer_address'],
-                'n_customer_mobile' => $validated['n_customer_mobile'],
-                'n_state_id' => $validated['n_state_id'],
-                'n_district_id' => $validated['n_district_id'],
-                'c_mode_of_payment' => $validated['c_mode_of_payment'],
+                'c_customer_name'      => $validated['c_customer_name'],
+                'c_customer_email'     => $validated['c_customer_email'],
+                'c_customer_address'  => $validated['c_customer_address'],
+                'n_customer_mobile'    => $validated['n_customer_mobile'],
+                'n_state_id'           => $validated['n_state_id'],
+                'n_district_id'        => $validated['n_district_id'],
+                'c_mode_of_payment'    => $validated['c_mode_of_payment'],
                 'nearest_franchise_id' => $validated['nearest_franchise_id'],
-
+                'payment_image'        => $imageName,
             ];
+
+
 
             if ($request->filled('id')) {
 
@@ -356,8 +391,9 @@ if ($user->roles()->where('identifier', 'FCA')->exists()) {
 
             // INSERT
 
-            $salesOrder=SalesOrder::create($order);
 
+            $salesOrder=SalesOrder::create($order);
+//dd($salesOrder);
 
             if(isset($validated['products'])){
                 foreach($validated['products'] as $product) {
@@ -376,11 +412,13 @@ if ($user->roles()->where('identifier', 'FCA')->exists()) {
             }
             $message = 'Sales created successfully.';
         }
+
+
            //DB::commit();
 
             return redirect()
                 ->route('admin.sales.index')
-                ->with('success', 'Sales entry created successfully.');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
 
@@ -398,10 +436,12 @@ if ($user->roles()->where('identifier', 'FCA')->exists()) {
         $id = Crypt::decryptString($id);
         $employees = EmployeeMaster::where('c_status', 'Y')->get();
         $products = ProductMaster::where('c_status', 'Y')->get();
+
         $sale = SalesOrder::with([
             'orderProducts',
             'customer',
         ])->findOrFail($id);
+//dd($sale);
         $states=State::with('districts')->where('status', '1')->get();
         $customers = CustomerMaster::orderBy('c_customer_name')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
@@ -468,6 +508,10 @@ if ($user->roles()->where('identifier', 'FCA')->exists()) {
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $viewmode='off';
         $user = Auth::user();
+         $sale = SalesOrder::with([
+            'orderProducts',
+            'customer',
+        ])->findOrFail($id);
 
         $farmCareAdvisorId = null;
         $isFarmCareAdvisor = false;

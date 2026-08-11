@@ -57,7 +57,7 @@ use Illuminate\Support\Facades\Crypt;
 
                                         <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <option value="<?php echo e($employee->n_employee_id); ?>" <?php echo e(isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''); ?>>
-                                            <?php echo e($employee->c_employee_name); ?>
+                                            <?php echo e($employee->c_employee_name ?? ''); ?>
 
                                         </option>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -223,7 +223,7 @@ use Illuminate\Support\Facades\Crypt;
                             </td>
 
                             <?php if(isset($user) && $user->identifier != "FCA"): ?>
-                                <td><?php echo e($lead->fca->c_employee_name); ?></td>
+                                <td><?php echo e($lead->fca->c_employee_name ?? ''); ?></td>
                             <?php endif; ?>
 
                             <td><?php echo e($lead->remarks); ?></td>

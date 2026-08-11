@@ -15,11 +15,11 @@ class InvoiceController extends Controller
             'customer',
             'orderProducts.product',
         ])->findOrFail($id);
-  $company = CompanySetting::first();
-       $pdf = Pdf::loadView('admin.pdf.invoice', [
-    'order' => $order,
-    'company' => $company,
-]);
+        $company = CompanySetting::first();
+        $pdf = Pdf::loadView('admin.pdf.invoice', [
+        'order' => $order,
+        'company' => $company,
+        ]);
  
 
 return $pdf->download(

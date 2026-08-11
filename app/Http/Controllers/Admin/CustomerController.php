@@ -11,24 +11,23 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
+
 public function index()
 {
+    $query = CustomerMaster::with(['state', 'district']);
 
-    $query = CustomerMaster::query();
-
+    // Get search/filter values from session
     $search = session('customer_search');
     $status = session('customer_status');
 
-    // Search by Customer Code, Name or Mobile
+    // Search by Customer Code, Name, Mobile or WhatsApp
     if (!empty($search)) {
 
         $query->where(function ($q) use ($search) {
-
             $q->where('c_customer_code', 'LIKE', "%{$search}%")
               ->orWhere('c_customer_name', 'LIKE', "%{$search}%")
               ->orWhere('n_mobile', 'LIKE', "%{$search}%")
               ->orWhere('n_whatsapp', 'LIKE', "%{$search}%");
-
         });
     }
 
@@ -37,12 +36,14 @@ public function index()
         $query->where('c_status', $status);
     }
 
-   $customers = CustomerMaster::with(['state', 'district'])
-    ->orderBy('n_customer_id', 'desc')
-    ->paginate(10);
+    $customers = $query
+        ->orderBy('n_customer_id', 'desc')
+        ->paginate(10);
 
     return view('admin.customers.index', compact('customers'));
 }
+
+
 
     public function create()
 {

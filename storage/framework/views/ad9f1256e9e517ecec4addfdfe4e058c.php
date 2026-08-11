@@ -184,7 +184,7 @@
                             <?php else: ?>
 
                             <span class="badge bg-warning text-dark">
-                                Pending
+                                In Progress
                             </span>
 
                             <?php endif; ?>

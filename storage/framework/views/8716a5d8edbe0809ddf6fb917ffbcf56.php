@@ -77,7 +77,7 @@
 
                         <td><?php echo e($fieldLog->work_date->format('d-m-Y')); ?></td>
 
-                        <td><?php echo e($fieldLog->admin->c_name); ?></td>
+                        <td><?php echo e($fieldLog->admin->c_name ?? ''); ?></td>
 
                         <td><?php echo e($fieldLog->check_in_time->format('h:i A')); ?></td>
 

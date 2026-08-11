@@ -23,7 +23,7 @@
 
             <div class="col-md-3 mb-3">
                 <label class="form-label fw-bold">Employee</label>
-                <p><?php echo e($fieldLog->user->name ?? '-'); ?></p>
+                <p><?php echo e($fieldLog->admin->c_name ?? '-'); ?></p>
             </div>
 
             <div class="col-md-3 mb-3">

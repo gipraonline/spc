@@ -23,7 +23,7 @@
 
             <div class="col-md-3 mb-3">
                 <label class="form-label fw-bold">Employee</label>
-                <p>{{ $fieldLog->user->name ?? '-' }}</p>
+                <p>{{ $fieldLog->admin->c_name ?? '-' }}</p>
             </div>
 
             <div class="col-md-3 mb-3">

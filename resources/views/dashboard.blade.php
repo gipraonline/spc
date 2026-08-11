@@ -624,7 +624,7 @@
 <section class="content-wrapper">
     <div class="welcome-header">
         <h1>Dashboard</h1>
-        <p>Overview of your store performance and employee incentives.</p>
+
     </div>
 
     <!-- 3x3 Stats Grid -->
@@ -730,7 +730,7 @@
                         <i data-lucide="minus"></i>
                         {{ number_format(abs($growthPercentageSales), 2) }}%
                         @endif
-                @endif
+                        @endif
                 </span>
             </div>
             <div class="stat-content">
@@ -1315,4 +1315,3 @@
 
 
 @endsection
-

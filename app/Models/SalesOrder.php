@@ -82,16 +82,16 @@ class SalesOrder extends Model
         );
     }
 
-    public static function generateOrderNo()
-    {
-        $lastOrder = self::orderByDesc('n_sl_no')->first();
+    // public static function generateOrderNo()
+    // {
+    //     $lastOrder = self::orderByDesc('n_sl_no')->first();
 
-        if (!$lastOrder || !$lastOrder->c_order_no) {
-            return 'ORD1';
-        }
+    //     if (! $lastOrder || ! $lastOrder->c_order_no) {
+    //         return 'ORD1';
+    //     }
 
-        $lastNumber = (int) str_replace('ORD', '', $lastOrder->c_order_no);
+    //     $lastNumber = (int) str_replace('ORD', '', $lastOrder->c_order_no);
 
-        return 'ORD' . ($lastNumber + 1);
-    }
+    //     return 'ORD'.($lastNumber + 1);
+    // }
 }

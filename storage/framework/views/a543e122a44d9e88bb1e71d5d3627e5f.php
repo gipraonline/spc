@@ -30,6 +30,14 @@
     background: #ffffff;
 }
 
+#approveModal {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
 .form-section-header {
     font-size: 16px;
     font-weight: 600;
@@ -111,7 +119,8 @@ use Illuminate\Support\Facades\Crypt;
         </div>
         <?php endif; ?>
 
-        <form method="POST" id="frm_create" action="<?php echo e(route('admin.leads.store')); ?>">
+        <form method="POST" id="frm_create" action="<?php echo e(route('admin.salesorders.store')); ?>"
+            enctype="multipart/form-data">
             <?php echo csrf_field(); ?>
 
             <input type="hidden" name="id" class="form-control" value="<?php echo e(isset($sale) ? $sale->n_sl_no : ''); ?>">
@@ -139,11 +148,12 @@ use Illuminate\Support\Facades\Crypt;
 
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Order No *</label>
+                        <label class="form-label">Booklet Serial No *</label>
 
                         <input type="text" name="c_order_no" class="form-control mandatory order-number"
                             data-message="Please Enter Order No"
-                            value="<?php echo e(old('c_order_no', isset($sale) ? $sale->c_order_no : $orderNo)); ?>" readonly>
+                            value="<?php echo e(old('c_order_no', isset($sale) ? $sale->c_order_no : '')); ?>"
+                            <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?>>
 
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
@@ -171,7 +181,8 @@ use Illuminate\Support\Facades\Crypt;
                             <option value="">Select Farm Care Adviser</option>
 
                             <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($employee->n_employee_id); ?>">
+                            <option value="<?php echo e($employee->n_employee_id); ?>"
+                                <?php echo e(isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : ''); ?>>
                                 <?php echo e($employee->c_employee_name); ?>
 
                             </option>
@@ -212,7 +223,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 <div class="table-responsive">
 
-                    <table class="table table-bordered align-middle" id="productTable">
+                    <table class="table table-bordered table-responsive align-middle" id="productTable">
 
                         <thead class="table-light">
 
@@ -246,7 +257,8 @@ use Illuminate\Support\Facades\Crypt;
                                         <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
                                         <option value="<?php echo e($product->n_product_id); ?>"
-                                            data-price="<?php echo e($product->n_selling_price); ?>"
+                                            
+                                            data-price="<?php echo e($product->n_mrp); ?>"
                                             <?php echo e($val->product_id == $product->n_product_id ? 'selected' : ''); ?>>
 
                                             <?php echo e($product->c_product_name); ?>
@@ -308,7 +320,7 @@ use Illuminate\Support\Facades\Crypt;
                     <i class="ti ti-user fs-5"></i> Customer Information
                 </div>
 
-
+                <input type="hidden" name="c_customer_name" id="c_customer_name" value="">
                 <div class="row g-4 mb-4">
 
                     <div class="col-md-6">
@@ -321,12 +333,14 @@ use Illuminate\Support\Facades\Crypt;
                             <option value="<?php echo e($customer->n_customer_id); ?>" data-name="<?php echo e($customer->c_customer_name); ?>"
                                 data-email="<?php echo e($customer->c_email); ?>" data-mobile="<?php echo e($customer->n_mobile); ?>"
                                 data-address="<?php echo e($customer->c_address); ?>" data-state="<?php echo e($customer->n_state_id); ?>"
-                                data-district="<?php echo e($customer->n_district_id); ?>">
+                                data-district="<?php echo e($customer->n_district_id); ?>"
+                                <?php echo e(isset($sale->n_customer_id) && $sale->n_customer_id==$customer->n_customer_id ? "selected": ''); ?>>
                                 <?php echo e($customer->c_customer_name); ?>
 
                             </option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             <?php endif; ?>
+
                         </select>
 
                         <div class="text-danger mt-1 fs-2"></div>
@@ -478,8 +492,9 @@ use Illuminate\Support\Facades\Crypt;
                         <div class="col-md-9">
 
                             <div class="payment-option">
-                                <input class="form-check-input mandatory" type="radio" name="c_mode_of_payment" id="cod"
-                                    value="cash_on_delivery">
+                                <input class="form-check-input mandatory mode_of_payment" type="radio"
+                                    name="c_mode_of_payment" id="cod" value="Cash on delivery"
+                                    <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : ''); ?>>
 
                                 <label for="cod" class="mb-0">
                                     <i class="ti ti-truck"></i>
@@ -489,8 +504,9 @@ use Illuminate\Support\Facades\Crypt;
 
 
                             <div class="payment-option">
-                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="upi"
-                                    value="UPI">
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
+                                    id="upi" value="UPI"
+                                    <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : ''); ?>>
 
                                 <label for="upi" class="mb-0">
                                     <i class="ti ti-brand-google-pay"></i>
@@ -499,8 +515,9 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
 
                             <div class="payment-option">
-                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="bkd"
-                                    value="Bank Deposit">
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
+                                    id="bkd" value="Bank Deposit"
+                                    <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : ''); ?>>
 
                                 <label for="bkd" class="mb-0">
                                     <i class="ti ti-building-bank"></i>
@@ -508,8 +525,9 @@ use Illuminate\Support\Facades\Crypt;
                                 </label>
                             </div>
                             <div class="payment-option">
-                                <input class="form-check-input" type="radio" name="c_mode_of_payment" id="pf"
-                                    value="Paid to Franchise">
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
+                                    id="pf" value="Paid to Franchise"
+                                    <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : ''); ?>>
 
                                 <label for="pf" class="mb-0">
                                     <i class="ti ti-cash"></i>
@@ -578,34 +596,25 @@ unset($__errorArgs, $__bag); ?>
 
 
                         <div class="col-md-6">
-
-                            <label class="form-label">
-                                District <span class="text-danger">*</span>
-                            </label>
-
-                            <select class="form-select mandatory" id="franchise_district" name="n_district_id"
-                                data-message="Please Select District">
-
-                                <option value="">
-                                    Select District
-                                </option>
+                            <label for="state" class="form-label">District</label>
+                            <select class="form-select mandatory" data-message="Please enter District"
+                                <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?> id="franchise_district"
+                                name="n_district_id">
+                                <option value="" selected>Select District</option>
+                                <?php if(isset($sale->n_district_id)): ?>
+                                <?php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get();
+                                ?>
+                                <?php if(isset($districts)): ?>
+                                <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($district->id); ?>"
+                                    <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>>
+                                    <?php echo e($district->district_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
+                                <?php endif; ?>
 
                             </select>
-
-                            <?php $__errorArgs = ['n_district_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <div class="text-danger mt-1 fs-2">
-                                <?php echo e($message); ?>
-
-                            </div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-
+                            <div class="text-danger mt-1 fs-2"></div>
                         </div>
 
                     </div>
@@ -645,31 +654,50 @@ unset($__errorArgs, $__bag); ?>
 
                         </div>
 
+                        <div class="col-md-6" style="position:relative;display:none;" id="payment_image">
+
+                            <label class="form-label">
+                                Image
+                            </label>
+                            <input type="file" name="payment_image">
+                        </div>
+
                     </div>
+
+
+
+
 
                 </div>
 
                 <!-- Buttons -->
                 <div class="mt-3 d-flex gap-2">
                     <?php if(isset($viewmode) && $viewmode=="on"): ?>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.follow-up')): ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.follow-up')): ?>
                     <!--Follow-up Button-->
                     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
                         data-bs-toggle="modal" data-bs-target="#followUpModal"
                         data-id="<?php echo e(isset($sale) ? Crypt::encryptString($sale->n_sl_no) : ''); ?>" id="followup">Update
                         Follow-up</button>
                     <?php endif; ?>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('leads.approve')): ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.approval')): ?>
                     <!--Approval Button-->
                     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
-                        data-bs-toggle="modal" data-bs-target="#approveModal"
-                        data-id="<?php echo e(isset($sale) ? Crypt::encryptString($sale->n_sl_no) : ''); ?>"
-                        id="approve">Approve</button>
+                        data-bs-toggle="modal" data-bs-target="#approveModal" data-bs-dismiss="modal"
+                        data-id="<?php echo e(Crypt::encryptString($sale->n_sl_no)); ?>">
+                        Approve
+                    </button>
+                    <?php endif; ?>
+                    <?php if(isset($sale) && $sale->n_sl_no): ?>
+                    <a href="<?php echo e(route('admin.invoice.download', $sale->n_sl_no)); ?>"><button type="button"
+                            class="btn mt-1 buttonSpc" id="btn_create">Download Invoice</button></a>
                     <?php endif; ?>
                     <?php else: ?>
                     <button type="button" class="btn mt-1 buttonSpc"
                         id="btn_create"><?php echo e(isset($sale->n_sl_no) ? 'Update' : 'Create'); ?></button>
-                    <a href="<?php echo e(route('admin.leads.index')); ?>" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Cancel</a>
+
+                    
                     <?php endif; ?>
                 </div>
         </form>
@@ -681,7 +709,7 @@ unset($__errorArgs, $__bag); ?>
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-            <form action="<?php echo e(route('admin.leads.followup.store')); ?>" method="POST">
+            <form action="<?php echo e(route('admin.salesorders.followup.store')); ?>" method="POST">
                 <?php echo csrf_field(); ?>
 
                 <div class="modal-header">
@@ -707,7 +735,7 @@ unset($__errorArgs, $__bag); ?>
                             <input type="date" name="next_followup_date" class="form-control">
                         </div>
 
-                        <?php if(isset($user->role) && $user->role->identifier != "FCA"): ?>
+                        <?php if(isset($user) && $user->identifier != "FCA"): ?>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Type</label>
                             <select name="followup_type" class="form-select" required>
@@ -775,190 +803,17 @@ unset($__errorArgs, $__bag); ?>
 </div>
 
 <!--Approval Form modal-->
-<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form method="POST" id="approveForm">
-            <?php echo csrf_field(); ?>
-            <?php echo method_field('PUT'); ?>
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <input type="hidden" name="id" id="approval_id">
-
-                    <div class="mb-3">
-                        <label class="form-label">Remarks</label>
-                        <textarea class="form-control" name="remarks" rows="3" required></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Approval Status</label>
-                        <select class="form-select" name="status">
-                            <option value="Approved">Pending</option>
-                            <option value="Approved">Approve</option>
-                            <option value="Rejected">Reject</option>
-                        </select>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn buttonSpc">Submit</button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-
-        </form>
-    </div>
-</div>
 
 
 
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('scripts'); ?>
-<!-- <script>
-$(document).ready(function() {
-    console.log("First script loaded");
-    let rowIndex = {
-        {
-            isset($sale) ? $sale - > orderProducts - > count() : 0
-        }
-    };
-    $("#addRow").click(function() {
 
-        let row = `
-                <tr>
-                    <td>
-                        <select name="products[${rowIndex}][product_id]" class="form-control product mandatory" data-message="Please Select Product">
-                            <option value="">Select Product</option>
-
-                            <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($product->n_product_id); ?>"
-                                        data-price="<?php echo e($product->n_selling_price); ?>">
-                                    <?php echo e($product->c_product_name); ?>(<?php echo e($product->c_product_code); ?>)
-                                </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                        </select>
-                        <div class="text-danger mt-1 fs-2"></div>
-                    </td>
-
-                    <td>
-                        <input type="text"
-                            name="products[${rowIndex}][product_price]"
-                            class="form-control price"
-                            readonly>
-                    </td>
-
-                    <td>
-                        <input type="number"
-                            min="1"
-                            value="1"
-                            name="products[${rowIndex}][qty]"
-                            class="form-control qty">
-                    </td>
-
-                    <td>
-                        <input type="text"
-                            class="form-control total"
-                            name="products[${rowIndex}][product_total]"
-                            readonly>
-                    </td>
-
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger removeRow">
-                            X
-                        </button>
-                    </td>
-                </tr>`;
-
-        $("#productTable tbody").append(row);
-
-        rowIndex++;
-    });
-
-
-    $(document).on("change", ".product", function() {
-
-        productTotal($(this));
-
-    });
-
-    $(document).on("change", ".qty", function() {
-
-        productTotal($(this).parent().siblings().find(".product"));
-
-    });
-
-
-
-    $(document).on("click", ".removeRow", function() {
-        $(this).closest("tr").remove();
-    });
-
-    $(document).on("change", "#state", function() {
-        var state = $(this).val();
-        $.ajax({
-            type: "get",
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
-            data: {
-                state: state
-            },
-            cache: false,
-            dataType: 'json',
-            success: function(data) {
-                console.log(data);
-                $("#district").empty();
-                $("#district").append('<option value="">Select District</option>');
-
-                $.each(data.districts, function(index, district) {
-                    $("#district").append(
-                        '<option value="' + district.id + '">' + district
-                        .district_name + '</option>'
-                    );
-                });
-
-            }
-
-
-        });
-    });
-
-
-    function productTotal(id) {
-        let row = id.closest("tr");
-
-        let price = id.find(":selected").data("price");
-
-        row.find(".price").val(price);
-
-        let qty = row.find(".qty").val();
-
-        row.find(".total").val(price * qty);
-    }
-
-    const approveModal = document.getElementById('approveModal');
-
-    approveModal.addEventListener('show.bs.modal', function(event) {
-
-        let button = event.relatedTarget;
-        let id = button.getAttribute('data-id');
-
-        document.getElementById('approval_id').value = id;
-
-        // Set form action dynamically
-        document.getElementById('approveForm').action = "<?php echo e(route('admin.leads.approval.save')); ?>";
-    });
-});
-</script> -->
 
 <script>
 $(document).ready(function() {
+
 
     console.log("Sales Order JS loaded");
 
@@ -995,8 +850,8 @@ $(document).ready(function() {
                         <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <option
                                 value="<?php echo e($product->n_product_id); ?>"
-                                data-price="<?php echo e($product->n_selling_price); ?>">
-                                <?php echo e($product->c_product_name); ?> (<?php echo e($product->c_product_code); ?>)
+                                data-price="<?php echo e($product->n_mrp); ?>">
+                                <?php echo e($product->c_product_name); ?> (<?php echo e($product->c_product_code); ?>)(<?php echo e($product->c_unit); ?>)
                             </option>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
@@ -1132,12 +987,15 @@ $(document).ready(function() {
 
         let stateId = option.data('state') || '';
         let districtId = option.data('district') || '';
+        let customer_name = option.data('name') || '';
+
 
         $('#c_customer_email').val(email);
         $('#n_customer_mobile').val(mobile);
         $('#c_customer_address').val(address);
 
         $('#customer_state').val(stateId);
+        $("#c_customer_name").val(customer_name);
 
         /*
         |--------------------------------------------------------------------------
@@ -1211,6 +1069,7 @@ $(document).ready(function() {
                     '<option value="">Unable to load districts</option>'
                 );
             }
+
 
         });
 
@@ -1387,45 +1246,42 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    const approveModal = document.getElementById('approveModal');
+    document.getElementById('approveModal').addEventListener('show.bs.modal', function(event) {
 
-    if (approveModal) {
+        const button = event.relatedTarget;
 
-        approveModal.addEventListener(
-            'show.bs.modal',
-            function(event) {
+        if (!button) {
+            return;
+        }
 
-                let button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
 
-                if (!button) {
-                    return;
-                }
+        console.log('Approval ID:', id);
 
-                let id = button.getAttribute('data-id');
+        document.getElementById('approval_id').value = id;
 
-                let approvalId =
-                    document.getElementById('approval_id');
+        document.getElementById('approval_remarks').value = '';
+        document.getElementById('approval_status').value = '';
 
-                let approveForm =
-                    document.getElementById('approveForm');
+    });
 
-                if (approvalId) {
-                    approvalId.value = id;
-                }
+    $(document).on('click', '.approvalSubmit', function() {
 
-                if (approveForm) {
+        const id = $(this).attr('data-id');
 
-                    approveForm.action =
-                        "<?php echo e(route('admin.leads.approval.save')); ?>";
+        console.log('Encrypted ID:', id);
 
-                }
+        $('#approval_id').val(id);
 
-            }
+        $('#approvalForm').attr(
+            'action',
+            "<?php echo e(route('admin.salesorders.approval.save')); ?>"
         );
 
-    }
+        $('#approval_remarks').val('');
+        $('#approval_status').val('');
 
-
+    });
     /*
     |--------------------------------------------------------------------------
     | Existing Product Rows
@@ -1507,41 +1363,55 @@ $(document).ready(function() {
  ====================================================== -->
 
 <script>
-$('#franchise_state').change(function() {
+$(document).ready(function() {
 
-    let stateId = $(this).val();
+    $('#franchise_state').change(function() {
 
-    $('#franchise_district').html('<option value="">Loading...</option>');
+        let stateId = $(this).val();
 
-    $.ajax({
+        $('#franchise_district').html('<option value="">Loading...</option>');
 
-        url: "<?php echo e(route('admin.filterDistrict')); ?>",
+        $.ajax({
 
-        type: "GET",
+            url: "<?php echo e(route('admin.filterDistrict')); ?>",
 
-        data: {
-            state: stateId
-        },
+            type: "GET",
 
-        success: function(response) {
+            data: {
+                state: stateId
+            },
 
-            $('#franchise_district').html('<option value="">Select District</option>');
+            success: function(response) {
 
-            $.each(response.districts, function(index, district) {
+                $('#franchise_district').html('<option value="">Select District</option>');
 
-                $('#franchise_district').append(
-                    '<option value="' + district.id + '">' +
-                    district.district_name +
-                    '</option>'
-                );
+                $.each(response.districts, function(index, district) {
 
-            });
+                    $('#franchise_district').append(
+                        '<option value="' + district.id + '">' +
+                        district.district_name +
+                        '</option>'
+                    );
 
-        }
+                });
+
+            }
+
+        });
 
     });
 
-});
+    $(".mode_of_payment").click(function() {
+        var payment_mode = $(this).val();
+        if (payment_mode == "UPI" || payment_mode == "Bank Deposit" || payment_mode ==
+            "Paid to Franchise") {
+            $("#payment_image").show();
+        } else {
+            $("#payment_image").hide();
+        }
+    })
+
+})
 </script>
 
 <!--======================================================
@@ -1551,37 +1421,40 @@ $('#franchise_state').change(function() {
  =========================================================-->
 
 <script>
-$('#franchise_district').change(function() {
+$(document).ready(function() {
+    $('#franchise_district').change(function() {
 
-    let stateId = $('#franchise_state').val();
-    let districtId = $(this).val();
+        let stateId = $('#franchise_state').val();
+        let districtId = $(this).val();
 
-    $.ajax({
-        url: "<?php echo e(url('admin/filter-franchise')); ?>",
-        type: "GET",
-        data: {
-            state: stateId,
-            district: districtId
-        },
-        dataType: "json",
-        success: function(response) {
+        $.ajax({
+            url: "<?php echo e(url('admin/filter-franchise')); ?>",
+            type: "GET",
+            data: {
+                state: stateId,
+                district: districtId
+            },
+            dataType: "json",
+            success: function(response) {
 
-            $('#franchise').html('<option value="">Select Franchise</option>');
+                $('#franchise').html('<option value="">Select Franchise</option>');
 
-            $.each(response.franchises, function(i, franchise) {
+                $.each(response.franchises, function(i, franchise) {
 
-                $('#franchise').append(
-                    '<option value="' + franchise.n_store_id + '">' +
-                    franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
-                    '</option>'
-                );
+                    $('#franchise').append(
+                        '<option value="' + franchise.n_store_id + '">' +
+                        franchise.c_store_name + ' (' + franchise.c_store_code +
+                        ')' +
+                        '</option>'
+                    );
 
-            });
+                });
 
-        }
+            }
+        });
+
     });
-
-});
+})
 </script>
 
 

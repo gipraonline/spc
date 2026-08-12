@@ -415,10 +415,7 @@
                     Sign In
                 </button>
 
-                <div class="footer-text animated delay-2">
-                    New to SPC?
-                    <a href="<?php echo e(route('register')); ?>"></a>
-                </div>
+                
             </form>
         </div>
     </div>

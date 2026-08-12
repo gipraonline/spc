@@ -243,7 +243,7 @@
                 </div>
 
 
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <label for="n_purchase_price" class="form-label">Purchase Price *</label>
                     <input type="number" id="n_purchase_price" data-message="Please enter Purchase Price"
                         name="n_purchase_price" value="{{ old('n_purchase_price', $product->n_purchase_price) }}"
@@ -251,8 +251,8 @@
                     @error('n_purchase_price')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
-                </div>
-
+                </div> -->
+                <!-- 
                 <div class="col-md-6">
                     <label for="n_selling_price" class="form-label">Selling Price *</label>
                     <input type="number" id="n_selling_price" data-message="Please enter Selling Price"
@@ -261,7 +261,7 @@
                     <div id="selling_error" class="text-danger mt-1 fs-2">
                         @error('n_selling_price') {{ $message }} @enderror
                     </div>
-                </div>
+                </div> -->
                 <!-- 
                 <div class="col-md-6">
                     <label for="c_status" class="form-label">Operational Status *</label>
@@ -281,7 +281,7 @@
                 <div class="col-md-6">
                     <label for="c_unit" class="form-label">Unit *</label>
                     <input type="text" id="c_unit" name="c_unit" value="{{ old('c_unit', $product->c_unit) }}"
-                        class="form-control mandatory" data-message="Please enter Unit" placeholder="e.g. 1 ltr">
+                        class="form-control" data-message="Please enter Unit" placeholder="e.g. 1 ltr">
 
                     @error('c_unit')
                     <div class="text-danger mt-1">{{ $message }}</div>

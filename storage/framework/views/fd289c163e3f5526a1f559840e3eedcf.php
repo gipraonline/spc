@@ -951,6 +951,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const workStatusDisplay = document.getElementById('workStatusDisplay');
     const statusPill = document.getElementById('statusPill');
 
+
     let isCheckedOut = false;
 
     btnCheckOut.addEventListener('click', function() {

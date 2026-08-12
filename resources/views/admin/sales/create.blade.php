@@ -30,6 +30,7 @@
     margin-bottom: 25px;
     background: #ffffff;
 }
+
 #approveModal {
     z-index: 1060 !important;
 }
@@ -37,6 +38,7 @@
 .modal-backdrop {
     z-index: 1050 !important;
 }
+
 .form-section-header {
     font-size: 16px;
     font-weight: 600;
@@ -117,7 +119,8 @@ use Illuminate\Support\Facades\Crypt;
         </div>
         @endif
 
-        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}" enctype="multipart/form-data">
+        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}"
+            enctype="multipart/form-data">
             @csrf
 
             <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
@@ -145,11 +148,12 @@ use Illuminate\Support\Facades\Crypt;
 
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Order No *</label>
+                        <label class="form-label">Booklet Serial No *</label>
 
                         <input type="text" name="c_order_no" class="form-control mandatory order-number"
                             data-message="Please Enter Order No"
-                            value="{{ old('c_order_no', isset($sale) ? $sale->c_order_no : $orderNo) }}" readonly>
+                            value="{{ old('c_order_no', isset($sale) ? $sale->c_order_no : '') }}"
+                            {{ isset($viewmode) && $viewmode == 'on' ? 'readonly' : '' }}>
 
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
@@ -177,7 +181,8 @@ use Illuminate\Support\Facades\Crypt;
                             <option value="">Select Farm Care Adviser</option>
 
                             @foreach($employees as $employee)
-                            <option value="{{ $employee->n_employee_id }}" {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
+                            <option value="{{ $employee->n_employee_id }}"
+                                {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
                                 {{ $employee->c_employee_name }}
                             </option>
                             @endforeach
@@ -322,14 +327,15 @@ use Illuminate\Support\Facades\Crypt;
                         <select name="n_customer_id" id="n_customer_id" class="form-select mandatory">
                             <option value="">Select Customer</option>
                             @if(isset($customers))
-                                @foreach($customers as $customer)
-                                <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
-                                    data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
-                                    data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
-                                    data-district="{{ $customer->n_district_id }}" {{isset($sale->n_customer_id) && $sale->n_customer_id==$customer->n_customer_id ? "selected": ''}}>
-                                    {{ $customer->c_customer_name }}
-                                </option>
-                                @endforeach
+                            @foreach($customers as $customer)
+                            <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
+                                data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
+                                data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
+                                data-district="{{ $customer->n_district_id }}"
+                                {{isset($sale->n_customer_id) && $sale->n_customer_id==$customer->n_customer_id ? "selected": ''}}>
+                                {{ $customer->c_customer_name }}
+                            </option>
+                            @endforeach
                             @endif
 
                         </select>
@@ -478,8 +484,9 @@ use Illuminate\Support\Facades\Crypt;
                         <div class="col-md-9">
 
                             <div class="payment-option">
-                                <input class="form-check-input mandatory mode_of_payment" type="radio" name="c_mode_of_payment" id="cod"
-                                    value="Cash on delivery"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : '' }}>
+                                <input class="form-check-input mandatory mode_of_payment" type="radio"
+                                    name="c_mode_of_payment" id="cod" value="Cash on delivery"
+                                    {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : '' }}>
 
                                 <label for="cod" class="mb-0">
                                     <i class="ti ti-truck"></i>
@@ -489,8 +496,9 @@ use Illuminate\Support\Facades\Crypt;
 
 
                             <div class="payment-option">
-                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
-                                    value="UPI" {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
+                                    id="upi" value="UPI"
+                                    {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
 
                                 <label for="upi" class="mb-0">
                                     <i class="ti ti-brand-google-pay"></i>
@@ -499,8 +507,9 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
 
                             <div class="payment-option">
-                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
-                                    value="Bank Deposit"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
+                                    id="bkd" value="Bank Deposit"
+                                    {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
 
                                 <label for="bkd" class="mb-0">
                                     <i class="ti ti-building-bank"></i>
@@ -508,8 +517,9 @@ use Illuminate\Support\Facades\Crypt;
                                 </label>
                             </div>
                             <div class="payment-option">
-                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
-                                    value="Paid to Franchise"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
+                                    id="pf" value="Paid to Franchise"
+                                    {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
 
                                 <label for="pf" class="mb-0">
                                     <i class="ti ti-cash"></i>
@@ -570,15 +580,20 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="col-md-6">
                             <label for="state" class="form-label">District</label>
-                            <select class="form-select mandatory" data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="franchise_district" name="n_district_id">
+                            <select class="form-select mandatory" data-message="Please enter District"
+                                {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }} id="franchise_district"
+                                name="n_district_id">
                                 <option value="" selected>Select District</option>
                                 @if(isset($sale->n_district_id))
-                                    @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
-                                    @if(isset($districts))
-                                        @foreach($districts as $district)
-                                            <option value="{{$district->id}}" {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>{{$district->district_name}}</option>
-                                        @endforeach
-                                    @endif
+                                @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get();
+                                @endphp
+                                @if(isset($districts))
+                                @foreach($districts as $district)
+                                <option value="{{$district->id}}"
+                                    {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
+                                    {{$district->district_name}}</option>
+                                @endforeach
+                                @endif
                                 @endif
 
                             </select>
@@ -622,7 +637,7 @@ use Illuminate\Support\Facades\Crypt;
 
                         </div>
 
-                         <div class="col-md-6" style="position:relative;display:none;" id="payment_image">
+                        <div class="col-md-6" style="position:relative;display:none;" id="payment_image">
 
                             <label class="form-label">
                                 Image
@@ -636,7 +651,7 @@ use Illuminate\Support\Facades\Crypt;
 
 
 
-                    </div>
+                </div>
 
                 <!-- Buttons -->
                 <div class="mt-3 d-flex gap-2">
@@ -650,20 +665,16 @@ use Illuminate\Support\Facades\Crypt;
                     @endcan
                     @can('sales-orders.approval')
                     <!--Approval Button-->
-                    <button type="button"
-                        style="width:150px;position:relative;"
-                        class="btn mt-1 buttonSpc"
-                        data-bs-toggle="modal"
-                        data-bs-target="#approveModal"
-                        data-bs-dismiss="modal"
+                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
+                        data-bs-toggle="modal" data-bs-target="#approveModal" data-bs-dismiss="modal"
                         data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
                         Approve
                     </button>
                     @endcan
                     @if(isset($sale) && $sale->n_sl_no)
-                         <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button" class="btn mt-1 buttonSpc"
-                        id="btn_create">Download Invoice</button></a>
-                   @endif
+                    <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button"
+                            class="btn mt-1 buttonSpc" id="btn_create">Download Invoice</button></a>
+                    @endif
                     @else
                     <button type="button" class="btn mt-1 buttonSpc"
                         id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
@@ -787,100 +798,82 @@ use Illuminate\Support\Facades\Crypt;
               id="approveForm"
               action="{{ route('admin.salesorders.approval.save') }}">
 
-            @csrf
-            @method('PUT')
+@csrf
+@method('PUT')
 
-            <div class="modal-content">
+<div class="modal-content">
 
-                <div class="modal-header"
-                     style="background: linear-gradient(135deg, #5A8D3A, #074E30);">
+    <div class="modal-header" style="background: linear-gradient(135deg, #5A8D3A, #074E30);">
 
-                    <h5 class="modal-title text-white"
-                        id="approveModalLabel">
-                        Approval
-                    </h5>
+        <h5 class="modal-title text-white" id="approveModalLabel">
+            Approval
+        </h5>
 
-                    <button type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal">
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <input type="hidden"
-                           name="id"
-                           id="approval_id">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Remarks <span class="text-danger">*</span>
-                        </label>
-
-                        <textarea
-                            class="form-control"
-                            name="remarks"
-                            id="approval_remarks"
-                            rows="3"
-                            required></textarea>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Approval Status
-                            <span class="text-danger">*</span>
-                        </label>
-
-                        <select class="form-select"
-                                name="status"
-                                id="approval_status"
-                                required>
-
-                            <option value="">
-                                Select Status
-                            </option>
-
-                            <option value="Approved">
-                                Approve
-                            </option>
-
-                            <option value="Rejected">
-                                Reject
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button type="button"
-                            class="btn buttonSpc"
-                            id="approvalSubmit">
-                        Submit
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-outline-secondary"
-                            data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-
-                </div>
-
-            </div>
-
-        </form>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+        </button>
 
     </div>
+
+    <div class="modal-body">
+
+        <input type="hidden" name="id" id="approval_id">
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Remarks <span class="text-danger">*</span>
+            </label>
+
+            <textarea class="form-control" name="remarks" id="approval_remarks" rows="3" required></textarea>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Approval Status
+                <span class="text-danger">*</span>
+            </label>
+
+            <select class="form-select" name="status" id="approval_status" required>
+
+                <option value="">
+                    Select Status
+                </option>
+
+                <option value="Approved">
+                    Approve
+                </option>
+
+                <option value="Rejected">
+                    Reject
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+        <button type="button" class="btn buttonSpc" id="approvalSubmit">
+            Submit
+        </button>
+
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancel
+        </button>
+
+    </div>
+
 </div>
- --}}
+
+</form>
+
+</div>
+</div>
+--}}
 
 
 @endsection
@@ -1323,42 +1316,42 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-document.getElementById('approveModal').addEventListener('show.bs.modal', function (event) {
+    document.getElementById('approveModal').addEventListener('show.bs.modal', function(event) {
 
-     const button = event.relatedTarget;
+        const button = event.relatedTarget;
 
-    if (!button) {
-        return;
-    }
+        if (!button) {
+            return;
+        }
 
-    const id = button.getAttribute('data-id');
+        const id = button.getAttribute('data-id');
 
-    console.log('Approval ID:', id);
+        console.log('Approval ID:', id);
 
-    document.getElementById('approval_id').value = id;
+        document.getElementById('approval_id').value = id;
 
-    document.getElementById('approval_remarks').value = '';
-    document.getElementById('approval_status').value = '';
+        document.getElementById('approval_remarks').value = '';
+        document.getElementById('approval_status').value = '';
 
-});
+    });
 
-  $(document).on('click', '.approvalSubmit', function () {
+    $(document).on('click', '.approvalSubmit', function() {
 
-    const id = $(this).attr('data-id');
+        const id = $(this).attr('data-id');
 
-    console.log('Encrypted ID:', id);
+        console.log('Encrypted ID:', id);
 
-    $('#approval_id').val(id);
+        $('#approval_id').val(id);
 
-    $('#approvalForm').attr(
-        'action',
-        "{{ route('admin.salesorders.approval.save') }}"
-    );
+        $('#approvalForm').attr(
+            'action',
+            "{{ route('admin.salesorders.approval.save') }}"
+        );
 
-    $('#approval_remarks').val('');
-    $('#approval_status').val('');
+        $('#approval_remarks').val('');
+        $('#approval_status').val('');
 
-});
+    });
     /*
     |--------------------------------------------------------------------------
     | Existing Product Rows
@@ -1391,47 +1384,47 @@ document.getElementById('approveModal').addEventListener('show.bs.modal', functi
  based on the selected customer's state.
  ====================================================== -->
 <script>
-    $(document).ready(function() {
-        $("#n_customer_id").change(function() {
+$(document).ready(function() {
+    $("#n_customer_id").change(function() {
 
-            let option = $(this).find(":selected");
+        let option = $(this).find(":selected");
 
-            $("#c_customer_email").val(option.data("email"));
-            $("#n_customer_mobile").val(option.data("mobile"));
-            $("#c_customer_address").val(option.data("address"));
+        $("#c_customer_email").val(option.data("email"));
+        $("#n_customer_mobile").val(option.data("mobile"));
+        $("#c_customer_address").val(option.data("address"));
 
-            let stateId = option.data("state");
-            let districtId = option.data("district");
+        let stateId = option.data("state");
+        let districtId = option.data("district");
 
-            $("#customer_state").val(stateId);
+        $("#customer_state").val(stateId);
 
-            $.ajax({
-                type: "GET",
-                url: "{{ route('admin.filterDistrict') }}",
-                data: {
-                    state: stateId
-                },
-                dataType: "json",
-                success: function(data) {
+        $.ajax({
+            type: "GET",
+            url: "{{ route('admin.filterDistrict') }}",
+            data: {
+                state: stateId
+            },
+            dataType: "json",
+            success: function(data) {
 
-                    $("#customer_district").html('<option value="">Select District</option>');
+                $("#customer_district").html('<option value="">Select District</option>');
 
-                    $.each(data.districts, function(i, district) {
-                        $("#customer_district").append(
-                            '<option value="' + district.id + '">' +
-                            district.district_name +
-                            '</option>'
-                        );
-                    });
+                $.each(data.districts, function(i, district) {
+                    $("#customer_district").append(
+                        '<option value="' + district.id + '">' +
+                        district.district_name +
+                        '</option>'
+                    );
+                });
 
-                    // Select customer's district after options are loaded
-                    $("#customer_district").val(districtId);
+                // Select customer's district after options are loaded
+                $("#customer_district").val(districtId);
 
-                }
-            });
-
+            }
         });
+
     });
+});
 </script>
 
 <!--======================================================
@@ -1440,7 +1433,7 @@ document.getElementById('approveModal').addEventListener('show.bs.modal', functi
  ====================================================== -->
 
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
 
     $('#franchise_state').change(function() {
 
@@ -1478,12 +1471,12 @@ $(document).ready(function(){
 
     });
 
-    $(".mode_of_payment").click(function(){
-        var payment_mode=$(this).val();
-        if(payment_mode=="UPI" || payment_mode=="Bank Deposit" || payment_mode=="Paid to Franchise" ){
+    $(".mode_of_payment").click(function() {
+        var payment_mode = $(this).val();
+        if (payment_mode == "UPI" || payment_mode == "Bank Deposit" || payment_mode ==
+            "Paid to Franchise") {
             $("#payment_image").show();
-        }
-        else{
+        } else {
             $("#payment_image").hide();
         }
     })
@@ -1498,7 +1491,7 @@ $(document).ready(function(){
  =========================================================-->
 
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
     $('#franchise_district').change(function() {
 
         let stateId = $('#franchise_state').val();
@@ -1520,7 +1513,8 @@ $(document).ready(function(){
 
                     $('#franchise').append(
                         '<option value="' + franchise.n_store_id + '">' +
-                        franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
+                        franchise.c_store_name + ' (' + franchise.c_store_code +
+                        ')' +
                         '</option>'
                     );
 

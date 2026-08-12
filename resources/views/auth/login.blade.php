@@ -16,18 +16,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --primary-blue: #004b91;
-            --primary-red: #ed1c24;
-            --accent-glow: rgba(0, 75, 145, 0.15);
-            --bg-color: #fcfdfe;
-            --card-bg: #ffffff;
-            --text-dark: #1a1a1a;
-            --text-grey: #666666;
-            --input-border: #e0e0e0;
-            --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.05);
-            --shadow-glow: 0 0 20px rgba(0, 75, 145, 0.1);
-        }
+       :root {  
+                --primary-blue: #0f7d3d;
+                --primary-red: #1e550b;
+                --accent-glow: rgba(0, 75, 145, 0.15);
+                --bg-color: #fcfdfe;
+                --card-bg: #ffffff;
+                --text-dark: #1a1a1a;
+                --text-grey: #666666;
+                --input-border: #e0e0e0;
+                --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.05);
+                --shadow-glow: 0 0 20px rgba(0, 75, 145, 0.1);
+            }
 
         * {
             margin: 0;

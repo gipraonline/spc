@@ -151,7 +151,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <span class="text-muted">No Image</span>
                             @endif
                         </td>
-                         <td>{{ $sale?->payment_image ? "Confirmed" : 'Pending' }}</td>
+                        <td>{{"Pending"}}</td>
 
                         @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
                         <td>

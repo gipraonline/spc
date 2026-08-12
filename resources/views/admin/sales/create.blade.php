@@ -520,6 +520,28 @@ use Illuminate\Support\Facades\Crypt;
                         </div>
 
                     </div>
+                    @if(isset($isfarmcareadvisor))
+                    <div class="row mb-3 align-items-center">
+                         <div class="col-lg-6 mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Payment Status
+                            </label>
+
+                            <select name="c_lead_status"
+                                    id="leadStatus"
+                                    class="form-select">
+
+                                <option value="">Select Status</option>
+
+                                <option value="Pending" {{ old('c_payment_status', $lead->c_lead_status ?? '') == "Pending" ? 'selected' : '' }}>Pending</option>
+                                <option value="Approved"  {{ old('c_payment_status', $lead->c_lead_status ?? '') == "Approved" ? 'selected' : '' }}>Approved</option>
+
+                            </select>
+
+                        </div>
+                    </div>
+                    @endif
 
                 </div>
 

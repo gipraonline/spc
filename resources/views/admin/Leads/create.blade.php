@@ -932,7 +932,7 @@ use Illuminate\Support\Facades\Crypt;
                     // Select Existing Customer District
                     //-------------------------------------------------------
 
-                    if (selectedDistrict !== null && selectedDistrict !== '') {
+                    if (selectedDistrict !== null) {
 
                         $('#district').val(selectedDistrict);
 

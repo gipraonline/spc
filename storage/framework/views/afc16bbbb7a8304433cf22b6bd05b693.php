@@ -150,7 +150,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <span class="text-muted">No Image</span>
                             <?php endif; ?>
                         </td>
-                         <td><?php echo e($sale?->payment_image ? "Confirmed" : 'Pending'); ?></td>
+                         <td><?php echo e("Pending"); ?></td>
 
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <td>

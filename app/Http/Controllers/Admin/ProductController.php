@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\ProductMaster;
+use App\Models\CategoryMaster;
 // use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProductExport;
 use Illuminate\Validation\Rule;
@@ -63,22 +64,34 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('admin.products.create');
+         $categories = CategoryMaster::where('c_status', 'Y')
+        ->with('children')
+        ->whereNull('n_parent_category_id')
+        ->orderBy('c_category_name')
+        ->get();
+
+
+        return view('admin.products.create',compact('categories'));
     }
 
    public function store(Request $request)
     {
         $validated = $request->validate([
+                'n_category_id' => ['required',
+                    Rule::exists('category_masters', 'n_category_id') ->where('c_status', 'Y'),
+                ],
                 'c_product_name'    => 'required|string|max:255',
                 'c_product_code'    => 'required|string|unique:product_masters,c_product_code',
                 'n_purchase_price'  => 'required|numeric|min:0',
                 'n_selling_price'   => 'required|numeric|min:0|gt:n_purchase_price',
                 'n_mrp'             => 'required|numeric|min:0|gte:n_selling_price',
-                'c_unit'               => 'required|string|max:50',
-        'c_hsn_code'           => 'required|string|max:20',
-        'n_gst_percentage'     => 'required|numeric|min:0|max:100',
+                'c_unit' => ['nullable','string','max:50',],
+                'c_hsn_code'        => 'required|string|max:20',
+                'n_gst_percentage'  => 'required|numeric|min:0|max:100',
                 'c_status'          => 'required|in:Y,N',
             ], [
+                'n_category_id.required' => 'Please select a category.',
+                'n_category_id.exists'   => 'Please select a valid active category.',
                 'c_product_name.required'   => 'Product name cannot be empty.',
                 'c_product_code.required'   => 'Product code cannot be empty.',
                 'c_product_code.unique'     => 'Product code already exists.',
@@ -87,7 +100,6 @@ class ProductController extends Controller
                 'n_selling_price.gt'        => 'Selling price must be greater than purchase price.',
                 'n_mrp.required'            => 'MRP cannot be empty.',
                 'n_mrp.gte'                 => 'MRP must be greater than or equal to selling price.',
-                 'c_unit.required'           => 'Unit cannot be empty.',
         'c_hsn_code.required'       => 'HSN code cannot be empty.',
         'n_gst_percentage.required' => 'GST percentage cannot be empty.',
         'n_gst_percentage.max'      => 'GST percentage cannot be greater than 100.',
@@ -101,11 +113,20 @@ class ProductController extends Controller
 
     public function edit(ProductMaster $product)
     {
-        return view('admin.products.edit', compact('product'));
+         $categories = CategoryMaster::where('c_status', 'Y')
+        ->with('children')
+        ->whereNull('n_parent_category_id')
+        ->orderBy('c_category_name')
+        ->get();
+        return view('admin.products.edit', compact('product','categories'));
     }
     public function update(Request $request, ProductMaster $product)
     {
         $validated = $request->validate([
+            'n_category_id' => ['required',
+            Rule::exists('category_masters', 'n_category_id')
+                ->where('c_status', 'Y'),
+            ],
             'c_product_name'   => 'required|string|max:255',
             'c_product_code'   => ['required','string',
                 Rule::unique('product_masters', 'c_product_code')
@@ -114,11 +135,13 @@ class ProductController extends Controller
             'n_purchase_price' => 'required|numeric|min:0',
             'n_selling_price'  => 'required|numeric|min:0|gt:n_purchase_price',
             'n_mrp'            => 'required|numeric|min:0|gte:n_selling_price',
-             'c_unit'               => 'required|string|max:50',
+             'c_unit' => ['nullable','string','max:50',],
         'c_hsn_code'           => 'required|string|max:20',
         'n_gst_percentage'     => 'required|numeric|min:0|max:100',
             'c_status'         => 'required|in:Y,N',
         ], [
+            'n_category_id.required' => 'Please select a category.',
+            'n_category_id.exists' => 'Please select a valid active category.',
             'c_product_name.required'   => 'Product name cannot be empty.',
             'c_product_code.required'   => 'Product code cannot be empty.',
             'c_product_code.unique'     => 'Product code already exists.',
@@ -127,7 +150,6 @@ class ProductController extends Controller
             'n_selling_price.gt'        => 'Selling price must be greater than purchase price.',
             'n_mrp.required'            => 'MRP cannot be empty.',
             'n_mrp.gte'                 => 'MRP must be greater than or equal to selling price.',
-             'c_unit.required'           => 'Unit cannot be empty.',
         'c_hsn_code.required'       => 'HSN code cannot be empty.',
         'n_gst_percentage.required' => 'GST percentage cannot be empty.',
         'n_gst_percentage.max'      => 'GST percentage cannot be greater than 100.',

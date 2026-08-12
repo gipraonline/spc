@@ -22,6 +22,7 @@
     <link id="themeColors" rel="stylesheet" href="{{asset('dist/css/style.min.css')}}" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     @stack('styles')
 
@@ -153,9 +154,10 @@
         min-width: 110px;
     }
 
-    .modal-header{
+    .modal-header {
         background: linear-gradient(135deg, #5A8D3A, #074E30);
     }
+
     header.app-header {
         background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(10px);
@@ -609,7 +611,7 @@
     text-align: center;
     color: #15386f;
     font-weight: 600;
-">Copyright © 2026  All Rights Reserved.
+">Copyright © 2026 All Rights Reserved.
 
             </p>
         </div>

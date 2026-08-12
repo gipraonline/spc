@@ -1,1316 +1,1006 @@
 @extends('layouts.app')
 
 @push('styles')
-
 <style>
-:root {
-    --primary-color: #4f46e5;
-    --primary-light: #e0e7ff;
-
-    --bg-page: #f8fafc;
-    --bg-card: #ffffff;
-    --border-color: #f1f5f9;
-    --border-color-hover: #e2e8f0;
-
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
-
-    --success-bg: #dcfce7;
-    --success-text: #15803d;
-    --danger-bg: #fee2e2;
-    --danger-text: #b91c1c;
-    --warning-bg: #fef3c7;
-    --warning-text: #b45309;
-
-    --radius-xl: 20px;
-    --radius-lg: 16px;
-    --radius-md: 12px;
-    --radius-sm: 8px;
-
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-
-    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
+/* Global Dashboard Reset & Typography */
 .content-wrapper {
-    padding: 1.5rem;
-    max-width: 1600px;
-    margin: 0 auto;
-    background-color: var(--bg-page);
+    background-color: #f4f8f5;
     min-height: 100vh;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    padding: 24px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+    box-sizing: border-box;
 }
 
-.welcome-header {
-    margin-bottom: 2rem;
+.dashboard-container {
+    max-width: 100%;
+    margin: 0 auto;
 }
 
-.welcome-header h1 {
-    font-size: 1.875rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    letter-spacing: -0.025em;
-    margin-bottom: 0.25rem;
+/* Page Header */
+.dashboard-header {
+    margin-bottom: 24px;
 }
 
-.welcome-header p {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
+.dashboard-header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f5132;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.3px;
 }
 
-/* 3x3 Grid Layout */
+.dashboard-header p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+}
 
-.stats-grid-3x3 {
+/* Common Card Styling */
+.dashboard-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f5132;
+    margin: 0 0 16px 0;
+}
+
+/* Grid Layouts */
+.stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
+.middle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
 
-/* Base Stat Card Styles */
+.bottom-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 20px;
+}
+
+/* Top Stat Cards */
 .stat-card {
-    position: relative;
-    overflow: hidden;
-    padding: 1.5rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition);
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    color: #ffffff;
-    background: linear-gradient(135deg, #5A8D3A, #074E30);
-    min-height: 150px;
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #5A8D3A, #074E30);
-    pointer-events: none;
-}
-
-.stat-card::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 180px;
-    height: 180px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-.stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.12), 0 8px 12px -6px rgba(0, 0, 0, 0.12);
-}
-
-/* Custom Gradients for Cards */
-.card-sales {
-    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-}
-
-.card-employees {
-    background: linear-gradient(135deg, #0d9488 0%, #2563eb 100%);
-}
-
-.card-stores {
-    background: linear-gradient(135deg, #172554 0%, #1e40af 100%);
-}
-
-.card-products {
-    background: linear-gradient(135deg, #0f172a 0%, #6366f1 100%);
-}
-
-.card-incentives {
-    background: linear-gradient(135deg, #4c1d95 0%, #b5179e 100%);
-}
-
-.card-vanitham-sales {
-    background: linear-gradient(135deg, #1e1b4b 0%, #db2777 100%);
-}
-
-.card-centreal-sales {
-    background: linear-gradient(135deg, #0f172a 0%, #0ea5e9 100%);
-}
-
-.card-vanitham-incentives {
-    background: linear-gradient(135deg, #312e81 0%, #a855f7 100%);
-}
-
-.card-centreal-incentives {
-    background: linear-gradient(135deg, #115e59 0%, #2563eb 100%);
-}
-
-.stat-header {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.25rem;
-    position: relative;
-    z-index: 2;
+    gap: 14px;
+    padding: 16px 18px;
 }
 
 .stat-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: var(--radius-md);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.15);
+}
+
+.stat-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.stat-icon.green {
+    background-color: #059669;
     color: #ffffff;
-    backdrop-filter: blur(4px);
 }
 
-.stat-icon svg,
-.stat-icon i {
-    width: 20px;
-    height: 20px;
+.stat-icon.orange {
+    background-color: #f97316;
+    color: #ffffff;
 }
 
-.stat-content {
-    margin-top: auto;
-    position: relative;
-    z-index: 2;
+.stat-icon.blue {
+    background-color: #0284c7;
+    color: #ffffff;
 }
 
-.stat-value {
-    font-size: 29px;
-    font-weight: 800;
-    color: #ff000a;
-    line-height: 1.2;
+.stat-icon.purple {
+    background-color: #7c3aed;
+    color: #ffffff;
+}
+
+.stat-details {
+    display: flex;
+    flex-direction: column;
 }
 
 .stat-label {
-    color: rgb(255 255 255);
-    font-size: 18px;
+    font-size: 13px;
     font-weight: 500;
-    margin-top: 4px;
-    text-transform: capitalize;
+    color: #64748b;
+    margin-bottom: 4px;
 }
 
-.stat-trend {
-    font-size: 0.75rem;
+.stat-value {
+    font-size: 20px;
     font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-value.green {
+    color: #059669;
+}
+
+.stat-value.orange {
+    color: #f97316;
+}
+
+.stat-value.blue {
+    color: #0284c7;
+}
+
+.stat-value.gray {
+    color: #94a3b8;
+}
+
+.stat-subtext {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.stat-subtext.orange {
+    color: #f97316;
+}
+
+/* Check In / Check Out Card */
+.status-badge-pill {
+    display: inline-block;
+    background-color: #e8f5e9;
+    color: #059669;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.check-times-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.check-time-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.check-time-box.has-border {
+    border-left: 1px dashed #e2e8f0;
+    padding-left: 16px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-action-solid {
+    background-color: #059669;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
-    gap: 3px;
-    padding: 4px 8px;
-    border-radius: 9999px;
-    border: 1px solid transparent;
-    backdrop-filter: blur(4px);
+    gap: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.trend-up {
-    color: #34d399;
-    /* Emerald 400 */
-    background: rgba(52, 211, 153, 0.15);
-    border-color: rgba(52, 211, 153, 0.2);
+.btn-action-solid:hover {
+    background-color: #047857;
 }
 
-.trend-down {
-    color: #f87171;
-    /* Red 400 */
-    background: rgba(248, 113, 113, 0.15);
-    border-color: rgba(248, 113, 113, 0.2);
+.btn-action-outline {
+    background-color: transparent;
+    color: #059669;
+    border: 1px solid #059669;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.trend-neutral {
-    color: #e2e8f0;
-    /* Slate 200 */
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.15);
+.btn-action-outline:hover {
+    background-color: #f0fdf4;
 }
 
-/* Custom Product Card Subsections */
-.product-badge {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 3px 8px;
-    border-radius: 9999px;
+/* Today's Summary Card */
+.summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.product-stats-container {
+.summary-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    position: relative;
-    z-index: 2;
 }
 
-.product-stat-item {
+.summary-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.summary-icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.summary-icon-box.green {
+    background-color: #e8f5e9;
+    color: #059669;
+}
+
+.summary-icon-box.orange {
+    background-color: #fff3e0;
+    color: #f97316;
+}
+
+.summary-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+}
+
+.summary-count {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* My Orders Card & Donut Chart */
+.orders-chart-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 16px;
+    margin: 10px 0 20px 0;
+}
+
+.donut-chart-container {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: conic-gradient(#059669 0% 75%, #86efac 75% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.donut-chart-center {
+    width: 90px;
+    height: 90px;
+    background: #ffffff;
+    border-radius: 50%;
     display: flex;
     flex-direction: column;
-    flex: 1;
+    align-items: center;
+    justify-content: center;
 }
 
-.product-stat-value {
-    font-size: 1.35rem;
-    font-weight: 800;
+.donut-chart-center .number {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f5132;
+    line-height: 1;
 }
 
-.product-stat-value.text-success {
-    color: #34d399;
-    /* Emerald 400 */
-}
-
-.product-stat-value.text-muted {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.product-stat-label {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
+.donut-chart-center .label {
+    font-size: 11px;
+    color: #64748b;
     margin-top: 2px;
 }
 
-.product-stat-divider {
-    width: 1px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.25);
-    margin: 0 0.75rem;
-}
-
-/* Main Layout Grid */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 2.1fr 1.2fr;
-    gap: 1.5rem;
-    align-items: start;
-}
-
-.dashboard-main-col,
-.dashboard-side-col {
+.chart-legend {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 14px;
 }
 
-.data-card {
-    background: var(--bg-card);
-    padding: 1.5rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition);
-}
-
-.data-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--border-color-hover);
-}
-
-.card-title-header {
+.legend-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.25rem;
+    align-items: flex-start;
+    gap: 10px;
 }
 
-.card-title-header h3 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--text-primary);
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 4px;
 }
 
-.view-all {
-    font-size: 0.85rem;
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 600;
-    transition: var(--transition);
+.legend-dot.completed {
+    background-color: #059669;
 }
 
-.view-all:hover {
-    color: #3730a3;
-    text-decoration: underline;
+.legend-dot.pending {
+    background-color: #86efac;
 }
 
-/* Tables styling */
-.table-responsive {
+.legend-text strong {
+    display: block;
+    font-size: 13px;
+    color: #1e293b;
+}
+
+.legend-text span {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.btn-full-width {
     width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
+/* Table Styling for Recent Orders */
+.orders-table-wrapper {
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
-.custom-table {
+.orders-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.custom-table th {
+    border-collapse: collapse;
     text-align: left;
-    padding: 0.75rem 1rem;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: var(--text-secondary);
+}
+
+.orders-table th {
+    background-color: #f8faf8;
+    color: #475569;
+    font-size: 13px;
     font-weight: 600;
-    letter-spacing: 0.05em;
-    background: #f8fafc;
-    border-bottom: 1px solid var(--border-color);
+    padding: 12px 14px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
-.custom-table th:first-child {
-    border-top-left-radius: 8px;
+.orders-table td {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
 }
 
-.custom-table th:last-child {
-    border-top-right-radius: 8px;
-}
-
-.custom-table td {
-    padding: 1rem;
-    font-size: 0.85rem;
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: middle;
-}
-
-.custom-table tr:last-child td {
+.orders-table tr:last-child td {
     border-bottom: none;
 }
 
-.custom-table tr:hover td {
-    background: #f8fafc;
-}
-
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 10px;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.status-success {
-    background: var(--success-bg);
-    color: var(--success-text);
-}
-
-.status-warning {
-    background: var(--warning-bg);
-    color: var(--warning-text);
-}
-
-.status-danger {
-    background: var(--danger-bg);
-    color: var(--danger-text);
-}
-
-.status-pending {
-    background: #e2e8f0;
-    color: #475569;
-}
-
-/* Leaderboard Performer Card Styles */
-.performer-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
-}
-
-.performer-card {
-    background: #ffffff;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    transition: var(--transition);
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    box-shadow: var(--shadow-sm);
-}
-
-.performer-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--border-color-hover);
-}
-
-.performer-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 0.5rem;
-}
-
-.role-pill {
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 9999px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* Designation Role Badges */
-.badge-ca {
-    background: #eff6ff;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
-}
-
-.badge-csa {
-    background: #f0fdf4;
-    color: #166534;
-    border: 1px solid #bbf7d0;
-}
-
-.badge-sm {
-    background: #fff7ed;
-    color: #c2410c;
-    border: 1px solid #ffd8a8;
-}
-
-.badge-cluster {
-    background: #faf5ff;
-    color: #6b21a8;
-    border: 1px solid #e9d5ff;
-}
-
-.performer-incentive-badge {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.incentive-label {
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.025em;
-}
-
-.incentive-amount {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #10b981;
-}
-
-.performer-card-body {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 0;
-    /* critical for ellipsis to work */
-}
-
-.performer-card-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #ffffff;
-    box-shadow: 0 0 0 1px var(--border-color-hover);
-    flex-shrink: 0;
-}
-
-.performer-card-info {
-    min-width: 0;
-    flex: 1;
-}
-
-.performer-card-name {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.performer-card-username {
-    font-size: 0.75rem;
-    color: var(--text-muted);
+.status-pill-badge {
     display: inline-block;
-    margin-top: 1px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
-.performer-card-meta {
+.status-pill-badge.completed {
+    border: 1px solid #059669;
+    color: #059669;
+    background-color: #ffffff;
+}
+
+.status-pill-badge.pending {
+    border: 1px solid #f97316;
+    color: #f97316;
+    background-color: #ffffff;
+}
+
+/* Timeline Layout for Today's Schedule */
+.schedule-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    padding-left: 24px;
+}
+
+.schedule-timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background-color: #e2e8f0;
+}
+
+.timeline-item {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-top: 4px;
-    min-width: 0;
+    justify-content: space-between;
+    font-size: 13px;
 }
 
-.performer-card-designation {
+.timeline-dot {
+    position: absolute;
+    left: -24px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #059669;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px #e8f5e9;
+}
+
+.timeline-dot.orange {
+    background-color: #f97316;
+    box-shadow: 0 0 0 2px #fff3e0;
+}
+
+.timeline-time {
+    font-weight: 600;
+    color: #475569;
+    min-width: 70px;
+}
+
+.timeline-desc {
+    flex: 1;
+    padding: 0 12px;
+    color: #334155;
     font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100px;
 }
 
-.performer-card-dot {
-    color: var(--text-muted);
+.timeline-desc.lunch {
+    color: #f97316;
 }
 
-.performer-card-store {
-    color: var(--text-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.timeline-status {
+    font-weight: 600;
+    color: #059669;
 }
 
-/* Responsiveness Media Queries */
-@media screen and (max-width: 1400px) {
-    .stats-grid-3x3 {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media screen and (max-width: 1200px) {
-    .stats-grid-3x3 {
+/* Responsive Breakpoints */
+@media (max-width: 1100px) {
+    .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .dashboard-grid {
+    .middle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bottom-grid {
         grid-template-columns: 1fr;
     }
 }
 
-@media screen and (max-width: 768px) {
-    .stats-grid-3x3 {
+@media (max-width: 640px) {
+    .content-wrapper {
+        padding: 16px;
+    }
+
+    .stats-grid {
         grid-template-columns: 1fr;
     }
-}
 
-@media screen and (max-width: 576px) {
-    .performer-card-body {
+    .check-times-container {
+        grid-template-columns: 1fr;
+    }
+
+    .check-time-box.has-border {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px dashed #e2e8f0;
+        padding-top: 12px;
+    }
+
+    .action-buttons {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
     }
 
-    .performer-card-avatar {
-        width: 38px;
-        height: 38px;
+    .orders-chart-wrapper {
+        flex-direction: column;
     }
-
-    /* .data-card {
-        align-self: start;
-    } */
 }
 </style>
 @endpush
 
 @section('content')
 <section class="content-wrapper">
-    <div class="welcome-header">
-        <h1>Dashboard</h1>
-    </div>
+    <div class="dashboard-container">
 
-    <!-- 3x3 Stats Grid -->
-    <div class="stats-grid-3x3">
-
-
-        <!-- Employee Card -->
-        @can('dashboard.employees-card')
-        <div class="stat-card card-employees">
-            <div class="stat-header">
-                <div class="stat-icon"><i data-lucide="users"></i></div>
-                <span class="stat-trend
-                    @if($growthPercentageEmp > 0) trend-up
-                    @elseif($growthPercentageEmp < 0) trend-down
-                    @else trend-neutral
-                    @endif">
-                    @if($growthPercentageEmp > 0)
-                    <i data-lucide="arrow-up-right"></i>
-                    {{ number_format(abs($growthPercentageEmp), 2) }}%
-                    @elseif($growthPercentageEmp < 0) <i data-lucide="arrow-down-right"></i>
-                        {{ number_format(abs($growthPercentageEmp), 2) }}%
-                        @else
-                        <i data-lucide="minus"></i>
-                        {{ number_format(abs($growthPercentageEmp), 2) }}%
-                        @endif
-                </span>
-            </div>
-            <div class="stat-content">
-                <div class="stat-value">{{ number_format($totalEmployees) }}</div>
-                <div class="stat-label">Total Employees</div>
-            </div>
+        <!-- Welcome Header -->
+        <div class="dashboard-header">
+            <h1>Welcome, {{ $user->name }}!</h1>
+            <p>Here's your work overview for today.</p>
         </div>
-        @endcan
 
+        <!-- Top Stat Cards (4 Columns) -->
+        <div class="stats-grid">
 
-        <!-- Store Card -->
-        @can('dashboard.stores-card')
-        <div class="stat-card card-stores">
-            <div class="stat-header">
-                <div class="stat-icon"><i data-lucide="store"></i></div>
-                <span class="stat-trend
-                    @if($growthPercentageStores > 0) trend-up
-                    @elseif($growthPercentageStores < 0) trend-down
-                    @else trend-neutral
-                    @endif">
-                    @if($growthPercentageStores > 0)
-                    <i data-lucide="arrow-up-right"></i>
-                    {{ number_format(abs($growthPercentageStores), 2) }}%
-                    @elseif($growthPercentageStores < 0) <i data-lucide="arrow-down-right"></i>
-                        {{ number_format(abs($growthPercentageStores), 2) }}%
-                        @else
-                        <i data-lucide="minus"></i>
-                        {{ number_format(abs($growthPercentageStores), 2) }}%
-                        @endif
-                </span>
-            </div>
-            <div class="stat-content">
-                <div class="stat-value">{{ number_format($totalActiveStores) }}</div>
-                <div class="stat-label">Active Stores</div>
-            </div>
-        </div>
-        @endcan
-        <!-- Product Card -->
-        @can('dashboard.products-card')
-        <div class="stat-card card-products">
-            <div class="stat-header">
-                <div class="stat-icon"><i data-lucide="package"></i></div>
-                <span class="product-badge">Catalog</span>
-            </div>
-            <div class="product-stats-container">
-                <div class="product-stat-item">
-                    <span style="    color: #1cf21c !important;"
-                        class="product-stat-value text-success">{{ number_format($totalActiveProducts) }}</span>
-                    <span class="product-stat-label">Active</span>
+            <!-- Check In Time -->
+            <div class="dashboard-card stat-card">
+                <div class="stat-icon green">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l2 2 4-4" />
+                    </svg>
                 </div>
-                <div class="product-stat-divider"></div>
-                <div class="product-stat-item">
-                    <span style="    color: red !important;"
-                        class="product-stat-value text-muted">{{ number_format($totalInactiveProducts) }}</span>
-                    <span class="product-stat-label">Inactive</span>
+                <div class="stat-details">
+                    <!-- Check In -->
+                    <span class="stat-value green">
+                        {{ $checkInTime?->format('h:i A') ?? '--:-- --' }}
+                    </span>
+
+                    <span class="stat-subtext">
+                        {{ $todayLog?->work_date?->format('d M Y') ?? now()->format('d M Y') }}
+                    </span>
                 </div>
             </div>
-            <div class="stat-label">Products</div>
-        </div>
-        @endcan
-        <!-- Sales Card -->
-        @can('dashboard.sales-card')
-        <div class="stat-card card-sales">
-            <div class="stat-header">
-                <div class="stat-icon"><i data-lucide="shopping-cart"></i></div>
-                <span class="stat-trend
-                @if(isset($growthPercentageSales))
-                    @if($growthPercentageSales > 0) trend-up
-                    @elseif($growthPercentageSales < 0) trend-down
-                    @else trend-neutral
-                    @endif">
-                    @if($growthPercentageSales > 0)
-                    <i data-lucide="arrow-up-right"></i>
-                    {{ number_format(abs($growthPercentageSales), 2) }}%
-                    @elseif($growthPercentageSales < 0) <i data-lucide="arrow-down-right"></i>
-                        {{ number_format(abs($growthPercentageSales), 2) }}%
-                        @else
-                        <i data-lucide="minus"></i>
-                        {{ number_format(abs($growthPercentageSales), 2) }}%
-                        @endif
-                        @endif
-                </span>
-            </div>
-            <div class="stat-content">
-                <div class="stat-value">₹{{ number_format($totalSales, 2) }}</div>
-                <div class="stat-label">Total Sales</div>
-            </div>
-        </div>
-        @endcan
 
-        <!-- Incentive Card -->
-        @can('dashboard.incentives-card')
-        <div class="stat-card card-incentives">
-            <div class="stat-header">
-                <div class="stat-icon"><i data-lucide="sparkles"></i></div>
-                <span class="stat-trend
-                    @if($growthPercentageIncentives > 0) trend-up
-                    @elseif($growthPercentageIncentives < 0) trend-down
-                    @else trend-neutral
-                    @endif">
-                    @if($growthPercentageIncentives > 0)
-                    <i data-lucide="arrow-up-right"></i>
-                    {{ number_format(abs($growthPercentageIncentives), 2) }}%
-                    @elseif($growthPercentageIncentives < 0) <i data-lucide="arrow-down-right"></i>
-                        {{ number_format(abs($growthPercentageIncentives), 2) }}%
-                        @else
-                        <i data-lucide="minus"></i>
-                        {{ number_format(abs($growthPercentageIncentives), 2) }}%
-                        @endif
-                </span>
-            </div>
-            <div class="stat-content">
-                <div class="stat-value">₹{{ number_format($totalIncentives, 2) }}</div>
-                <div class="stat-label">Total Incentives</div>
-            </div>
-        </div>
-        @endcan
-
-        <!-- Vanitham Operations Sales -->
-        @can('dashboard.vanitham-sales-card')
-        <div class="stat-card card-vanitham-sales">
-            <div class="stat-header">
-                <div class="stat-icon"><i data-lucide="building-2"></i></div>
-                <span class="stat-trend
-                    @if($growthPercentageVanitham > 0) trend-up
-                    @elseif($growthPercentageVanitham < 0) trend-down
-                    @else trend-neutral
-                    @endif">
-                    @if($growthPercentageVanitham > 0)
-                    <i data-lucide="arrow-up-right"></i>
-                    {{ number_format(abs($growthPercentageVanitham), 2) }}%
-                    @elseif($growthPercentageVanitham < 0) <i data-lucide="arrow-down-right"></i>
-                        {{ number_format(abs($growthPercentageVanitham), 2) }}%
-                        @else
-                        <i data-lucide="minus"></i>
-                        {{ number_format(abs($growthPercentageVanitham), 2) }}%
-                        @endif
-                </span>
-            </div>
-            <div class="stat-content">
-                <div class="stat-value">₹{{ number_format($currentDayVanithamSales, 2) }}</div>
-                <div class="stat-label">Vanitham Operations Sales</div>
-            </div>
-        </div>
-        @endcan
-
-        <!-- Centreal Operations Sales -->
-        @can('dashboard.centreal-sales-card')
-        <div class="stat-card card-centreal-sales">
-            <div class="stat-header">
-                <div class="stat-icon"><i data-lucide="building-2"></i></div>
-                <span class="stat-trend
-                    @if($growthPercentageCentreal > 0) trend-up
-                    @elseif($growthPercentageCentreal < 0) trend-down
-                    @else trend-neutral
-                    @endif">
-                    @if($growthPercentageCentreal > 0)
-                    <i data-lucide="arrow-up-right"></i>
-                    {{ number_format(abs($growthPercentageCentreal), 2) }}%
-                    @elseif($growthPercentageCentreal < 0) <i data-lucide="arrow-down-right"></i>
-                        {{ number_format(abs($growthPercentageCentreal), 2) }}%
-                        @else
-                        <i data-lucide="minus"></i>
-                        {{ number_format(abs($growthPercentageCentreal), 2) }}%
-                        @endif
-                </span>
-            </div>
-            <div class="stat-content">
-                <div class="stat-value">₹{{ number_format($currentDayCentrealSales, 2) }}</div>
-                <div class="stat-label">Centreal Operations Sales</div>
-            </div>
-        </div>
-        @endcan
-
-        <!-- Vanitham Operations Incentives -->
-        @can('dashboard.vanitham-incentives-card')
-        <div class="stat-card card-vanitham-incentives">
-            <div class="stat-header">
-                <div class="stat-icon"><i data-lucide="building-2"></i></div>
-                <span class="stat-trend
-                    @if($growthPercentageVanithamIncentives > 0) trend-up
-                    @elseif($growthPercentageVanithamIncentives < 0) trend-down
-                    @else trend-neutral
-                    @endif">
-                    @if($growthPercentageVanithamIncentives > 0)
-                    <i data-lucide="arrow-up-right"></i>
-                    {{ number_format(abs($growthPercentageVanithamIncentives), 2) }}%
-                    @elseif($growthPercentageVanithamIncentives < 0) <i data-lucide="arrow-down-right"></i>
-                        {{ number_format(abs($growthPercentageVanithamIncentives), 2) }}%
-                        @else
-                        <i data-lucide="minus"></i>
-                        {{ number_format(abs($growthPercentageVanithamIncentives), 2) }}%
-                        @endif
-                </span>
-            </div>
-            <div class="stat-content">
-                <div class="stat-value">₹{{ number_format($currentDayVanithamIncentives, 2) }}</div>
-                <div class="stat-label">Vanitham Operations Incentives</div>
-            </div>
-        </div>
-        @endcan
-
-        <!-- Centreal Operations Incentives -->
-        @can('dashboard.centreal-incentives-card')
-        <div class="stat-card card-centreal-incentives">
-            <div class="stat-header">
-                <div class="stat-icon"><i data-lucide="building-2"></i></div>
-                <span class="stat-trend
-                    @if($growthPercentageCentrealIncentives > 0) trend-up
-                    @elseif($growthPercentageCentrealIncentives < 0) trend-down
-                    @else trend-neutral
-                    @endif">
-                    @if($growthPercentageCentrealIncentives > 0)
-                    <i data-lucide="arrow-up-right"></i>
-                    {{ number_format(abs($growthPercentageCentrealIncentives), 2) }}%
-                    @elseif($growthPercentageCentrealIncentives < 0) <i data-lucide="arrow-down-right"></i>
-                        {{ number_format(abs($growthPercentageCentrealIncentives), 2) }}%
-                        @else
-                        <i data-lucide="minus"></i>
-                        {{ number_format(abs($growthPercentageCentrealIncentives), 2) }}%
-                        @endif
-                </span>
-            </div>
-            <div class="stat-content">
-                <div class="stat-value">₹{{ number_format($currentDayCentrealIncentives, 2) }}</div>
-                <div class="stat-label">Centreal Operations Incentives</div>
-            </div>
-        </div>
-        @endcan
-    </div>
-
-    <!-- Main Grid Section -->
-    <div class="dashboard-grid">
-        <!-- Tables Column (Left) -->
-        <div class="dashboard-main-col">
-            <!-- Recent Sales Table -->
-            @can('dashboard.recent-sales-card')
-            <div class="data-card">
-                <div class="card-title-header">
-                    <h3>Recent Sales Performance</h3>
-                    <a href="{{ route('view.report') }}" class="view-all">View Report</a>
+            <!-- Check Out Time -->
+            <div class="dashboard-card stat-card">
+                <div class="stat-icon orange">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
                 </div>
-                <div class="table-responsive">
-                    <table class="custom-table">
+                <div class="stat-details">
+                    <!-- Check Out -->
+                    <span class="stat-value {{ $checkOutTime ? 'orange' : 'gray' }}">
+                        {{ $checkOutTime?->format('h:i A') ?? '--:-- --' }}
+                    </span>
+
+                    <span class="stat-subtext orange">
+                        {{ $checkOutTime ? 'Checked Out' : 'Not Checked Out' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Total Working Hours -->
+            <div class="dashboard-card stat-card">
+                <div class="stat-icon blue">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="stat-details">
+                    <!-- Total Working Hours -->
+                    <span class="stat-value blue">
+                        {{ $totalWorkingHours }} Hrs
+                    </span>
+
+                    <span class="stat-subtext">
+                        Today
+                    </span>
+                </div>
+            </div>
+
+            <!-- Work Status -->
+            <div class="dashboard-card stat-card">
+                <div class="stat-icon purple">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                </div>
+                <div class="stat-details">
+                    <!-- Work Status -->
+                    <span
+                        class="stat-value {{ $workStatus === 'Checked In' ? 'green' : ($workStatus === 'Checked Out' ? 'orange' : 'gray') }}">
+                        {{ $workStatus }}
+                    </span>
+
+                    <span class="stat-subtext">
+                        {{ $workStatusSubtext }}
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Middle Section (3 Cards) -->
+        <div class="middle-grid">
+
+            <!-- Check In / Check Out Card -->
+            <div class="dashboard-card">
+                <h2 class="card-title">Check In / Check Out</h2>
+
+                <span class="status-badge-pill" id="statusPill">
+                    Status : {{ $workStatus }}
+                </span>
+
+                <div class="check-times-container">
+
+                    <!-- Check In -->
+                    <div class="check-time-box">
+                        <span class="stat-label">Check In Time</span>
+
+                        <span class="stat-value green" style="font-size: 18px;">
+                            {{ $checkInTime?->format('h:i A') ?? '--:-- --' }}
+                        </span>
+
+                        <span class="stat-subtext">
+                            {{ $todayLog?->work_date?->format('d M Y') ?? now()->format('d M Y') }}
+                        </span>
+                    </div>
+
+
+                    <!-- Check Out -->
+                    <div class="check-time-box has-border">
+                        <span class="stat-label">Check Out Time</span>
+
+                        <span class="stat-value {{ $checkOutTime ? 'orange' : 'gray' }}" style="font-size: 18px;"
+                            id="checkOutBoxValue">
+                            {{ $checkOutTime?->format('h:i A') ?? '--:-- --' }}
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="action-buttons">
+
+                    <!-- Check Out Button -->
+                    @if($todayLog && $checkInTime && !$checkOutTime)
+
+                    <button class="btn-action-solid" id="btnCheckOut">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+
+                        <span>Check Out</span>
+                    </button>
+
+                    @elseif($checkOutTime)
+
+                    <button class="btn-action-solid" disabled>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+
+                        <span>Checked Out</span>
+                    </button>
+
+                    @else
+
+                    <button class="btn-action-solid" disabled>
+                        <span>Not Checked In</span>
+                    </button>
+
+                    @endif
+
+
+                    <!-- View Attendance -->
+                    <button class="btn-action-outline" id="btnViewAttendance">
+                        View Attendance
+                    </button>
+
+                </div>
+            </div>
+
+
+
+            <!-- Today's Summary Card -->
+            <div class="dashboard-card">
+                <h2 class="card-title">Today's Summary</h2>
+
+                <div class="summary-list">
+                    <div class="summary-item">
+                        <div class="summary-left">
+                            <div class="summary-icon-box green">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <span class="summary-title">Orders Taken</span>
+                        </div>
+                        <span class="summary-count">8</span>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-left">
+                            <div class="summary-icon-box green">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <span class="summary-title">Orders Completed</span>
+                        </div>
+                        <span class="summary-count">6</span>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-left">
+                            <div class="summary-icon-box orange">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <span class="summary-title">Pending Orders</span>
+                        </div>
+                        <span class="summary-count">2</span>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-left">
+                            <div class="summary-icon-box green">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <span class="summary-title">Customers Visited</span>
+                        </div>
+                        <span class="summary-count">12</span>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-left">
+                            <div class="summary-icon-box green">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <span class="summary-title">Reports Submitted</span>
+                        </div>
+                        <span class="summary-count">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Orders Card -->
+            <div class="dashboard-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h2 class="card-title">My Orders</h2>
+
+                    <div class="orders-chart-wrapper">
+                        <!-- Conic Gradient Donut Chart -->
+                        <div class="donut-chart-container">
+                            <div class="donut-chart-center">
+                                <span class="number">8</span>
+                                <span class="label">Total</span>
+                            </div>
+                        </div>
+
+                        <!-- Chart Legend -->
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot completed"></div>
+                                <div class="legend-text">
+                                    <strong>Completed</strong>
+                                    <span>6 (75%)</span>
+                                </div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot pending"></div>
+                                <div class="legend-text">
+                                    <strong>Pending</strong>
+                                    <span>2 (25%)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-action-outline btn-full-width" id="btnViewOrders">View All Orders</button>
+            </div>
+
+        </div>
+
+        <!-- Bottom Section (Recent Orders & Schedule) -->
+        <div class="bottom-grid">
+
+            <!-- Recent Orders Table -->
+            <div class="dashboard-card">
+                <h2 class="card-title">Recent Orders</h2>
+
+                <div class="orders-table-wrapper">
+                    <table class="orders-table">
                         <thead>
                             <tr>
-                                <th>Store</th>
-                                <th>Employee</th>
-                                <th>Product</th>
-                                <th>Amount</th>
+                                <th>Order ID</th>
+                                <th>Customer Name</th>
                                 <th>Status</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($recentSales as $sale)
                             <tr>
-                                <td>{{ $sale->store->c_store_name ?? 'N/A' }}</td>
-                                <td>{{ $sale->employee->c_employee_name ?? 'N/A' }}</td>
-                                <td>{{ $sale->product->c_product_name ?? 'N/A' }}</td>
-                                <td>₹{{ number_format($sale->n_quantity * $sale->n_sold_price, 2) }}</td>
-                                <td>
-                                    @php
-                                    $status = $sale->status ?? 'draft';
-                                    @endphp
-
-                                    @if($status == 'verified')
-                                    <span class="status-badge status-success">Verified</span>
-                                    @elseif($status == 'review')
-                                    <span class="status-badge status-warning">Review</span>
-                                    @elseif($status == 'rejected')
-                                    <span class="status-badge status-danger">Rejected</span>
-                                    @else
-                                    <span class="status-badge status-pending">Draft</span>
-                                    @endif
-                                </td>
+                                <td><strong>ORD00123</strong></td>
+                                <td>Rahul Kumar</td>
+                                <td><span class="status-pill-badge completed">Completed</span></td>
+                                <td>11 Aug 2025</td>
                             </tr>
-                            @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">No recent sales data available</td>
+                                <td><strong>ORD00122</strong></td>
+                                <td>Anita Sharma</td>
+                                <td><span class="status-pill-badge completed">Completed</span></td>
+                                <td>11 Aug 2025</td>
                             </tr>
-                            @endforelse
+                            <tr>
+                                <td><strong>ORD00121</strong></td>
+                                <td>Vijay Singh</td>
+                                <td><span class="status-pill-badge pending">Pending</span></td>
+                                <td>11 Aug 2025</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ORD00120</strong></td>
+                                <td>Neha Verma</td>
+                                <td><span class="status-pill-badge completed">Completed</span></td>
+                                <td>10 Aug 2025</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ORD00119</strong></td>
+                                <td>Mohit Patel</td>
+                                <td><span class="status-pill-badge pending">Pending</span></td>
+                                <td>10 Aug 2025</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            @endcan
 
-            <!-- Top Selling Stores -->
-            @can('dashboard.top-stores-card')
-            <div class="data-card">
-                <div class="card-title-header">
-                    <h3>Top Selling Stores</h3>
-                    <a href="{{ route ('view.store.report') }}" class="view-all">View Report</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Store</th>
-                                <th>Store Code</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($topStores as $store)
-                            <tr>
-                                <td>{{ $store->c_store_name ?? 'N/A' }}</td>
-                                <td>{{ $store->c_store_code ?? 'N/A' }}</td>
-                                <td>₹{{ number_format($store->total_sales, 2) }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="3" class="text-center text-muted py-4">No top-selling stores found</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            <!-- Today's Schedule -->
+            <div class="dashboard-card">
+                <h2 class="card-title">Today's Schedule</h2>
+
+                <div class="schedule-timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <span class="timeline-time">09:15 AM</span>
+                        <span class="timeline-desc timeline-status">Checked In</span>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <span class="timeline-time">10:00 AM</span>
+                        <span class="timeline-desc">Customer Visit - Rahul Kumar</span>
+                        <span class="timeline-status">Completed</span>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <span class="timeline-time">11:30 AM</span>
+                        <span class="timeline-desc">Customer Visit - Anita Sharma</span>
+                        <span class="timeline-status">Completed</span>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot orange"></div>
+                        <span class="timeline-time">01:00 PM</span>
+                        <span class="timeline-desc lunch">Lunch Break</span>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <span class="timeline-time">02:00 PM</span>
+                        <span class="timeline-desc">Customer Visit - Vijay Singh</span>
+                        <span class="timeline-status">Completed</span>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <span class="timeline-time">04:00 PM</span>
+                        <span class="timeline-desc">Customer Visit - Neha Verma</span>
+                        <span class="timeline-status">Completed</span>
+                    </div>
                 </div>
             </div>
-            @endcan
 
-            <!-- Stores with Unprocessed Sales -->
-            @can('dashboard.pending-sales-card')
-            <div class="data-card">
-                <div class="card-title-header">
-                    <h3>Stores with Unprocessed Sales</h3>
-                    <a href="#" class="view-all">View Report</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Store Code</th>
-                                <th>Store</th>
-                                <th>Sales Pending</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($pendingSalesByStore as $pendingSale)
-                            <tr>
-                                <td>{{ $pendingSale->store->c_store_code ?? 'N/A' }}</td>
-                                <td>{{ $pendingSale->store->c_store_name ?? 'N/A' }}</td>
-                                <td>{{ $pendingSale->total_sales_pending ?? 'N/A' }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="3" class="text-center text-muted py-4">No unprocessed sales available</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            @endcan
         </div>
 
-        <!-- Performers Column (Right) -->
-        <div class="dashboard-side-col">
-            <!-- Top Performers Vanitham -->
-            @can('dashboard.top-vanitham-performers-card')
-            <div class="data-card">
-                <div class="card-title-header">
-                    <h3>Top Performers Vanitham</h3>
-                    <i data-lucide="more-horizontal" style="cursor: pointer; color: var(--text-muted);"></i>
-                </div>
-
-                <div class="performer-list">
-                    <!-- CA -->
-                    <div class="performer-card">
-                        <div class="performer-card-header">
-                            <span class="role-pill badge-ca">C&A</span>
-                            <div class="performer-incentive-badge">
-                                <span class="incentive-label">Incentive</span>
-                                <span
-                                    class="incentive-amount">₹{{ number_format($topVanithamCA->total_incentive ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                        <div class="performer-card-body">
-                            <img src="{{ !empty($topVanithamCA?->profile_path)
-                                ? config('app.employee_app_url') . '/storage/' . $topVanithamCA->profile_path
-                                : 'https://ui-avatars.com/api/?name=' . urlencode($topVanithamCA?->c_employee_name ?? 'NA') . '&background=faf5ff&color=9333ea' }}"
-                                class="performer-card-avatar" alt="{{ $topVanithamCA?->c_employee_name ?? 'User' }}">
-                            <div class="performer-card-info">
-                                <h4 class="performer-card-name"
-                                    title="{{ $topVanithamCA->c_employee_name ?? 'No Top C&A' }}">
-                                    {{ $topVanithamCA->c_employee_name ?? 'No Top C&A' }}
-                                </h4>
-                                <span class="performer-card-username">({{ $topVanithamCA->c_username ?? 'N/A' }})</span>
-                                <div class="performer-card-meta">
-                                    <span
-                                        class="performer-card-designation">{{ $topVanithamCA->c_designation_name ?? 'N/A' }}</span>
-                                    <span class="performer-card-dot">•</span>
-                                    <span class="performer-card-store"
-                                        title="{{ $topVanithamCA->c_store_name ?? 'No Data Available Today' }}">
-                                        {{ $topVanithamCA->c_store_name ?? 'No Data Available Today' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CSA -->
-                    <div class="performer-card">
-                        <div class="performer-card-header">
-                            <span class="role-pill badge-csa">CSA</span>
-                            <div class="performer-incentive-badge">
-                                <span class="incentive-label">Incentive</span>
-                                <span
-                                    class="incentive-amount">₹{{ number_format($topVanithamCSA->total_incentive ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                        <div class="performer-card-body">
-                            <img src="{{ !empty($topVanithamCSA?->profile_path)
-                                ? config('app.employee_app_url') . '/storage/' . $topVanithamCSA->profile_path
-                                : 'https://ui-avatars.com/api/?name=' . urlencode($topVanithamCSA?->c_employee_name ?? 'NA') . '&background=faf5ff&color=9333ea' }}"
-                                class="performer-card-avatar" alt="{{ $topVanithamCSA?->c_employee_name ?? 'User' }}">
-                            <div class="performer-card-info">
-                                <h4 class="performer-card-name"
-                                    title="{{ $topVanithamCSA->c_employee_name ?? 'No Top CSA' }}">
-                                    {{ $topVanithamCSA->c_employee_name ?? 'No Top CSA' }}
-                                </h4>
-                                <span
-                                    class="performer-card-username">({{ $topVanithamCSA->c_username ?? 'N/A' }})</span>
-                                <div class="performer-card-meta">
-                                    <span
-                                        class="performer-card-designation">{{ $topVanithamCSA->c_designation_name ?? 'N/A' }}</span>
-                                    <span class="performer-card-dot">•</span>
-                                    <span class="performer-card-store"
-                                        title="{{ $topVanithamCSA->c_store_name ?? 'No Data Available Today' }}">
-                                        {{ $topVanithamCSA->c_store_name ?? 'No Data Available Today' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SM -->
-                    <div class="performer-card">
-                        <div class="performer-card-header">
-                            <span class="role-pill badge-sm">SM</span>
-                            <div class="performer-incentive-badge">
-                                <span class="incentive-label">Incentive</span>
-                                <span
-                                    class="incentive-amount">₹{{ number_format($topVanithamSM->total_incentive ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                        <div class="performer-card-body">
-                            <img src="{{ !empty($topVanithamSM?->profile_path)
-                                ? config('app.employee_app_url') . '/storage/' . $topVanithamSM->profile_path
-                                : 'https://ui-avatars.com/api/?name=' . urlencode($topVanithamSM?->c_employee_name ?? 'NA') . '&background=faf5ff&color=9333ea' }}"
-                                class="performer-card-avatar" alt="{{ $topVanithamSM?->c_employee_name ?? 'User' }}">
-                            <div class="performer-card-info">
-                                <h4 class="performer-card-name"
-                                    title="{{ $topVanithamSM->c_employee_name ?? 'No Top SM' }}">
-                                    {{ $topVanithamSM->c_employee_name ?? 'No Top SM' }}
-                                </h4>
-                                <span class="performer-card-username">({{ $topVanithamSM->c_username ?? 'N/A' }})</span>
-                                <div class="performer-card-meta">
-                                    <span
-                                        class="performer-card-designation">{{ $topVanithamSM->c_designation_name ?? 'N/A' }}</span>
-                                    <span class="performer-card-dot">•</span>
-                                    <span class="performer-card-store"
-                                        title="{{ $topVanithamSM->c_store_name ?? 'No Data Available Today' }}">
-                                        {{ $topVanithamSM->c_store_name ?? 'No Data Available Today' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cluster -->
-                    <div class="performer-card">
-                        <div class="performer-card-header">
-                            <span class="role-pill badge-cluster">Cluster</span>
-                            <div class="performer-incentive-badge">
-                                <span class="incentive-label">Incentive</span>
-                                <span
-                                    class="incentive-amount">₹{{ number_format($topVanithamCluster->total_incentive ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                        <div class="performer-card-body">
-                            <img src="{{ !empty($topVanithamCluster?->profile_path)
-                                ? config('app.employee_app_url') . '/storage/' . $topVanithamCluster->profile_path
-                                : 'https://ui-avatars.com/api/?name=' . urlencode($topVanithamCluster?->c_employee_name ?? 'NA') . '&background=faf5ff&color=9333ea' }}"
-                                class="performer-card-avatar"
-                                alt="{{ $topVanithamCluster?->c_employee_name ?? 'User' }}">
-                            <div class="performer-card-info">
-                                <h4 class="performer-card-name"
-                                    title="{{ $topVanithamCluster->c_employee_name ?? 'No Top Cluster' }}">
-                                    {{ $topVanithamCluster->c_employee_name ?? 'No Top Cluster' }}
-                                </h4>
-                                <span
-                                    class="performer-card-username">({{ $topVanithamCluster->c_username ?? 'N/A' }})</span>
-                                <div class="performer-card-meta">
-                                    <span
-                                        class="performer-card-designation">{{ $topVanithamCluster->c_designation_name ?? 'N/A' }}</span>
-                                    <span class="performer-card-dot">•</span>
-                                    <span class="performer-card-store"
-                                        title="{{ $topVanithamCluster->c_store_name ?? 'Multiple Stores' }}">
-                                        {{ $topVanithamCluster->c_store_name ?? 'Multiple Stores' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endcan
-
-            <!-- Top Performers Centreal -->
-            @can('dashboard.top-centreal-performers-card')
-            <div class="data-card">
-                <div class="card-title-header">
-                    <h3>Top Performers Centreal</h3>
-                    <i data-lucide="more-horizontal" style="cursor: pointer; color: var(--text-muted);"></i>
-                </div>
-
-                <div class="performer-list">
-                    <!-- CA -->
-                    <div class="performer-card">
-                        <div class="performer-card-header">
-                            <span class="role-pill badge-ca">C&A</span>
-                            <div class="performer-incentive-badge">
-                                <span class="incentive-label">Incentive</span>
-                                <span
-                                    class="incentive-amount">₹{{ number_format($topCentrealCA->total_incentive ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                        <div class="performer-card-body">
-                            <img src="{{ !empty($topCentrealCA?->profile_path)
-                                ? config('app.employee_app_url') . asset('/storage/') . $topCentrealCA->profile_path
-                                : 'https://ui-avatars.com/api/?name=' . urlencode($topCentrealCA?->c_employee_name ?? 'NA') . '&background=eff6ff&color=2563eb' }}"
-                                class="performer-card-avatar" alt="{{ $topCentrealCA?->c_employee_name ?? 'User' }}">
-                            <div class="performer-card-info">
-                                <h4 class="performer-card-name"
-                                    title="{{ $topCentrealCA->c_employee_name ?? 'No Top C&A' }}">
-                                    {{ $topCentrealCA->c_employee_name ?? 'No Top C&A' }}
-                                </h4>
-                                <span class="performer-card-username">({{ $topCentrealCA->c_username ?? 'N/A' }})</span>
-                                <div class="performer-card-meta">
-                                    <span
-                                        class="performer-card-designation">{{ $topCentrealCA->c_designation_name ?? 'N/A' }}</span>
-                                    <span class="performer-card-dot">•</span>
-                                    <span class="performer-card-store"
-                                        title="{{ $topCentrealCA->c_store_name ?? 'No Data Available Today' }}">
-                                        {{ $topCentrealCA->c_store_name ?? 'No Data Available Today' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CSA -->
-                    <div class="performer-card">
-                        <div class="performer-card-header">
-                            <span class="role-pill badge-csa">CSA</span>
-                            <div class="performer-incentive-badge">
-                                <span class="incentive-label">Incentive</span>
-                                <span
-                                    class="incentive-amount">₹{{ number_format($topCentrealCSA->total_incentive ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                        <div class="performer-card-body">
-                            <img src="{{ !empty($topCentrealCSA?->profile_path)
-                                ? config('app.employee_app_url') . '/storage/' . $topCentrealCSA->profile_path
-                                : 'https://ui-avatars.com/api/?name=' . urlencode($topCentrealCSA?->c_employee_name ?? 'NA') . '&background=eff6ff&color=2563eb' }}"
-                                class="performer-card-avatar" alt="{{ $topCentrealCSA?->c_employee_name ?? 'User' }}">
-                            <div class="performer-card-info">
-                                <h4 class="performer-card-name"
-                                    title="{{ $topCentrealCSA->c_employee_name ?? 'No Top CSA' }}">
-                                    {{ $topCentrealCSA->c_employee_name ?? 'No Top CSA' }}
-                                </h4>
-                                <span
-                                    class="performer-card-username">({{ $topCentrealCSA->c_username ?? 'N/A' }})</span>
-                                <div class="performer-card-meta">
-                                    <span
-                                        class="performer-card-designation">{{ $topCentrealCSA->c_designation_name ?? 'N/A' }}</span>
-                                    <span class="performer-card-dot">•</span>
-                                    <span class="performer-card-store"
-                                        title="{{ $topCentrealCSA->c_store_name ?? 'No Data Available Today' }}">
-                                        {{ $topCentrealCSA->c_store_name ?? 'No Data Available Today' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SM -->
-                    <div class="performer-card">
-                        <div class="performer-card-header">
-                            <span class="role-pill badge-sm">SM</span>
-                            <div class="performer-incentive-badge">
-                                <span class="incentive-label">Incentive</span>
-                                <span
-                                    class="incentive-amount">₹{{ number_format($topCentrealSM->total_incentive ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                        <div class="performer-card-body">
-                            <img src="{{ !empty($topCentrealSM?->profile_path)
-                                ? config('app.employee_app_url') . '/storage/' . $topCentrealSM->profile_path
-                                : 'https://ui-avatars.com/api/?name=' . urlencode($topCentrealSM?->c_employee_name ?? 'NA') . '&background=eff6ff&color=2563eb' }}"
-                                class="performer-card-avatar" alt="{{ $topCentrealSM?->c_employee_name ?? 'User' }}">
-                            <div class="performer-card-info">
-                                <h4 class="performer-card-name"
-                                    title="{{ $topCentrealSM->c_employee_name ?? 'No Top SM' }}">
-                                    {{ $topCentrealSM->c_employee_name ?? 'No Top SM' }}
-                                </h4>
-                                <span class="performer-card-username">({{ $topCentrealSM->c_username ?? 'N/A' }})</span>
-                                <div class="performer-card-meta">
-                                    <span
-                                        class="performer-card-designation">{{ $topCentrealSM->c_designation_name ?? 'N/A' }}</span>
-                                    <span class="performer-card-dot">•</span>
-                                    <span class="performer-card-store"
-                                        title="{{ $topCentrealSM->c_store_name ?? 'No Data Available Today' }}">
-                                        {{ $topCentrealSM->c_store_name ?? 'No Data Available Today' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cluster -->
-                    <div class="performer-card">
-                        <div class="performer-card-header">
-                            <span class="role-pill badge-cluster">Cluster</span>
-                            <div class="performer-incentive-badge">
-                                <span class="incentive-label">Incentive</span>
-                                <span
-                                    class="incentive-amount">₹{{ number_format($topCentrealCluster->total_incentive ?? 0, 2) }}</span>
-                            </div>
-                        </div>
-                        <div class="performer-card-body">
-                            <img src="{{ !empty($topCentrealCluster?->profile_path)
-                                ? config('app.employee_app_url') . '/storage/' . $topCentrealCluster->profile_path
-                                : 'https://ui-avatars.com/api/?name=' . urlencode($topCentrealCluster?->c_employee_name ?? 'NA') . '&background=eff6ff&color=2563eb' }}"
-                                class="performer-card-avatar"
-                                alt="{{ $topCentrealCluster?->c_employee_name ?? 'User' }}">
-                            <div class="performer-card-info">
-                                <h4 class="performer-card-name"
-                                    title="{{ $topCentrealCluster->c_employee_name ?? 'No Top Cluster' }}">
-                                    {{ $topCentrealCluster->c_employee_name ?? 'No Top Cluster' }}
-                                </h4>
-                                <span
-                                    class="performer-card-username">({{ $topCentrealCluster->c_username ?? 'N/A' }})</span>
-                                <div class="performer-card-meta">
-                                    <span
-                                        class="performer-card-designation">{{ $topCentrealCluster->c_designation_name ?? 'N/A' }}</span>
-                                    <span class="performer-card-dot">•</span>
-                                    <span class="performer-card-store"
-                                        title="{{ $topCentrealCluster->c_store_name ?? 'Multiple Stores' }}">
-                                        {{ $topCentrealCluster->c_store_name ?? 'Multiple Stores' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endcan
-        </div>
     </div>
 </section>
-
-
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle Check Out functionality demo
+    const btnCheckOut = document.getElementById('btnCheckOut');
+    const checkOutDisplay = document.getElementById('checkOutDisplay');
+    const checkOutBoxValue = document.getElementById('checkOutBoxValue');
+    const checkOutSubtext = document.getElementById('checkOutSubtext');
+    const workStatusDisplay = document.getElementById('workStatusDisplay');
+    const statusPill = document.getElementById('statusPill');
+
+    <<
+    << << < HEAD
+    let isCheckedOut = false;
+
+    btnCheckOut.addEventListener('click', function() {
+        isCheckedOut = !isCheckedOut;
+
+        if (isCheckedOut) {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            checkOutDisplay.textContent = timeStr;
+            checkOutDisplay.classList.remove('gray');
+            checkOutDisplay.classList.add('orange');
+
+            checkOutBoxValue.textContent = timeStr;
+            checkOutBoxValue.classList.remove('gray');
+            checkOutBoxValue.classList.add('orange');
+
+            checkOutSubtext.textContent = 'Checked Out';
+            checkOutSubtext.style.color = '#059669';
+
+            workStatusDisplay.textContent = 'Checked Out';
+            workStatusDisplay.className = 'stat-value orange';
+
+            statusPill.textContent = 'Status : Checked Out';
+            statusPill.style.backgroundColor = '#fff3e0';
+            statusPill.style.color = '#f97316';
+
+            btnCheckOut.querySelector('span').textContent = 'Checked Out';
+            btnCheckOut.style.backgroundColor = '#64748b';
+        } else {
+            checkOutDisplay.textContent = '--:-- --';
+            checkOutDisplay.className = 'stat-value gray';
+
+            checkOutBoxValue.textContent = '--:-- --';
+            checkOutBoxValue.className = 'stat-value gray';
+
+            checkOutSubtext.textContent = 'Not Checked Out';
+            checkOutSubtext.style.color = '#f97316';
+
+            workStatusDisplay.textContent = 'Checked In';
+            workStatusDisplay.className = 'stat-value green';
+
+            statusPill.textContent = 'Status : Checked In';
+            statusPill.style.backgroundColor = '#e8f5e9';
+            statusPill.style.color = '#059669';
+
+            btnCheckOut.querySelector('span').textContent = 'Check Out';
+            btnCheckOut.style.backgroundColor = '#059669';
+        }
+    });
+});
+</script>
+@endpush
+=======
+@endsection
+>>>>>>> 13339861159c52e27ff24ccca3e843fa287f5c59

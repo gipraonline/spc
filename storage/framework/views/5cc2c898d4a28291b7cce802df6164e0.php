@@ -276,6 +276,9 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Name</h6>
                         </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Category</h6>
+                        </th>
 
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Unit</h6>
@@ -328,9 +331,16 @@
                         <td class="border-bottom-0">
                             <h6 class="fw-semibold mb-0"><?php echo e($product->c_product_name); ?></h6>
                         </td>
+
                         <td class="border-bottom-0">
                             <span class="fw-normal">
-                                <?php echo e($product->c_unit); ?>
+                                <?php echo e($product->category?->c_category_name ?? '-'); ?>
+
+                            </span>
+                        </td>
+                        <td class="border-bottom-0">
+                            <span class="fw-normal">
+                                <?php echo e($product->c_unit ?? '-'); ?>
 
                             </span>
                         </td>

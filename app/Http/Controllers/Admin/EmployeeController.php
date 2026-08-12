@@ -112,31 +112,31 @@ public function clearSearch()
 
             'branch_name' => 'required|string|max:255',
 
-], [
-    'c_employee_code.required' => 'Employee Code is required.',
-    'c_employee_code.unique'   => 'Employee Code already exists.',
-    'c_employee_code.regex'    => 'Employee Code can contain only letters, numbers, hyphens (-), and underscores (_).',
+            ], [
+                'c_employee_code.required' => 'Employee Code is required.',
+                'c_employee_code.unique'   => 'Employee Code already exists.',
+                'c_employee_code.regex'    => 'Employee Code can contain only letters, numbers, hyphens (-), and underscores (_).',
 
-    'c_employee_name.required' => 'Employee Name is required.',
+                'c_employee_name.required' => 'Employee Name is required.',
 
-    'c_employee_email.email'   => 'Please enter a valid email address.',
-    'c_employee_email.unique'  => 'This Email/Username already exists.',
+                'c_employee_email.email'   => 'Please enter a valid email address.',
+                'c_employee_email.unique'  => 'This Email/Username already exists.',
 
-    'n_employee_phone.regex'   => 'Please enter a valid 10-digit mobile number.',
+                'n_employee_phone.regex'   => 'Please enter a valid 10-digit mobile number.',
 
-    'n_designation_id.required' => 'Please select a designation.',
+                'n_designation_id.required' => 'Please select a designation.',
 
-    'c_status.required' => 'Please select employee status.',
+                'c_status.required' => 'Please select employee status.',
 
-    'account_number.required' => 'Account Number is required.',
-    'account_number.digits_between' => 'Account Number must be between 8 and 18 digits.',
+                'account_number.required' => 'Account Number is required.',
+                'account_number.digits_between' => 'Account Number must be between 8 and 18 digits.',
 
-    'ifsc_code.required' => 'IFSC Code is required.',
-    'ifsc_code.regex' => 'Please enter a valid IFSC Code.',
+                'ifsc_code.required' => 'IFSC Code is required.',
+                'ifsc_code.regex' => 'Please enter a valid IFSC Code.',
 
-    'bank_name.required' => 'Bank Name is required.',
-    'branch_name.required' => 'Branch Name is required.',
-]);
+                'bank_name.required' => 'Bank Name is required.',
+                'branch_name.required' => 'Branch Name is required.',
+            ]);
 
     DB::beginTransaction();
 
@@ -157,7 +157,7 @@ public function clearSearch()
         ]);
 
         // Bank Details
-        
+
         KycSubmission::create([
             'n_employee_id'  => $employee->n_employee_id,
             'bank_name'      => $validated['bank_name'],
@@ -167,8 +167,8 @@ public function clearSearch()
             'document_path'  => '',
             'status'         => 'Active',
         ]);
-    
-  
+
+
         DB::commit();
 
         return redirect()
@@ -190,12 +190,12 @@ public function clearSearch()
     {
 
         $designations = DesignationMaster::where('c_status', 'Y')->get();
-          $employees = EmployeeMaster::where('c_status', 'Y')
+        $employees = EmployeeMaster::where('c_status', 'Y')
         ->where('n_employee_id', '!=', $employee->n_employee_id)
         ->orderBy('c_employee_name')
         ->get();
 
-    $kyc = KycSubmission::where('n_employee_id', $employee->n_employee_id)
+        $kyc = KycSubmission::where('n_employee_id', $employee->n_employee_id)
         ->where('status', 'Active')
         ->first();
 
@@ -316,7 +316,7 @@ public function clearSearch()
 {
     $designation = DesignationMaster::findOrFail($designationId);
 
-    $employees = EmployeeMaster::join(
+   /*  $employees = EmployeeMaster::join(
             'designation_masters',
             'employee_masters.n_designation_id',
             '=',
@@ -330,9 +330,18 @@ public function clearSearch()
             'designation_masters.c_designation'
         )
         ->orderBy('designation_masters.hierarchy_level')
+        ->get(); */
+        $reportingEmployees=EmployeeMaster::join(
+            'designation_masters',
+            'employee_masters.n_designation_id',
+            '=',
+            'designation_masters.n_designation_id'
+        )
+        ->where('designation_masters.hierarchy_level', $designation->hierarchy_level - 1)
+        ->select()
         ->get();
 
-    return response()->json($employees);
+    return response()->json($reportingEmployees);
 }
 
 }

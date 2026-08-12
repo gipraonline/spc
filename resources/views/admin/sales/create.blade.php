@@ -520,7 +520,7 @@ use Illuminate\Support\Facades\Crypt;
                         </div>
 
                     </div>
-                    @if(isset($isfarmcareadvisor))
+                  {{--   @if(isset($isfarmcareadvisor) && $isfarmcareadvisor==false)
                     <div class="row mb-3 align-items-center">
                          <div class="col-lg-6 mb-3">
 
@@ -541,7 +541,7 @@ use Illuminate\Support\Facades\Crypt;
 
                         </div>
                     </div>
-                    @endif
+                    @endif --}}
 
                 </div>
 

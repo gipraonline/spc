@@ -282,6 +282,7 @@ class SalesController extends Controller
             'n_district_id' => 'required|integer|exists:districts,id',
             'nearest_franchise_id' => 'required|integer|exists:store_masters,n_store_id',
             'c_mode_of_payment' => 'required',
+            'c_order_status' => 'required',
 
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'required|integer',
@@ -353,6 +354,7 @@ class SalesController extends Controller
                 'n_state_id' => $validated['n_state_id'],
                 'n_district_id' => $validated['n_district_id'],
                 'c_mode_of_payment' => $validated['c_mode_of_payment'],
+                'c_order_status' => $validated['c_order_status'],
                 'nearest_franchise_id' => $validated['nearest_franchise_id'],
                 'payment_image' => $imageName,
             ];

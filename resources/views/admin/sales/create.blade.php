@@ -73,6 +73,35 @@
     font-weight: 600;
 }
 
+
+
+.order-status-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px 17px;
+    margin-right: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.order-status-option:hover {
+    background: #f8f9fa;
+}
+
+.order-status-option input[type="radio"] {
+    margin: 0;
+}
+
+.order-status-option input[type="radio"]:checked+label {
+    color: #087f23;
+    font-weight: 600;
+}
+
+
+
 .advisor-highlight {
 
     /* Light yellow */
@@ -533,6 +562,106 @@ use Illuminate\Support\Facades\Crypt;
 
                 </div>
 
+                <!-- order status section -->
+                <div class="form-box mb-4">
+
+    <div class="form-section-header mb-3">
+        <i class="ti ti-package fs-5"></i>
+        Order Status
+    </div>
+
+    <div class="row mb-3 align-items-center">
+
+        <label class="col-md-3 col-form-label fw-semibold">
+            Status <span class="text-danger">*</span>
+        </label>
+
+        <div class="col-md-9">
+
+            <div class="order-status-option">
+                <input
+                    class="form-check-input mandatory order-status"
+                    type="radio"
+                    name="c_order_status"
+                    id="order_status_approved"
+                    value="Approved"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Approved' ? 'checked' : '' }}
+                >
+
+                <label for="order_status_approved" class="mb-0">
+                    <i class="ti ti-circle-check text-success"></i>
+                    Approved
+                </label>
+            </div>
+
+            <div class="order-status-option">
+                <input
+                    class="form-check-input order-status"
+                    type="radio"
+                    name="c_order_status"
+                    id="order_status_dispatched"
+                    value="Dispatched"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Dispatched' ? 'checked' : '' }}
+                >
+
+                <label for="order_status_dispatched" class="mb-0">
+                    <i class="ti ti-truck-loading text-info"></i>
+                    Dispatched
+                </label>
+            </div>
+
+            <div class="order-status-option">
+                <input
+                    class="form-check-input order-status"
+                    type="radio"
+                    name="c_order_status"
+                    id="order_status_shipped"
+                    value="Shipped"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Shipped' ? 'checked' : '' }}
+                >
+
+                <label for="order_status_shipped" class="mb-0">
+                    <i class="ti ti-truck text-primary"></i>
+                    Shipped
+                </label>
+            </div>
+
+            <div class="order-status-option">
+                <input
+                    class="form-check-input order-status"
+                    type="radio"
+                    name="c_order_status"
+                    id="order_status_delivered"
+                    value="Delivered"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Delivered' ? 'checked' : '' }}
+                >
+
+                <label for="order_status_delivered" class="mb-0">
+                    <i class="ti ti-package-export text-success"></i>
+                    Delivered
+                </label>
+            </div>
+
+            <div class="order-status-option">
+                <input
+                    class="form-check-input order-status"
+                    type="radio"
+                    name="c_order_status"
+                    id="order_status_cancelled"
+                    value="Cancelled"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Cancelled' ? 'checked' : '' }}
+                >
+
+                <label for="order_status_cancelled" class="mb-0">
+                    <i class="ti ti-circle-x text-danger"></i>
+                    Cancelled
+                </label>
+            </div>
+
+        </div>
+    </div>
+
+</div>
 
                 <!-- Franchise Details Section -->
                 <div class="form-box">

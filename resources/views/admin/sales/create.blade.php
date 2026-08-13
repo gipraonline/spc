@@ -2,7 +2,7 @@
 
 @push('styles')
 <style>
-    /* Creative Light Theme & Green Color Combinations */
+    /* Creative Light Theme & Green Palette */
     :root {
         --bg-body: #f4f8f5;
         --card-bg: #ffffff;
@@ -12,11 +12,13 @@
         --border-green: #d1e7dd;
         --text-dark: #1e293b;
         --text-muted: #64748b;
+        --border-slate: #e2e8f0;
     }
 
+    /* Main Card Container */
     .card {
         border-radius: 14px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border-slate);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         background-color: var(--card-bg);
     }
@@ -29,7 +31,7 @@
 
     /* Form Section Box Styling */
     .form-section, .form-box, .border.rounded {
-        border: 1px solid #e2e8f0 !important;
+        border: 1px solid var(--border-slate) !important;
         border-radius: 12px !important;
         padding: 24px !important;
         margin-bottom: 24px !important;
@@ -50,7 +52,7 @@
         gap: 8px;
     }
 
-    /* Green Badge Pills matching the reference image */
+    /* Badge Pills */
     .badge-new {
         background-color: #059669;
         color: #ffffff;
@@ -84,7 +86,7 @@
         letter-spacing: 0.5px;
     }
 
-    /* Labels & Form Controls */
+    /* Form Controls & Inputs */
     .form-label {
         font-size: 13px;
         font-weight: 600;
@@ -108,12 +110,45 @@
         outline: none;
     }
 
-    /* Highlighted & Readonly Inputs */
+    /* Highlighted Readonly Inputs */
     .order-number, .advisor-highlight {
         background-color: #f4f8f5 !important;
         color: var(--primary-green) !important;
         font-weight: 700 !important;
         border-color: var(--border-green) !important;
+    }
+
+    /* Radio Button Cards (Payment & Order Status) */
+    .payment-option, .order-status-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 10px 16px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        background-color: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    .payment-option:hover, .order-status-option:hover {
+        background-color: #f4f8f5;
+        border-color: var(--primary-green);
+    }
+
+    .payment-option input[type="radio"], .order-status-option input[type="radio"] {
+        margin: 0;
+        accent-color: var(--primary-green);
+        width: 16px;
+        height: 16px;
+    }
+
+    .payment-option input[type="radio"]:checked + label,
+    .order-status-option input[type="radio"]:checked + label {
+        color: var(--primary-green);
+        font-weight: 700;
     }
 
     /* Primary & Secondary Buttons */
@@ -155,7 +190,7 @@
         width: 100%;
         border-radius: 10px;
         overflow: hidden;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border-slate);
     }
 
     #productTable thead th {
@@ -164,7 +199,7 @@
         font-size: 13px;
         font-weight: 700;
         padding: 12px 14px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--border-slate);
     }
 
     #productTable tbody td {
@@ -185,10 +220,10 @@
         background-color: #b91c1c !important;
     }
 
-    /* Summary Box on Right Side of Product Details */
+    /* Product Details Summary Box */
     .product-summary-box {
         background-color: #f8faf8;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border-slate);
         border-radius: 12px;
         padding: 18px;
     }
@@ -213,7 +248,7 @@
     }
 
     .summary-input {
-        width: 130px;
+        width: 140px;
         text-align: right;
         font-weight: 600;
         background-color: #ffffff !important;
@@ -239,45 +274,39 @@
         border-color: #a7f3d0;
     }
 
-    /* Payment Radio Options */
-    .payment-option {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: 1.5px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 10px 18px;
-        margin-right: 12px;
-        margin-bottom: 8px;
-        cursor: pointer;
-        background-color: #ffffff;
-        transition: all 0.2s ease;
-    }
-
-    .payment-option:hover {
-        background-color: #f4f8f5;
-        border-color: #0f5132;
-    }
-
-    .payment-option input[type="radio"] {
-        margin: 0;
-        accent-color: #0f5132;
-        width: 16px;
-        height: 16px;
-    }
-
-    .payment-option input[type="radio"]:checked + label {
-        color: #0f5132;
-        font-weight: 700;
-    }
-
-    /* Modal Backdrop Z-Index fix */
+    /* Modal Backdrop Z-Index */
     #approveModal {
         z-index: 1060 !important;
     }
 
     .modal-backdrop {
         z-index: 1050 !important;
+    }
+
+    /* Mobile Responsive Optimizations */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 16px !important;
+        }
+
+        .form-section, .form-box, .border.rounded {
+            padding: 16px !important;
+            margin-bottom: 16px !important;
+        }
+
+        .payment-option, .order-status-option {
+            width: 100%;
+            margin-right: 0;
+        }
+
+        .product-summary-box {
+            width: 100% !important;
+            margin-top: 16px;
+        }
+
+        .summary-input {
+            width: 110px;
+        }
     }
 </style>
 @endpush
@@ -323,7 +352,7 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
                 <!-- Row 1: Date & Booklet Serial No -->
-                <div class="row">
+                <div class="row g-3">
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Date *</label>
@@ -348,16 +377,9 @@ use Illuminate\Support\Facades\Crypt;
 
                 </div>
 
-                <!-- Row 2: Order No & Order Amount -->
-                <div class="row">
+                <!-- Row 2: Order No & Farm Care Advisor -->
+                <div class="row g-3">
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Order No *</label>
-                        <input type="text" name="c_order_no" class="form-control mandatory order-number"
-                            data-message="Please Enter Order No"
-                            value="{{ old('c_order_no', isset($sale) ? $sale->c_order_no : '') }}" >
-                        <div class="text-danger mt-1 fs-2"></div>
-                    </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">
@@ -365,27 +387,21 @@ use Illuminate\Support\Facades\Crypt;
                         </label>
 
                         @if($isFarmCareAdvisor)
-                        <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}" readonly>
-                        @else
-                        <select name="farm_care_advisor_id" class="form-control mandatory">
-                            <option value="">Select Farm Care Adviser</option>
-                            @foreach($employees as $employee)
-                            <option value="{{ $employee->n_employee_id }}" {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
-                                {{ $employee->c_employee_name }}
-                            </option>
-                            @endforeach
-                        </select>
+                            <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}" readonly>
+                            @else
+                            <select name="farm_care_advisor_id" class="form-control mandatory">
+                                <option value="">Select Farm Care Adviser</option>
+                                @foreach($employees as $employee)
+                                <option value="{{ $employee->n_employee_id }}" {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
+                                    {{ $employee->c_employee_name }}
+                                </option>
+                                @endforeach
+                            </select>
                         @endif
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
 
-
-                </div>
-
-                <!-- Row 3: Farm Care Advisor & Sales Order Booklet Proof -->
-                <div class="row">
-
-                    <div class="col-md-6 mb-3">
+                     <div class="col-md-6 mb-3">
                         <label class="form-label">
                             Sales Order Booklet Proof *
                         </label>
@@ -412,52 +428,100 @@ use Illuminate\Support\Facades\Crypt;
                     </button>
                     @endif
                 </div>
-
-                <div class="table-responsive">
+<div class="table-responsive">
                     <table class="table table-bordered align-middle" id="productTable">
                         <thead class="table-light">
                             <tr>
-                                <th width="35%">Product</th>
-                                <th width="15%">Price</th>
-                                <th width="15%">Quantity</th>
-                                {{-- <th width="15%">Discount</th> --}}
-                                <th width="12%">Total</th>
+                                <th width="25%">Product</th>
+                                <th width="12%">Price</th>
+                                <th width="10%">Quantity</th>
+                                <th width="12%">Discount</th>
+                                <th width="10%">GST %</th>
+                                <th width="13%">GST Amount</th>
+                                <th width="10%">MRP</th>
                                 <th width="8%">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if(isset($sale->orderProducts) && count($sale->orderProducts) > 0)
                                 @foreach($sale->orderProducts as $key=>$val)
-                                <tr>
-                                    <td>
-                                        <select name="products[{{ $key }}][product_id]" class="form-control product mandatory">
-                                            <option value="">Select Product</option>
-                                            @foreach($products as $product)
-                                            <option value="{{ $product->n_product_id }}" data-price="{{ $product->n_mrp }}"
-                                                {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
-                                                {{ $product->c_product_name }}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="products[{{ $key }}][product_price]" class="form-control price" value="{{ $val->product_price }}" readonly>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="products[{{ $key }}][qty]" class="form-control qty" value="{{ $val->qty }}">
-                                    </td>
-                                    {{-- <td>
-                                        <input type="number" name="products[{{ $key }}][discount]" class="form-control discount" value="{{ $val->discount ?? '0.00' }}" step="0.01">
-                                    </td> --}}
-                                    <td>
-                                        <input type="text" name="products[{{ $key }}][product_total]" class="form-control total" value="{{ $val->product_total }}" readonly>
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-danger btn-sm removeRow">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td>
+                                            <select name="products[{{ $key }}][product_id]"
+                                                    class="form-control product mandatory">
+
+                                                <option value="">Select Product</option>
+
+                                                @foreach($products as $product)
+                                                    <option value="{{ $product->n_product_id }}"
+                                                        data-price="{{ $product->n_mrp }}"
+                                                        data-gst="{{ $product->n_gst_percentage ?? 0 }}"
+                                                        {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
+                                                        {{ $product->c_product_name }}
+                                                    </option>
+                                                @endforeach
+
+                                            </select>
+                                        </td>
+
+                                        <td>
+                                            <input type="text"
+                                                name="products[{{ $key }}][product_price]"
+                                                class="form-control price"
+                                                value="{{ $val->product_price }}"
+                                                readonly>
+                                        </td>
+
+                                        <td>
+                                            <input type="number"
+                                                name="products[{{ $key }}][qty]"
+                                                class="form-control qty"
+                                                value="{{ $val->qty }}"
+                                                min="1">
+                                        </td>
+
+                                        <td>
+                                            <input type="number"
+                                                name="products[{{ $key }}][discount]"
+                                                class="form-control discount"
+                                                value="{{ $val->discount ?? '0.00' }}"
+                                                step="">
+                                        </td>
+
+                                        <!-- Product GST % -->
+                                        <td>
+                                            <input type="number"
+                                                name="products[{{ $key }}][n_gst_percentage]"
+                                                class="form-control gst_percentage"
+                                                value="{{ $val->n_gst_percentage ?? 0 }}"
+                                                step="0.01"
+                                                readonly>
+                                        </td>
+
+                                        <!-- Product GST Amount -->
+                                        <td>
+                                            <input type="text"
+                                                name="products[{{ $key }}][gst_amount]"
+                                                class="form-control gst_amount"
+                                                value="{{ $val->gst_amount ?? '0.00' }}"
+                                                readonly>
+                                        </td>
+
+                                        <td>
+                                            <input type="text"
+                                                name="products[{{ $key }}][product_total]"
+                                                class="form-control total"
+                                                value="{{ $val->product_total }}"
+                                                readonly>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <button type="button"
+                                                    class="btn btn-danger btn-sm removeRow">
+                                                <i class="ti ti-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
                                 @endforeach
 
                             @endif
@@ -486,7 +550,7 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
 
                             <!-- Product Discount Total -->
-                          {{--   <div class="summary-line">
+                            <div class="summary-line">
                                 <span class="summary-label">
                                     Product Discount Total
                                 </span>
@@ -497,10 +561,10 @@ use Illuminate\Support\Facades\Crypt;
                                     id="summaryProductDiscount"
                                     value="{{ old('n_product_discount_total', $sale->n_product_discount_total ?? '0.00') }}"
                                     readonly>
-                            </div> --}}
+                            </div>
 
                             <!-- Additional Discount -->
-                           {{--  <div class="summary-line">
+                          {{--   <div class="summary-line">
                                 <span class="summary-label">
                                     Additional Discount
 
@@ -514,7 +578,6 @@ use Illuminate\Support\Facades\Crypt;
                                     step="0.01"
                                     min="0">
                             </div> --}}
-
                             <!-- Total Discount -->
                             <div class="summary-line">
                                 <span class="summary-label">
@@ -523,7 +586,7 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <input type="text"
                                     name="n_total_discount"
-                                    class="form-control"
+                                    class="form-control summary-input text-end"
                                     id="summaryTotalDiscount"
                                     value="{{ old('n_total_discount', $sale->n_total_discount ?? '0.00') }}"
                                     >
@@ -557,8 +620,8 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
                 <input type="hidden" name="c_customer_name" id="c_customer_name" value="">
-                <div class="row g-4 mb-4">
 
+                <div class="row g-4 mb-4">
                     <div class="col-md-6">
                         <label for="c_customer_name" class="form-label">Customer *</label>
 
@@ -589,11 +652,9 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
-
                 </div>
 
                 <div class="row g-4 mb-4">
-
                     <div class="col-md-6">
                         <label for="n_customer_mobile" class="form-label">Customer Mobile *</label>
 
@@ -617,11 +678,9 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
-
                 </div>
 
                 <div class="row g-4 mb-4">
-
                     <div class="col-md-6">
                         <label class="form-label">State</label>
 
@@ -632,12 +691,10 @@ use Illuminate\Support\Facades\Crypt;
 
                             @if(isset($states))
                             @foreach($states as $State)
-
                             <option value="{{$State->n_state_id}}"
                                 {{ old('n_state_id', $sale->n_state_id ?? '') == $State->n_state_id ? 'selected' : '' }}>
                                 {{$State->name}}
                             </option>
-
                             @endforeach
                             @endif
 
@@ -660,25 +717,22 @@ use Illuminate\Support\Facades\Crypt;
                             @endphp
 
                             @foreach($districts as $district)
-
                             <option value="{{$district->id}}"
                                 {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
                                 {{$district->district_name}}
                             </option>
-
                             @endforeach
                             @endif
 
                         </select>
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
-
                 </div>
 
             </div>
 
             <!-- Section 4: Payment Details -->
-            <div class="form-box">
+            <div class="form-box mb-4">
 
                 <div class="form-section-header mb-3">
                     <i class="ti ti-credit-card fs-5"></i>
@@ -690,7 +744,7 @@ use Illuminate\Support\Facades\Crypt;
                         Mode of Payment *
                     </label>
 
-                    <div class="col-md-9">
+                    <div class="col-md-9 d-flex flex-wrap">
                         <div class="payment-option">
                             <input class="form-check-input mandatory mode_of_payment" type="radio" name="c_mode_of_payment" id="cod"
                                 value="Cash on delivery" checked {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : '' }}>
@@ -733,15 +787,37 @@ use Illuminate\Support\Facades\Crypt;
                     </div>
                 </div>
 
-                <!-- Payment Details Extra Fields (as shown in reference image) -->
-                <div class="row g-4 mt-2">
+                <div class="row g-4 mt-1">
+                    <div class="col-md-4">
+
+                          <label class="form-label fw-semibold">
+                                Payment Status
+                            </label>
+
+                            <select name="c_lead_status"
+                                    id="leadStatus"
+                                    class="form-select">
+
+                                <option value="">Select Status</option>
+
+                                <option value="pending" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "pending" ? 'selected' : '' }}>Pending</option>
+                                <option value="confirmed"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "confirmed" ? 'selected' : '' }}>Confirmed</option>
+
+                            </select>
+
+
+                    </div>
+                </div>
+
+                <!-- Payment Details Extra Fields -->
+                <div class="row g-4 mt-1">
                     <div class="col-md-4">
                         <label class="form-label">
                             Amount to Pay * <span class="badge-new">NEW</span>
                         </label>
                         <div class="input-group">
                             <span class="input-group-text bg-light text-success fw-bold">₹</span>
-                            <input type="text" name="n_amount_to_pay" class="form-control fw-bold text-success" value="4,250.00" readonly>
+                            <input type="text" name="n_amount_to_pay" id="n_amount_to_pay" class="form-control fw-bold text-success" value="" readonly>
                         </div>
                         <small class="text-muted fs-1 mt-1 d-block">Should match product total: ₹4,250.00</small>
                     </div>
@@ -753,18 +829,108 @@ use Illuminate\Support\Facades\Crypt;
                         <input type="text" name="c_transaction_id" class="form-control" placeholder="Enter Transaction / UTR / Reference No">
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-4" id="payment_image" >
                         <label class="form-label">
                             Transaction Proof * <span class="badge-updated">UPDATED</span>
                         </label>
-                        <input type="file" name="f_transaction_proof" class="form-control">
+                        <input type="file" name="payment_image" class="form-control">
                     </div>
                 </div>
 
             </div>
 
-            <!-- Section 5: Franchise Details Section -->
-            <div class="form-box">
+            <!-- Section 5: Order Status Section -->
+            <div class="form-box mb-4">
+
+                <div class="form-section-header mb-3">
+                    <i class="ti ti-package fs-5"></i>
+                    Order Status
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label class="col-md-3 col-form-label fw-semibold">
+                        Status <span class="text-danger">*</span>
+                    </label>
+
+                    <div class="col-md-9 d-flex flex-wrap">
+
+                        <div class="order-status-option">
+                            <input
+                                class="form-check-input mandatory order-status"
+                                type="radio"
+                                name="c_order_status"
+                                id="order_status_approved"
+                                value="Approved"
+                                {{ old('c_order_status', $sale->c_order_status ?? '') == 'Approved' ? 'checked' : '' }}
+                            >
+                            <label for="order_status_approved" class="mb-0">
+                                <i class="ti ti-circle-check text-success me-1"></i> Approved
+                            </label>
+                        </div>
+
+                        <div class="order-status-option">
+                            <input
+                                class="form-check-input order-status"
+                                type="radio"
+                                name="c_order_status"
+                                id="order_status_dispatched"
+                                value="Dispatched"
+                                {{ old('c_order_status', $sale->c_order_status ?? '') == 'Dispatched' ? 'checked' : '' }}
+                            >
+                            <label for="order_status_dispatched" class="mb-0">
+                                <i class="ti ti-truck-loading text-info me-1"></i> Dispatched
+                            </label>
+                        </div>
+
+                        <div class="order-status-option">
+                            <input
+                                class="form-check-input order-status"
+                                type="radio"
+                                name="c_order_status"
+                                id="order_status_shipped"
+                                value="Shipped"
+                                {{ old('c_order_status', $sale->c_order_status ?? '') == 'Shipped' ? 'checked' : '' }}
+                            >
+                            <label for="order_status_shipped" class="mb-0">
+                                <i class="ti ti-truck text-primary me-1"></i> Shipped
+                            </label>
+                        </div>
+
+                        <div class="order-status-option">
+                            <input
+                                class="form-check-input order-status"
+                                type="radio"
+                                name="c_order_status"
+                                id="order_status_delivered"
+                                value="Delivered"
+                                {{ old('c_order_status', $sale->c_order_status ?? '') == 'Delivered' ? 'checked' : '' }}
+                            >
+                            <label for="order_status_delivered" class="mb-0">
+                                <i class="ti ti-package-export text-success me-1"></i> Delivered
+                            </label>
+                        </div>
+
+                        <div class="order-status-option">
+                            <input
+                                class="form-check-input order-status"
+                                type="radio"
+                                name="c_order_status"
+                                id="order_status_cancelled"
+                                value="Cancelled"
+                                {{ old('c_order_status', $sale->c_order_status ?? '') == 'Cancelled' ? 'checked' : '' }}
+                            >
+                            <label for="order_status_cancelled" class="mb-0">
+                                <i class="ti ti-circle-x text-danger me-1"></i> Cancelled
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Section 6: Franchise Details Section -->
+            <div class="form-box mb-4">
 
                 <div class="form-section-header mb-3">
                     <i class="ti ti-map-pin fs-5"></i>
@@ -785,12 +951,10 @@ use Illuminate\Support\Facades\Crypt;
 
                             @if(isset($states))
                             @foreach($states as $state)
-
                             <option value="{{ $state->n_state_id }}"
                                 {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
                                 {{ $state->name }}
                             </option>
-
                             @endforeach
                             @endif
 
@@ -809,6 +973,7 @@ use Illuminate\Support\Facades\Crypt;
                             <option value="" selected>Select District</option>
                             @if(isset($sale->n_district_id))
                                 @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
+
                                 @if(isset($districts))
                                     @foreach($districts as $district)
                                         <option value="{{$district->id}}" {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>{{$district->district_name}}</option>
@@ -837,34 +1002,23 @@ use Illuminate\Support\Facades\Crypt;
                             </option>
 
                             @if(isset($franchises))
-
                             @foreach($franchises as $franchise)
-
                             <option value="{{ $franchise->n_store_id }}"
                                 {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
                                 {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
                             </option>
-
                             @endforeach
-
                             @endif
 
                         </select>
-                    </div>
-
-                    <div class="col-md-6" style="position:relative;display:none;" id="payment_image">
-                        <label class="form-label">
-                            Image
-                        </label>
-                        <input type="file" name="payment_image" class="form-control">
                     </div>
 
                 </div>
 
             </div>
 
-            <!-- Buttons -->
-            <div class="mt-4 d-flex gap-2">
+            <!-- Action Buttons -->
+            <div class="mt-4 d-flex gap-2 flex-wrap">
                 @if(isset($viewmode) && $viewmode=="on")
                 @can('sales-orders.follow-up')
                 <!--Follow-up Button-->
@@ -895,6 +1049,7 @@ use Illuminate\Support\Facades\Crypt;
                 <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
                 @endif
             </div>
+
         </form>
     </div>
 </div>
@@ -994,6 +1149,40 @@ use Illuminate\Support\Facades\Crypt;
     </div>
 </div>
 
+<!-- Approval Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
+            @csrf
+            @method('PUT')
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
+                    <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="approval_id">
+                    <div class="mb-3">
+                        <label class="form-label">Remarks <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="remarks" id="approval_remarks" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Approval Status <span class="text-danger">*</span></label>
+                        <select class="form-select" name="status" id="approval_status" required>
+                            <option value="">Select Status</option>
+                            <option value="Approved">Approve</option>
+                            <option value="Rejected">Reject</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn buttonSpc" id="approvalSubmit">Submit</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 @endsection
 
@@ -1018,85 +1207,129 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    $('#addRow').on('click', function() {
+     $('#addRow').on('click', function() {
 
-        let row = `
-            <tr>
+            let row = `
+                <tr>
 
-                <td>
-                    <select
-                        name="products[${rowIndex}][product_id]"
-                        class="form-control product mandatory"
-                        data-message="Please Select Product">
+                    <!-- Product -->
+                    <td>
+                        <select
+                            name="products[${rowIndex}][product_id]"
+                            class="form-control product mandatory"
+                            data-message="Please Select Product">
 
-                        <option value="">Select Product</option>
+                            <option value="">Select Product</option>
 
-                        @foreach($products as $product)
-                            <option
-                                value="{{ $product->n_product_id }}"
-                                data-price="{{ $product->n_mrp }}">
-                                {{ $product->c_product_name }} ({{ $product->c_product_code }})({{$product->c_unit}})
-                            </option>
-                        @endforeach
+                            @foreach($products as $product)
+                                <option
+                                    value="{{ $product->n_product_id }}"
+                                    data-price="{{ $product->n_mrp }}"
+                                    data-gst="{{ $product->n_gst_percentage }}">
 
-                    </select>
+                                    {{ $product->c_product_name }}
+                                    ({{ $product->c_product_code }})
+                                    ({{ $product->c_unit }})
 
-                    <div class="text-danger mt-1 fs-2"></div>
-                </td>
+                                </option>
+                            @endforeach
 
-                <td>
-                    <input
-                        type="text"
-                        name="products[${rowIndex}][product_price]"
-                        class="form-control price"
-                        readonly>
-                </td>
+                        </select>
 
-                <td>
-                    <input
-                        type="number"
-                        name="products[${rowIndex}][qty]"
-                        class="form-control qty"
-                        value="1"
-                        min="1">
-                </td>`+
+                        <div class="text-danger mt-1 fs-2"></div>
+                    </td>
 
-                /* <td>
-                    <input
-                        type="number"
-                        name="products[${rowIndex}][discount]"
-                        class="form-control discount"
-                        value="0.00"
-                        step="0.01">
-                </td>
- */
-                `
-                <td>
-                    <input
-                        type="text"
-                        name="products[${rowIndex}][product_total]"
-                        class="form-control total"
-                        readonly>
-                </td>
 
-                <td class="text-center">
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-sm removeRow">
-                        <i class="ti ti-trash"></i>
-                    </button>
-                </td>
+                    <!-- Price -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][product_price]"
+                            class="form-control price"
+                            readonly>
+                    </td>
 
-            </tr>
-        `;
 
-        $('#productTable tbody').append(row);
+                    <!-- Quantity -->
+                    <td>
+                        <input
+                            type="number"
+                            name="products[${rowIndex}][qty]"
+                            class="form-control qty"
+                            value="1"
+                            min="1">
+                    </td>
 
-        rowIndex++;
 
-        console.log("Product row added. Current rowIndex:", rowIndex);
-    });
+                    <!-- Discount -->
+                    <td>
+                        <input
+                            type="number"
+                            name="products[${rowIndex}][discount]"
+                            class="form-control discount"
+                            value="0.00"
+                            step="0.01"
+                            min="0">
+                    </td>
 
+
+                    <!-- GST % -->
+                    <td>
+                        <input
+                            type="number"
+                            name="products[${rowIndex}][n_gst_percentage]"
+                            class="form-control gst_percentage"
+                            value="0.00"
+                            step="0.01"
+                            readonly>
+                    </td>
+
+
+                    <!-- GST Amount -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][gst_amount]"
+                            class="form-control gst_amount"
+                            value="0.00"
+                            readonly>
+                    </td>
+
+
+                    <!-- Product Total -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][product_total]"
+                            class="form-control total"
+                            value="0.00"
+                            readonly>
+                    </td>
+
+
+                    <!-- Remove -->
+                    <td class="text-center">
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-sm removeRow">
+
+                            <i class="ti ti-trash"></i>
+
+                        </button>
+                    </td>
+
+                </tr>
+            `;
+
+            $('#productTable tbody').append(row);
+
+            rowIndex++;
+
+            console.log(
+                "Product row added. Current rowIndex:",
+                rowIndex
+            );
+        });
 
     /*
     |--------------------------------------------------------------------------
@@ -1129,93 +1362,175 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    /* function productTotal(productSelect) {
-        let row = productSelect.closest('tr');
-        let selectedOption = productSelect.find(':selected');
-        let price = parseFloat(selectedOption.attr('data-price')) || parseFloat(row.find('.price').val()) || 0;
-        let qty = parseFloat(row.find('.qty').val()) || 0;
-        let discount = parseFloat(row.find('.discount').val()) || 0;
-
-        let lineTotal = (price * qty) - discount;
-        if (lineTotal < 0) lineTotal = 0;
-
-        row.find('.price').val(price.toFixed(2));
-        row.find('.total').val(lineTotal.toFixed(2));
-    }
- */
-
     function productTotal(productSelect) {
 
-        let row = productSelect.closest('tr');
+    let row = productSelect.closest('tr');
 
-        let selectedOption = productSelect.find(':selected');
+    let selectedOption = productSelect.find(':selected');
 
-        let price = parseFloat(selectedOption.attr('data-price'))
-            || parseFloat(row.find('.price').val())
-            || 0;
+    // Price from product
+    let price = parseFloat(
+        selectedOption.attr('data-price')
+    ) || parseFloat(row.find('.price').val()) || 0;
 
+    // GST percentage from product
+    let gstPercentage = parseFloat(
+        selectedOption.attr('data-gst')
+    ) || parseFloat(row.find('.gst_percentage').val()) || 0;
+
+    let qty = parseFloat(row.find('.qty').val()) || 0;
+
+    let discount = parseFloat(row.find('.discount').val()) || 0;
+
+
+    // Gross amount
+    let grossAmount = price * qty;
+
+
+    // Amount after discount
+    let taxableAmount = grossAmount - discount;
+
+    if (taxableAmount < 0) {
+        taxableAmount = 0;
+    }
+
+
+    // Product-wise GST
+    let gstAmount = taxableAmount * gstPercentage / 100;
+
+
+    // Product total including GST
+    let lineTotal = taxableAmount + gstAmount;
+
+
+    // Set values
+    row.find('.price').val(
+        price.toFixed(2)
+    );
+
+    row.find('.gst_percentage').val(
+        gstPercentage.toFixed(2)
+    );
+
+    row.find('.gst_amount').val(
+        gstAmount.toFixed(2)
+    );
+
+    row.find('.total').val(
+        lineTotal.toFixed(2)
+    );
+
+
+    calculateSummary();
+}
+
+  function calculateSummary() {
+
+    let totalSales = 0;
+    let productDiscount = 0;
+    let totalGst = 0;
+
+    $('#productTable tbody tr').each(function () {
+
+        let row = $(this);
+
+        let price = parseFloat(row.find('.price').val()) || 0;
         let qty = parseFloat(row.find('.qty').val()) || 0;
-
         let discount = parseFloat(row.find('.discount').val()) || 0;
+        let gstPercentage =
+            parseFloat(row.find('.gst_percentage').val()) || 0;
 
+        // Gross product amount
         let grossAmount = price * qty;
 
-        let lineTotal = grossAmount - discount;
+        // Taxable amount for this product
+        let productTaxableAmount = grossAmount - discount;
 
-        if (lineTotal < 0) {
-            lineTotal = 0;
+        if (productTaxableAmount < 0) {
+            productTaxableAmount = 0;
         }
 
-        row.find('.price').val(price.toFixed(2));
-        row.find('.total').val(lineTotal.toFixed(2));
+        // Product GST
+        let gstAmount =
+            productTaxableAmount * gstPercentage / 100;
 
-        calculateSummary();
+        // Product total including GST
+        let productTotal =
+            productTaxableAmount + gstAmount;
+
+        // Set product GST
+        row.find('.gst_amount').val(
+            gstAmount.toFixed(2)
+        );
+
+        // Set product total
+        row.find('.total').val(
+            productTotal.toFixed(2)
+        );
+
+        // Summary
+        totalSales += grossAmount;
+        productDiscount += discount;
+        totalGst += gstAmount;
+    });
+
+
+    // Additional discount
+    let additionalDiscount =
+        parseFloat(
+            $('#summaryAdditionalDiscount').val()
+        ) || 0;
+
+
+    // Total discount
+    let totalDiscount =
+        productDiscount + additionalDiscount;
+
+
+    // Taxable amount
+    let taxableAmount =
+        totalSales - totalDiscount;
+
+    if (taxableAmount < 0) {
+        taxableAmount = 0;
     }
 
-    function calculateSummary() {
 
-        let totalSalesAmount = 0;
-        let productDiscountTotal = 0;
+    // Net Sales Amount
+    let netSalesAmount =
+        taxableAmount + totalGst;
 
-        $('#productTable tbody tr').each(function () {
 
-            let row = $(this);
+    // Display summary
+    $('#summaryTotalSales').val(
+        totalSales.toFixed(2)
+    );
 
-            let price = parseFloat(row.find('.price').val()) || 0;
-            let qty = parseFloat(row.find('.qty').val()) || 0;
-            let discount = parseFloat(row.find('.discount').val()) || 0;
+    $('#summaryProductDiscount').val(
+        productDiscount.toFixed(2)
+    );
 
-            totalSalesAmount += price * qty;
-            productDiscountTotal += discount;
-        });
+    $('#summaryTotalDiscount').val(
+        totalDiscount.toFixed(2)
+    );
 
-        let additionalDiscount =
-            parseFloat($('#summaryAdditionalDiscount').val()) || 0;
+    $('#summaryTaxableAmount').val(
+        taxableAmount.toFixed(2)
+    );
 
-        let totalDiscount =
-            productDiscountTotal + additionalDiscount;
+    $('#summaryGstAmount').val(
+        totalGst.toFixed(2)
+    );
 
-        let netSalesAmount =
-            totalSalesAmount - totalDiscount;
+    $('#summaryNetSales').val(
+        netSalesAmount.toFixed(2)
+    );
 
-        if (netSalesAmount < 0) {
-            netSalesAmount = 0;
-        }
+    $('#n_amount_to_pay').val(
+        netSalesAmount.toFixed(2)
+    );
 
-        $('#summaryTotalSales').val(totalSalesAmount.toFixed(2));
-
-        $('#summaryProductDiscount').val(
-            productDiscountTotal.toFixed(2)
-        );
-
-        $('#summaryTotalDiscount').val(
-            totalDiscount.toFixed(2)
-        );
-
-        $('#summaryNetSales').val(
-            netSalesAmount.toFixed(2)
-        );
-    }
+}
 
     $(document).on(
         'input',
@@ -1224,7 +1539,6 @@ $(document).ready(function() {
             calculateSummary();
         }
     );
-
     /*
     |--------------------------------------------------------------------------
     | Remove Product Row
@@ -1233,6 +1547,7 @@ $(document).ready(function() {
 
     $(document).on('click', '.removeRow', function() {
         $(this).closest('tr').remove();
+        calculateSummary();
     });
 
 
@@ -1486,15 +1801,7 @@ $(document).ready(function(){
         });
     });
 
-    $(".mode_of_payment").click(function(){
-        var payment_mode=$(this).val();
-        if(payment_mode=="UPI" || payment_mode=="Bank Deposit" || payment_mode=="Paid to Franchise" ){
-            $("#payment_image").show();
-        }
-        else{
-            $("#payment_image").hide();
-        }
-    });
+
 
 });
 </script>

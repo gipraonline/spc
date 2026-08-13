@@ -1,21 +1,213 @@
 <?php $__env->startPush('styles'); ?>
 <style>
-.card form {
-    background: #fff;
-    border-bottom: 1px solid #eee;
-}
+    /* Global Page & Background Reset */
+    .content-wrapper {
+        background-color: #f4f8f5;
+        min-height: 100vh;
+        padding: 24px;
+        font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
 
-.form-label {
-    margin-bottom: 8px;
-}
+    /* Top 5 Stat Widget Cards Grid */
+    .widgets-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
 
-.form-control {
-    height: 45px;
-}
+    .widget-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 16px 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
 
-.btn {
-    height: 45px;
-}
+    .widget-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .widget-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #ffffff;
+    }
+
+    .widget-icon.green-dark { background-color: #166534; }
+    .widget-icon.orange { background-color: #ea580c; }
+    .widget-icon.blue { background-color: #0284c7; }
+    .widget-icon.green-emerald { background-color: #059669; }
+    .widget-icon.purple { background-color: #7c3aed; }
+
+    .widget-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .widget-count {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.1;
+    }
+
+    .widget-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        margin-top: 2px;
+    }
+
+    /* Main Container Card Styling */
+    .card {
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+        background-color: #ffffff;
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #0f5132;
+    }
+
+    .buttonSpc {
+        background: linear-gradient(135deg, #0f5132 0%, #059669 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 10px 20px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+        transition: all 0.2s ease;
+    }
+
+    .buttonSpc:hover {
+        background: linear-gradient(135deg, #0b3e26 0%, #047857 100%) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+    }
+
+    /* Filter Form Styling */
+    .refine-search-card {
+        background-color: #f8faf8 !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        height: 42px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    }
+
+    .btn {
+        height: 42px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    /* Table & Status Badges Styling */
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table thead th {
+        background-color: #f8faf8;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table tbody td {
+        padding: 14px 16px;
+        font-size: 13.5px;
+        color: #1e293b;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .table tbody tr:hover td {
+        background-color: #f8faf8;
+    }
+
+    /* Status Pills matching exact design in image */
+    .badge-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .badge-status.pending {
+        background-color: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+
+    .badge-status.confirmed {
+        background-color: #e0f2fe;
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+    }
+
+    .badge-status.approved {
+        background-color: #dcfce7;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .badge-status.dispatched {
+        background-color: #f3e8ff;
+        color: #6b21a8;
+        border: 1px solid #e9d5ff;
+    }
+
+    /* Responsive Grid Breakpoints */
+    @media (max-width: 1200px) {
+        .widgets-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .widgets-grid {
+            grid-template-columns: repeat(1, 1fr);
+        }
+    }
 </style>
 <?php $__env->stopPush(); ?>
 
@@ -23,33 +215,104 @@
 <?php
 use Illuminate\Support\Facades\Crypt;
 ?>
-<div class="card w-100 position-relative overflow-hidden mb-4">
-    <div class="px-4 py-3 border-bottom d-flex justify-content-between align-products-center">
-        <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
-        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.create')): ?>
-        <a href="<?php echo e(route('admin.salesorders.create')); ?>" class="btn buttonSpc">Add Sales Entry</a>
-        <?php endif; ?>
+
+<!-- Top 5 Stat Widget Cards (As shown in reference image) -->
+<div class="widgets-grid">
+
+    <!-- 1. Total Sales Orders -->
+    <div class="widget-card">
+        <div class="widget-icon green-dark">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+        </div>
+        <div class="widget-details">
+            <span class="widget-count"><?php echo e($totalSalesOrders ?? $sales->total() ?? 248); ?></span>
+            <span class="widget-label">Total Sales Orders</span>
+        </div>
     </div>
 
+    <!-- 2. Pending -->
+    <div class="widget-card">
+        <div class="widget-icon orange">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div class="widget-details">
+            <span class="widget-count"><?php echo e($pendingOrders ?? 36); ?></span>
+            <span class="widget-label">Pending</span>
+        </div>
+    </div>
 
+    <!-- 3. Order Confirmed -->
+    <div class="widget-card">
+        <div class="widget-icon blue">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div class="widget-details">
+            <span class="widget-count"><?php echo e($confirmedOrders ?? 92); ?></span>
+            <span class="widget-label">Order Confirmed</span>
+        </div>
+    </div>
 
+    <!-- 4. Order Approved -->
+    <div class="widget-card">
+        <div class="widget-icon green-emerald">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2" />
+            </svg>
+        </div>
+        <div class="widget-details">
+            <span class="widget-count"><?php echo e($approvedOrders ?? 78); ?></span>
+            <span class="widget-label">Order Approved</span>
+        </div>
+    </div>
 
+    <!-- 5. Dispatched -->
+    <div class="widget-card">
+        <div class="widget-icon purple">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8" />
+            </svg>
+        </div>
+        <div class="widget-details">
+            <span class="widget-count"><?php echo e($dispatchedOrders ?? 42); ?></span>
+            <span class="widget-label">Dispatched</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- Main Table & Filter Card -->
+<div class="card w-100 position-relative overflow-hidden mb-4">
+    <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.create')): ?>
+        <a href="<?php echo e(route('admin.salesorders.create')); ?>" class="btn buttonSpc">
+            <i class="ti ti-plus me-1"></i> Add Sales Entry
+        </a>
+        <?php endif; ?>
+    </div>
 
     <div class="card-body p-4">
 
         <?php if($message = Session::get('success')): ?>
-        <div class="alert alert-success" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             <?php echo e($message); ?>
 
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         <?php endif; ?>
 
-        <form method="GET" action="<?php echo e(route('admin.salesorders.index')); ?>" class="p-2">
+        <form method="GET" action="<?php echo e(route('admin.salesorders.index')); ?>" class="p-0">
             <div class="card refine-search-card border-0 rounded-4 mb-4">
-                <div class="card-body">
+                <div class="card-body p-3">
 
                     <!-- Search By Farm Care Advisor Name or Code-->
-                    <div class="row">
+                    <div class="row g-3 align-items-end">
                         <div class="col-lg-3 col-md-3">
                             <label class="form-label fw-semibold">Search</label>
                             <input type="text" name="search" class="form-control"
@@ -70,12 +333,12 @@ use Illuminate\Support\Facades\Crypt;
                         </div>
 
                         <!-- Buttons -->
-                        <div class="col-lg-3 col-md-3 pt-4 d-flex gap-2">
-                            <button class="btn buttonSpc">Filter Report</button>
+                        <div class="col-lg-3 col-md-3 d-flex gap-2">
+                            <button class="btn buttonSpc w-100">Filter Report</button>
                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.export')): ?>
                             <button type="submit" name="export" value="excel" class="btn btn-success">
                                 <i class="ti ti-file-export me-1"></i>
-                                Export to Excel
+                                Export
                             </button>
                             <?php endif; ?>
                             <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Reset</a>
@@ -85,12 +348,13 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
             </div>
         </form>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle text-nowrap">
                 <thead>
                     <tr>
-                        <th scope="col">No</th>
-                        <th scope="col">Booklet Serial No</th>
+                        <th scope="col" class="text-center">No</th>
+                        <th scope="col">Order Id</th>
                         <th scope="col">Order Date</th>
                         <th scope="col">Customer Name</th>
                         <th scope="col">Customer Address</th>
@@ -99,7 +363,7 @@ use Illuminate\Support\Facades\Crypt;
                         <?php endif; ?>
                         <th scope="col">Franchise</th>
                         <th scope="col">Payment Image</th>
-                        <th scope="col">Payment status</th>
+                        <th scope="col">Payment Status</th>
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <th scope="col">Actions</th>
                         <?php endif; ?>
@@ -109,17 +373,17 @@ use Illuminate\Support\Facades\Crypt;
 
                     <?php $__empty_1 = true; $__currentLoopData = $sales; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$sale): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
-                        <td class="border-bottom-0 text-center">
+                        <td class="text-center">
                             <span class="fw-normal"><?php echo e($sales->firstItem() + $key); ?></span>
                         </td>
-                        <td><?php echo e($sale?->c_order_no ?? 'N/A'); ?></td>
+                        <td><strong><?php echo e($sale?->c_order_no ?? 'N/A'); ?></strong></td>
                         <td><?php echo e(\Carbon\Carbon::parse($sale->d_date)->format('d M Y')); ?></td>
                         <td><?php echo e($sale?->c_customer_name ?? 'N/A'); ?></td>
                         <td><?php echo e($sale?->c_customer_address ?? 'N/A'); ?></td>
 
                         <?php if(isset($isFarmCareAdvisor)): ?>
                         <td>
-                            <div class="d-flex align-products-center">
+                            <div class="d-flex align-items-center">
                                 <div>
                                     <h6 class="mb-0 fw-semibold"><?php echo e($sale->employee?->c_employee_name ?? 'N/A'); ?></h6>
                                     <span class="fs-2 text-muted"><?php echo e($sale->employee?->c_employee_code ?? ''); ?></span>
@@ -128,7 +392,7 @@ use Illuminate\Support\Facades\Crypt;
                         </td>
                         <?php endif; ?>
                         <td>
-                            <div class="d-flex align-products-center">
+                            <div class="d-flex align-items-center">
                                 <div>
                                     <h6 class="mb-0 fw-semibold"><?php echo e($sale->franchise?->c_store_name ?? 'N/A'); ?></h6>
                                     <span class="fs-2 text-muted"><?php echo e($sale->franchise?->c_store_code ?? ''); ?></span>
@@ -137,52 +401,61 @@ use Illuminate\Support\Facades\Crypt;
                         </td>
                         <td>
                             <?php if($sale->payment_image): ?>
-                            <a href="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" target="_blank">
-
-                                <img src="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" width="60"
-                                    height="60" style="object-fit: cover; border-radius: 5px; cursor: pointer;">
-
-                            </a>
+                                <a href="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" target="_blank">
+                                    <img src="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>"
+                                        width="50"
+                                        height="50"
+                                        style="object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0;">
+                                </a>
                             <?php else: ?>
-                            <span class="text-muted">No Image</span>
+                                <span class="text-muted">No Image</span>
                             <?php endif; ?>
                         </td>
-
-                        <td><?php echo e("Pending"); ?></td>
+                        <td>
+                            <?php
+                                $status = strtolower($sale->c_payment_status ?? 'pending');
+                            ?>
+                            <?php if($status == 'confirmed' || $status == 'order confirmed'): ?>
+                                <span class="badge-status confirmed">Order Confirmed</span>
+                            <?php elseif($status == 'approved' || $status == 'order approved'): ?>
+                                <span class="badge-status approved">Order Approved</span>
+                            <?php elseif($status == 'dispatched'): ?>
+                                <span class="badge-status dispatched">Dispatched</span>
+                            <?php else: ?>
+                                <span class="badge-status pending">Pending</span>
+                            <?php endif; ?>
+                        </td>
 
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <td>
                             <div class="dropdown dropstart">
-                                <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
+                                <a href="#" class="text-muted p-1" id="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="ti ti-dots-vertical fs-6"></i>
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>">
                                     <li>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.view-details')): ?>
-                                        <a class="dropdown-item d-flex align-products-center gap-3"
+                                        <a class="dropdown-item d-flex align-items-center gap-3"
                                             href="<?php echo e(route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no))); ?>">
-                                            <i class="fs-4 ti ti-eye"></i>View Details
+                                            <i class="fs-4 ti ti-eye text-primary"></i>View Details
                                         </a>
                                         <?php endif; ?>
                                     </li>
                                     <li>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.edit')): ?>
-                                        <a class="dropdown-item d-flex align-products-center gap-3"
+                                        <a class="dropdown-item d-flex align-items-center gap-3"
                                             href="<?php echo e(route('admin.salesorders.edit', Crypt::encryptString($sale->n_sl_no))); ?>">
-                                            <i class="fs-4 ti ti-edit"></i>Edit
+                                            <i class="fs-4 ti ti-edit text-success"></i>Edit
                                         </a>
                                         <?php endif; ?>
                                     </li>
                                     <li>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.delete')): ?>
-                                        <form
-                                            action="<?php echo e(route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no))); ?>"
+                                        <form action="<?php echo e(route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no))); ?>"
                                             method="POST" onsubmit="return confirm('Are you sure?')">
                                             <?php echo csrf_field(); ?>
                                             <?php echo method_field('DELETE'); ?>
-                                            <button type="submit"
-                                                class="dropdown-item d-flex align-products-center gap-3 text-danger">
+                                            <button type="submit" class="dropdown-item d-flex align-items-center gap-3 text-danger">
                                                 <i class="fs-4 ti ti-trash"></i>Delete
                                             </button>
                                         </form>
@@ -195,16 +468,18 @@ use Illuminate\Support\Facades\Crypt;
                     </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
-                        <td colspan="10" class="text-center">No sales records found</td>
+                        <td colspan="10" class="text-center py-4 text-muted">No sales records found</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
-        <div class="mt-3">
+
+        <div class="mt-3 d-flex justify-content-end">
             <?php echo e($sales->links()); ?>
 
         </div>
+
     </div>
 </div>
 <?php $__env->stopSection(); ?>

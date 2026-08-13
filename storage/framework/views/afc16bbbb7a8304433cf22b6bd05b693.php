@@ -90,7 +90,7 @@ use Illuminate\Support\Facades\Crypt;
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">Order Id</th>
+                        <th scope="col">Booklet Serial No</th>
                         <th scope="col">Order Date</th>
                         <th scope="col">Customer Name</th>
                         <th scope="col">Customer Address</th>
@@ -118,7 +118,7 @@ use Illuminate\Support\Facades\Crypt;
                         <td><?php echo e($sale?->c_customer_address ?? 'N/A'); ?></td>
 
                         <?php if(isset($isFarmCareAdvisor)): ?>
-                         <td>
+                        <td>
                             <div class="d-flex align-products-center">
                                 <div>
                                     <h6 class="mb-0 fw-semibold"><?php echo e($sale->employee?->c_employee_name ?? 'N/A'); ?></h6>
@@ -136,26 +136,25 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
                         </td>
                         <td>
-                           <?php if($sale->payment_image): ?>
-                                <a href="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>"
-                                target="_blank">
+                            <?php if($sale->payment_image): ?>
+                            <a href="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" target="_blank">
 
-                                    <img src="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>"
-                                        width="60"
-                                        height="60"
-                                        style="object-fit: cover; border-radius: 5px; cursor: pointer;">
+                                <img src="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" width="60"
+                                    height="60" style="object-fit: cover; border-radius: 5px; cursor: pointer;">
 
-                                </a>
+                            </a>
                             <?php else: ?>
-                                <span class="text-muted">No Image</span>
+                            <span class="text-muted">No Image</span>
                             <?php endif; ?>
                         </td>
+
                         <td><?php echo e("Pending"); ?></td>
 
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <td>
                             <div class="dropdown dropstart">
-                                <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
                                     <i class="ti ti-dots-vertical fs-6"></i>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -177,11 +176,13 @@ use Illuminate\Support\Facades\Crypt;
                                     </li>
                                     <li>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.delete')): ?>
-                                        <form action="<?php echo e(route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no))); ?>"
+                                        <form
+                                            action="<?php echo e(route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no))); ?>"
                                             method="POST" onsubmit="return confirm('Are you sure?')">
                                             <?php echo csrf_field(); ?>
                                             <?php echo method_field('DELETE'); ?>
-                                            <button type="submit" class="dropdown-item d-flex align-products-center gap-3 text-danger">
+                                            <button type="submit"
+                                                class="dropdown-item d-flex align-products-center gap-3 text-danger">
                                                 <i class="fs-4 ti ti-trash"></i>Delete
                                             </button>
                                         </form>
@@ -191,21 +192,21 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
                         </td>
                         <?php endif; ?>
-                        </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                        <tr>
-                            <td colspan="10" class="text-center">No sales records found</td>
-                        </tr>
-                        <?php endif; ?>
-                        </tbody>
-                </table>
-                    </div>
-                    <div class="mt-3">
-                        <?php echo e($sales->links()); ?>
+                    </tr>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    <tr>
+                        <td colspan="10" class="text-center">No sales records found</td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3">
+            <?php echo e($sales->links()); ?>
 
-                    </div>
-                </div>
-            </div>
+        </div>
+    </div>
+</div>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/sales/index.blade.php ENDPATH**/ ?>

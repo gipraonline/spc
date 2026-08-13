@@ -91,7 +91,7 @@ use Illuminate\Support\Facades\Crypt;
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">Order Id</th>
+                        <th scope="col">Booklet Serial No</th>
                         <th scope="col">Order Date</th>
                         <th scope="col">Customer Name</th>
                         <th scope="col">Customer Address</th>
@@ -119,7 +119,7 @@ use Illuminate\Support\Facades\Crypt;
                         <td>{{ $sale?->c_customer_address ?? 'N/A' }}</td>
 
                         @if(isset($isFarmCareAdvisor))
-                         <td>
+                        <td>
                             <div class="d-flex align-products-center">
                                 <div>
                                     <h6 class="mb-0 fw-semibold">{{ $sale->employee?->c_employee_name ?? 'N/A' }}</h6>
@@ -137,26 +137,25 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
                         </td>
                         <td>
-                           @if($sale->payment_image)
-                                <a href="{{ asset('uploads/payment_images/' . $sale->payment_image) }}"
-                                target="_blank">
+                            @if($sale->payment_image)
+                            <a href="{{ asset('uploads/payment_images/' . $sale->payment_image) }}" target="_blank">
 
-                                    <img src="{{ asset('uploads/payment_images/' . $sale->payment_image) }}"
-                                        width="60"
-                                        height="60"
-                                        style="object-fit: cover; border-radius: 5px; cursor: pointer;">
+                                <img src="{{ asset('uploads/payment_images/' . $sale->payment_image) }}" width="60"
+                                    height="60" style="object-fit: cover; border-radius: 5px; cursor: pointer;">
 
-                                </a>
+                            </a>
                             @else
-                                <span class="text-muted">No Image</span>
+                            <span class="text-muted">No Image</span>
                             @endif
                         </td>
+
                         <td>{{"Pending"}}</td>
 
                         @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
                         <td>
                             <div class="dropdown dropstart">
-                                <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
                                     <i class="ti ti-dots-vertical fs-6"></i>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -178,11 +177,13 @@ use Illuminate\Support\Facades\Crypt;
                                     </li>
                                     <li>
                                         @can('sales-orders.delete')
-                                        <form action="{{ route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no)) }}"
+                                        <form
+                                            action="{{ route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no)) }}"
                                             method="POST" onsubmit="return confirm('Are you sure?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="dropdown-item d-flex align-products-center gap-3 text-danger">
+                                            <button type="submit"
+                                                class="dropdown-item d-flex align-products-center gap-3 text-danger">
                                                 <i class="fs-4 ti ti-trash"></i>Delete
                                             </button>
                                         </form>
@@ -192,18 +193,18 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
                         </td>
                         @endcanany
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="10" class="text-center">No sales records found</td>
-                        </tr>
-                        @endforelse
-                        </tbody>
-                </table>
-                    </div>
-                    <div class="mt-3">
-                        {{ $sales->links() }}
-                    </div>
-                </div>
-            </div>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="10" class="text-center">No sales records found</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3">
+            {{ $sales->links() }}
+        </div>
+    </div>
+</div>
 @endsection

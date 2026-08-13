@@ -246,7 +246,7 @@
                     @enderror
                 </div>
 
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <label for="n_purchase_price" class="form-label">Purchase Price *</label>
                     <input type="text" id="n_purchase_price" name="n_purchase_price"
                         data-message="Please enter Purchase Price" value="{{ old('n_purchase_price') }}"
@@ -254,9 +254,9 @@
                     @error('n_purchase_price')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
-                </div>
+                </div> -->
 
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <label for="n_selling_price" class="form-label">Selling Price *</label>
                     <input type="text" id="n_selling_price" name="n_selling_price"
                         data-message="Please enter Selling Price" value="{{ old('n_selling_price') }}"
@@ -264,7 +264,7 @@
                     <div id="selling_error" class="text-danger mt-1 fs-2">
                         @error('n_selling_price') {{ $message }} @enderror
                     </div>
-                </div>
+                </div> -->
 
                 <!-- <div class="col-md-6">
                     <label for="c_status" class="form-label">Status *</label>

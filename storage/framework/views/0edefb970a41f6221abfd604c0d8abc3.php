@@ -162,7 +162,7 @@
 
                 <div class="col-md-6">
                     <label for="n_category_id" class="form-label">
-                        Category *
+                        Category <span class="text-danger">*</span>
                     </label>
 
                     <select id="n_category_id" name="n_category_id" class="form-select mandatory"
@@ -170,11 +170,34 @@
                         <option value="">Select Category</option>
 
                         <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                        <?php if($category->children->count() > 0): ?>
+
+                        
+                        <option disabled>
+                            <?php echo e($category->c_category_name); ?>
+
+                        </option>
+
+                        <?php $__currentLoopData = $category->children; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $child): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($child->n_category_id); ?>"
+                            <?php echo e(old('n_category_id', $product->n_category_id) == $child->n_category_id ? 'selected' : ''); ?>>
+                            &nbsp;&nbsp;&nbsp;— <?php echo e($child->c_category_name); ?>
+
+                        </option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                        <?php else: ?>
+
+                        
                         <option value="<?php echo e($category->n_category_id); ?>"
                             <?php echo e(old('n_category_id', $product->n_category_id) == $category->n_category_id ? 'selected' : ''); ?>>
                             <?php echo e($category->c_category_name); ?>
 
                         </option>
+
+                        <?php endif; ?>
+
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
 
@@ -250,7 +273,7 @@ unset($__errorArgs, $__bag); ?>
                 </div>
 
 
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <label for="n_purchase_price" class="form-label">Purchase Price *</label>
                     <input type="number" id="n_purchase_price" data-message="Please enter Purchase Price"
                         name="n_purchase_price" value="<?php echo e(old('n_purchase_price', $product->n_purchase_price)); ?>"
@@ -265,8 +288,8 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                </div>
-
+                </div> -->
+                <!-- 
                 <div class="col-md-6">
                     <label for="n_selling_price" class="form-label">Selling Price *</label>
                     <input type="number" id="n_selling_price" data-message="Please enter Selling Price"
@@ -282,7 +305,7 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
-                </div>
+                </div> -->
                 <!-- 
                 <div class="col-md-6">
                     <label for="c_status" class="form-label">Operational Status *</label>
@@ -309,7 +332,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="col-md-6">
                     <label for="c_unit" class="form-label">Unit *</label>
                     <input type="text" id="c_unit" name="c_unit" value="<?php echo e(old('c_unit', $product->c_unit)); ?>"
-                        class="form-control mandatory" data-message="Please enter Unit" placeholder="e.g. 1 ltr">
+                        class="form-control" data-message="Please enter Unit" placeholder="e.g. 1 ltr">
 
                     <?php $__errorArgs = ['c_unit'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');

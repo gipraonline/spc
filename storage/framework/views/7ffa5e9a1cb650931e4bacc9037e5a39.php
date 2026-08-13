@@ -90,12 +90,16 @@ use Illuminate\Support\Facades\Crypt;
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">Order Id</th>
+                        <th scope="col">Booklet Serial No</th>
                         <th scope="col">Order Date</th>
                         <th scope="col">Customer Name</th>
                         <th scope="col">Customer Address</th>
-                        
+                        <?php if(isset($isFarmCareAdvisor)): ?>
+                        <th scope="col">Farm Care Advisor</th>
+                        <?php endif; ?>
                         <th scope="col">Franchise</th>
+                        <th scope="col">Payment Image</th>
+                        <th scope="col">Payment status</th>
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <th scope="col">Actions</th>
                         <?php endif; ?>
@@ -112,70 +116,95 @@ use Illuminate\Support\Facades\Crypt;
                         <td><?php echo e(\Carbon\Carbon::parse($sale->d_date)->format('d M Y')); ?></td>
                         <td><?php echo e($sale?->c_customer_name ?? 'N/A'); ?></td>
                         <td><?php echo e($sale?->c_customer_address ?? 'N/A'); ?></td>
-                        
-    <td>
-        <div class="d-flex align-products-center">
-            <div>
-                <h6 class="mb-0 fw-semibold"><?php echo e($sale->franchise?->c_store_name ?? 'N/A'); ?></h6>
-                <span class="fs-2 text-muted"><?php echo e($sale->franchise?->c_store_code ?? ''); ?></span>
-            </div>
+
+                        <?php if(isset($isFarmCareAdvisor)): ?>
+                        <td>
+                            <div class="d-flex align-products-center">
+                                <div>
+                                    <h6 class="mb-0 fw-semibold"><?php echo e($sale->employee?->c_employee_name ?? 'N/A'); ?></h6>
+                                    <span class="fs-2 text-muted"><?php echo e($sale->employee?->c_employee_code ?? ''); ?></span>
+                                </div>
+                            </div>
+                        </td>
+                        <?php endif; ?>
+                        <td>
+                            <div class="d-flex align-products-center">
+                                <div>
+                                    <h6 class="mb-0 fw-semibold"><?php echo e($sale->franchise?->c_store_name ?? 'N/A'); ?></h6>
+                                    <span class="fs-2 text-muted"><?php echo e($sale->franchise?->c_store_code ?? ''); ?></span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <?php if($sale->payment_image): ?>
+                            <a href="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" target="_blank">
+
+                                <img src="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" width="60"
+                                    height="60" style="object-fit: cover; border-radius: 5px; cursor: pointer;">
+
+                            </a>
+                            <?php else: ?>
+                            <span class="text-muted">No Image</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?php echo e($sale?->payment_image ? "Confirmed" : 'Pending'); ?></td>
+
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
+                        <td>
+                            <div class="dropdown dropstart">
+                                <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <i class="ti ti-dots-vertical fs-6"></i>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <li>
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.view-details')): ?>
+                                        <a class="dropdown-item d-flex align-products-center gap-3"
+                                            href="<?php echo e(route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no))); ?>">
+                                            <i class="fs-4 ti ti-eye"></i>View Details
+                                        </a>
+                                        <?php endif; ?>
+                                    </li>
+                                    <li>
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.edit')): ?>
+                                        <a class="dropdown-item d-flex align-products-center gap-3"
+                                            href="<?php echo e(route('admin.salesorders.edit', Crypt::encryptString($sale->n_sl_no))); ?>">
+                                            <i class="fs-4 ti ti-edit"></i>Edit
+                                        </a>
+                                        <?php endif; ?>
+                                    </li>
+                                    <li>
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.delete')): ?>
+                                        <form
+                                            action="<?php echo e(route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no))); ?>"
+                                            method="POST" onsubmit="return confirm('Are you sure?')">
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('DELETE'); ?>
+                                            <button type="submit"
+                                                class="dropdown-item d-flex align-products-center gap-3 text-danger">
+                                                <i class="fs-4 ti ti-trash"></i>Delete
+                                            </button>
+                                        </form>
+                                        <?php endif; ?>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <?php endif; ?>
+                    </tr>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    <tr>
+                        <td colspan="10" class="text-center">No sales records found</td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
-    </td>
+        <div class="mt-3">
+            <?php echo e($sales->links()); ?>
 
-
-    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
-    <td>
-        <div class="dropdown dropstart">
-            <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="ti ti-dots-vertical fs-6"></i>
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.view-details')): ?>
-                    <a class="dropdown-item d-flex align-products-center gap-3"
-                        href="<?php echo e(route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no))); ?>">
-                        <i class="fs-4 ti ti-eye"></i>View Details
-                    </a>
-                    <?php endif; ?>
-                </li>
-                <li>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.edit')): ?>
-                    <a class="dropdown-item d-flex align-products-center gap-3"
-                        href="<?php echo e(route('admin.salesorders.edit', Crypt::encryptString($sale->n_sl_no))); ?>">
-                        <i class="fs-4 ti ti-edit"></i>Edit
-                    </a>
-                    <?php endif; ?>
-                </li>
-                <li>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.delete')): ?>
-                    <form action="<?php echo e(route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no))); ?>"
-                        method="POST" onsubmit="return confirm('Are you sure?')">
-                        <?php echo csrf_field(); ?>
-                        <?php echo method_field('DELETE'); ?>
-                        <button type="submit" class="dropdown-item d-flex align-products-center gap-3 text-danger">
-                            <i class="fs-4 ti ti-trash"></i>Delete
-                        </button>
-                    </form>
-                    <?php endif; ?>
-                </li>
-            </ul>
         </div>
-    </td>
-    <?php endif; ?>
-    </tr>
-    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-    <tr>
-        <td colspan="10" class="text-center">No sales records found</td>
-    </tr>
-    <?php endif; ?>
-    </tbody>
-    </table>
-</div>
-<div class="mt-3">
-    <?php echo e($sales->links()); ?>
-
-</div>
-</div>
+    </div>
 </div>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/sales/index.blade.php ENDPATH**/ ?>

@@ -1,4 +1,5 @@
-<?php $__env->startPush('styles'); ?>
+@extends('layouts.app')
+@push('styles')
 <style>
 .order-number {
     background: #f5f5f5;
@@ -90,40 +91,39 @@
 
 }
 </style>
-<?php $__env->stopPush(); ?>
-<?php $__env->startSection('content'); ?>
-<?php
+@endpush
+@section('content')
+@php
 use Illuminate\Support\Facades\Crypt;
-?>
+@endphp
 <div class="card w-100 position-relative overflow-hidden mb-4">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-products-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Add Sales Orders</h5>
     </div>
     <div class="card-body p-4">
 
-        <?php if($errors->any()): ?>
+        @if ($errors->any())
         <div class="alert alert-danger">
             <ul class="mb-0">
-                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <li><?php echo e($error); ?></li>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
             </ul>
         </div>
-        <?php endif; ?>
+        @endif
 
-        <?php if(session('success')): ?>
+        @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?php echo e(session('success')); ?>
-
+            {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        <?php endif; ?>
+        @endif
 
-        <form method="POST" id="frm_create" action="<?php echo e(route('admin.salesorders.store')); ?>"
+        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}"
             enctype="multipart/form-data">
-            <?php echo csrf_field(); ?>
+            @csrf
 
-            <input type="hidden" name="id" class="form-control" value="<?php echo e(isset($sale) ? $sale->n_sl_no : ''); ?>">
+            <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
 
             <!-- Section 1: Order Information -->
             <div class="form-section mb-4">
@@ -140,8 +140,8 @@ use Illuminate\Support\Facades\Crypt;
                         <label class="form-label">Date *</label>
                         <input type="date" name="d_date" class="form-control mandatory"
                             data-message="Please Select a Date"
-                            value="<?php echo e(old('d_date', isset($sale) ? $sale->d_date->format('Y-m-d') : '')); ?>"
-                            <?php echo e(isset($viewmode) && $viewmode=='on' ? 'readonly' : ''); ?>>
+                            value="{{ old('d_date', isset($sale) ? $sale->d_date->format('Y-m-d') : '') }}"
+                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
 
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
@@ -152,8 +152,8 @@ use Illuminate\Support\Facades\Crypt;
 
                         <input type="text" name="c_order_no" class="form-control mandatory order-number"
                             data-message="Please Enter Order No"
-                            value="<?php echo e(old('c_order_no', isset($sale) ? $sale->c_order_no : '')); ?>"
-                            <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?>>
+                            value="{{ old('c_order_no', isset($sale) ? $sale->c_order_no : '') }}"
+                            {{ isset($viewmode) && $viewmode == 'on' ? 'readonly' : '' }}>
 
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
@@ -171,25 +171,24 @@ use Illuminate\Support\Facades\Crypt;
                         </label>
 
 
-                        <?php if($isFarmCareAdvisor): ?>
+                        @if($isFarmCareAdvisor)
 
-                        <input type="text" class="form-control advisor-highlight" value="<?php echo e(auth()->user()->c_name); ?>"
+                        <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}"
                             readonly>
-                        <?php else: ?>
+                        @else
 
                         <select name="farm_care_advisor_id" class="form-control mandatory">
                             <option value="">Select Farm Care Adviser</option>
 
-                            <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($employee->n_employee_id); ?>"
-                                <?php echo e(isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : ''); ?>>
-                                <?php echo e($employee->c_employee_name); ?>
-
+                            @foreach($employees as $employee)
+                            <option value="{{ $employee->n_employee_id }}"
+                                {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
+                                {{ $employee->c_employee_name }}
                             </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            @endforeach
                         </select>
 
-                        <?php endif; ?>
+                        @endif
                         <div class="text-danger mt-1 fs-2"></div>
 
                     </div>
@@ -209,14 +208,14 @@ use Illuminate\Support\Facades\Crypt;
                     </div>
 
 
-                    <?php if(isset($viewmode) && $viewmode=='off'): ?>
+                    @if(isset($viewmode) && $viewmode=='off')
 
                     <button type="button" class="btn buttonSpc btn-sm" id="addRow">
                         <i class="ti ti-plus"></i>
                         Add New Product
                     </button>
 
-                    <?php endif; ?>
+                    @endif
 
                 </div>
 
@@ -240,53 +239,52 @@ use Illuminate\Support\Facades\Crypt;
 
                         <tbody>
 
-                            <?php if(isset($sale->orderProducts)): ?>
+                            @if(isset($sale->orderProducts))
 
-                            <?php $__currentLoopData = $sale->orderProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            @foreach($sale->orderProducts as $key=>$val)
 
                             <tr>
 
                                 <td>
-                                    <select name="products[<?php echo e($key); ?>][product_id]"
+                                    <select name="products[{{ $key }}][product_id]"
                                         class="form-control product mandatory">
 
                                         <option value="">
                                             Select Product
                                         </option>
 
-                                        <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        @foreach($products as $product)
 
-                                        <option value="<?php echo e($product->n_product_id); ?>"
-                                            
-                                            data-price="<?php echo e($product->n_mrp); ?>"
-                                            <?php echo e($val->product_id == $product->n_product_id ? 'selected' : ''); ?>>
+                                        <option value="{{ $product->n_product_id }}"
+                                            {{-- data-price="{{ $product->n_selling_price }}" --}}
+                                            data-price="{{ $product->n_mrp }}"
+                                            {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
 
-                                            <?php echo e($product->c_product_name); ?>
-
+                                            {{ $product->c_product_name }}
 
                                         </option>
 
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        @endforeach
 
                                     </select>
                                 </td>
 
 
                                 <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][product_price]"
-                                        class="form-control price" value="<?php echo e($val->product_price); ?>" readonly>
+                                    <input type="text" name="products[{{ $key }}][product_price]"
+                                        class="form-control price" value="{{ $val->product_price }}" readonly>
                                 </td>
 
 
                                 <td>
-                                    <input type="number" name="products[<?php echo e($key); ?>][qty]" class="form-control qty"
-                                        value="<?php echo e($val->qty); ?>">
+                                    <input type="number" name="products[{{ $key }}][qty]" class="form-control qty"
+                                        value="{{ $val->qty }}">
                                 </td>
 
 
                                 <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][product_total]"
-                                        class="form-control total" value="<?php echo e($val->product_total); ?>" readonly>
+                                    <input type="text" name="products[{{ $key }}][product_total]"
+                                        class="form-control total" value="{{ $val->product_total }}" readonly>
                                 </td>
 
 
@@ -300,9 +298,9 @@ use Illuminate\Support\Facades\Crypt;
 
                             </tr>
 
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            @endforeach
 
-                            <?php endif; ?>
+                            @endif
 
 
                         </tbody>
@@ -328,18 +326,17 @@ use Illuminate\Support\Facades\Crypt;
 
                         <select name="n_customer_id" id="n_customer_id" class="form-select mandatory">
                             <option value="">Select Customer</option>
-                            <?php if(isset($customers)): ?>
-                            <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($customer->n_customer_id); ?>" data-name="<?php echo e($customer->c_customer_name); ?>"
-                                data-email="<?php echo e($customer->c_email); ?>" data-mobile="<?php echo e($customer->n_mobile); ?>"
-                                data-address="<?php echo e($customer->c_address); ?>" data-state="<?php echo e($customer->n_state_id); ?>"
-                                data-district="<?php echo e($customer->n_district_id); ?>"
-                                <?php echo e(isset($sale->n_customer_id) && $sale->n_customer_id==$customer->n_customer_id ? "selected": ''); ?>>
-                                <?php echo e($customer->c_customer_name); ?>
-
+                            @if(isset($customers))
+                            @foreach($customers as $customer)
+                            <option value="{{ $customer->n_customer_id }}" data-name="{{ $customer->c_customer_name }}"
+                                data-email="{{ $customer->c_email }}" data-mobile="{{ $customer->n_mobile }}"
+                                data-address="{{ $customer->c_address }}" data-state="{{ $customer->n_state_id }}"
+                                data-district="{{ $customer->n_district_id }}"
+                                {{isset($sale->n_customer_id) && $sale->n_customer_id==$customer->n_customer_id ? "selected": ''}}>
+                                {{ $customer->c_customer_name }}
                             </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            <?php endif; ?>
+                            @endforeach
+                            @endif
 
                         </select>
 
@@ -351,9 +348,8 @@ use Illuminate\Support\Facades\Crypt;
                         <label for="c_customer_email" class="form-label">Customer Email *</label>
 
                         <input type="text" id="c_customer_email" name="c_customer_email"
-                            value="<?php echo e(old('c_customer_email',isset($sale) ? $sale->c_customer_email : '')); ?>"
-                            <?php echo e(isset($viewmode) && $viewmode=='on' ? 'readonly' : ''); ?>
-
+                            value="{{ old('c_customer_email',isset($sale) ? $sale->c_customer_email : '') }}"
+                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
                             data-message="Please enter Customer Email" class="form-control mandatory"
                             placeholder="Enter Customer Email">
 
@@ -370,9 +366,8 @@ use Illuminate\Support\Facades\Crypt;
                         <label for="n_customer_mobile" class="form-label">Customer Mobile *</label>
 
                         <input type="text" id="n_customer_mobile" name="n_customer_mobile"
-                            value="<?php echo e(old('n_customer_mobile',isset($sale) ? $sale->n_customer_mobile : '')); ?>"
-                            <?php echo e(isset($viewmode) && $viewmode=='on' ? 'readonly' : ''); ?>
-
+                            value="{{ old('n_customer_mobile',isset($sale) ? $sale->n_customer_mobile : '') }}"
+                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
                             data-message="Please enter Customer Mobile" class="form-control mandatory"
                             placeholder="Enter Customer Mobile">
 
@@ -384,9 +379,8 @@ use Illuminate\Support\Facades\Crypt;
                         <label for="c_customer_address" class="form-label">Customer Address *</label>
 
                         <input type="text" id="c_customer_address" name="c_customer_address"
-                            value="<?php echo e(old('c_customer_address',isset($sale) ? $sale->c_customer_address : '')); ?>"
-                            <?php echo e(isset($viewmode) && $viewmode=='on' ? 'readonly' : ''); ?>
-
+                            value="{{ old('c_customer_address',isset($sale) ? $sale->c_customer_address : '') }}"
+                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}
                             data-message="Please add Customer Address" class="form-control mandatory"
                             placeholder="Customer Address">
 
@@ -404,21 +398,20 @@ use Illuminate\Support\Facades\Crypt;
                         <label class="form-label">State</label>
 
                         <select class="form-select mandatory" data-message="Please enter State" id="customer_state"
-                            name="n_state_id" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>>
+                            name="n_state_id" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
 
                             <option value="">Select State</option>
 
-                            <?php if(isset($states)): ?>
-                            <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $State): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            @if(isset($states))
+                            @foreach($states as $State)
 
-                            <option value="<?php echo e($State->n_state_id); ?>"
-                                <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $State->n_state_id ? 'selected' : ''); ?>>
-                                <?php echo e($State->name); ?>
-
+                            <option value="{{$State->n_state_id}}"
+                                {{ old('n_state_id', $sale->n_state_id ?? '') == $State->n_state_id ? 'selected' : '' }}>
+                                {{$State->name}}
                             </option>
 
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            <?php endif; ?>
+                            @endforeach
+                            @endif
 
                         </select>
 
@@ -434,27 +427,26 @@ use Illuminate\Support\Facades\Crypt;
 
                         <select class="form-select mandatory" data-message="Please enter District"
                             id="customer_district" name="n_district_id"
-                            <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>>
+                            {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
 
                             <option value="">Select District</option>
 
-                            <?php if(isset($sale->n_district_id)): ?>
+                            @if(isset($sale->n_district_id))
 
-                            <?php
+                            @php
                             $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get();
-                            ?>
+                            @endphp
 
-                            <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            @foreach($districts as $district)
 
-                            <option value="<?php echo e($district->id); ?>"
-                                <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>>
-                                <?php echo e($district->district_name); ?>
-
+                            <option value="{{$district->id}}"
+                                {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
+                                {{$district->district_name}}
                             </option>
 
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            @endforeach
 
-                            <?php endif; ?>
+                            @endif
 
                         </select>
 
@@ -494,7 +486,7 @@ use Illuminate\Support\Facades\Crypt;
                             <div class="payment-option">
                                 <input class="form-check-input mandatory mode_of_payment" type="radio"
                                     name="c_mode_of_payment" id="cod" value="Cash on delivery"
-                                    <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : ''); ?>>
+                                    {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : '' }}>
 
                                 <label for="cod" class="mb-0">
                                     <i class="ti ti-truck"></i>
@@ -506,7 +498,7 @@ use Illuminate\Support\Facades\Crypt;
                             <div class="payment-option">
                                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
                                     id="upi" value="UPI"
-                                    <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : ''); ?>>
+                                    {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
 
                                 <label for="upi" class="mb-0">
                                     <i class="ti ti-brand-google-pay"></i>
@@ -517,7 +509,7 @@ use Illuminate\Support\Facades\Crypt;
                             <div class="payment-option">
                                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
                                     id="bkd" value="Bank Deposit"
-                                    <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : ''); ?>>
+                                    {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
 
                                 <label for="bkd" class="mb-0">
                                     <i class="ti ti-building-bank"></i>
@@ -527,7 +519,7 @@ use Illuminate\Support\Facades\Crypt;
                             <div class="payment-option">
                                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
                                     id="pf" value="Paid to Franchise"
-                                    <?php echo e(old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : ''); ?>>
+                                    {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
 
                                 <label for="pf" class="mb-0">
                                     <i class="ti ti-cash"></i>
@@ -538,6 +530,28 @@ use Illuminate\Support\Facades\Crypt;
                         </div>
 
                     </div>
+                  {{--   @if(isset($isfarmcareadvisor) && $isfarmcareadvisor==false)
+                    <div class="row mb-3 align-items-center">
+                         <div class="col-lg-6 mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Payment Status
+                            </label>
+
+                            <select name="c_lead_status"
+                                    id="leadStatus"
+                                    class="form-select">
+
+                                <option value="">Select Status</option>
+
+                                <option value="Pending" {{ old('c_payment_status', $lead->c_lead_status ?? '') == "Pending" ? 'selected' : '' }}>Pending</option>
+                                <option value="Approved"  {{ old('c_payment_status', $lead->c_lead_status ?? '') == "Approved" ? 'selected' : '' }}>Approved</option>
+
+                            </select>
+
+                        </div>
+                    </div>
+                    @endif --}}
 
                 </div>
 
@@ -564,33 +578,24 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select State</option>
 
-                                <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                @foreach($states as $state)
 
-                                <option value="<?php echo e($state->n_state_id); ?>"
-                                    <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : ''); ?>>
+                                <option value="{{ $state->n_state_id }}"
+                                    {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
 
-                                    <?php echo e($state->name); ?>
-
+                                    {{ $state->name }}
 
                                 </option>
 
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                @endforeach
 
                             </select>
 
-                            <?php $__errorArgs = ['n_state_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
+                            @error('n_state_id')
                             <div class="text-danger mt-1 fs-2">
-                                <?php echo e($message); ?>
-
+                                {{ $message }}
                             </div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
+                            @enderror
 
                         </div>
 
@@ -598,20 +603,20 @@ unset($__errorArgs, $__bag); ?>
                         <div class="col-md-6">
                             <label for="state" class="form-label">District</label>
                             <select class="form-select mandatory" data-message="Please enter District"
-                                <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?> id="franchise_district"
+                                {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }} id="franchise_district"
                                 name="n_district_id">
                                 <option value="" selected>Select District</option>
-                                <?php if(isset($sale->n_district_id)): ?>
-                                <?php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get();
-                                ?>
-                                <?php if(isset($districts)): ?>
-                                <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($district->id); ?>"
-                                    <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>>
-                                    <?php echo e($district->district_name); ?></option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                <?php endif; ?>
-                                <?php endif; ?>
+                                @if(isset($sale->n_district_id))
+                                @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get();
+                                @endphp
+                                @if(isset($districts))
+                                @foreach($districts as $district)
+                                <option value="{{$district->id}}"
+                                    {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
+                                    {{$district->district_name}}</option>
+                                @endforeach
+                                @endif
+                                @endif
 
                             </select>
                             <div class="text-danger mt-1 fs-2"></div>
@@ -635,20 +640,20 @@ unset($__errorArgs, $__bag); ?>
                                     Select Franchise
                                 </option>
 
-                                <?php if(isset($franchises)): ?>
+                                @if(isset($franchises))
 
-                                <?php $__currentLoopData = $franchises; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $franchise): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                @foreach($franchises as $franchise)
 
-                                <option value="<?php echo e($franchise->n_store_id); ?>"
-                                    <?php echo e(old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : ''); ?>>
+                                <option value="{{ $franchise->n_store_id }}"
+                                    {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
 
-                                    <?php echo e($franchise->c_store_name); ?> (<?php echo e($franchise->c_store_code); ?>)
+                                    {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
 
                                 </option>
 
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                @endforeach
 
-                                <?php endif; ?>
+                                @endif
 
                             </select>
 
@@ -672,33 +677,33 @@ unset($__errorArgs, $__bag); ?>
 
                 <!-- Buttons -->
                 <div class="mt-3 d-flex gap-2">
-                    <?php if(isset($viewmode) && $viewmode=="on"): ?>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.follow-up')): ?>
+                    @if(isset($viewmode) && $viewmode=="on")
+                    @can('sales-orders.follow-up')
                     <!--Follow-up Button-->
                     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
                         data-bs-toggle="modal" data-bs-target="#followUpModal"
-                        data-id="<?php echo e(isset($sale) ? Crypt::encryptString($sale->n_sl_no) : ''); ?>" id="followup">Update
+                        data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="followup">Update
                         Follow-up</button>
-                    <?php endif; ?>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.approval')): ?>
+                    @endcan
+                    @can('sales-orders.approval')
                     <!--Approval Button-->
                     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
                         data-bs-toggle="modal" data-bs-target="#approveModal" data-bs-dismiss="modal"
-                        data-id="<?php echo e(Crypt::encryptString($sale->n_sl_no)); ?>">
+                        data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
                         Approve
                     </button>
-                    <?php endif; ?>
-                    <?php if(isset($sale) && $sale->n_sl_no): ?>
-                    <a href="<?php echo e(route('admin.invoice.download', $sale->n_sl_no)); ?>"><button type="button"
+                    @endcan
+                    @if(isset($sale) && $sale->n_sl_no)
+                    <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button"
                             class="btn mt-1 buttonSpc" id="btn_create">Download Invoice</button></a>
-                    <?php endif; ?>
-                    <?php else: ?>
+                    @endif
+                    @else
                     <button type="button" class="btn mt-1 buttonSpc"
-                        id="btn_create"><?php echo e(isset($sale->n_sl_no) ? 'Update' : 'Create'); ?></button>
-                    <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Cancel</a>
+                        id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
+                    <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
 
-                    
-                    <?php endif; ?>
+                    {{-- <a href="{{route('')}}" class="btn buttonSpc">Download Invoice</a> --}}
+                    @endif
                 </div>
         </form>
     </div>
@@ -709,8 +714,8 @@ unset($__errorArgs, $__bag); ?>
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-            <form action="<?php echo e(route('admin.salesorders.followup.store')); ?>" method="POST">
-                <?php echo csrf_field(); ?>
+            <form action="{{ route('admin.salesorders.followup.store') }}" method="POST">
+                @csrf
 
                 <div class="modal-header">
                     <h5 class="modal-title text-white" id="followUpModalLabel">
@@ -721,7 +726,7 @@ unset($__errorArgs, $__bag); ?>
 
                 <div class="modal-body">
 
-                    <input type="hidden" name="lead_id" value="<?php echo e($lead->id ?? ''); ?>">
+                    <input type="hidden" name="lead_id" value="{{ $lead->id ?? '' }}">
 
                     <div class="row">
 
@@ -735,7 +740,7 @@ unset($__errorArgs, $__bag); ?>
                             <input type="date" name="next_followup_date" class="form-control">
                         </div>
 
-                        <?php if(isset($user) && $user->identifier != "FCA"): ?>
+                        @if(isset($user) && $user->identifier != "FCA")
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Type</label>
                             <select name="followup_type" class="form-select" required>
@@ -758,7 +763,7 @@ unset($__errorArgs, $__bag); ?>
                                 <option value="Lost">Lost</option>
                             </select>
                         </div>
-                        <?php endif; ?>
+                        @endif
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Priority</label>
                             <select name="priority" class="form-select">
@@ -803,12 +808,99 @@ unset($__errorArgs, $__bag); ?>
 </div>
 
 <!--Approval Form modal-->
+{{-- <div class="modal fade"
+     id="approveModal"
+     tabindex="-1"
+     aria-labelledby="approveModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <form method="POST"
+              id="approveForm"
+              action="{{ route('admin.salesorders.approval.save') }}">
+
+@csrf
+@method('PUT')
+
+<div class="modal-content">
+
+    <div class="modal-header" style="background: linear-gradient(135deg, #5A8D3A, #074E30);">
+
+        <h5 class="modal-title text-white" id="approveModalLabel">
+            Approval
+        </h5>
+
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+        </button>
+
+    </div>
+
+    <div class="modal-body">
+
+        <input type="hidden" name="id" id="approval_id">
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Remarks <span class="text-danger">*</span>
+            </label>
+
+            <textarea class="form-control" name="remarks" id="approval_remarks" rows="3" required></textarea>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Approval Status
+                <span class="text-danger">*</span>
+            </label>
+
+            <select class="form-select" name="status" id="approval_status" required>
+
+                <option value="">
+                    Select Status
+                </option>
+
+                <option value="Approved">
+                    Approve
+                </option>
+
+                <option value="Rejected">
+                    Reject
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+        <button type="button" class="btn buttonSpc" id="approvalSubmit">
+            Submit
+        </button>
+
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancel
+        </button>
+
+    </div>
+
+</div>
+
+</form>
+
+</div>
+</div>
+--}}
 
 
+@endsection
 
-<?php $__env->stopSection(); ?>
-
-<?php $__env->startPush('scripts'); ?>
+@push('scripts')
 
 
 <script>
@@ -847,13 +939,13 @@ $(document).ready(function() {
 
                         <option value="">Select Product</option>
 
-                        <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        @foreach($products as $product)
                             <option
-                                value="<?php echo e($product->n_product_id); ?>"
-                                data-price="<?php echo e($product->n_mrp); ?>">
-                                <?php echo e($product->c_product_name); ?> (<?php echo e($product->c_product_code); ?>)(<?php echo e($product->c_unit); ?>)
+                                value="{{ $product->n_product_id }}"
+                                data-price="{{ $product->n_mrp }}">
+                                {{ $product->c_product_name }} ({{ $product->c_product_code }})({{$product->c_unit}})
                             </option>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        @endforeach
 
                     </select>
 
@@ -1016,7 +1108,7 @@ $(document).ready(function() {
 
             type: 'GET',
 
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
+            url: "{{ route('admin.filterDistrict') }}",
 
             data: {
                 state: stateId
@@ -1105,7 +1197,7 @@ $(document).ready(function() {
 
         $.ajax({
 
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
+            url: "{{ route('admin.filterDistrict') }}",
 
             type: 'GET',
 
@@ -1184,7 +1276,7 @@ $(document).ready(function() {
 
         $.ajax({
 
-            url: "<?php echo e(url('admin/filter-franchise')); ?>",
+            url: "{{ url('admin/filter-franchise') }}",
 
             type: 'GET',
 
@@ -1275,7 +1367,7 @@ $(document).ready(function() {
 
         $('#approvalForm').attr(
             'action',
-            "<?php echo e(route('admin.salesorders.approval.save')); ?>"
+            "{{ route('admin.salesorders.approval.save') }}"
         );
 
         $('#approval_remarks').val('');
@@ -1330,7 +1422,7 @@ $(document).ready(function() {
 
         $.ajax({
             type: "GET",
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
+            url: "{{ route('admin.filterDistrict') }}",
             data: {
                 state: stateId
             },
@@ -1373,7 +1465,7 @@ $(document).ready(function() {
 
         $.ajax({
 
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
+            url: "{{ route('admin.filterDistrict') }}",
 
             type: "GET",
 
@@ -1428,7 +1520,7 @@ $(document).ready(function() {
         let districtId = $(this).val();
 
         $.ajax({
-            url: "<?php echo e(url('admin/filter-franchise')); ?>",
+            url: "{{ url('admin/filter-franchise') }}",
             type: "GET",
             data: {
                 state: stateId,
@@ -1458,5 +1550,4 @@ $(document).ready(function() {
 </script>
 
 
-<?php $__env->stopPush(); ?>
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/sales/create.blade.php ENDPATH**/ ?>
+@endpush

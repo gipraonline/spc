@@ -297,13 +297,13 @@
                             <h6 class="fw-semibold mb-0">MRP</h6>
                         </th>
 
-                        <th class="border-bottom-0">
+                        <!-- <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Selling Price</h6>
-                        </th>
+                        </th> -->
 
-                        <th class="border-bottom-0">
+                        <!-- <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Purchase Price</h6>
-                        </th>
+                        </th> -->
 
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Status</h6>
@@ -349,19 +349,19 @@
                         </td>
                         <td class="border-bottom-0">
                             <span class="fw-normal">
-                                {{ number_format($product->n_gst_percentage, 2) }}%
+                                {{ number_format($product->n_gst_percentage, 2) }}
                             </span>
                         </td>
 
                         <td class="border-bottom-0">
                             <span class="fw-normal">₹{{ number_format($product->n_mrp, 2) }}</span>
                         </td>
-                        <td class="border-bottom-0">
+                        <!-- <td class="border-bottom-0">
                             <span class="fw-normal">₹{{ number_format($product->n_selling_price, 2) }}</span>
-                        </td>
-                        <td class="border-bottom-0">
+                        </td> -->
+                        <!-- <td class="border-bottom-0">
                             <span class="fw-normal">₹{{ number_format($product->n_purchase_price, 2) }}</span>
-                        </td>
+                        </td> -->
 
                         <td class="border-bottom-0">
                             <span

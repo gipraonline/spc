@@ -276,7 +276,7 @@ endif;
 unset($__errorArgs, $__bag); ?>
                 </div>
 
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <label for="n_purchase_price" class="form-label">Purchase Price *</label>
                     <input type="text" id="n_purchase_price" name="n_purchase_price"
                         data-message="Please enter Purchase Price" value="<?php echo e(old('n_purchase_price')); ?>"
@@ -291,9 +291,9 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                </div>
+                </div> -->
 
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <label for="n_selling_price" class="form-label">Selling Price *</label>
                     <input type="text" id="n_selling_price" name="n_selling_price"
                         data-message="Please enter Selling Price" value="<?php echo e(old('n_selling_price')); ?>"
@@ -308,7 +308,7 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- <div class="col-md-6">
                     <label for="c_status" class="form-label">Status *</label>

@@ -49,6 +49,6 @@ class EmployeeMaster extends Model
         return $this->hasMany(EmployeeMaster::class, 'reporting_to');
     }
 
-
+    
 
 }

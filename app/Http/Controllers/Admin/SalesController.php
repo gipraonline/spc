@@ -220,6 +220,11 @@ class SalesController extends Controller
             ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
             ->where('em.c_status', 'Y')
             ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
+            ->groupBy(
+                'em.n_employee_id',
+                'em.c_employee_name',
+                'dm.identifier'
+                )
             ->get();
 
         $products = ProductMaster::where('c_status', 'Y')->get();
@@ -282,6 +287,7 @@ class SalesController extends Controller
             'n_district_id' => 'required|integer|exists:districts,id',
             'nearest_franchise_id' => 'required|integer|exists:store_masters,n_store_id',
             'c_mode_of_payment' => 'required',
+            'c_order_status' => 'required',
 
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'required|integer',
@@ -353,6 +359,7 @@ class SalesController extends Controller
                 'n_state_id' => $validated['n_state_id'],
                 'n_district_id' => $validated['n_district_id'],
                 'c_mode_of_payment' => $validated['c_mode_of_payment'],
+                'c_order_status' => $validated['c_order_status'],
                 'nearest_franchise_id' => $validated['nearest_franchise_id'],
                 'payment_image' => $imageName,
             ];
@@ -472,27 +479,27 @@ class SalesController extends Controller
     //         'isFarmCareAdvisor'));
     // }
 
-    // public function approve(Request $request)
-    // {
-    //     $request->validate([
-    //         'status' => 'required',
-    //         'remarks' => 'required',
-    //     ]);
+    public function approve(Request $request)
+    {
+        $request->validate([
+            'status' => 'required',
+            'remarks' => 'required',
+        ]);
 
-    //     $id = Crypt::decryptString($request->id);
+        $id = Crypt::decryptString($request->id);
 
-    //     SalesApproval::updateOrCreate(
-    //         ['sales_order_id' => $id],
-    //         [
-    //             'status' => $request->status,
-    //             'remarks' => $request->remarks,
-    //             'approved_by' => auth()->user()->n_role_id,
-    //             'approved_at' => now(),
-    //         ]
-    //     );
+        SalesApproval::updateOrCreate(
+            ['sales_order_id' => $id],
+            [
+                'status' => $request->status,
+                'remarks' => $request->remarks,
+                'approved_by' => auth()->user()->n_role_id,
+                'approved_at' => now(),
+            ]
+        );
 
-    //     return redirect()->back()->with('success', 'Approval completed successfully.');
-    // }
+        return redirect()->back()->with('success', 'Approval completed successfully.');
+    }
 
     public function show(Request $request, $id)
     {

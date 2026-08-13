@@ -16,18 +16,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --primary-blue: #004b91;
-            --primary-red: #ed1c24;
-            --accent-glow: rgba(0, 75, 145, 0.15);
-            --bg-color: #fcfdfe;
-            --card-bg: #ffffff;
-            --text-dark: #1a1a1a;
-            --text-grey: #666666;
-            --input-border: #e0e0e0;
-            --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.05);
-            --shadow-glow: 0 0 20px rgba(0, 75, 145, 0.1);
-        }
+       :root {
+                --primary-blue: #0f7d3d;
+                --primary-red: #1e550b;
+                --accent-glow: rgba(0, 75, 145, 0.15);
+                --bg-color: #fcfdfe;
+                --card-bg: #ffffff;
+                --text-dark: #1a1a1a;
+                --text-grey: #666666;
+                --input-border: #e0e0e0;
+                --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.05);
+                --shadow-glow: 0 0 20px rgba(0, 75, 145, 0.1);
+            }
 
         * {
             margin: 0;
@@ -224,7 +224,7 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            margin-bottom: 25px;
+
             box-shadow: 0 10px 20px rgba(0, 75, 145, 0.2);
             position: relative;
             overflow: hidden;
@@ -315,15 +315,16 @@
             }
         }
 
-        .copy {
-            text-align: center;
-            color: #000;
-            font-weight: 600;
-            position: absolute;
-            bottom: 7px;
-            font-size: 15px;
-            margin-top: 20px
-        }
+       .copy {
+    text-align: center;
+    color: #000;
+    font-weight: 600;
+    position: absolute;
+    bottom: 7px;
+    font-size: 15px;
+    margin-top: 20px;
+    font-family: auto;
+}
 
         @media screen and (max-width:767px) {
             .copy {
@@ -417,12 +418,11 @@
 
                 
             </form>
+
         </div>
     </div>
-    <p class="copy">Copyright © 2026 SPC All Rights Reserved.
 
-    </p>
-
+  <p class="copy">Copyright © 2026 SPC All Rights Reserved.</p>
 
     <!--  Import Js Files -->
     <script src="<?php echo e(asset('dist/libs/jquery/dist/jquery.min.js')); ?>"></script>

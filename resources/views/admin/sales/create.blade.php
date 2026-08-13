@@ -386,12 +386,17 @@ use Illuminate\Support\Facades\Crypt;
                             Booklet Serial No *
                         </label>
                         <div class="position-relative">
-                            <input type="text" name="c_booklet_serial_no" placeholder="BK-2026-0417"
+                            <input type="text" name="c_order_no" placeholder="BK-2026-0417"
                                 class="form-control order-number fw-bold text-success"
-                                value="{{ old('c_booklet_serial_no', isset($sale->c_booklet_serial_no) ? $sale->c_booklet_serial_no : '') }}"
+                                value="{{ old('c_order_no', isset($sale->c_order_no) ? $sale->c_order_no : '') }}"
                                 {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
                         </div>
-                        <small class="text-success fs-1 mt-1 d-block">✓ Booklet Serial No is available.</small>
+                        @error('c_order_no')
+                        <div class="text-danger mt-1 fs-2">
+                            {{ $message }}
+                        </div>
+
+                        @enderror
                     </div>
 
                 </div>
@@ -790,16 +795,24 @@ use Illuminate\Support\Facades\Crypt;
                     Payment Status
                 </label>
 
-                <select name="c_lead_status" id="leadStatus" class="form-select">
+                <select name="payment_status" id="paymentStatus" class="form-select">
 
                     <option value="">Select Status</option>
 
-                    <option value="pending"
+                    <!-- <option value="pending"
                         {{ old('c_lead_status', $lead->c_lead_status ?? '') == "pending" ? 'selected' : '' }}>Pending
+                    </option> -->
+                    <option value="pending"
+                        {{ old('payment_status', $sale->payment_status ?? '') == 'pending' ? 'selected' : '' }}>
+                        Pending
                     </option>
-                    <option value="confirmed"
+                    <!-- <option value="confirmed"
                         {{ old('c_lead_status', $lead->c_lead_status ?? '') == "confirmed" ? 'selected' : '' }}>
-                        Confirmed</option>
+                        Confirmed</option> -->
+                    <option value="confirmed"
+                        {{ old('payment_status', $sale->payment_status ?? '') == 'confirmed' ? 'selected' : '' }}>
+                        Confirmed
+                    </option>
 
                 </select>
 
@@ -811,7 +824,7 @@ use Illuminate\Support\Facades\Crypt;
         <div class="row g-4 mt-1">
             <div class="col-md-4">
                 <label class="form-label">
-                    Amount to Pay * <span class="badge-new">NEW</span>
+                    Amount to Pay *
                 </label>
                 <div class="input-group">
                     <span class="input-group-text bg-light text-success fw-bold">₹</span>
@@ -823,17 +836,22 @@ use Illuminate\Support\Facades\Crypt;
 
             <div class="col-md-4">
                 <label class="form-label">
-                    Transaction ID * <span class="badge-new">NEW</span>
+                    Transaction ID *
                 </label>
-                <input type="text" name="c_transaction_id" class="form-control"
+                <!-- <input type="text" name="c_transaction_id" class="form-control"
+                    placeholder="Enter Transaction / UTR / Reference No"> -->
+                <input type="text" name="c_transaction_id" id="c_transaction_id" class="form-control"
+                    value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
                     placeholder="Enter Transaction / UTR / Reference No">
             </div>
 
             <div class="col-md-4" id="payment_image">
                 <label class="form-label">
-                    Transaction Proof * <span class="badge-updated">UPDATED</span>
+                    Transaction Proof *
                 </label>
-                <input type="file" name="payment_image" class="form-control">
+                <!-- <input type="file" name="payment_image" class="form-control"> -->
+                <input type="file" name="payment_image" id="payment_image_input" class="form-control"
+                    accept=".jpg,.jpeg,.png,.webp">
             </div>
         </div>
 
@@ -909,7 +927,7 @@ use Illuminate\Support\Facades\Crypt;
 
         <div class="form-section-header mb-3">
             <i class="ti ti-map-pin fs-5"></i>
-            SPC Organic Clinic / Franchise / Stock Point Details <span class="badge-renamed">RENAMED</span>
+            SPC Organic Clinic / Franchise / Stock Point Details
         </div>
 
         <div class="row g-4 mb-4">
@@ -1008,17 +1026,36 @@ use Illuminate\Support\Facades\Crypt;
         @endcan
         @can('sales-orders.approval')
         <!--Approval Button-->
+
         <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
             data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
             Approve
         </button>
         @endcan
-        @if(isset($sale) && $sale->n_sl_no)
+        <!-- @if(isset($sale) && $sale->n_sl_no)
+        <a href="{{route('admin.invoice-orders.preview', $sale->n_sl_no)}}"><button type="button"
+                class="btn mt-1 buttonSpc" id="btn_create">Order Summary Preview</button></a>
         <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button" class="btn mt-1 buttonSpc"
                 id="btn_create">Download Invoice</button></a>
+        @endif -->
+
+        @if(isset($sale) && $sale->n_sl_no)
+
+        {{-- Always available: Preview --}}
+        <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
+            Order Summary Preview
+        </a>
+
+        {{-- Available only after approval --}}
+        @if($sale->c_order_status === 'Approved')
+        <a href="{{ route('admin.invoice.download', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
+            Download Invoice
+        </a>
+        @endif
+
         @endif
         @else
-        <button type="button" class="btn buttonSpc"
+        <button type="submit" class="btn buttonSpc"
             id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
         <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
         @endif
@@ -1158,7 +1195,9 @@ use Illuminate\Support\Facades\Crypt;
         </form>
     </div>
 </div>
-
+@php
+$hasPaymentImage = isset($sale) && !empty($sale->payment_image);
+@endphp
 @endsection
 
 @push('scripts')
@@ -1827,6 +1866,57 @@ $(document).ready(function() {
 
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Payment Status - Transaction ID & Proof
+|--------------------------------------------------------------------------
+*/
+function togglePaymentFields() {
+    let status = $('#paymentStatus').val();
+
+    let transactionId = $('#c_transaction_id');
+    let paymentImage = $('#payment_image_input');
+
+    if (status === 'confirmed') {
+        // Enable fields
+        transactionId.prop('disabled', false);
+        paymentImage.prop('disabled', false);
+
+        // Make transaction ID required
+        transactionId.prop('required', true);
+
+        // Show enabled styling
+        transactionId.removeClass('bg-light');
+        paymentImage.removeClass('bg-light');
+
+    } else {
+        // Disable fields
+        transactionId.prop('disabled', true);
+        paymentImage.prop('disabled', true);
+
+        // Remove required
+        transactionId.prop('required', false);
+
+        // Clear transaction ID when pending
+        transactionId.val('');
+
+        // Clear file input
+        paymentImage.val('');
+
+        // Disabled styling
+        transactionId.addClass('bg-light');
+        paymentImage.addClass('bg-light');
+    }
+}
+
+// When Payment Status changes
+$('#paymentStatus').on('change', function() {
+    togglePaymentFields();
+});
+
+// Run on page load
+togglePaymentFields();
 </script>
 
 @endpush

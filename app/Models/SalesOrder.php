@@ -38,8 +38,10 @@ class SalesOrder extends Model
         'c_mode_of_payment',
         'c_order_status',
         'payment_image',
+        'c_transaction_id',
         'nearest_franchise_id',
         'payment_status',
+        'booklet_image',
         'delivery_status',
     ];
 

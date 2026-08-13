@@ -772,339 +772,318 @@
 
             </table>
 
-
             {{-- ================= PRODUCTS ================= --}}
 
             <div class="items-wrapper">
 
-                {{-- ================= PRODUCTS ================= --}}
+                <table class="items">
 
-                <div class="items-wrapper">
+                    <thead>
+                        <tr>
 
-                    <table class="items">
+                            <th style="width: 5%;">
+                                Sl No
+                            </th>
 
-                        <thead>
+                            <th style="width: 22%;">
+                                Description of goods
+                            </th>
 
-                            <tr>
+                            <th style="width: 11%;">
+                                HSN Code
+                            </th>
 
-                                <th style="width: 5%;">
-                                    Sl No
-                                </th>
+                            <th style="width: 9%;">
+                                Quantity
+                            </th>
 
-                                <th style="width: 22%;">
-                                    Description of goods
-                                </th>
+                            <th style="width: 8%;">
+                                Unit
+                            </th>
 
-                                <th style="width: 11%;">
-                                    HSN Code
-                                </th>
+                            <th style="width: 11%;">
+                                Price
+                            </th>
 
-                                <th style="width: 9%;">
-                                    Quantity
-                                </th>
+                            <th style="width: 10%;">
+                                Discount
+                            </th>
 
-                                <th style="width: 8%;">
-                                    Unit
-                                </th>
+                            <th style="width: 12%;">
+                                Discounted Price
+                            </th>
 
-                                <th style="width: 11%;">
-                                    Price
-                                </th>
+                            <th style="width: 12%;">
+                                Taxable Amount
+                            </th>
 
-                                <th style="width: 10%;">
-                                    Discount
-                                </th>
-
-                                <th style="width: 12%;">
-                                    Discounted price
-                                </th>
-
-                                <th style="width: 12%;">
-                                    Taxable Amount
-                                </th>
-
-                            </tr>
-
-                        </thead>
+                        </tr>
+                    </thead>
 
 
-                        <tbody>
+                    <tbody>
 
-                            @foreach($calculation['items'] as $index => $item)
+                        @foreach($calculation['items'] as $index => $item)
 
-                            @php
+                        <tr>
 
-                            /*
-                            * Safe fallback values.
-                            * These prevent Undefined array key errors
-                            * until the controller is updated.
-                            */
-
-                            $price = $item['rate_exclusive']
-                            ?? $item['rate']
-                            ?? $item['rate_inclusive']
-                            ?? 0;
-
-                            $discount = $item['discount']
-                            ?? 0;
-
-                            $discountedPrice = $item['discounted_price']
-                            ?? ($price - $discount);
-
-                            $priceIncludingGst = $item['amount_inclusive']
-                            ?? 0;
-
-                            @endphp
-
-                            <tr>
-
-                                {{-- SL NO --}}
-
-                                <td>
-                                    {{ $index + 1 }}
-                                </td>
+                            {{-- SL NO --}}
+                            <td>
+                                {{ $index + 1 }}
+                            </td>
 
 
-                                {{-- DESCRIPTION --}}
-
-                                <td class="description">
-                                    {{ $item['product_name'] ?? '-' }}
-                                </td>
-
-
-                                {{-- HSN CODE --}}
-
-                                <td>
-                                    {{ $item['hsn'] ?? '-' }}
-                                </td>
+                            {{-- PRODUCT --}}
+                            <td class="description">
+                                {{ $item['product_name'] }}
+                            </td>
 
 
-                                {{-- QUANTITY --}}
-
-                                <td>
-                                    {{ number_format($item['qty'] ?? 0, 0) }}
-                                </td>
-
-
-                                {{-- UNIT --}}
-
-                                <td>
-                                    {{ $item['unit'] ?? '-' }}
-                                </td>
+                            {{-- HSN --}}
+                            <td>
+                                {{ $item['hsn'] }}
+                            </td>
 
 
-                                {{-- PRICE --}}
-
-                                <td class="right">
-                                    ₹ {{ number_format($price, 2) }}
-                                </td>
-
-
-                                {{-- DISCOUNT --}}
-
-                                <td class="right">
-                                    ₹ {{ number_format($discount ?? 0, 2) }}
-                                </td>
+                            {{-- QUANTITY --}}
+                            <td>
+                                {{ number_format($item['qty'], 0) }}
+                            </td>
 
 
-                                {{-- DISCOUNTED PRICE --}}
-
-                                <td class="right">
-                                    ₹ {{ number_format($discountedPrice ?? 0, 2) }}
-                                </td>
-
-
-                                {{-- PRICE INCLUDING GST --}}
-
-                                <td class="right">
-                                    ₹ {{ number_format($priceIncludingGst, 2) }}
-                                </td>
-
-                            </tr>
-
-                            @endforeach
-
-                        </tbody>
+                            {{-- UNIT --}}
+                            <td>
+                                {{ $item['unit'] }}
+                            </td>
 
 
-                        <tfoot>
+                            {{-- PRICE --}}
+                            <td class="right">
+                                ₹ {{ number_format($item['rate_exclusive'], 2) }}
+                            </td>
+
+
+                            {{-- DISCOUNT --}}
+                            <td class="right">
+                                ₹ {{ number_format($item['discount'], 2) }}
+                            </td>
+
+
+                            {{-- DISCOUNTED PRICE --}}
+                            <td class="right">
+                                ₹ {{ number_format($item['discounted_price'], 2) }}
+                            </td>
+
 
                             {{-- TAXABLE AMOUNT --}}
+                            <td class="right">
+                                ₹ {{ number_format($item['taxable_amount'], 2) }}
+                            </td>
 
-                            <tr>
+                        </tr>
 
-                                <td colspan="7"></td>
+                        @endforeach
 
-                                <td class="summary-label">
-                                    Taxable amount
-                                </td>
+                    </tbody>
 
-                                <td class="summary-value">
-                                    ₹ {{ number_format($calculation['subtotal'] ?? 0, 2) }}
-                                </td>
 
-                            </tr>
+                    <tfoot>
 
+                        {{-- TAXABLE AMOUNT --}}
 
-                            {{-- GST --}}
+                        <tr>
 
-                            <tr>
+                            <td colspan="7"></td>
 
-                                <td colspan="7"></td>
+                            <td class="summary-label">
+                                Taxable Amount
+                            </td>
 
-                                <td class="summary-label">
-                                    GST
-                                </td>
+                            <td class="summary-value">
+                                ₹ {{ number_format($calculation['subtotal'], 2) }}
+                            </td>
 
-                                <td class="summary-value">
-                                    ₹ {{ number_format($calculation['gst_total'] ?? 0, 2) }}
-                                </td>
+                        </tr>
 
-                            </tr>
 
+                        {{-- GST --}}
 
-                            {{-- AMOUNT PAYABLE --}}
+                        <tr>
 
-                            <tr>
+                            <td colspan="7"></td>
 
-                                <td colspan="7"></td>
+                            <td class="summary-label">
+                                GST
+                            </td>
 
-                                <td class="total-label">
-                                    Amount Payable
-                                </td>
+                            <td class="summary-value">
+                                ₹ {{ number_format($calculation['gst_total'], 2) }}
+                            </td>
 
-                                <td class="total-value">
-                                    ₹ {{ number_format($calculation['grand_total'] ?? 0, 2) }}
-                                </td>
+                        </tr>
 
-                            </tr>
 
-                        </tfoot>
+                        {{-- TOTAL QUANTITY --}}
 
-                    </table>
+                        <tr>
 
-                </div>
+                            <td colspan="7"></td>
 
-            </div>
+                            <td class="summary-label">
+                                Total Quantity
+                            </td>
 
+                            <td class="summary-value">
+                                {{ number_format($calculation['total_qty'], 0) }}
+                            </td>
 
-            {{-- ================= AMOUNT WORDS ================= --}}
+                        </tr>
 
-            <div class="amount-words">
 
-                <div class="amount-label">
-                    Amount Chargeable (in words)
-                </div>
+                        {{-- AMOUNT PAYABLE --}}
 
-                <div class="words">
-                    {{ $calculation['grand_total_words'] }}
-                </div>
+                        <tr>
 
-                <div class="currency">
-                    E. &amp; O. E
-                </div>
+                            <td colspan="7"></td>
 
-            </div>
+                            <td class="total-label">
+                                Amount Payable
+                            </td>
 
+                            <td class="total-value">
+                                ₹ {{ number_format($calculation['grand_total'], 2) }}
+                            </td>
 
-            {{-- ================= PAYMENT + DECLARATION ================= --}}
+                        </tr>
 
-            <table class="footer-table">
+                    </tfoot>
 
-                <tr>
-
-                    <td class="footer-left">
-
-                        <div class="payment-box">
-
-                            <div class="payment-title">
-                                Payment Method
-                            </div>
-
-                            <div class="payment-line">
-                                {{ ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-')) }}
-                            </div>
-
-                            <br>
-
-                            <div class="payment-line">
-                                <strong>Bank Details:</strong>
-                            </div>
-
-                            <div class="payment-line">
-                                {{ $company->account_name }}
-                            </div>
-
-                            <div class="payment-line">
-                                A/c No: {{ $company->account_number }}
-                            </div>
-
-                            <div class="payment-line">
-                                IFSC: {{ $company->ifsc_code }}
-                            </div>
-
-                            <div class="payment-line">
-                                Bank: {{ $company->bank_name }}
-                            </div>
-
-                            @if($company->branch)
-
-                            <div class="payment-line">
-                                Branch: {{ $company->branch }}
-                            </div>
-
-                            @endif
-
-                        </div>
-
-                    </td>
-
-
-                    <td class="footer-right">
-
-                        <div class="declaration-box">
-
-                            <div class="declaration-title">
-                                Declaration
-                            </div>
-
-                            <div class="declaration-text">
-
-                                We declare that this invoice shows the actual
-                                price of the goods described and that all
-                                particulars are true and correct.
-
-                            </div>
-
-
-                            <div class="signature">
-
-                                <div class="signature-line"></div>
-
-                                Authorised Signatory
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            </table>
-
-
-            {{-- ================= FOOTER ================= --}}
-
-            <div class="bottom">
-
-                <div class="bottom-text">
-                    Pure Spices. Better Life.
-                </div>
+                </table>
 
             </div>
 
         </div>
+
+    </div>
+
+
+    {{-- ================= AMOUNT WORDS ================= --}}
+
+    <div class="amount-words">
+
+        <div class="amount-label">
+            Amount Chargeable (in words)
+        </div>
+
+        <div class="words">
+            {{ $calculation['grand_total_words'] }}
+        </div>
+
+        <div class="currency">
+            E. &amp; O. E
+        </div>
+
+    </div>
+
+
+    {{-- ================= PAYMENT + DECLARATION ================= --}}
+
+    <table class="footer-table">
+
+        <tr>
+
+            <td class="footer-left">
+
+                <div class="payment-box">
+
+                    <div class="payment-title">
+                        Payment Method
+                    </div>
+
+                    <div class="payment-line">
+                        {{ ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-')) }}
+                    </div>
+
+                    <br>
+
+                    <div class="payment-line">
+                        <strong>Bank Details:</strong>
+                    </div>
+
+                    <div class="payment-line">
+                        {{ $company->account_name }}
+                    </div>
+
+                    <div class="payment-line">
+                        A/c No: {{ $company->account_number }}
+                    </div>
+
+                    <div class="payment-line">
+                        IFSC: {{ $company->ifsc_code }}
+                    </div>
+
+                    <div class="payment-line">
+                        Bank: {{ $company->bank_name }}
+                    </div>
+
+                    @if($company->branch)
+
+                    <div class="payment-line">
+                        Branch: {{ $company->branch }}
+                    </div>
+
+                    @endif
+
+                </div>
+
+            </td>
+
+
+            <td class="footer-right">
+
+                <div class="declaration-box">
+
+                    <div class="declaration-title">
+                        Declaration
+                    </div>
+
+                    <div class="declaration-text">
+
+                        We declare that this invoice shows the actual
+                        price of the goods described and that all
+                        particulars are true and correct.
+
+                    </div>
+
+
+                    <div class="signature">
+
+                        <div class="signature-line"></div>
+
+                        Authorised Signatory
+
+                    </div>
+
+                </div>
+
+            </td>
+
+        </tr>
+
+    </table>
+
+
+    {{-- ================= FOOTER ================= --}}
+
+    <div class="bottom">
+
+        <div class="bottom-text">
+            Pure Spices. Better Life.
+        </div>
+
+    </div>
+
+    </div>
 
     </div>
 

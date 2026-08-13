@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\ProductMaster;
 
 class OrderProduct extends Model
 {
@@ -23,6 +22,7 @@ class OrderProduct extends Model
         'product_id',
         'product_price',
         'qty',
+        'discount',
         'product_total',
     ];
 
@@ -30,12 +30,11 @@ class OrderProduct extends Model
      * Product Relationship
      */
     public function product()
-{
-    return $this->belongsTo(
-        ProductMaster::class,
-        'product_id',
-        'n_product_id'
-    );
-}
-   
+    {
+        return $this->belongsTo(
+            ProductMaster::class,
+            'product_id',
+            'n_product_id'
+        );
+    }
 }

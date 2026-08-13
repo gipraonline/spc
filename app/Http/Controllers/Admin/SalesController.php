@@ -224,7 +224,7 @@ class SalesController extends Controller
                 'em.n_employee_id',
                 'em.c_employee_name',
                 'dm.identifier'
-                )
+            )
             ->get();
 
         $products = ProductMaster::where('c_status', 'Y')->get();
@@ -272,172 +272,651 @@ class SalesController extends Controller
         return response()->json(['districts' => $districts]);
     }
 
+    // public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'd_date' => 'required|date',
+    //         'c_order_no' => 'required|string|max:255',
+    //         'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
+    //         'n_customer_id' => 'required|exists:customer_masters,n_customer_id',
+    //         'c_customer_name' => 'required|exists:customer_masters,c_customer_name',
+    //         'c_customer_email' => 'nullable|email|max:255',
+    //         'c_customer_address' => 'nullable|string|max:1000',
+    //         'n_customer_mobile' => 'required|digits_between:10,15',
+    //         'n_state_id' => 'required|integer|exists:states,n_state_id',
+    //         'n_district_id' => 'required|integer|exists:districts,id',
+    //         'nearest_franchise_id' => 'required|integer|exists:store_masters,n_store_id',
+    //         'c_mode_of_payment' => 'required',
+    //         'c_payment_status' => 'required|in:pending,confirmed',
+    //         'c_transaction_id' => 'nullable|string|max:255',
+    //         'payment_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+    //         'c_order_status' => 'required',
+
+    //         'products' => 'required|array|min:1',
+    //         'products.*.product_id' => 'required|integer',
+    //         'products.*.product_price' => 'required|numeric',
+    //         'products.*.qty' => 'required|integer|min:1',
+    //         'products.*.product_total' => 'required|numeric',
+    //         'image' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return back()
+    //             ->withErrors($validator)
+    //             ->withInput();
+    //     }
+    //     /* if ($validator->fails()) {
+    //         dd($validator->errors()->toArray());
+    //     } */
+
+    //     $validated = $validator->validated();
+
+    //     $user = Auth::user();
+    //     $customer = CustomerMaster::findOrFail(
+    //         $validated['n_customer_id']
+    //     );
+
+    //     if ($user->roles()->where('identifier', 'FCA')->exists()) {
+
+    //         $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
+
+    //         if ($employee) {
+    //             $validated['farm_care_advisor_id'] = $employee->n_employee_id;
+    //         }
+    //     }
+    //     // DB::beginTransaction();
+    //     // dd($request);
+    //     try {
+
+    //         $imageName = null;
+
+    //         if ($request->hasFile('payment_image')) {
+
+    //             $image = $request->file('payment_image');
+
+    //             $uploadPath = public_path('uploads/payment_images');
+
+    //             // Create directory if it doesn't exist
+    //             if (! is_dir($uploadPath)) {
+    //                 mkdir($uploadPath, 0755, true);
+    //             }
+
+    //             // Generate unique filename
+    //             $imageName = uniqid().'.'.$image->getClientOriginalExtension();
+
+    //             // Upload image
+    //             $image->move($uploadPath, $imageName);
+
+    //         }
+
+    //         $order = [
+    //             'c_order_no' => $validated['c_order_no'],
+    //             'd_date' => $validated['d_date'],
+    //             'farm_care_advisor_id' => $validated['farm_care_advisor_id'],
+    //             'n_customer_id' => $customer->n_customer_id,
+    //             'c_customer_name' => $validated['c_customer_name'],
+    //             'c_customer_email' => $validated['c_customer_email'],
+    //             'c_customer_address' => $validated['c_customer_address'],
+    //             'n_customer_mobile' => $validated['n_customer_mobile'],
+    //             'n_state_id' => $validated['n_state_id'],
+    //             'n_district_id' => $validated['n_district_id'],
+    //             'c_mode_of_payment' => $validated['c_mode_of_payment'],
+    //             'c_order_status' => $validated['c_order_status'],
+    //             'nearest_franchise_id' => $validated['nearest_franchise_id'],
+    //             'payment_image' => $imageName,
+    //         ];
+
+    //         if ($request->filled('id')) {
+
+    //             $id = $request->id;
+    //             // UPDATE
+
+    //             $salesOrder = SalesOrder::where('n_sl_no', $id);
+
+    //             $salesOrder->update($order);
+
+    //             // Delete old items
+    //             OrderProduct::where('n_order_id', $id)->delete();
+
+    //             // Insert updated items
+    //             if (isset($validated['products'])) {
+
+    //                 foreach ($validated['products'] as $product) {
+
+    //                     try {
+
+    //                         $productData = OrderProduct::create([
+    //                             'n_order_id' => $id,
+    //                             'product_id' => $product['product_id'],
+    //                             'product_price' => $product['product_price'],
+    //                             'qty' => $product['qty'],
+    //                             'product_total' => $product['product_total'],
+    //                         ]);
+
+    //                     } catch (\Exception $e) {
+    //                         dd($e->getMessage());
+    //                     }
+
+    //                 }
+    //             }
+
+    //             $message = 'Sales updated successfully.';
+
+    //         } else {
+
+    //             // INSERT
+
+    //             $salesOrder = SalesOrder::create($order);
+    //             // dd($salesOrder);
+
+    //             if (isset($validated['products'])) {
+    //                 foreach ($validated['products'] as $product) {
+    //                     try {
+    //                         $productData = OrderProduct::create([
+    //                             'n_order_id' => $salesOrder->n_sl_no,
+    //                             'product_id' => $product['product_id'],
+    //                             'product_price' => $product['product_price'],
+    //                             'qty' => $product['qty'],
+    //                             'product_total' => $product['product_total'],
+    //                         ]);
+    //                     } catch (\Exception $e) {
+    //                         dd($e->getMessage());
+    //                     }
+    //                 }
+    //             }
+    //             $message = 'Sales created successfully.';
+    //         }
+
+    //         // DB::commit();
+
+    //         return redirect()
+    //             ->route('admin.sales.index')
+    //             ->with('success', $message);
+
+    //     } catch (\Exception $e) {
+
+    //         // DB::rollBack();
+
+    //         return back()
+    //             ->withInput()
+    //             ->with('error', $e->getMessage());
+    //     }
+    // }
     public function store(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Validation
+        |--------------------------------------------------------------------------
+        */
+
         $validator = Validator::make($request->all(), [
+
             'd_date' => 'required|date',
-            'c_order_no' => 'required|string|max:255',
+
+            'c_order_no' => [
+                'required',
+                'string',
+                'max:100',
+                'unique:sales_orders,c_order_no',
+            ],
             'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
-            'n_customer_id' => 'required|exists:customer_masters,n_customer_id',
-            'c_customer_name' => 'required|exists:customer_masters,c_customer_name',
+
+            'n_customer_id' => 'required|integer|exists:customer_masters,n_customer_id',
+
+            'c_customer_name' => 'required|string|max:255',
+
             'c_customer_email' => 'nullable|email|max:255',
+
             'c_customer_address' => 'nullable|string|max:1000',
+
             'n_customer_mobile' => 'required|digits_between:10,15',
+
             'n_state_id' => 'required|integer|exists:states,n_state_id',
+
             'n_district_id' => 'required|integer|exists:districts,id',
-            'nearest_franchise_id' => 'required|integer|exists:store_masters,n_store_id',
-            'c_mode_of_payment' => 'required',
-            'c_order_status' => 'required',
+
+            'nearest_franchise_id' => 'required',
+
+            'c_mode_of_payment' => 'required|string',
+
+            'c_order_status' => 'required|string',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Payment
+            |--------------------------------------------------------------------------
+            */
+
+            'payment_status' => 'required|in:pending,confirmed',
+
+            'c_transaction_id' => [
+                'nullable',
+                'string',
+                'max:255',
+                'required_if:payment_status,confirmed',
+            ],
+
+            'payment_image' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Booklet Proof
+            |--------------------------------------------------------------------------
+            */
+
+            'f_booklet_proof' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Products
+            |--------------------------------------------------------------------------
+            */
 
             'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required|integer',
-            'products.*.product_price' => 'required|numeric',
-            'products.*.qty' => 'required|integer|min:1',
-            'products.*.product_total' => 'required|numeric',
-            'image' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
 
+            'products.*.product_id' => 'required|integer',
+
+            'products.*.product_price' => 'required|numeric|min:0',
+
+            'products.*.qty' => 'required|integer|min:1',
+
+            'products.*.product_total' => 'required|numeric|min:0',
+
+            'products.*.discount' => 'nullable|numeric|min:0',
+
+            'products.*.n_gst_percentage' => 'nullable|numeric|min:0',
+
+            'products.*.gst_amount' => 'nullable|numeric|min:0',
+            'messages' => [
+                'payment_image.max' => 'Payment proof image must not exceed 5 MB.',
+                'f_booklet_proof.max' => 'Booklet proof image must not exceed 5 MB.',
+            ],
         ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validation Failed
+        |--------------------------------------------------------------------------
+        */
 
         if ($validator->fails()) {
             return back()
                 ->withErrors($validator)
                 ->withInput();
         }
-        /* if ($validator->fails()) {
-            dd($validator->errors()->toArray());
-        } */
 
         $validated = $validator->validated();
 
+        /*
+        |--------------------------------------------------------------------------
+        | User
+        |--------------------------------------------------------------------------
+        */
+
         $user = Auth::user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Customer
+        |--------------------------------------------------------------------------
+        */
+
         $customer = CustomerMaster::findOrFail(
             $validated['n_customer_id']
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Farm Care Advisor
+        |--------------------------------------------------------------------------
+        */
+
         if ($user->roles()->where('identifier', 'FCA')->exists()) {
 
-            $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
+            $employee = EmployeeMaster::where(
+                'c_employee_email',
+                $user->c_username
+            )->first();
 
             if ($employee) {
-                $validated['farm_care_advisor_id'] = $employee->n_employee_id;
+                $validated['farm_care_advisor_id'] =
+                    $employee->n_employee_id;
             }
         }
-        // DB::beginTransaction();
-        // dd($request);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Existing Order
+        |--------------------------------------------------------------------------
+        */
+
+        $existingOrder = null;
+
+        if ($request->filled('id')) {
+
+            $existingOrder = SalesOrder::where(
+                'n_sl_no',
+                $request->id
+            )->first();
+
+            if (! $existingOrder) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Sales order not found.');
+            }
+        }
+
         try {
 
-            $imageName = null;
+            /*
+            |--------------------------------------------------------------------------
+            | Existing Images
+            |--------------------------------------------------------------------------
+            */
+
+            $paymentImageName = $existingOrder
+                ? $existingOrder->payment_image
+                : null;
+
+            $bookletImageName = $existingOrder
+                ? $existingOrder->booklet_image
+                : null;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Payment Image Upload
+            |--------------------------------------------------------------------------
+            */
 
             if ($request->hasFile('payment_image')) {
 
                 $image = $request->file('payment_image');
 
-                $uploadPath = public_path('uploads/payment_images');
+                $uploadPath = public_path(
+                    'uploads/payment_images'
+                );
 
-                // Create directory if it doesn't exist
                 if (! is_dir($uploadPath)) {
                     mkdir($uploadPath, 0755, true);
                 }
 
-                // Generate unique filename
-                $imageName = uniqid().'.'.$image->getClientOriginalExtension();
+                $paymentImageName =
+                    uniqid('payment_').'.'.
+                    $image->getClientOriginalExtension();
 
-                // Upload image
-                $image->move($uploadPath, $imageName);
+                $image->move(
+                    $uploadPath,
+                    $paymentImageName
+                );
 
-            }
+                /*
+                | Delete old image on update
+                */
 
-            $order = [
-                'c_order_no' => $validated['c_order_no'],
-                'd_date' => $validated['d_date'],
-                'farm_care_advisor_id' => $validated['farm_care_advisor_id'],
-                'n_customer_id' => $customer->n_customer_id,
-                'c_customer_name' => $validated['c_customer_name'],
-                'c_customer_email' => $validated['c_customer_email'],
-                'c_customer_address' => $validated['c_customer_address'],
-                'n_customer_mobile' => $validated['n_customer_mobile'],
-                'n_state_id' => $validated['n_state_id'],
-                'n_district_id' => $validated['n_district_id'],
-                'c_mode_of_payment' => $validated['c_mode_of_payment'],
-                'c_order_status' => $validated['c_order_status'],
-                'nearest_franchise_id' => $validated['nearest_franchise_id'],
-                'payment_image' => $imageName,
-            ];
+                if (
+                    $existingOrder &&
+                    $existingOrder->payment_image
+                ) {
 
-            if ($request->filled('id')) {
+                    $oldFile = public_path(
+                        'uploads/payment_images/'.
+                        $existingOrder->payment_image
+                    );
 
-                $id = $request->id;
-                // UPDATE
-
-                $salesOrder = SalesOrder::where('n_sl_no', $id);
-
-                $salesOrder->update($order);
-
-                // Delete old items
-                OrderProduct::where('n_order_id', $id)->delete();
-
-                // Insert updated items
-                if (isset($validated['products'])) {
-
-                    foreach ($validated['products'] as $product) {
-
-                        try {
-
-                            $productData = OrderProduct::create([
-                                'n_order_id' => $id,
-                                'product_id' => $product['product_id'],
-                                'product_price' => $product['product_price'],
-                                'qty' => $product['qty'],
-                                'product_total' => $product['product_total'],
-                            ]);
-
-                        } catch (\Exception $e) {
-                            dd($e->getMessage());
-                        }
-
+                    if (file_exists($oldFile)) {
+                        @unlink($oldFile);
                     }
                 }
+            }
 
-                $message = 'Sales updated successfully.';
+            /*
+            |--------------------------------------------------------------------------
+            | Booklet Proof Upload
+            |--------------------------------------------------------------------------
+            */
+
+            if ($request->hasFile('f_booklet_proof')) {
+
+                $image = $request->file('f_booklet_proof');
+
+                $uploadPath = public_path(
+                    'uploads/booklet_images'
+                );
+
+                if (! is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                $bookletImageName =
+                    uniqid('booklet_').'.'.
+                    $image->getClientOriginalExtension();
+
+                $image->move(
+                    $uploadPath,
+                    $bookletImageName
+                );
+
+                /*
+                | Delete old booklet image on update
+                */
+
+                if (
+                    $existingOrder &&
+                    $existingOrder->booklet_image
+                ) {
+
+                    $oldFile = public_path(
+                        'uploads/booklet_images/'.
+                        $existingOrder->booklet_image
+                    );
+
+                    if (file_exists($oldFile)) {
+                        @unlink($oldFile);
+                    }
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Payment Status
+            |--------------------------------------------------------------------------
+            */
+
+            if ($validated['payment_status'] === 'pending') {
+
+                $transactionId = null;
+
+                /*
+                | New pending order should not have payment proof
+                */
+
+                if (! $existingOrder) {
+                    $paymentImageName = null;
+                }
 
             } else {
 
-                // INSERT
-
-                $salesOrder = SalesOrder::create($order);
-                // dd($salesOrder);
-
-                if (isset($validated['products'])) {
-                    foreach ($validated['products'] as $product) {
-                        try {
-                            $productData = OrderProduct::create([
-                                'n_order_id' => $salesOrder->n_sl_no,
-                                'product_id' => $product['product_id'],
-                                'product_price' => $product['product_price'],
-                                'qty' => $product['qty'],
-                                'product_total' => $product['product_total'],
-                            ]);
-                        } catch (\Exception $e) {
-                            dd($e->getMessage());
-                        }
-                    }
-                }
-                $message = 'Sales created successfully.';
+                $transactionId =
+                    $validated['c_transaction_id'] ?? null;
             }
 
-            // DB::commit();
+            /*
+            |--------------------------------------------------------------------------
+            | Order Data
+            |--------------------------------------------------------------------------
+            */
+
+            $orderData = [
+
+                'c_order_no' => $validated['c_order_no'],
+
+                'd_date' => $validated['d_date'],
+
+                'farm_care_advisor_id' => $validated['farm_care_advisor_id'] ?? null,
+
+                'n_customer_id' => $customer->n_customer_id,
+
+                'c_customer_name' => $validated['c_customer_name'],
+
+                'c_customer_email' => $validated['c_customer_email'] ?? null,
+
+                'c_customer_address' => $validated['c_customer_address'] ?? null,
+
+                'n_customer_mobile' => $validated['n_customer_mobile'],
+
+                'n_state_id' => $validated['n_state_id'],
+
+                'n_district_id' => $validated['n_district_id'],
+
+                'c_mode_of_payment' => $validated['c_mode_of_payment'],
+
+                'c_order_status' => $validated['c_order_status'],
+
+                'nearest_franchise_id' => $validated['nearest_franchise_id'],
+
+                /*
+                | Payment
+                */
+
+                'payment_status' => $validated['payment_status'],
+
+                'c_transaction_id' => $transactionId,
+
+                'payment_image' => $paymentImageName,
+
+                /*
+                | Booklet
+                */
+
+                'booklet_image' => $bookletImageName,
+            ];
+
+            /*
+            |--------------------------------------------------------------------------
+            | Update Existing Order
+            |--------------------------------------------------------------------------
+            */
+
+            if ($existingOrder) {
+
+                $existingOrder->update($orderData);
+
+                /*
+                | Delete old products
+                */
+
+                OrderProduct::where(
+                    'n_order_id',
+                    $existingOrder->n_sl_no
+                )->delete();
+
+                /*
+                | Insert products again
+                */
+
+                foreach ($validated['products'] as $product) {
+
+                    OrderProduct::create([
+
+                        'n_order_id' => $existingOrder->n_sl_no,
+
+                        'product_id' => $product['product_id'],
+
+                        'product_price' => $product['product_price'],
+
+                        'qty' => $product['qty'],
+
+                        'product_total' => $product['product_total'],
+
+                        'discount' => $product['discount'] ?? 0,
+
+                        'n_gst_percentage' => $product['n_gst_percentage'] ?? 0,
+
+                        'gst_amount' => $product['gst_amount'] ?? 0,
+                    ]);
+                }
+
+                $message =
+                    'Sales order updated successfully.';
+
+            } else {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Create New Order
+                |--------------------------------------------------------------------------
+                */
+
+                $salesOrder =
+                    SalesOrder::create($orderData);
+
+                /*
+                | Insert products
+                */
+
+                foreach ($validated['products'] as $product) {
+
+                    OrderProduct::create([
+
+                        'n_order_id' => $salesOrder->n_sl_no,
+
+                        'product_id' => $product['product_id'],
+
+                        'product_price' => $product['product_price'],
+
+                        'qty' => $product['qty'],
+
+                        'product_total' => $product['product_total'],
+
+                        'discount' => $product['discount'] ?? 0,
+
+                        'n_gst_percentage' => $product['n_gst_percentage'] ?? 0,
+
+                        'gst_amount' => $product['gst_amount'] ?? 0,
+                    ]);
+                }
+
+                $message =
+                    'Sales order created successfully.';
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Redirect
+            |--------------------------------------------------------------------------
+            */
 
             return redirect()
-                ->route('admin.sales.index')
+                ->route('admin.salesorders.index')
                 ->with('success', $message);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
-            // DB::rollBack();
+            /*
+            |--------------------------------------------------------------------------
+            | Error
+            |--------------------------------------------------------------------------
+            */
 
             return back()
                 ->withInput()
-                ->with('error', $e->getMessage());
+                ->with(
+                    'error',
+                    'Unable to save sales order: '.
+                    $e->getMessage()
+                );
         }
     }
 
@@ -694,7 +1173,7 @@ class SalesController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.sales.index')
+            ->route('admin.salesorders.index')
             ->with('success', 'Sales entry deleted successfully.');
     }
 

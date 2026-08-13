@@ -785,358 +785,338 @@
 
             </table>
 
-
             
 
             <div class="items-wrapper">
 
-                
+                <table class="items">
 
-                <div class="items-wrapper">
+                    <thead>
+                        <tr>
 
-                    <table class="items">
+                            <th style="width: 5%;">
+                                Sl No
+                            </th>
 
-                        <thead>
+                            <th style="width: 22%;">
+                                Description of goods
+                            </th>
 
-                            <tr>
+                            <th style="width: 11%;">
+                                HSN Code
+                            </th>
 
-                                <th style="width: 5%;">
-                                    Sl No
-                                </th>
+                            <th style="width: 9%;">
+                                Quantity
+                            </th>
 
-                                <th style="width: 22%;">
-                                    Description of goods
-                                </th>
+                            <th style="width: 8%;">
+                                Unit
+                            </th>
 
-                                <th style="width: 11%;">
-                                    HSN Code
-                                </th>
+                            <th style="width: 11%;">
+                                Price
+                            </th>
 
-                                <th style="width: 9%;">
-                                    Quantity
-                                </th>
+                            <th style="width: 10%;">
+                                Discount
+                            </th>
 
-                                <th style="width: 8%;">
-                                    Unit
-                                </th>
+                            <th style="width: 12%;">
+                                Discounted Price
+                            </th>
 
-                                <th style="width: 11%;">
-                                    Price
-                                </th>
+                            <th style="width: 12%;">
+                                Taxable Amount
+                            </th>
 
-                                <th style="width: 10%;">
-                                    Discount
-                                </th>
+                        </tr>
+                    </thead>
 
-                                <th style="width: 12%;">
-                                    Discounted price
-                                </th>
 
-                                <th style="width: 12%;">
-                                    Taxable Amount
-                                </th>
+                    <tbody>
 
-                            </tr>
+                        <?php $__currentLoopData = $calculation['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                        </thead>
-
-
-                        <tbody>
-
-                            <?php $__currentLoopData = $calculation['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                            <?php
-
-                            /*
-                            * Safe fallback values.
-                            * These prevent Undefined array key errors
-                            * until the controller is updated.
-                            */
-
-                            $price = $item['rate_exclusive']
-                            ?? $item['rate']
-                            ?? $item['rate_inclusive']
-                            ?? 0;
-
-                            $discount = $item['discount']
-                            ?? 0;
-
-                            $discountedPrice = $item['discounted_price']
-                            ?? ($price - $discount);
-
-                            $priceIncludingGst = $item['amount_inclusive']
-                            ?? 0;
-
-                            ?>
-
-                            <tr>
-
-                                
-
-                                <td>
-                                    <?php echo e($index + 1); ?>
-
-                                </td>
-
-
-                                
-
-                                <td class="description">
-                                    <?php echo e($item['product_name'] ?? '-'); ?>
-
-                                </td>
-
-
-                                
-
-                                <td>
-                                    <?php echo e($item['hsn'] ?? '-'); ?>
-
-                                </td>
-
-
-                                
-
-                                <td>
-                                    <?php echo e(number_format($item['qty'] ?? 0, 0)); ?>
-
-                                </td>
-
-
-                                
-
-                                <td>
-                                    <?php echo e($item['unit'] ?? '-'); ?>
-
-                                </td>
-
-
-                                
-
-                                <td class="right">
-                                    ₹ <?php echo e(number_format($price, 2)); ?>
-
-                                </td>
-
-
-                                
-
-                                <td class="right">
-                                    ₹ <?php echo e(number_format($discount ?? 0, 2)); ?>
-
-                                </td>
-
-
-                                
-
-                                <td class="right">
-                                    ₹ <?php echo e(number_format($discountedPrice ?? 0, 2)); ?>
-
-                                </td>
-
-
-                                
-
-                                <td class="right">
-                                    ₹ <?php echo e(number_format($priceIncludingGst, 2)); ?>
-
-                                </td>
-
-                            </tr>
-
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                        </tbody>
-
-
-                        <tfoot>
+                        <tr>
 
                             
+                            <td>
+                                <?php echo e($index + 1); ?>
 
-                            <tr>
-
-                                <td colspan="7"></td>
-
-                                <td class="summary-label">
-                                    Taxable amount
-                                </td>
-
-                                <td class="summary-value">
-                                    ₹ <?php echo e(number_format($calculation['subtotal'] ?? 0, 2)); ?>
-
-                                </td>
-
-                            </tr>
+                            </td>
 
 
                             
+                            <td class="description">
+                                <?php echo e($item['product_name']); ?>
 
-                            <tr>
-
-                                <td colspan="7"></td>
-
-                                <td class="summary-label">
-                                    GST
-                                </td>
-
-                                <td class="summary-value">
-                                    ₹ <?php echo e(number_format($calculation['gst_total'] ?? 0, 2)); ?>
-
-                                </td>
-
-                            </tr>
+                            </td>
 
 
                             
+                            <td>
+                                <?php echo e($item['hsn']); ?>
 
-                            <tr>
-
-                                <td colspan="7"></td>
-
-                                <td class="total-label">
-                                    Amount Payable
-                                </td>
-
-                                <td class="total-value">
-                                    ₹ <?php echo e(number_format($calculation['grand_total'] ?? 0, 2)); ?>
-
-                                </td>
-
-                            </tr>
-
-                        </tfoot>
-
-                    </table>
-
-                </div>
-
-            </div>
+                            </td>
 
 
-            
+                            
+                            <td>
+                                <?php echo e(number_format($item['qty'], 0)); ?>
 
-            <div class="amount-words">
-
-                <div class="amount-label">
-                    Amount Chargeable (in words)
-                </div>
-
-                <div class="words">
-                    <?php echo e($calculation['grand_total_words']); ?>
-
-                </div>
-
-                <div class="currency">
-                    E. &amp; O. E
-                </div>
-
-            </div>
+                            </td>
 
 
-            
+                            
+                            <td>
+                                <?php echo e($item['unit']); ?>
 
-            <table class="footer-table">
-
-                <tr>
-
-                    <td class="footer-left">
-
-                        <div class="payment-box">
-
-                            <div class="payment-title">
-                                Payment Method
-                            </div>
-
-                            <div class="payment-line">
-                                <?php echo e(ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-'))); ?>
-
-                            </div>
-
-                            <br>
-
-                            <div class="payment-line">
-                                <strong>Bank Details:</strong>
-                            </div>
-
-                            <div class="payment-line">
-                                <?php echo e($company->account_name); ?>
-
-                            </div>
-
-                            <div class="payment-line">
-                                A/c No: <?php echo e($company->account_number); ?>
-
-                            </div>
-
-                            <div class="payment-line">
-                                IFSC: <?php echo e($company->ifsc_code); ?>
-
-                            </div>
-
-                            <div class="payment-line">
-                                Bank: <?php echo e($company->bank_name); ?>
-
-                            </div>
-
-                            <?php if($company->branch): ?>
-
-                            <div class="payment-line">
-                                Branch: <?php echo e($company->branch); ?>
-
-                            </div>
-
-                            <?php endif; ?>
-
-                        </div>
-
-                    </td>
+                            </td>
 
 
-                    <td class="footer-right">
+                            
+                            <td class="right">
+                                ₹ <?php echo e(number_format($item['rate_exclusive'], 2)); ?>
 
-                        <div class="declaration-box">
-
-                            <div class="declaration-title">
-                                Declaration
-                            </div>
-
-                            <div class="declaration-text">
-
-                                We declare that this invoice shows the actual
-                                price of the goods described and that all
-                                particulars are true and correct.
-
-                            </div>
+                            </td>
 
 
-                            <div class="signature">
+                            
+                            <td class="right">
+                                ₹ <?php echo e(number_format($item['discount'], 2)); ?>
 
-                                <div class="signature-line"></div>
-
-                                Authorised Signatory
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            </table>
+                            </td>
 
 
-            
+                            
+                            <td class="right">
+                                ₹ <?php echo e(number_format($item['discounted_price'], 2)); ?>
 
-            <div class="bottom">
+                            </td>
 
-                <div class="bottom-text">
-                    Pure Spices. Better Life.
-                </div>
+
+                            
+                            <td class="right">
+                                ₹ <?php echo e(number_format($item['taxable_amount'], 2)); ?>
+
+                            </td>
+
+                        </tr>
+
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                    </tbody>
+
+
+                    <tfoot>
+
+                        
+
+                        <tr>
+
+                            <td colspan="7"></td>
+
+                            <td class="summary-label">
+                                Taxable Amount
+                            </td>
+
+                            <td class="summary-value">
+                                ₹ <?php echo e(number_format($calculation['subtotal'], 2)); ?>
+
+                            </td>
+
+                        </tr>
+
+
+                        
+
+                        <tr>
+
+                            <td colspan="7"></td>
+
+                            <td class="summary-label">
+                                GST
+                            </td>
+
+                            <td class="summary-value">
+                                ₹ <?php echo e(number_format($calculation['gst_total'], 2)); ?>
+
+                            </td>
+
+                        </tr>
+
+
+                        
+
+                        <tr>
+
+                            <td colspan="7"></td>
+
+                            <td class="summary-label">
+                                Total Quantity
+                            </td>
+
+                            <td class="summary-value">
+                                <?php echo e(number_format($calculation['total_qty'], 0)); ?>
+
+                            </td>
+
+                        </tr>
+
+
+                        
+
+                        <tr>
+
+                            <td colspan="7"></td>
+
+                            <td class="total-label">
+                                Amount Payable
+                            </td>
+
+                            <td class="total-value">
+                                ₹ <?php echo e(number_format($calculation['grand_total'], 2)); ?>
+
+                            </td>
+
+                        </tr>
+
+                    </tfoot>
+
+                </table>
 
             </div>
 
         </div>
+
+    </div>
+
+
+    
+
+    <div class="amount-words">
+
+        <div class="amount-label">
+            Amount Chargeable (in words)
+        </div>
+
+        <div class="words">
+            <?php echo e($calculation['grand_total_words']); ?>
+
+        </div>
+
+        <div class="currency">
+            E. &amp; O. E
+        </div>
+
+    </div>
+
+
+    
+
+    <table class="footer-table">
+
+        <tr>
+
+            <td class="footer-left">
+
+                <div class="payment-box">
+
+                    <div class="payment-title">
+                        Payment Method
+                    </div>
+
+                    <div class="payment-line">
+                        <?php echo e(ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-'))); ?>
+
+                    </div>
+
+                    <br>
+
+                    <div class="payment-line">
+                        <strong>Bank Details:</strong>
+                    </div>
+
+                    <div class="payment-line">
+                        <?php echo e($company->account_name); ?>
+
+                    </div>
+
+                    <div class="payment-line">
+                        A/c No: <?php echo e($company->account_number); ?>
+
+                    </div>
+
+                    <div class="payment-line">
+                        IFSC: <?php echo e($company->ifsc_code); ?>
+
+                    </div>
+
+                    <div class="payment-line">
+                        Bank: <?php echo e($company->bank_name); ?>
+
+                    </div>
+
+                    <?php if($company->branch): ?>
+
+                    <div class="payment-line">
+                        Branch: <?php echo e($company->branch); ?>
+
+                    </div>
+
+                    <?php endif; ?>
+
+                </div>
+
+            </td>
+
+
+            <td class="footer-right">
+
+                <div class="declaration-box">
+
+                    <div class="declaration-title">
+                        Declaration
+                    </div>
+
+                    <div class="declaration-text">
+
+                        We declare that this invoice shows the actual
+                        price of the goods described and that all
+                        particulars are true and correct.
+
+                    </div>
+
+
+                    <div class="signature">
+
+                        <div class="signature-line"></div>
+
+                        Authorised Signatory
+
+                    </div>
+
+                </div>
+
+            </td>
+
+        </tr>
+
+    </table>
+
+
+    
+
+    <div class="bottom">
+
+        <div class="bottom-text">
+            Pure Spices. Better Life.
+        </div>
+
+    </div>
+
+    </div>
 
     </div>
 

@@ -202,8 +202,8 @@ class SalesController extends Controller
         */
 
         $sales = $query
-            ->orderBy('created_at', 'desc')
-            ->orderBy('n_sl_no', 'desc')
+            ->orderBy('created_at', 'asc')
+            ->orderBy('n_sl_no', 'asc')
             ->paginate(20)
             ->withQueryString();
 

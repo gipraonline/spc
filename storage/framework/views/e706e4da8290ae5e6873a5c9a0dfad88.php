@@ -1,6 +1,6 @@
-@extends('layouts.app')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 
 <style>
 /* Filter Card */
@@ -107,11 +107,11 @@
             Customers
         </h5>
 
-        @can('customers.create')
-        <a href="{{ route('admin.customers.create') }}" class="btn buttonSpc">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('customers.create')): ?>
+        <a href="<?php echo e(route('admin.customers.create')); ?>" class="btn buttonSpc">
             Add Customer
         </a>
-        @endcan
+        <?php endif; ?>
 
     </div>
 
@@ -129,9 +129,9 @@
 
         <div class="premium-filter-container">
 
-            <form method="POST" action="{{ route('admin.customers.search') }}">
+            <form method="POST" action="<?php echo e(route('admin.customers.search')); ?>">
 
-                @csrf
+                <?php echo csrf_field(); ?>
 
                 <div class="row g-3 align-items-end">
 
@@ -143,7 +143,7 @@
 
                         <input type="text" name="customer_search" class="form-control styled-textbox"
                             placeholder="Search by Customer Code / Name / Mobile"
-                            value="{{ session('customer_search') }}">
+                            value="<?php echo e(session('customer_search')); ?>">
 
                     </div>
 
@@ -157,11 +157,11 @@
 
                             <option value="">All</option>
 
-                            <option value="Y" {{ session('customer_status')=='Y' ? 'selected':'' }}>
+                            <option value="Y" <?php echo e(session('customer_status')=='Y' ? 'selected':''); ?>>
                                 Active
                             </option>
 
-                            <option value="N" {{ session('customer_status')=='N' ? 'selected':'' }}>
+                            <option value="N" <?php echo e(session('customer_status')=='N' ? 'selected':''); ?>>
                                 Inactive
                             </option>
 
@@ -179,7 +179,7 @@
                                 Filter
                             </button>
 
-                            <a href="{{ route('admin.customers.clearSearch') }}"
+                            <a href="<?php echo e(route('admin.customers.clearSearch')); ?>"
                                 class="btn btn-outline-primary btn-reset">
                                 <i class="ti ti-refresh"></i>
                                 Reset
@@ -198,15 +198,16 @@
 
     <div class="card-body p-4">
 
-        @if(Session::has('success'))
+        <?php if(Session::has('success')): ?>
 
         <div class="alert alert-success">
 
-            {{ Session::get('success') }}
+            <?php echo e(Session::get('success')); ?>
+
 
         </div>
 
-        @endif
+        <?php endif; ?>
 
         <div class="table-responsive">
 
@@ -234,84 +235,92 @@
 
                         <th>Status</th>
 
-                        @canany(['customers.edit','customers.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['customers.edit','customers.delete'])): ?>
                         <th>Actions</th>
-                        @endcanany
+                        <?php endif; ?>
 
                     </tr>
 
                 </thead>
 
                 <tbody>
-                    @forelse($customers as $key => $customer)
+                    <?php $__empty_1 = true; $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
 
                     <tr>
 
                         <td class="border-bottom-0 text-center">
-                            {{ $customers->firstItem() + $key }}
+                            <?php echo e($customers->firstItem() + $key); ?>
+
                         </td>
 
                         <td class="border-bottom-0">
-                            {{ $customer->c_customer_code }}
+                            <?php echo e($customer->c_customer_code); ?>
+
                         </td>
 
                         <td class="border-bottom-0">
-                            <strong>{{ $customer->c_customer_name }}</strong>
+                            <strong><?php echo e($customer->c_customer_name); ?></strong>
                         </td>
 
                         <td class="border-bottom-0">
-                            {{ $customer->n_mobile }}
+                            <?php echo e($customer->n_mobile); ?>
+
                         </td>
 
                         <td class="border-bottom-0">
-                            {{ $customer->n_whatsapp ?? '-' }}
+                            <?php echo e($customer->n_whatsapp ?? '-'); ?>
+
                         </td>
 
                         <td class="border-bottom-0">
-                            {{ $customer->district?->district_name ?? '-' }}
+                            <?php echo e($customer->district?->district_name ?? '-'); ?>
+
                         </td>
                         <td class="border-bottom-0">
-                            {{ $customer->c_pincode ?? '-' }}
+                            <?php echo e($customer->c_pincode ?? '-'); ?>
+
                         </td>
 
 
                         <td class="border-bottom-0">
-                            {{ $customer->state?->name ?? '-' }}
+                            <?php echo e($customer->state?->name ?? '-'); ?>
+
                         </td>
 
                         <td class="border-bottom-0">
 
-                            <span class="badge {{ $customer->c_status == 'Y' ? 'bg-success' : 'bg-danger' }}">
+                            <span class="badge <?php echo e($customer->c_status == 'Y' ? 'bg-success' : 'bg-danger'); ?>">
 
-                                {{ $customer->c_status == 'Y' ? 'Active' : 'Inactive' }}
+                                <?php echo e($customer->c_status == 'Y' ? 'Active' : 'Inactive'); ?>
+
 
                             </span>
 
                         </td>
 
-                        @canany(['customers.edit','customers.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['customers.edit','customers.delete'])): ?>
 
                         <td class="border-bottom-0">
 
-                            @can('customers.edit')
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('customers.edit')): ?>
 
-                            <a href="{{ route('admin.customers.edit',$customer) }}" class="btn btn-sm btn-primary">
+                            <a href="<?php echo e(route('admin.customers.edit',$customer)); ?>" class="btn btn-sm btn-primary">
 
                                 <i class="ti ti-edit"></i>
                                 Edit
 
                             </a>
 
-                            @endcan
+                            <?php endif; ?>
 
 
-                            @can('customers.delete')
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('customers.delete')): ?>
 
-                            <form action="{{ route('admin.customers.destroy',$customer) }}" method="POST"
+                            <form action="<?php echo e(route('admin.customers.destroy',$customer)); ?>" method="POST"
                                 class="d-inline">
 
-                                @csrf
-                                @method('DELETE')
+                                <?php echo csrf_field(); ?>
+                                <?php echo method_field('DELETE'); ?>
 
                                 <button class="btn btn-sm btn-danger"
                                     onclick="return confirm('Are you sure you want to delete this customer?')">
@@ -323,15 +332,15 @@
 
                             </form>
 
-                            @endcan
+                            <?php endif; ?>
 
                         </td>
 
-                        @endcanany
+                        <?php endif; ?>
 
                     </tr>
 
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 
                     <tr>
 
@@ -349,7 +358,7 @@
 
                     </tr>
 
-                    @endforelse
+                    <?php endif; ?>
 
                 </tbody>
 
@@ -359,7 +368,8 @@
 
         <div class="mt-4">
 
-            {{ $customers->links() }}
+            <?php echo e($customers->links()); ?>
+
 
         </div>
 
@@ -367,4 +377,5 @@
 
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/customers/index.blade.php ENDPATH**/ ?>

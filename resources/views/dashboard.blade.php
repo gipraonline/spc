@@ -549,16 +549,21 @@
         <div class="stats-grid">
 
             <!-- Check In Time -->
+            <!-- Check In Time -->
             <div class="dashboard-card stat-card">
+
+                @can('dashboard.check-in')
+
+                {{-- User HAS permission --}}
                 <div class="stat-icon green">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5v12a2 2 0 002 2z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l2 2 4-4" />
                     </svg>
                 </div>
+
                 <div class="stat-details">
-                    <!-- Check In -->
                     <span class="stat-value green">
                         {{ $checkInTime?->format('h:i A') ?? '--:-- --' }}
                     </span>
@@ -567,9 +572,32 @@
                         {{ $todayLog?->work_date?->format('d M Y') ?? now()->format('d M Y') }}
                     </span>
                 </div>
-            </div>
 
+                @else
+
+                {{-- User DOES NOT have permission --}}
+                <div class="stat-icon green">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m0-6v2m0-8a4 4 0 014 4v2h1a2 2 0 012 2v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7a2 2 0 012-2h1V9a4 4 0 014-4z" />
+                    </svg>
+                </div>
+
+                <div class="stat-details">
+                    <span class="stat-value gray">
+                        Restricted
+                    </span>
+
+                    <span class="stat-subtext">
+                        No Permission
+                    </span>
+                </div>
+
+                @endcan
+
+            </div>
             <!-- Check Out Time -->
+            @can('dashboard.check-out')
             <div class="dashboard-card stat-card">
                 <div class="stat-icon orange">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -588,8 +616,10 @@
                     </span>
                 </div>
             </div>
+            @endcan
 
             <!-- Total Working Hours -->
+            @can('dashboard.working-hours')
             <div class="dashboard-card stat-card">
                 <div class="stat-icon blue">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -608,8 +638,10 @@
                     </span>
                 </div>
             </div>
+            @endcan
 
             <!-- Work Status -->
+            @can('dashboard.work-status')
             <div class="dashboard-card stat-card">
                 <div class="stat-icon purple">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -631,10 +663,10 @@
             </div>
 
         </div>
-
+        @endcan
         <!-- Middle Section (3 Cards) -->
         <div class="middle-grid">
-
+            @can('dashboard.attendance')
             <!-- Check In / Check Out Card -->
             <div class="dashboard-card">
                 <h2 class="card-title">Check In / Check Out</h2>
@@ -712,10 +744,12 @@
 
                 </div>
             </div>
+            @endcan
 
 
 
             <!-- Today's Summary Card -->
+            @can('dashboard.summary')
             <div class="dashboard-card">
                 <h2 class="card-title">Today's Summary</h2>
 
@@ -730,7 +764,9 @@
                             </div>
                             <span class="summary-title">Orders Taken</span>
                         </div>
-                        <span class="summary-count">8</span>
+                        <span class="summary-count">
+                            {{ $summary['ordersTaken'] }}
+                        </span>
                     </div>
 
                     <div class="summary-item">
@@ -743,7 +779,7 @@
                             </div>
                             <span class="summary-title">Orders Completed</span>
                         </div>
-                        <span class="summary-count">6</span>
+                        <span class="summary-count"> {{ $summary['ordersCompleted'] }}</span>
                     </div>
 
                     <div class="summary-item">
@@ -756,7 +792,7 @@
                             </div>
                             <span class="summary-title">Pending Orders</span>
                         </div>
-                        <span class="summary-count">2</span>
+                        <span class="summary-count"> {{ $summary['pendingOrders'] }}</span>
                     </div>
 
                     <div class="summary-item">
@@ -769,7 +805,7 @@
                             </div>
                             <span class="summary-title">Customers Visited</span>
                         </div>
-                        <span class="summary-count">12</span>
+                        <span class="summary-count">{{ $summary['customersVisited'] }}</span>
                     </div>
 
                     <div class="summary-item">
@@ -782,12 +818,14 @@
                             </div>
                             <span class="summary-title">Reports Submitted</span>
                         </div>
-                        <span class="summary-count">3</span>
+                        <span class="summary-count">{{ $summary['reportsSubmitted'] }}</span>
                     </div>
                 </div>
             </div>
+            @endcan
 
             <!-- My Orders Card -->
+            @can('dashboard.my-orders')
             <div class="dashboard-card" style="display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <h2 class="card-title">My Orders</h2>
@@ -823,6 +861,7 @@
 
                 <button class="btn-action-outline btn-full-width" id="btnViewOrders">View All Orders</button>
             </div>
+            @endcan
 
         </div>
 
@@ -830,6 +869,7 @@
         <div class="bottom-grid">
 
             <!-- Recent Orders Table -->
+            @can('dashboard.recent-orders')
             <div class="dashboard-card">
                 <h2 class="card-title">Recent Orders</h2>
 
@@ -878,8 +918,10 @@
                     </table>
                 </div>
             </div>
+            @endcan
 
             <!-- Today's Schedule -->
+            @can('dashboard.schedule')
             <div class="dashboard-card">
                 <h2 class="card-title">Today's Schedule</h2>
 
@@ -925,6 +967,7 @@
                     </div>
                 </div>
             </div>
+            @endcan
 
         </div>
 

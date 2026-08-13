@@ -545,97 +545,115 @@ use Illuminate\Support\Facades\Crypt;
 
                     <div class="row g-4 mb-4">
 
-                        <div class="col-md-6">
+                        <div class="row g-4 mb-4">
 
-                            <label class="form-label">
-                                State <span class="text-danger">*</span>
-                            </label>
+                            {{-- Row 1: State --}}
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    State <span class="text-danger">*</span>
+                                </label>
 
-                            <select class="form-select mandatory" id="franchise_state" name="n_state_id"
-                                data-message="Please Select State">
+                                <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                                    data-message="Please Select State">
 
-                                <option value="">Select State</option>
+                                    <option value="">Select State</option>
 
-                                @foreach($states as $state)
+                                    @foreach($states as $state)
+                                    <option value="{{ $state->n_state_id }}"
+                                        {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
+                                        {{ $state->name }}
+                                    </option>
+                                    @endforeach
 
-                                <option value="{{ $state->n_state_id }}"
-                                    {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
-
-                                    {{ $state->name }}
-
-                                </option>
-
-                                @endforeach
-
-                            </select>
-
-                            @error('n_state_id')
-                            <div class="text-danger mt-1 fs-2">
-                                {{ $message }}
+                                </select>
                             </div>
-                            @enderror
+
+
+                            {{-- Row 1: District --}}
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    District <span class="text-danger">*</span>
+                                </label>
+
+                                <select class="form-select mandatory" id="franchise_district" name="n_district_id"
+                                    data-message="Please Select District"
+                                    {{ isset($viewmode) && $viewmode == 'on' ? 'disabled' : '' }}>
+
+                                    <option value="">Select District</option>
+
+                                    @if(isset($sale->n_district_id))
+
+                                    @php
+                                    $districts = \App\Models\District::where(
+                                    'state_id',
+                                    $sale->n_state_id
+                                    )->get();
+                                    @endphp
+
+                                    @foreach($districts as $district)
+
+                                    <option value="{{ $district->id }}"
+                                        {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
+                                        {{ $district->district_name }}
+                                    </option>
+
+                                    @endforeach
+
+                                    @endif
+
+                                </select>
+                            </div>
+
+
+                            {{-- Row 2: City --}}
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    City <span class="text-danger">*</span>
+                                </label>
+
+                                <select class="form-select mandatory" id="franchise_city" name="city_id"
+                                    data-message="Please Select City">
+
+                                    <option value="">Select City</option>
+
+                                </select>
+                            </div>
+
+
+                            {{-- Row 2: Nearest Franchise --}}
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Nearest Franchise <span class="text-danger">*</span>
+                                </label>
+
+                                <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                                    data-message="Please Select Nearest Franchise">
+
+                                    <option value="">Select Franchise</option>
+
+                                    @if(isset($franchises))
+
+                                    @foreach($franchises as $franchise)
+
+                                    <option value="{{ $franchise->n_store_id }}" {{ old(
+                            'nearest_franchise_id',
+                            $sale->nearest_franchise_id ?? ''
+                        ) == $franchise->n_store_id ? 'selected' : '' }}>
+
+                                        {{ $franchise->c_store_name }}
+                                        ({{ $franchise->c_store_code }})
+
+                                    </option>
+
+                                    @endforeach
+
+                                    @endif
+
+                                </select>
+                            </div>
 
                         </div>
 
-
-                        <div class="col-md-6">
-                            <label for="state" class="form-label">District</label>
-                            <select class="form-select mandatory" data-message="Please enter District"
-                                {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }} id="franchise_district"
-                                name="n_district_id">
-                                <option value="" selected>Select District</option>
-                                @if(isset($sale->n_district_id))
-                                @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get();
-                                @endphp
-                                @if(isset($districts))
-                                @foreach($districts as $district)
-                                <option value="{{$district->id}}"
-                                    {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
-                                    {{$district->district_name}}</option>
-                                @endforeach
-                                @endif
-                                @endif
-
-                            </select>
-                            <div class="text-danger mt-1 fs-2"></div>
-                        </div>
-
-                    </div>
-
-
-                    <div class="row g-4 mb-4">
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Nearest Franchise
-                            </label>
-
-                            <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
-                                data-message="Please enter Nearest Franchise">
-
-                                <option value="">
-                                    Select Franchise
-                                </option>
-
-                                @if(isset($franchises))
-
-                                @foreach($franchises as $franchise)
-
-                                <option value="{{ $franchise->n_store_id }}"
-                                    {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
-
-                                    {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
-
-                                </option>
-
-                                @endforeach
-
-                                @endif
-
-                            </select>
-
-                        </div>
 
                         <div class="col-md-6" style="position:relative;display:none;" id="payment_image">
 
@@ -672,6 +690,10 @@ use Illuminate\Support\Facades\Crypt;
                     </button>
                     @endcan
                     @if(isset($sale) && $sale->n_sl_no)
+
+
+                    <a href="{{route('admin.invoice-orders.preview', $sale->n_sl_no)}}"><button type="button"
+                            class="btn mt-1 buttonSpc" id="btn_create">Preview Order Summary</button></a>
                     <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button"
                             class="btn mt-1 buttonSpc" id="btn_create">Download Invoice</button></a>
                     @endif

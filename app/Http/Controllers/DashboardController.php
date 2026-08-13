@@ -2,79 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\FieldLog;
+use App\Services\DashboardService;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(DashboardService $dashboardService)
     {
-        // Get authenticated admin/user
+        // Authenticated user
         $user = Auth::user();
 
-        // Get today's field log for the logged-in user
-         $todayLog = $user->fieldLogs()
-            ->whereDate('work_date', today())
-            ->first();
+        // Attendance
+        $attendance = $dashboardService->getAttendance($user);
 
-        // Default values
-        $checkInTime = null;
-        $checkOutTime = null;
-        $totalWorkingMinutes = 0;
-        $workStatus = 'Not Checked In';
-        $workStatusSubtext = 'No Attendance';
+        // Dashboard summary
+        $summary = $dashboardService->getSummary($user);
 
-        if ($todayLog) {
+        return view('dashboard', [
+            'user' => $user,
 
-            // Check-in
-            if ($todayLog->check_in_time) {
-                $checkInTime = $todayLog->check_in_time;
-            }
+            // Attendance
+            'todayLog' => $attendance['todayLog'],
+            'checkInTime' => $attendance['checkInTime'],
+            'checkOutTime' => $attendance['checkOutTime'],
+            'totalWorkingHours' => $attendance['totalWorkingHours'],
+            'workStatus' => $attendance['workStatus'],
+            'workStatusSubtext' => $attendance['workStatusSubtext'],
 
-            // Check-out
-            if ($todayLog->check_out_time) {
-                $checkOutTime = $todayLog->check_out_time;
-            }
-
-            // Work status
-            if ($todayLog->check_out_time) {
-
-                $workStatus = 'Checked Out';
-                $workStatusSubtext = 'Work Completed';
-
-            } elseif ($todayLog->check_in_time) {
-
-                $workStatus = 'Checked In';
-                $workStatusSubtext = 'Currently Working';
-
-            }
-
-            // Calculate total working time
-            if ($todayLog->check_in_time && $todayLog->check_out_time) {
-
-                $totalWorkingMinutes = $todayLog->check_in_time
-                    ->diffInMinutes($todayLog->check_out_time);
-            }
-        }
-
-        // Convert minutes to HH:MM
-        $hours = floor($totalWorkingMinutes / 60);
-        $minutes = $totalWorkingMinutes % 60;
-
-        $totalWorkingHours = sprintf(
-            '%02d:%02d',
-            $hours,
-            $minutes
-        );
-
-        return view('dashboard', compact(
-            'user',
-            'todayLog',
-            'checkInTime',
-            'checkOutTime',
-            'totalWorkingHours',
-            'workStatus',
-            'workStatusSubtext'
-        ));
+            // Summary cards
+            'summary' => $summary,
+        ]);
     }
 }

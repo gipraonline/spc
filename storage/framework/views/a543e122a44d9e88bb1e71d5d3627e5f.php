@@ -553,106 +553,118 @@ use Illuminate\Support\Facades\Crypt;
 
                     <div class="row g-4 mb-4">
 
-                        <div class="col-md-6">
+                        <div class="row g-4 mb-4">
 
-                            <label class="form-label">
-                                State <span class="text-danger">*</span>
-                            </label>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    State <span class="text-danger">*</span>
+                                </label>
 
-                            <select class="form-select mandatory" id="franchise_state" name="n_state_id"
-                                data-message="Please Select State">
+                                <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                                    data-message="Please Select State">
 
-                                <option value="">Select State</option>
+                                    <option value="">Select State</option>
 
-                                <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($state->n_state_id); ?>"
+                                        <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : ''); ?>>
+                                        <?php echo e($state->name); ?>
 
-                                <option value="<?php echo e($state->n_state_id); ?>"
-                                    <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : ''); ?>>
+                                    </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                                    <?php echo e($state->name); ?>
-
-
-                                </option>
-
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                            </select>
-
-                            <?php $__errorArgs = ['n_state_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <div class="text-danger mt-1 fs-2">
-                                <?php echo e($message); ?>
-
+                                </select>
                             </div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
+
+
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    District <span class="text-danger">*</span>
+                                </label>
+
+                                <select class="form-select mandatory" id="franchise_district" name="n_district_id"
+                                    data-message="Please Select District"
+                                    <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'disabled' : ''); ?>>
+
+                                    <option value="">Select District</option>
+
+                                    <?php if(isset($sale->n_district_id)): ?>
+
+                                    <?php
+                                    $districts = \App\Models\District::where(
+                                    'state_id',
+                                    $sale->n_state_id
+                                    )->get();
+                                    ?>
+
+                                    <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                                    <option value="<?php echo e($district->id); ?>"
+                                        <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>>
+                                        <?php echo e($district->district_name); ?>
+
+                                    </option>
+
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                                    <?php endif; ?>
+
+                                </select>
+                            </div>
+
+
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    City <span class="text-danger">*</span>
+                                </label>
+
+                                <select class="form-select mandatory" id="franchise_city" name="city_id"
+                                    data-message="Please Select City">
+
+                                    <option value="">Select City</option>
+
+                                </select>
+                            </div>
+
+
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Nearest Franchise <span class="text-danger">*</span>
+                                </label>
+
+                                <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                                    data-message="Please Select Nearest Franchise">
+
+                                    <option value="">Select Franchise</option>
+
+                                    <?php if(isset($franchises)): ?>
+
+                                    <?php $__currentLoopData = $franchises; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $franchise): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                                    <option value="<?php echo e($franchise->n_store_id); ?>" <?php echo e(old(
+                            'nearest_franchise_id',
+                            $sale->nearest_franchise_id ?? ''
+                        ) == $franchise->n_store_id ? 'selected' : ''); ?>>
+
+                                        <?php echo e($franchise->c_store_name); ?>
+
+                                        (<?php echo e($franchise->c_store_code); ?>)
+
+                                    </option>
+
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                                    <?php endif; ?>
+
+                                </select>
+                            </div>
 
                         </div>
 
-
-                        <div class="col-md-6">
-                            <label for="state" class="form-label">District</label>
-                            <select class="form-select mandatory" data-message="Please enter District"
-                                <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?> id="franchise_district"
-                                name="n_district_id">
-                                <option value="" selected>Select District</option>
-                                <?php if(isset($sale->n_district_id)): ?>
-                                <?php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get();
-                                ?>
-                                <?php if(isset($districts)): ?>
-                                <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($district->id); ?>"
-                                    <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>>
-                                    <?php echo e($district->district_name); ?></option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                <?php endif; ?>
-                                <?php endif; ?>
-
-                            </select>
-                            <div class="text-danger mt-1 fs-2"></div>
-                        </div>
-
-                    </div>
-
-
-                    <div class="row g-4 mb-4">
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Nearest Franchise
-                            </label>
-
-                            <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
-                                data-message="Please enter Nearest Franchise">
-
-                                <option value="">
-                                    Select Franchise
-                                </option>
-
-                                <?php if(isset($franchises)): ?>
-
-                                <?php $__currentLoopData = $franchises; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $franchise): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                                <option value="<?php echo e($franchise->n_store_id); ?>"
-                                    <?php echo e(old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : ''); ?>>
-
-                                    <?php echo e($franchise->c_store_name); ?> (<?php echo e($franchise->c_store_code); ?>)
-
-                                </option>
-
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                                <?php endif; ?>
-
-                            </select>
-
-                        </div>
 
                         <div class="col-md-6" style="position:relative;display:none;" id="payment_image">
 
@@ -689,6 +701,10 @@ unset($__errorArgs, $__bag); ?>
                     </button>
                     <?php endif; ?>
                     <?php if(isset($sale) && $sale->n_sl_no): ?>
+
+
+                    <a href="<?php echo e(route('admin.invoice-orders.preview', $sale->n_sl_no)); ?>"><button type="button"
+                            class="btn mt-1 buttonSpc" id="btn_create">Preview Order Summary</button></a>
                     <a href="<?php echo e(route('admin.invoice.download', $sale->n_sl_no)); ?>"><button type="button"
                             class="btn mt-1 buttonSpc" id="btn_create">Download Invoice</button></a>
                     <?php endif; ?>

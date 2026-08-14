@@ -191,7 +191,7 @@ Route::middleware(['auth', 'admin'])
 
     Route::get('districts/{stateId}',[StoreController::class, 'getDistricts'])
         ->middleware('permission:franchises.view')
-        ->name('districts');    
+        ->name('districts');
     // *********************************************
 
     /*
@@ -341,7 +341,7 @@ Route::middleware(['auth', 'admin'])
     ->middleware('permission:sales-orders.approval')
     ->name('salesorders.approval.save');
 
-    Route::put('salesorders/followup', [SalesController::class, 'followupSave'])
+    Route::post('salesorders/followup', [SalesController::class, 'storeFollowup'])
     ->middleware('permission:sales-orders.follow-up')
     ->name('salesorders.followup.store');
 
@@ -366,6 +366,7 @@ Route::middleware(['auth', 'admin'])
 
     Route::get('filter-franchise', [SalesController::class, 'franchiseFilter'])
         ->name('admin.filterFranchise');
+
 
 
 

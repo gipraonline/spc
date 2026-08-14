@@ -198,6 +198,57 @@
         border: 1px solid #e9d5ff;
     }
 
+    .badge-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    }
+
+    /* Approved - Green */
+    .badge-status.approved {
+        background-color: #d1fae5;
+        color: #047857;
+    }
+
+    /* Dispatched - Blue */
+    .badge-status.dispatched {
+        background-color: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    /* Shipped - Purple */
+    .badge-status.shipped {
+        background-color: #ede9fe;
+        color: #7c3aed;
+    }
+
+    /* Delivered - Teal */
+    .badge-status.delivered {
+        background-color: #ccfbf1;
+        color: #0f766e;
+    }
+
+    /* Completed - Dark Green */
+    .badge-status.completed {
+        background-color: #dcfce7;
+        color: #06f55ed8;
+    }
+
+    /* Pending - Yellow/Orange */
+    .badge-status.pending {
+        background-color: #fef3c7;
+        color: #b45309;
+    }
+
+    /* Unknown status */
+    .badge-status.unknown {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
     /* Responsive Grid Breakpoints */
     @media (max-width: 1200px) {
         .widgets-grid {
@@ -229,7 +280,7 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $totalSalesOrders ?? $sales->total() ?? 248 }}</span>
+            <span class="widget-count">{{ $totalSalesOrders ?? $sales->total() ?? 0 }}</span>
             <span class="widget-label">Total Sales Orders</span>
         </div>
     </div>
@@ -242,21 +293,8 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $pendingOrders ?? 36 }}</span>
+            <span class="widget-count">{{ $pendingOrders ?? 0 }}</span>
             <span class="widget-label">Pending</span>
-        </div>
-    </div>
-
-    <!-- 3. Order Confirmed -->
-    <div class="widget-card">
-        <div class="widget-icon blue">
-            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div class="widget-details">
-            <span class="widget-count">{{ $confirmedOrders ?? 92 }}</span>
-            <span class="widget-label">Order Confirmed</span>
         </div>
     </div>
 
@@ -268,10 +306,11 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $approvedOrders ?? 78 }}</span>
+            <span class="widget-count">{{ $approvedOrders ?? 0 }}</span>
             <span class="widget-label">Order Approved</span>
         </div>
     </div>
+
 
     <!-- 5. Dispatched -->
     <div class="widget-card">
@@ -281,10 +320,25 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $dispatchedOrders ?? 42 }}</span>
+            <span class="widget-count">{{ $dispatchedOrders ?? 0 }}</span>
             <span class="widget-label">Dispatched</span>
         </div>
     </div>
+
+     <!-- 3. Order Confirmed -->
+    <div class="widget-card">
+        <div class="widget-icon blue">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div class="widget-details">
+            <span class="widget-count">{{ $completedOrders ?? 0 }}</span>
+            <span class="widget-label">Order Completed</span>
+        </div>
+    </div>
+
+
 
 </div>
 
@@ -333,6 +387,63 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
                         </div>
 
+                        <!-- Payment Status -->
+                        <div class="col-lg-3 col-md-3">
+                            <label class="form-label fw-semibold">Payment Status</label>
+                            <select name="payment_status"
+                                    id="leadStatus"
+                                    class="form-select">
+
+                                <option value="">Select Status</option>
+
+                                <option value="pending" {{ old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : '' }}>Pending</option>
+                                <option value="confirmed"  {{ old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : '' }}>Confirmed</option>
+
+                            </select>
+                        </div>
+
+                        <!-- Order Status -->
+                        <div class="col-lg-3 col-md-3">
+                            <label class="form-label fw-semibold">Order Status</label>
+
+                            <select name="order_status" class="form-select">
+
+                                <option value="">Select Status</option>
+
+                                <option value="Pending"
+                                    {{ request('order_status') == 'Pending' ? 'selected' : '' }}>
+                                    Pending
+                                </option>
+
+                                <option value="Approved"
+                                    {{ request('order_status') == 'Approved' ? 'selected' : '' }}>
+                                    Approved
+                                </option>
+
+                                <option value="Dispatched"
+                                    {{ request('order_status') == 'Dispatched' ? 'selected' : '' }}>
+                                    Dispatched
+                                </option>
+
+                                <option value="Shipped"
+                                    {{ request('order_status') == 'Shipped' ? 'selected' : '' }}>
+                                    Shipped
+                                </option>
+
+                                <option value="Delivered"
+                                    {{ request('order_status') == 'Delivered' ? 'selected' : '' }}>
+                                    Delivered
+                                </option>
+
+                                <option value="Completed"
+                                    {{ request('order_status') == 'Completed' ? 'selected' : '' }}>
+                                    Completed
+                                </option>
+
+
+                            </select>
+                        </div>
+
                         <!-- Buttons -->
                         <div class="col-lg-3 col-md-3 d-flex gap-2">
                             <button class="btn buttonSpc w-100">Filter Report</button>
@@ -365,6 +476,7 @@ use Illuminate\Support\Facades\Crypt;
                         <th scope="col">Franchise</th>
                         <th scope="col">Payment Image</th>
                         <th scope="col">Payment Status</th>
+                        <th scope="col">Order Status</th>
                         @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
                         <th scope="col">Actions</th>
                         @endcanany
@@ -412,17 +524,32 @@ use Illuminate\Support\Facades\Crypt;
                                 <span class="text-muted">No Image</span>
                             @endif
                         </td>
+                         <td>
+                            @php
+                                $status = strtolower($sale->payment_status ?? 'pending');
+                            @endphp
+                            @if($status == 'confirmed' )
+                                <span class="badge-status confirmed">Confirmed</span>
+                            @else
+                                <span class="badge-status pending">Pending</span>
+                            @endif
+                        </td>
+
                         <td>
                             @php
-                                $status = strtolower($sale->c_payment_status ?? 'pending');
+                                $status = strtolower($sale->current_order_status ?? 'pending');
                             @endphp
-                            @if($status == 'confirmed' || $status == 'order confirmed')
-                                <span class="badge-status confirmed">Order Confirmed</span>
-                            @elseif($status == 'approved' || $status == 'order approved')
+                            @if($status == 'approved' )
                                 <span class="badge-status approved">Order Approved</span>
                             @elseif($status == 'dispatched')
                                 <span class="badge-status dispatched">Dispatched</span>
-                            @else
+                            @elseif($status == 'shipped')
+                                <span class="badge-status shipped">Shipped</span>
+                            @elseif($status == 'delivered')
+                                <span class="badge-status delivered">Delivered</span>
+                            @elseif($status == 'completed')
+                                <span class="badge-status completed">Completed</span>
+                            @elseif($status == 'pending')
                                 <span class="badge-status pending">Pending</span>
                             @endif
                         </td>

@@ -788,14 +788,14 @@ use Illuminate\Support\Facades\Crypt;
                                 Payment Status
                             </label>
 
-                            <select name="c_lead_status"
+                            <select name="payment_status"
                                     id="leadStatus"
                                     class="form-select">
 
                                 <option value="">Select Status</option>
 
-                                <option value="pending" <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending</option>
-                                <option value="confirmed"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "confirmed" ? 'selected' : ''); ?>>Confirmed</option>
+                                <option value="pending" <?php echo e(old('c_lead_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending</option>
+                                <option value="confirmed"  <?php echo e(old('c_lead_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : ''); ?>>Confirmed</option>
 
                             </select>
 
@@ -833,100 +833,6 @@ use Illuminate\Support\Facades\Crypt;
 
             </div>
 
-            <!-- Section 5: Order Status Section -->
-            <div class="form-box mb-4">
-
-                <div class="form-section-header mb-3">
-                    <i class="ti ti-package fs-5"></i>
-                    Order Status
-                </div>
-
-                <div class="row mb-3 align-items-center">
-                    <label class="col-md-3 col-form-label fw-semibold">
-                        Status <span class="text-danger">*</span>
-                    </label>
-
-                    <div class="col-md-9 d-flex flex-wrap">
-
-                        <div class="order-status-option">
-                            <input
-                                class="form-check-input mandatory order-status"
-                                type="radio"
-                                name="c_order_status"
-                                id="order_status_approved"
-                                value="Approved"
-                                <?php echo e(old('c_order_status', $sale->c_order_status ?? '') == 'Approved' ? 'checked' : ''); ?>
-
-                            >
-                            <label for="order_status_approved" class="mb-0">
-                                <i class="ti ti-circle-check text-success me-1"></i> Approved
-                            </label>
-                        </div>
-
-                        <div class="order-status-option">
-                            <input
-                                class="form-check-input order-status"
-                                type="radio"
-                                name="c_order_status"
-                                id="order_status_dispatched"
-                                value="Dispatched"
-                                <?php echo e(old('c_order_status', $sale->c_order_status ?? '') == 'Dispatched' ? 'checked' : ''); ?>
-
-                            >
-                            <label for="order_status_dispatched" class="mb-0">
-                                <i class="ti ti-truck-loading text-info me-1"></i> Dispatched
-                            </label>
-                        </div>
-
-                        <div class="order-status-option">
-                            <input
-                                class="form-check-input order-status"
-                                type="radio"
-                                name="c_order_status"
-                                id="order_status_shipped"
-                                value="Shipped"
-                                <?php echo e(old('c_order_status', $sale->c_order_status ?? '') == 'Shipped' ? 'checked' : ''); ?>
-
-                            >
-                            <label for="order_status_shipped" class="mb-0">
-                                <i class="ti ti-truck text-primary me-1"></i> Shipped
-                            </label>
-                        </div>
-
-                        <div class="order-status-option">
-                            <input
-                                class="form-check-input order-status"
-                                type="radio"
-                                name="c_order_status"
-                                id="order_status_delivered"
-                                value="Delivered"
-                                <?php echo e(old('c_order_status', $sale->c_order_status ?? '') == 'Delivered' ? 'checked' : ''); ?>
-
-                            >
-                            <label for="order_status_delivered" class="mb-0">
-                                <i class="ti ti-package-export text-success me-1"></i> Delivered
-                            </label>
-                        </div>
-
-                        <div class="order-status-option">
-                            <input
-                                class="form-check-input order-status"
-                                type="radio"
-                                name="c_order_status"
-                                id="order_status_cancelled"
-                                value="Cancelled"
-                                <?php echo e(old('c_order_status', $sale->c_order_status ?? '') == 'Cancelled' ? 'checked' : ''); ?>
-
-                            >
-                            <label for="order_status_cancelled" class="mb-0">
-                                <i class="ti ti-circle-x text-danger me-1"></i> Cancelled
-                            </label>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
 
             <!-- Section 6: Franchise Details Section -->
             <div class="form-box mb-4">
@@ -1048,11 +954,11 @@ unset($__errorArgs, $__bag); ?>
                 </button>
                 <?php endif; ?>
                 <?php if(isset($sale) && $sale->n_sl_no): ?>
-                     <a href="<?php echo e(route('admin.invoice.download', $sale->n_sl_no)); ?>"><button type="button" class="btn mt-1 buttonSpc"
-                    id="btn_create">Download Invoice</button></a>
+                     <a href="<?php echo e(route('admin.invoice.download', $sale->n_sl_no)); ?>"><button type="button" class="btn buttonSpc" style="height:61px;margin-top: 4px;"
+                    >Download Invoice</button></a>
                <?php endif; ?>
                 <?php else: ?>
-                <button type="button" class="btn buttonSpc"
+                <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
                     id="btn_create"><?php echo e(isset($sale->n_sl_no) ? 'Update' : 'Create'); ?></button>
                 <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Cancel</a>
                 <?php endif; ?>
@@ -1072,65 +978,37 @@ unset($__errorArgs, $__bag); ?>
 
                 <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
                     <h5 class="modal-title text-white" id="followUpModalLabel">
-                        Lead Follow-up Form
+                        Order Follow-up Form
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
 
-                    <input type="hidden" name="lead_id" value="<?php echo e($lead->id ?? ''); ?>">
+                    <input type="hidden" name="n_sale_id" value="<?php echo e($sale->n_sl_no ?? ''); ?>">
 
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Date</label>
-                            <input type="date" name="followup_date" class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Next Follow-up Date</label>
-                            <input type="date" name="next_followup_date" class="form-control">
+                            <input type="date" name="d_followup_date" class="form-control" required>
                         </div>
 
                         <?php if(isset($user) && $user->identifier != "FCA"): ?>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Follow-up Type</label>
-                            <select name="followup_type" class="form-select" required>
-                                <option value="">Select</option>
-                                <option value="Phone Call">Phone Call</option>
-                                <option value="WhatsApp">WhatsApp</option>
-                                <option value="Site Visit">Site Visit</option>
-                            </select>
-                        </div>
+                        
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Lead Status</label>
-                            <select name="status" class="form-select" required>
+                            <label class="form-label">Order Status</label>
+                            <select name="c_order_status" class="form-select" required>
                                 <option value="">Select Status</option>
-                                <option value="New">New</option>
-                                <option value="Contacted">Contacted</option>
-                                <option value="Interested">Interested</option>
-                                <option value="Negotiation">Negotiation</option>
-                                <option value="Won">Won</option>
-                                <option value="Lost">Lost</option>
+                                <option value="dispatched">Dispatched</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
                         <?php endif; ?>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Priority</label>
-                            <select name="priority" class="form-select">
-                                <option>Low</option>
-                                <option selected>Medium</option>
-                                <option>High</option>
-                                <option>Urgent</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Reminder</label>
-                            <input type="datetime-local" name="reminder_at" class="form-control">
-                        </div>
 
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Remarks</label>

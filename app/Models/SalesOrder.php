@@ -43,6 +43,8 @@ class SalesOrder extends Model
         'payment_status',
         'booklet_image',
         'delivery_status',
+
+        'invoice_no',
     ];
 
     protected $casts = [

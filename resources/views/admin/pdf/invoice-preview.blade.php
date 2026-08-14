@@ -25,11 +25,14 @@
     }
 
     .preview-wrapper {
+        width: 100%;
         max-width: 900px;
         margin: 0 auto;
     }
 
-    /* ================= ACTIONS ================= */
+    /* =========================================================
+           ACTION BUTTONS
+        ========================================================= */
 
     .actions {
         display: flex;
@@ -58,7 +61,9 @@
         color: #fff;
     }
 
-    /* ================= PAGE ================= */
+    /* =========================================================
+           PAGE
+        ========================================================= */
 
     .page {
         width: 100%;
@@ -67,7 +72,9 @@
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
     }
 
-    /* ================= HEADER ================= */
+    /* =========================================================
+           HEADER
+        ========================================================= */
 
     .header {
         width: 100%;
@@ -97,6 +104,7 @@
         font-size: 32px;
         font-weight: bold;
         font-style: italic;
+        line-height: 1;
     }
 
     .logo-sub {
@@ -104,7 +112,7 @@
         font-size: 7px;
         font-weight: bold;
         letter-spacing: 2px;
-        margin-top: -3px;
+        margin-top: 3px;
     }
 
     .invoice-title {
@@ -112,6 +120,7 @@
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 7px;
+        line-height: 1.1;
     }
 
     .header-info {
@@ -135,7 +144,9 @@
         font-weight: bold;
     }
 
-    /* ================= INFO BOXES ================= */
+    /* =========================================================
+           INFO BOXES
+        ========================================================= */
 
     .info-table {
         width: 100%;
@@ -158,6 +169,7 @@
     }
 
     .box {
+        width: 100%;
         border: 1px solid #d4e4d0;
         border-radius: 6px;
         overflow: hidden;
@@ -202,6 +214,7 @@
     .details {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed;
     }
 
     .details td {
@@ -221,9 +234,17 @@
     .details .d-value {
         width: 58%;
         font-weight: bold;
+        word-break: break-word;
     }
 
-    /* ================= PRODUCT TABLE ================= */
+    /* =========================================================
+           PRODUCT TABLE
+        ========================================================= */
+
+    .items-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
 
     .items {
         width: 100%;
@@ -240,6 +261,7 @@
         text-align: center;
         font-weight: bold;
         line-height: 1.3;
+        vertical-align: middle;
     }
 
     .items td {
@@ -248,6 +270,7 @@
         text-align: center;
         line-height: 1.3;
         vertical-align: middle;
+        word-wrap: break-word;
     }
 
     .items .description {
@@ -257,16 +280,19 @@
 
     .items .right {
         text-align: right;
+        white-space: nowrap;
     }
 
     .items .summary-label {
         text-align: right;
         font-style: italic;
+        font-weight: normal;
     }
 
     .items .summary-value {
         text-align: right;
         font-weight: bold;
+        white-space: nowrap;
     }
 
     .items .total-label {
@@ -281,11 +307,15 @@
         text-align: right;
         font-weight: bold;
         font-size: 10px;
+        white-space: nowrap;
     }
 
-    /* ================= AMOUNT WORDS ================= */
+    /* =========================================================
+           AMOUNT WORDS
+        ========================================================= */
 
     .amount-words {
+        width: 100%;
         margin-top: 7px;
         margin-bottom: 8px;
     }
@@ -299,6 +329,7 @@
         font-weight: bold;
         font-size: 10px;
         margin-top: 3px;
+        line-height: 1.4;
     }
 
     .currency {
@@ -306,7 +337,9 @@
         font-size: 7px;
     }
 
-    /* ================= FOOTER ================= */
+    /* =========================================================
+           FOOTER
+        ========================================================= */
 
     .footer-table {
         width: 100%;
@@ -326,6 +359,7 @@
     }
 
     .payment-box {
+        width: 100%;
         background: #e7f2e4;
         border-radius: 6px;
         padding: 9px;
@@ -344,6 +378,7 @@
     }
 
     .declaration-box {
+        width: 100%;
         border: 1px solid #d4e4d0;
         border-radius: 6px;
         padding: 9px;
@@ -374,9 +409,12 @@
         border-top: 1px solid #333;
     }
 
-    /* ================= BOTTOM ================= */
+    /* =========================================================
+           BOTTOM
+        ========================================================= */
 
     .bottom {
+        width: 100%;
         margin-top: 8px;
         border-top: 1px solid #126b39;
         padding-top: 6px;
@@ -389,30 +427,52 @@
         font-style: italic;
     }
 
-    /* ================= PRINT ================= */
+    /* =========================================================
+           PRINT
+        ========================================================= */
 
     @media print {
+
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
 
         body {
             background: #fff;
             padding: 0;
+            margin: 0;
         }
 
         .preview-wrapper {
+            width: 100%;
             max-width: none;
-        }
-
-        .page {
-            box-shadow: none;
-            padding: 10px;
+            margin: 0;
         }
 
         .actions {
-            display: none;
+            display: none !important;
+        }
+
+        .page {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            box-shadow: none;
+        }
+
+        .items-wrapper {
+            overflow: visible;
+        }
+
+        .items {
+            width: 100%;
         }
     }
 
-    /* ================= MOBILE ================= */
+    /* =========================================================
+           MOBILE
+        ========================================================= */
 
     @media screen and (max-width: 700px) {
 
@@ -460,23 +520,27 @@
             margin-top: 10px;
         }
 
-        .items {
-            font-size: 7px;
-            min-width: 700px;
-        }
-
         .items-wrapper {
             overflow-x: auto;
+            width: 100%;
+        }
+
+        .items {
+            min-width: 750px;
+            font-size: 7px;
         }
     }
     </style>
 </head>
 
+
 <body>
 
     <div class="preview-wrapper">
 
-        {{-- ================= ACTION BUTTONS ================= --}}
+        {{-- =====================================================
+             ACTION BUTTONS
+        ====================================================== --}}
 
         <div class="actions">
 
@@ -491,9 +555,16 @@
         </div>
 
 
+        {{-- =====================================================
+             PAGE
+        ====================================================== --}}
+
         <div class="page">
 
-            {{-- ================= HEADER ================= --}}
+
+            {{-- =================================================
+                 HEADER
+            ================================================== --}}
 
             <div class="header">
 
@@ -513,25 +584,31 @@
 
                         </td>
 
+
                         <td class="invoice-cell">
 
                             <div class="invoice-title">
-                                INVOICE
+                                Sales Order Summary
                             </div>
+
 
                             <table class="header-info">
 
                                 <tr>
+
                                     <td class="label">
-                                        Invoice No:
+                                        Order No:
                                     </td>
 
                                     <td class="value">
-                                        {{ $order->c_order_no }}
+                                        {{ $order->n_sl_no }}
                                     </td>
+
                                 </tr>
 
+
                                 <tr>
+
                                     <td class="label">
                                         Date:
                                     </td>
@@ -539,9 +616,12 @@
                                     <td class="value">
                                         {{ $order->d_date?->format('d M Y') }}
                                     </td>
+
                                 </tr>
 
+
                                 <tr>
+
                                     <td class="label">
                                         Due Date:
                                     </td>
@@ -549,6 +629,7 @@
                                     <td class="value">
                                         {{ $order->d_date?->format('d M Y') }}
                                     </td>
+
                                 </tr>
 
                             </table>
@@ -562,11 +643,15 @@
             </div>
 
 
-            {{-- ================= BILLING + DETAILS ================= --}}
+            {{-- =================================================
+                 BILLING + ORDER DETAILS
+            ================================================== --}}
 
             <table class="info-table">
 
                 <tr>
+
+                    {{-- ================= BILLED FROM ================= --}}
 
                     <td class="left-info">
 
@@ -576,47 +661,76 @@
                                 Billed From
                             </div>
 
+
                             <div class="box-content">
 
                                 <div class="company-name">
                                     {{ $company->company_name }}
                                 </div>
 
+
                                 <div class="small-line">
 
                                     {{ $company->address }}<br>
 
+                                    GSTIN:
+                                    {{ $company->gst_number }}<br>
+
+
                                     @if($company->phone)
-                                    Phone: {{ $company->phone }}<br>
+
+                                    Phone:
+                                    {{ $company->phone }}<br>
+
                                     @endif
+
 
                                     @if($company->email)
-                                    Email: {{ $company->email }}<br>
+
+                                    Email:
+                                    {{ $company->email }}<br>
+
                                     @endif
 
+
                                     @if($company->website)
-                                    Website: {{ $company->website }}
+
+                                    Website:
+                                    {{ $company->website }}
+
                                     @endif
 
                                 </div>
+
 
                                 <div class="section-label">
                                     Buyer (Bill to)
                                 </div>
 
+
                                 <div class="buyer-name">
                                     {{ $order->c_customer_name }}
                                 </div>
+
 
                                 <div class="small-line">
 
                                     {{ $order->c_customer_address }}<br>
 
-                                    Ph: {{ $order->n_customer_mobile }}
+                                    Pin Code:
+                                    {{ $order->customer?->c_pincode }}<br>
+
+                                    Ph:
+                                    {{ $order->n_customer_mobile }}
+
 
                                     @if($order->c_customer_email)
+
                                     <br>
-                                    Email: {{ $order->c_customer_email }}
+
+                                    Email:
+                                    {{ $order->c_customer_email }}
+
                                     @endif
 
                                 </div>
@@ -628,136 +742,188 @@
                     </td>
 
 
+                    {{-- ================= ORDER SUMMARY ================= --}}
+
                     <td class="right-info">
 
                         <div class="box">
 
                             <div class="box-title">
-                                Invoice Details
+                                Order Summary
                             </div>
+
 
                             <div class="box-content">
 
                                 <table class="details">
 
                                     <tr>
+
                                         <td class="d-label">
-                                            Invoice No.
+                                            Order No.
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
-                                            {{ $order->c_order_no }}
+                                            {{ $order->n_sl_no }}
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Dated
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             {{ $order->d_date?->format('d-M-y') }}
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Delivery Note
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
-                                            Reference No. & Date
+                                            Reference No. &amp; Date
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Buyer's Order No.
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Dispatch Doc No.
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Dispatched through
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Mode of Payment
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             {{ ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-')) }}
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             LOAD
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             {{ $order->c_customer_address ?? '-' }}
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Terms of Delivery
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
                                 </table>
@@ -772,52 +938,78 @@
 
             </table>
 
-            {{-- ================= PRODUCTS ================= --}}
+
+            {{-- =================================================
+                 PRODUCTS
+            ================================================== --}}
 
             <div class="items-wrapper">
 
                 <table class="items">
 
+                    <colgroup>
+
+                        <col style="width: 5%;">
+                        <col style="width: 19%;">
+                        <col style="width: 10%;">
+                        <col style="width: 7%;">
+                        <col style="width: 7%;">
+                        <col style="width: 10%;">
+                        <col style="width: 9%;">
+                        <col style="width: 12%;">
+                        <col style="width: 8%;">
+                        <col style="width: 13%;">
+
+                    </colgroup>
+
+
                     <thead>
+
                         <tr>
 
-                            <th style="width: 5%;">
+                            <th>
                                 Sl No
                             </th>
 
-                            <th style="width: 22%;">
+                            <th>
                                 Description of goods
                             </th>
 
-                            <th style="width: 11%;">
+                            <th>
                                 HSN Code
                             </th>
 
-                            <th style="width: 9%;">
-                                Quantity
+                            <th>
+                                Qty
                             </th>
 
-                            <th style="width: 8%;">
+                            <th>
                                 Unit
                             </th>
 
-                            <th style="width: 11%;">
+                            <th>
                                 Price
                             </th>
 
-                            <th style="width: 10%;">
+                            <th>
                                 Discount
                             </th>
 
-                            <th style="width: 12%;">
-                                Discounted Price
+                            <th>
+                                Discounted<br>
+                                Amount
                             </th>
 
-                            <th style="width: 12%;">
-                                Taxable Amount
+                            <th>
+                                GST
+                            </th>
+
+                            <th>
+                                Amount
                             </th>
 
                         </tr>
+
                     </thead>
 
 
@@ -828,56 +1020,72 @@
                         <tr>
 
                             {{-- SL NO --}}
+
                             <td>
                                 {{ $index + 1 }}
                             </td>
 
 
                             {{-- PRODUCT --}}
+
                             <td class="description">
                                 {{ $item['product_name'] }}
                             </td>
 
 
                             {{-- HSN --}}
+
                             <td>
                                 {{ $item['hsn'] }}
                             </td>
 
 
                             {{-- QUANTITY --}}
+
                             <td>
                                 {{ number_format($item['qty'], 0) }}
                             </td>
 
 
                             {{-- UNIT --}}
+
                             <td>
                                 {{ $item['unit'] }}
                             </td>
 
 
                             {{-- PRICE --}}
+
                             <td class="right">
                                 ₹ {{ number_format($item['rate_exclusive'], 2) }}
                             </td>
 
 
                             {{-- DISCOUNT --}}
+
                             <td class="right">
                                 ₹ {{ number_format($item['discount'], 2) }}
                             </td>
 
 
-                            {{-- DISCOUNTED PRICE --}}
+                            {{-- TAXABLE / DISCOUNTED AMOUNT --}}
+
                             <td class="right">
                                 ₹ {{ number_format($item['discounted_price'], 2) }}
                             </td>
 
 
-                            {{-- TAXABLE AMOUNT --}}
+                            {{-- GST PERCENTAGE --}}
+
                             <td class="right">
-                                ₹ {{ number_format($item['taxable_amount'], 2) }}
+                                {{ number_format($item['gst_percentage'] ?? 0, 2) }}%
+                            </td>
+
+
+                            {{-- FINAL AMOUNT --}}
+
+                            <td class="right">
+                                ₹ {{ number_format($item['amount_inclusive'], 2) }}
                             </td>
 
                         </tr>
@@ -887,33 +1095,88 @@
                     </tbody>
 
 
+                    {{-- =================================================
+                         SUMMARY
+                    ================================================== --}}
+
                     <tfoot>
 
                         {{-- TAXABLE AMOUNT --}}
 
                         <tr>
 
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
 
                             <td class="summary-label">
                                 Taxable Amount
                             </td>
 
                             <td class="summary-value">
-                                ₹ {{ number_format($calculation['subtotal'], 2) }}
+                                ₹ {{ number_format($calculation['taxable_total'], 2) }}
                             </td>
 
                         </tr>
 
 
-                        {{-- GST --}}
+                        {{-- CGST --}}
 
                         <tr>
 
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
 
                             <td class="summary-label">
-                                GST
+                                CGST
+                            </td>
+
+                            <td class="summary-value">
+                                ₹ {{ number_format($calculation['cgst_total'], 2) }}
+                            </td>
+
+                        </tr>
+
+
+                        {{-- SGST --}}
+
+                        <tr>
+
+                            <td colspan="8"></td>
+
+                            <td class="summary-label">
+                                SGST
+                            </td>
+
+                            <td class="summary-value">
+                                ₹ {{ number_format($calculation['sgst_total'], 2) }}
+                            </td>
+
+                        </tr>
+
+
+                        {{-- IGST --}}
+
+                        <tr>
+
+                            <td colspan="8"></td>
+
+                            <td class="summary-label">
+                                IGST
+                            </td>
+
+                            <td class="summary-value">
+                                ₹ {{ number_format($calculation['igst_total'], 2) }}
+                            </td>
+
+                        </tr>
+
+
+                        {{-- TOTAL GST --}}
+
+                        <tr>
+
+                            <td colspan="8"></td>
+
+                            <td class="summary-label">
+                                Total GST
                             </td>
 
                             <td class="summary-value">
@@ -927,7 +1190,7 @@
 
                         <tr>
 
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
 
                             <td class="summary-label">
                                 Total Quantity
@@ -944,7 +1207,7 @@
 
                         <tr>
 
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
 
                             <td class="total-label">
                                 Amount Payable
@@ -962,130 +1225,154 @@
 
             </div>
 
-        </div>
 
-    </div>
+            {{-- =================================================
+                 AMOUNT IN WORDS
+            ================================================== --}}
 
+            <div class="amount-words">
 
-    {{-- ================= AMOUNT WORDS ================= --}}
-
-    <div class="amount-words">
-
-        <div class="amount-label">
-            Amount Chargeable (in words)
-        </div>
-
-        <div class="words">
-            {{ $calculation['grand_total_words'] }}
-        </div>
-
-        <div class="currency">
-            E. &amp; O. E
-        </div>
-
-    </div>
-
-
-    {{-- ================= PAYMENT + DECLARATION ================= --}}
-
-    <table class="footer-table">
-
-        <tr>
-
-            <td class="footer-left">
-
-                <div class="payment-box">
-
-                    <div class="payment-title">
-                        Payment Method
-                    </div>
-
-                    <div class="payment-line">
-                        {{ ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-')) }}
-                    </div>
-
-                    <br>
-
-                    <div class="payment-line">
-                        <strong>Bank Details:</strong>
-                    </div>
-
-                    <div class="payment-line">
-                        {{ $company->account_name }}
-                    </div>
-
-                    <div class="payment-line">
-                        A/c No: {{ $company->account_number }}
-                    </div>
-
-                    <div class="payment-line">
-                        IFSC: {{ $company->ifsc_code }}
-                    </div>
-
-                    <div class="payment-line">
-                        Bank: {{ $company->bank_name }}
-                    </div>
-
-                    @if($company->branch)
-
-                    <div class="payment-line">
-                        Branch: {{ $company->branch }}
-                    </div>
-
-                    @endif
-
+                <div class="amount-label">
+                    Amount Chargeable (in words)
                 </div>
 
-            </td>
-
-
-            <td class="footer-right">
-
-                <div class="declaration-box">
-
-                    <div class="declaration-title">
-                        Declaration
-                    </div>
-
-                    <div class="declaration-text">
-
-                        We declare that this invoice shows the actual
-                        price of the goods described and that all
-                        particulars are true and correct.
-
-                    </div>
-
-
-                    <div class="signature">
-
-                        <div class="signature-line"></div>
-
-                        Authorised Signatory
-
-                    </div>
-
+                <div class="words">
+                    {{ $calculation['grand_total_words'] }}
                 </div>
 
-            </td>
+                <div class="currency">
+                    E. &amp; O. E
+                </div>
 
-        </tr>
-
-    </table>
+            </div>
 
 
-    {{-- ================= FOOTER ================= --}}
+            {{-- =================================================
+                 PAYMENT + DECLARATION
+            ================================================== --}}
 
-    <div class="bottom">
+            <table class="footer-table">
 
-        <div class="bottom-text">
-            Pure Spices. Better Life.
+                <tr>
+
+                    {{-- PAYMENT --}}
+                    <!-- 
+                    <td class="footer-left">
+
+                        <div class="payment-box">
+
+                            <div class="payment-title">
+                                Payment Method
+                            </div>
+
+
+                            <div class="payment-line">
+                                {{ ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-')) }}
+                            </div>
+
+
+                            <br>
+
+
+                            <div class="payment-line">
+                                <strong>Bank Details:</strong>
+                            </div>
+
+
+                            <div class="payment-line">
+                                {{ $company->account_name }}
+                            </div>
+
+
+                            <div class="payment-line">
+                                A/c No:
+                                {{ $company->account_number }}
+                            </div>
+
+
+                            <div class="payment-line">
+                                IFSC:
+                                {{ $company->ifsc_code }}
+                            </div>
+
+
+                            <div class="payment-line">
+                                Bank:
+                                {{ $company->bank_name }}
+                            </div>
+
+
+                            @if($company->branch)
+
+                            <div class="payment-line">
+                                Branch:
+                                {{ $company->branch }}
+                            </div>
+
+                            @endif
+
+                        </div>
+
+                    </td> -->
+
+
+                    {{-- DECLARATION --}}
+
+                    <td class="footer">
+
+                        <div class="declaration-box">
+
+                            <div class="declaration-title">
+                                Declaration
+                            </div>
+
+
+                            <div class="declaration-text">
+
+                                We declare that this invoice shows the actual
+                                price of the goods described and that all
+                                particulars are true and correct.
+
+                            </div>
+
+
+                            <div class="signature">
+
+                                <div class="signature-line"></div>
+
+                                Authorised Signatory
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+
+            {{-- =================================================
+                 BOTTOM FOOTER
+            ================================================== --}}
+
+            <div class="bottom">
+
+                <div class="bottom-text">
+                    Pure Spices. Better Life.
+                </div>
+
+            </div>
+
+
         </div>
+        {{-- END .page --}}
+
 
     </div>
+    {{-- END .preview-wrapper --}}
 
-    </div>
-
-    </div>
 
 </body>
 

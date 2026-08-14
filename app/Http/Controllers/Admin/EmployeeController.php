@@ -4,19 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DesignationMaster;
-use App\Models\EmployeeMaster;
 use App\Models\EmployeeEditLog;
+use App\Models\EmployeeMaster;
 use App\Models\KycSubmission;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
-
 class EmployeeController extends Controller
 {
-
-public function search(Request $request)
+    public function search(Request $request)
     {
         session([
             'employee_search' => $request->employee_search,
@@ -26,7 +24,7 @@ public function search(Request $request)
         return redirect()->route('admin.employees.index');
     }
 
-public function clearSearch()
+    public function clearSearch()
     {
         session()->forget([
             'employee_search',
@@ -36,54 +34,94 @@ public function clearSearch()
         return redirect()->route('admin.employees.index');
     }
 
-   public function index(Request $request)
-{
-    $query = EmployeeMaster::with(['designation'])->whereNull('deleted_at');
+    public function index(Request $request)
+    {
+        $query = EmployeeMaster::with(['designation'])->whereNull('deleted_at');
 
-    // Get filters from session
-    $search = session('employee_search');
-    $designation = session('designation_filter');
+        // Get filters from session
+        $search = session('employee_search');
+        $designation = session('designation_filter');
 
-    // Search by employee code or employee name
-    if (!empty($search)) {
-        $query->where(function ($q) use ($search) {
-            $q->where('c_employee_code', 'LIKE', "%{$search}%")
-              ->orWhere('c_employee_name', 'LIKE', "%{$search}%");
-        });
+        // Search by employee code or employee name
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('c_employee_code', 'LIKE', "%{$search}%")
+                    ->orWhere('c_employee_name', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filter by designation
+        if (! empty($designation)) {
+            $query->where('n_designation_id', $designation);
+        }
+
+        $employees = $query->paginate(10);
+
+        // Dropdown data
+        $designations = DesignationMaster::where('c_status', 'Y')->get();
+
+        // Employee list for autocomplete
+        $employeesForSearch = EmployeeMaster::select('n_employee_id', 'c_employee_name', 'c_employee_code')
+            ->where('c_status', 'Y')
+            ->orderBy('c_employee_name')
+            ->get();
+
+        return view('admin.employees.index', compact('employees', 'designations', 'employeesForSearch'));
     }
 
-    // Filter by designation
-    if (!empty($designation)) {
-        $query->where('n_designation_id', $designation);
+    public function generateEmployeeCode($designationId)
+    {
+        $designation = DesignationMaster::findOrFail($designationId);
+
+        $prefix = strtoupper(trim($designation->identifier));
+
+        // Find the latest employee code with this designation identifier
+        $lastEmployee = EmployeeMaster::where(
+            'c_employee_code',
+            'LIKE',
+            $prefix.'%'
+        )
+            ->orderByDesc('n_employee_id')
+            ->first();
+
+        if ($lastEmployee) {
+
+            preg_match('/(\d+)$/', $lastEmployee->c_employee_code, $matches);
+
+            $nextNumber = isset($matches[1])
+                ? ((int) $matches[1]) + 1
+                : 1;
+
+        } else {
+            $nextNumber = 1;
+        }
+
+        $employeeCode = $prefix.str_pad(
+            $nextNumber,
+            3,
+            '0',
+            STR_PAD_LEFT
+        );
+
+        return response()->json([
+            'employee_code' => $employeeCode,
+        ]);
     }
 
-    $employees = $query->paginate(10);
-
-    // Dropdown data
-    $designations = DesignationMaster::where('c_status', 'Y')->get();
-
-    // Employee list for autocomplete
-     $employeesForSearch = EmployeeMaster::select( 'n_employee_id', 'c_employee_name', 'c_employee_code' )
-                                            ->where('c_status', 'Y')
-                                            ->orderBy('c_employee_name')
-                                            ->get();
-
-    return view('admin.employees.index', compact('employees', 'designations','employeesForSearch'));
-}
     public function create()
     {
         $designations = DesignationMaster::where('c_status', 'Y')->get();
         $employees = EmployeeMaster::where('c_status', 'Y')
-        ->orderBy('c_employee_name')
-        ->get();
+            ->orderBy('c_employee_name')
+            ->get();
 
-        return view('admin.employees.create', compact('designations','employees'));
+        return view('admin.employees.create', compact('designations', 'employees'));
     }
 
     public function store(Request $request)
     {
-        // dd("hits");
-       $validated = $request->validate([
+
+        $validated = $request->validate([
             'c_employee_code' => [
                 'required',
                 'string',
@@ -92,7 +130,7 @@ public function clearSearch()
                 'unique:employee_masters,c_employee_code',
             ],
 
-            'c_employee_name'    => 'required|string|max:255',
+            'c_employee_name' => 'required|string|max:255',
             'c_employee_address' => 'nullable|string|max:500',
 
             'c_employee_email' => 'nullable|email|max:255|unique:employee_masters,c_employee_email|unique:employee_masters,c_username',
@@ -104,112 +142,108 @@ public function clearSearch()
 
             'c_status' => 'required|in:Y,N',
 
-            'account_number' => 'required|digits_between:8,18',
+            'account_number' => 'nullable|digits_between:8,18',
 
-            'ifsc_code' => 'required|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
+            'ifsc_code' => 'nullable|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
 
-            'bank_name' => 'required|string|max:255',
+            'bank_name' => 'nullable|string|max:255',
 
-            'branch_name' => 'required|string|max:255',
+            'branch_name' => 'nullable|string|max:255',
 
-            ], [
-                'c_employee_code.required' => 'Employee Code is required.',
-                'c_employee_code.unique'   => 'Employee Code already exists.',
-                'c_employee_code.regex'    => 'Employee Code can contain only letters, numbers, hyphens (-), and underscores (_).',
+        ], [
 
-                'c_employee_name.required' => 'Employee Name is required.',
+            'c_employee_code.regex' => 'Employee Code can contain only letters, numbers, hyphens (-), and underscores (_).',
 
-                'c_employee_email.email'   => 'Please enter a valid email address.',
-                'c_employee_email.unique'  => 'This Email/Username already exists.',
+            'c_employee_name.required' => 'Employee Name is required.',
 
-                'n_employee_phone.regex'   => 'Please enter a valid 10-digit mobile number.',
+            'c_employee_email.email' => 'Please enter a valid email address.',
+            'c_employee_email.unique' => 'This Email/Username already exists.',
 
-                'n_designation_id.required' => 'Please select a designation.',
+            'n_employee_phone.regex' => 'Please enter a valid 10-digit mobile number.',
 
-                'c_status.required' => 'Please select employee status.',
+            'n_designation_id.required' => 'Please select a designation.',
 
-                'account_number.required' => 'Account Number is required.',
-                'account_number.digits_between' => 'Account Number must be between 8 and 18 digits.',
+            'c_status.required' => 'Please select employee status.',
 
-                'ifsc_code.required' => 'IFSC Code is required.',
-                'ifsc_code.regex' => 'Please enter a valid IFSC Code.',
+            'account_number.required' => 'Account Number is required.',
+            'account_number.digits_between' => 'Account Number must be between 8 and 18 digits.',
 
-                'bank_name.required' => 'Bank Name is required.',
-                'branch_name.required' => 'Branch Name is required.',
+            'ifsc_code.required' => 'IFSC Code is required.',
+            'ifsc_code.regex' => 'Please enter a valid IFSC Code.',
+
+            'bank_name.required' => 'Bank Name is required.',
+            'branch_name.required' => 'Branch Name is required.',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            // Employee
+            $employee = EmployeeMaster::create([
+                'c_employee_code' => $validated['c_employee_code'],
+                'c_username' => $validated['c_employee_code'],
+                'c_password' => Hash::make('Password@123'),
+                'c_employee_name' => $validated['c_employee_name'],
+                'c_employee_address' => $validated['c_employee_address'] ?? null,
+                'c_employee_email' => $validated['c_employee_email'] ?? null,
+                'n_employee_phone' => $validated['n_employee_phone'] ?? null,
+                'n_designation_id' => $validated['n_designation_id'] ?? null,
+                'reporting_to' => $validated['reporting_to'] ?? null,
+                'c_status' => $validated['c_status'],
             ]);
 
-    DB::beginTransaction();
+            // Bank Details
 
-    try {
+            // KycSubmission::create([
+            //     'n_employee_id' => $employee->n_employee_id,
+            //     'bank_name' => $validated['bank_name'],
+            //     'bank_branch' => $validated['branch_name'],
+            //     'account_number' => $validated['account_number'],
+            //     'ifsc_code' => $validated['ifsc_code'],
+            //     'document_path' => '',
+            //     'status' => 'Active',
+            // ]);
 
-        // Employee
-        $employee = EmployeeMaster::create([
-            'c_employee_code'    => $validated['c_employee_code'],
-            'c_username'         => $validated['c_employee_code'],
-            'c_password'         => Hash::make('Password@123'),
-            'c_employee_name'    => $validated['c_employee_name'],
-            'c_employee_address' => $validated['c_employee_address'] ?? null,
-            'c_employee_email'   => $validated['c_employee_email'] ?? null,
-            'n_employee_phone'   => $validated['n_employee_phone'] ?? null,
-            'n_designation_id'   => $validated['n_designation_id'] ?? null,
-            'reporting_to'       => $validated['reporting_to'] ?? null,
-            'c_status'           => $validated['c_status'],
-        ]);
+            DB::commit();
 
-        // Bank Details
+            return redirect()
+                ->route('admin.employees.index')
+                ->with('success', 'Employee created successfully.');
 
-        KycSubmission::create([
-            'n_employee_id'  => $employee->n_employee_id,
-            'bank_name'      => $validated['bank_name'],
-            'bank_branch'    => $validated['branch_name'],
-            'account_number' => $validated['account_number'],
-            'ifsc_code'      => $validated['ifsc_code'],
-            'document_path'  => '',
-            'status'         => 'Active',
-        ]);
+        } catch (\Exception $e) {
 
+            DB::rollBack();
 
-        DB::commit();
-
-        return redirect()
-            ->route('admin.employees.index')
-            ->with('success', 'Employee created successfully.');
-
-    } catch (\Exception $e) {
-
-        DB::rollBack();
-
-        return back()
-            ->withInput()
-            ->with('error', $e->getMessage());
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
-}
-
 
     public function edit(EmployeeMaster $employee)
     {
 
         $designations = DesignationMaster::where('c_status', 'Y')->get();
         $employees = EmployeeMaster::where('c_status', 'Y')
-        ->where('n_employee_id', '!=', $employee->n_employee_id)
-        ->orderBy('c_employee_name')
-        ->get();
+            ->where('n_employee_id', '!=', $employee->n_employee_id)
+            ->orderBy('c_employee_name')
+            ->get();
 
         $kyc = KycSubmission::where('n_employee_id', $employee->n_employee_id)
-        ->where('status', 'Active')
-        ->first();
+            ->where('status', 'Active')
+            ->first();
 
-
-        return view('admin.employees.edit', compact('employees','employee', 'designations','kyc'));
+        return view('admin.employees.edit', compact('employees', 'employee', 'designations', 'kyc'));
     }
 
     public function update(Request $request, EmployeeMaster $employee)
     {
         $validated = $request->validate([
-            'c_employee_name'    => 'required|string|max:255',
+            'c_employee_name' => 'required|string|max:255',
             'c_employee_address' => 'nullable|string|max:500',
 
-            'c_employee_email' => 'nullable|email|max:255|unique:employee_masters,c_employee_email,' . $employee->n_employee_id . ',n_employee_id',
+            'c_employee_email' => 'nullable|email|max:255|',
 
             'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
 
@@ -219,13 +253,13 @@ public function clearSearch()
 
             'c_status' => 'required|in:Y,N',
 
-            'account_number' => 'required|digits_between:8,18',
+            'account_number' => 'nullable|digits_between:8,18',
 
-            'ifsc_code' => 'required|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
+            'ifsc_code' => 'nullable|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
 
-            'bank_name' => 'required|string|max:255',
+            'bank_name' => 'nullable|string|max:255',
 
-            'branch_name' => 'required|string|max:255',
+            'branch_name' => 'nullable|string|max:255',
 
             'password' => [
                 'nullable',
@@ -238,62 +272,62 @@ public function clearSearch()
             'ifsc_code.regex' => 'Please enter a valid IFSC code.',
             'account_number.digits_between' => 'Account number must be between 8 and 18 digits.',
         ]);
-    DB::beginTransaction();
+        DB::beginTransaction();
 
-    try {
+        try {
 
-        EmployeeEditLog::create([
-            'n_employee_id'        => $employee->n_employee_id,
-            'n_pre_designation_id' => $employee->n_designation_id,
-            'n_new_designation_id' => $request->n_designation_id,
-        ]);
-
-        // Update employee
-        $employee->update([
-            'c_employee_name'    => $request->c_employee_name,
-            'c_employee_address' => $request->c_employee_address,
-            'c_employee_email'   => $request->c_employee_email,
-            'n_employee_phone'   => $request->n_employee_phone,
-            'n_designation_id'   => $request->n_designation_id,
-            'reporting_to'       => $request->reporting_to,
-            'c_status'           => $request->c_status,
-        ]);
-
-        // Update password only if entered
-        if ($request->filled('password')) {
-            $employee->update([
-                'c_password' => Hash::make($request->password),
+            EmployeeEditLog::create([
+                'n_employee_id' => $employee->n_employee_id,
+                'n_pre_designation_id' => $employee->n_designation_id,
+                'n_new_designation_id' => $request->n_designation_id,
             ]);
+
+            // Update employee
+            $employee->update([
+                'c_employee_name' => $request->c_employee_name,
+                'c_employee_address' => $request->c_employee_address,
+                'c_employee_email' => $request->c_employee_email,
+                'n_employee_phone' => $request->n_employee_phone,
+                'n_designation_id' => $request->n_designation_id,
+                'reporting_to' => $request->reporting_to,
+                'c_status' => $request->c_status,
+            ]);
+
+            // Update password only if entered
+            if ($request->filled('password')) {
+                $employee->update([
+                    'c_password' => Hash::make($request->password),
+                ]);
+            }
+
+            // Update or create bank details
+            // $employee->kycSubmission()->updateOrCreate(
+            //     ['n_employee_id' => $employee->n_employee_id],
+            //     [
+            //         'bank_name' => $request->bank_name,
+            //         'bank_branch' => $request->branch_name,
+            //         'account_number' => $request->account_number,
+            //         'ifsc_code' => $request->ifsc_code,
+            //         'document_path' => '',
+            //         'status' => 'Active',
+            //     ]
+            // );
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.employees.index')
+                ->with('success', 'Employee updated successfully.');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
         }
-
-        // Update or create bank details
-        $employee->kycSubmission()->updateOrCreate(
-            ['n_employee_id' => $employee->n_employee_id],
-            [
-                'bank_name'      => $request->bank_name,
-                'bank_branch'    => $request->branch_name,
-                'account_number' => $request->account_number,
-                'ifsc_code'      => $request->ifsc_code,
-                'document_path'  => '',
-                'status'         => 'Active',
-            ]
-        );
-
-        DB::commit();
-
-        return redirect()
-            ->route('admin.employees.index')
-            ->with('success', 'Employee updated successfully.');
-
-    } catch (\Exception $e) {
-
-        DB::rollBack();
-
-        return back()
-            ->withInput()
-            ->with('error', $e->getMessage());
     }
-}
 
     public function destroy($id)
     {
@@ -310,38 +344,38 @@ public function clearSearch()
         $employee->delete();
 
         return redirect()->route('admin.employees.index')
-                        ->with('success', 'Employee deleted successfully.');
+            ->with('success', 'Employee deleted successfully.');
     }
+
     public function getReportingManagers($designationId)
-{
-    $designation = DesignationMaster::findOrFail($designationId);
+    {
+        $designation = DesignationMaster::findOrFail($designationId);
 
-   /*  $employees = EmployeeMaster::join(
+        /*  $employees = EmployeeMaster::join(
+                 'designation_masters',
+                 'employee_masters.n_designation_id',
+                 '=',
+                 'designation_masters.n_designation_id'
+             )
+             ->where('designation_masters.hierarchy_level', '<', $designation->hierarchy_level)
+             ->where('employee_masters.c_status', 'Y')
+             ->select(
+                 'employee_masters.n_employee_id',
+                 'employee_masters.c_employee_name',
+                 'designation_masters.c_designation'
+             )
+             ->orderBy('designation_masters.hierarchy_level')
+             ->get(); */
+        $reportingEmployees = EmployeeMaster::join(
             'designation_masters',
             'employee_masters.n_designation_id',
             '=',
             'designation_masters.n_designation_id'
         )
-        ->where('designation_masters.hierarchy_level', '<', $designation->hierarchy_level)
-        ->where('employee_masters.c_status', 'Y')
-        ->select(
-            'employee_masters.n_employee_id',
-            'employee_masters.c_employee_name',
-            'designation_masters.c_designation'
-        )
-        ->orderBy('designation_masters.hierarchy_level')
-        ->get(); */
-        $reportingEmployees=EmployeeMaster::join(
-            'designation_masters',
-            'employee_masters.n_designation_id',
-            '=',
-            'designation_masters.n_designation_id'
-        )
-        ->where('designation_masters.hierarchy_level', $designation->hierarchy_level - 1)
-        ->select()
-        ->get();
+            ->where('designation_masters.hierarchy_level', $designation->hierarchy_level - 1)
+            ->select()
+            ->get();
 
-    return response()->json($reportingEmployees);
-}
-
+        return response()->json($reportingEmployees);
+    }
 }

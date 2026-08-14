@@ -388,7 +388,7 @@
                                 </td>
 
                                 <td class="value">
-                                    {{ $order->c_order_no }}
+                                    FCA{{ str_pad($order->invoice_no, 4, '0', STR_PAD_LEFT) }}
                                 </td>
                             </tr>
 
@@ -439,12 +439,14 @@
 
                         <div class="box-content">
 
-
                             <div class="company-name">
                                 {{ $company->company_name }}
                             </div>
 
                             <div class="small-line">
+
+                                GSTIN: {{ $company->gst_number }}<br>
+
                                 {{ $company->address }}<br>
 
                                 @if($company->phone)
@@ -458,6 +460,7 @@
                                 @if($company->website)
                                 Website: {{ $company->website }}
                                 @endif
+
                             </div>
 
                             <div class="section-label">
@@ -469,13 +472,18 @@
                             </div>
 
                             <div class="small-line">
+
                                 {{ $order->c_customer_address }}<br>
+
+                                Pin Code: {{ $order->customer?->c_pincode }}<br>
+
                                 Ph: {{ $order->n_customer_mobile }}
 
                                 @if($order->c_customer_email)
                                 <br>
                                 Email: {{ $order->c_customer_email }}
                                 @endif
+
                             </div>
 
                         </div>
@@ -507,7 +515,7 @@
                                     </td>
 
                                     <td class="d-value">
-                                        {{ $order->c_order_no }}
+                                        FCA{{ str_pad($order->invoice_no, 4, '0', STR_PAD_LEFT) }}
                                     </td>
                                 </tr>
 
@@ -650,27 +658,27 @@
         </table>
 
 
-
-        {{-- ================= PRODUCTS ================= --}}
         {{-- ================= PRODUCTS ================= --}}
 
         <table class="items">
 
             <thead>
+
                 <tr>
+
                     <th style="width: 5%;">
                         Sl No
                     </th>
 
-                    <th style="width: 22%;">
+                    <th style="width: 20%;">
                         Description of goods
                     </th>
 
-                    <th style="width: 11%;">
+                    <th style="width: 10%;">
                         HSN Code
                     </th>
 
-                    <th style="width: 9%;">
+                    <th style="width: 8%;">
                         Quantity
                     </th>
 
@@ -687,18 +695,45 @@
                     </th>
 
                     <th style="width: 12%;">
-                        Discounted price
+                        Discounted Price
+                    </th>
+
+                    <th style="width: 8%;">
+                        GST
                     </th>
 
                     <th style="width: 12%;">
-                        Taxable Amount
+                        Amount
                     </th>
+
                 </tr>
+
             </thead>
+
 
             <tbody>
 
                 @foreach($calculation['items'] as $index => $item)
+
+                @php
+
+                $price = $item['rate']
+                ?? $item['rate_inclusive']
+                ?? 0;
+
+                $discount = $item['discount']
+                ?? 0;
+
+                $discountedPrice = $item['discounted_price']
+                ?? ($price - $discount);
+
+                $gstAmount = $item['gst_amount']
+                ?? 0;
+
+                $amount = $item['amount_inclusive']
+                ?? ($discountedPrice + $gstAmount);
+
+                @endphp
 
                 <tr>
 
@@ -707,98 +742,160 @@
                         {{ $index + 1 }}
                     </td>
 
+
                     {{-- DESCRIPTION --}}
                     <td class="description">
                         {{ $item['product_name'] }}
                     </td>
+
 
                     {{-- HSN CODE --}}
                     <td>
                         {{ $item['hsn'] }}
                     </td>
 
+
                     {{-- QUANTITY --}}
                     <td>
                         {{ number_format($item['qty'], 0) }}
                     </td>
+
 
                     {{-- UNIT --}}
                     <td>
                         {{ $item['unit'] }}
                     </td>
 
+
                     {{-- PRICE --}}
                     <td class="right">
-                        ₹ {{ number_format($item['rate'] ?? $item['rate_inclusive'] ?? 0, 2) }}
+                        ₹ {{ number_format($price, 2) }}
                     </td>
+
 
                     {{-- DISCOUNT --}}
                     <td class="right">
-                        ₹ {{ number_format($item['discount'] ?? 0, 2) }}
+                        ₹ {{ number_format($discount, 2) }}
                     </td>
+
 
                     {{-- DISCOUNTED PRICE --}}
                     <td class="right">
-                        ₹ {{ number_format(
-        $item['discounted_price']
-        ?? (($item['rate'] ?? $item['rate_inclusive'] ?? 0) - ($item['discount'] ?? 0)),
-        2
-    ) }}
+                        ₹ {{ number_format($discountedPrice, 2) }}
                     </td>
 
-                    {{-- PRICE INCLUDING GST --}}
+
+                    {{-- GST --}}
                     <td class="right">
-                        ₹ {{ number_format($item['amount_inclusive'] ?? 0, 2) }}
+                        ₹ {{ number_format($gstAmount, 2) }}
                     </td>
+
+
+                    {{-- FINAL AMOUNT --}}
+                    <td class="right">
+                        ₹ {{ number_format($amount, 2) }}
+                    </td>
+
                 </tr>
 
                 @endforeach
 
             </tbody>
 
+
             <tfoot>
 
                 {{-- TAXABLE AMOUNT --}}
                 <tr>
 
-                    <td colspan="7"></td>
+                    <td colspan="8"></td>
 
                     <td class="summary-label">
-                        Taxable amount
+                        Taxable Amount
                     </td>
 
                     <td class="summary-value">
-                        ₹ {{ number_format($calculation['subtotal'], 2) }}
+                        ₹ {{ number_format($calculation['subtotal'] ?? 0, 2) }}
                     </td>
 
                 </tr>
 
-                {{-- GST --}}
+
+                {{-- CGST --}}
                 <tr>
 
-                    <td colspan="7"></td>
+                    <td colspan="8"></td>
 
                     <td class="summary-label">
-                        GST
+                        CGST
                     </td>
 
                     <td class="summary-value">
-                        ₹ {{ number_format($calculation['gst_total'], 2) }}
+                        ₹ {{ number_format($calculation['cgst_total'] ?? 0, 2) }}
                     </td>
 
                 </tr>
+
+
+                {{-- SGST --}}
+                <tr>
+
+                    <td colspan="8"></td>
+
+                    <td class="summary-label">
+                        SGST
+                    </td>
+
+                    <td class="summary-value">
+                        ₹ {{ number_format($calculation['sgst_total'] ?? 0, 2) }}
+                    </td>
+
+                </tr>
+
+
+                {{-- IGST --}}
+                <tr>
+
+                    <td colspan="8"></td>
+
+                    <td class="summary-label">
+                        IGST
+                    </td>
+
+                    <td class="summary-value">
+                        ₹ {{ number_format($calculation['igst_total'] ?? 0, 2) }}
+                    </td>
+
+                </tr>
+
+
+                {{-- TOTAL GST --}}
+                <tr>
+
+                    <td colspan="8"></td>
+
+                    <td class="summary-label">
+                        Total GST
+                    </td>
+
+                    <td class="summary-value">
+                        ₹ {{ number_format($calculation['gst_total'] ?? 0, 2) }}
+                    </td>
+
+                </tr>
+
 
                 {{-- AMOUNT PAYABLE --}}
                 <tr>
 
-                    <td colspan="7"></td>
+                    <td colspan="8"></td>
 
                     <td class="total-label">
                         Amount Payable
                     </td>
 
                     <td class="total-value">
-                        ₹ {{ number_format($calculation['grand_total'], 2) }}
+                        ₹ {{ number_format($calculation['grand_total'] ?? 0, 2) }}
                     </td>
 
                 </tr>
@@ -817,7 +914,7 @@
             </div>
 
             <div class="words">
-                {{ $calculation['grand_total_words'] }}
+                {{ $calculation['grand_total_words'] ?? '-' }}
             </div>
 
             <div class="currency">
@@ -833,7 +930,7 @@
 
             <tr>
 
-                <td class="footer-left">
+                <!-- <td class="footer-left">
 
                     <div class="payment-box">
 
@@ -868,17 +965,19 @@
                         </div>
 
                         @if($company->branch)
+
                         <div class="payment-line">
                             Branch: {{ $company->branch }}
                         </div>
+
                         @endif
 
                     </div>
 
-                </td>
+                </td> -->
 
 
-                <td class="footer-right">
+                <td class="footer">
 
                     <div class="declaration-box">
 
@@ -891,7 +990,6 @@
                             price of the goods described and that all
                             particulars are true and correct.
                         </div>
-
 
                         <div class="signature">
 

@@ -7,12 +7,45 @@ class InvoiceCalculationService
     public function calculate($order)
     {
         $subtotal = 0;
+        $taxableTotal = 0;
         $totalQty = 0;
         $gstTotal = 0;
         $grandTotal = 0;
         $totalDiscount = 0;
 
+        $cgstTotal = 0;
+        $sgstTotal = 0;
+        $igstTotal = 0;
+
         $items = [];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Customer State
+        |--------------------------------------------------------------------------
+        |
+        | We need the customer's state to decide:
+        |
+        | Kerala customer:
+        |     CGST 2.5%
+        |     SGST 2.5%
+        |     IGST 0%
+        |
+        | Outside Kerala:
+        |     CGST 0%
+        |     SGST 0%
+        |     IGST 5%
+        |
+        */
+
+        $customerState = trim(
+            $order->customer?->c_state
+            ?? $order->customer?->state
+            ?? $order->c_customer_state
+            ?? ''
+        );
+
+        $isKerala = strtolower($customerState) === 'kerala';
 
         foreach ($order->orderProducts as $item) {
 
@@ -23,10 +56,13 @@ class InvoiceCalculationService
             $qty = (float) ($item->qty ?? 0);
 
             // =========================
-            // Product price
+            // Price
             // =========================
-            // Same as JS:
-            // price * qty
+            //
+            // IMPORTANT:
+            // product_price is now treated as
+            // PRICE EXCLUDING GST.
+            //
 
             $price = (float) ($item->product_price ?? 0);
 
@@ -41,52 +77,121 @@ class InvoiceCalculationService
             // =========================
             // Discount
             // =========================
-            // Same as current JS:
-            // grossAmount - discount
             //
-            // IMPORTANT:
-            // discount is treated as LINE discount,
-            // not per-unit discount.
+            // Default discount = 0
+            //
+            // Discount is treated as LINE discount.
+            //
 
             $discount = (float) ($item->discount ?? 0);
 
             // =========================
-            // Gross amount
+            // Gross Amount
             // =========================
+            //
+            // Price × Quantity
+            //
 
             $grossAmount = $price * $qty;
 
             // =========================
-            // Taxable amount
+            // Discounted Amount
             // =========================
+            //
+            // This becomes the taxable amount.
+            //
 
-            $taxableAmount = $grossAmount - $discount;
+            $discountedAmount = $grossAmount - $discount;
 
-            if ($taxableAmount < 0) {
-                $taxableAmount = 0;
+            if ($discountedAmount < 0) {
+                $discountedAmount = 0;
             }
 
             // =========================
-            // GST amount
+            // GST Calculation
+            // =========================
+            //
+            // GST is calculated AFTER discount.
+            //
+
+            $gstAmount =
+                $discountedAmount * ($gstPercentage / 100);
+
+            // =========================
+            // CGST / SGST / IGST
+            // =========================
+
+            $cgstRate = 0;
+            $sgstRate = 0;
+            $igstRate = 0;
+
+            $cgstAmount = 0;
+            $sgstAmount = 0;
+            $igstAmount = 0;
+
+            if ($isKerala) {
+
+                // Kerala customer
+                //
+                // 5% GST =
+                // CGST 2.5%
+                // SGST 2.5%
+
+                $cgstRate = $gstPercentage / 2;
+                $sgstRate = $gstPercentage / 2;
+
+                $cgstAmount =
+                    $discountedAmount * ($cgstRate / 100);
+
+                $sgstAmount =
+                    $discountedAmount * ($sgstRate / 100);
+
+            } else {
+
+                // Outside Kerala customer
+                //
+                // Full GST as IGST
+
+                $igstRate = $gstPercentage;
+
+                $igstAmount =
+                    $discountedAmount * ($igstRate / 100);
+            }
+
+            // =========================
+            // Total GST
             // =========================
 
             $gstAmount =
-                $taxableAmount * ($gstPercentage / 100);
+                $cgstAmount
+                + $sgstAmount
+                + $igstAmount;
 
             // =========================
-            // Final amount including GST
+            // Final Amount
             // =========================
+            //
+            // Taxable amount + GST
+            //
 
             $amountInclusive =
-                $taxableAmount + $gstAmount;
+                $discountedAmount + $gstAmount;
 
             // =========================
-            // Running totals
+            // Running Totals
             // =========================
 
             $subtotal += $grossAmount;
 
+            $taxableTotal += $discountedAmount;
+
             $gstTotal += $gstAmount;
+
+            $cgstTotal += $cgstAmount;
+
+            $sgstTotal += $sgstAmount;
+
+            $igstTotal += $igstAmount;
 
             $totalDiscount += $discount;
 
@@ -95,59 +200,104 @@ class InvoiceCalculationService
             $grandTotal += $amountInclusive;
 
             // =========================
-            // Store item calculation
+            // Store Item Calculation
             // =========================
 
             $items[] = [
 
-                'product_name' => $item->product?->c_product_name ?? 'Product',
+                'product_name' => $item->product?->c_product_name
+                    ?? 'Product',
 
-                'hsn' => $item->product?->c_hsn_code ?? '-',
+                'hsn' => $item->product?->c_hsn_code
+                    ?? '-',
 
                 'qty' => $qty,
 
-                'unit' => $item->product?->c_unit ?? '-',
+                'unit' => $item->product?->c_unit
+                    ?? '-',
 
+                // GST percentage
                 'gst_percentage' => $gstPercentage,
 
-                'rate_inclusive' => $price,
+                // Price EXCLUDING GST
+                'rate' => $price,
 
                 'rate_exclusive' => $price,
 
+                // Kept for compatibility
+                'rate_inclusive' => $price,
+
+                // Discount defaults to 0
                 'discount' => $discount,
 
-                'discounted_price' => $taxableAmount,
+                // Price × Qty - Discount
+                'discounted_price' => $discountedAmount,
 
-                'taxable_amount' => $taxableAmount,
+                // Same as discounted price
+                // because GST is calculated on this
+                'taxable_amount' => $discountedAmount,
 
+                // GST split
+                'cgst_rate' => $cgstRate,
+
+                'cgst_amount' => $cgstAmount,
+
+                'sgst_rate' => $sgstRate,
+
+                'sgst_amount' => $sgstAmount,
+
+                'igst_rate' => $igstRate,
+
+                'igst_amount' => $igstAmount,
+
+                // Total GST
                 'gst_amount' => $gstAmount,
 
+                // Taxable + GST
                 'amount_inclusive' => $amountInclusive,
             ];
         }
 
         // =========================
-        // Amount in words
+        // Amount in Words
         // =========================
 
         $grandTotalWords =
             $this->numberToWords($grandTotal);
 
+        // =========================
+        // Return Calculation
+        // =========================
+
         return [
 
             'items' => $items,
 
+            // Gross amount before discount
             'subtotal' => $subtotal,
+
+            // Actual taxable amount after discount
+            'taxable_total' => $taxableTotal,
 
             'total_qty' => $totalQty,
 
             'gst_total' => $gstTotal,
+
+            'cgst_total' => $cgstTotal,
+
+            'sgst_total' => $sgstTotal,
+
+            'igst_total' => $igstTotal,
 
             'total_discount' => $totalDiscount,
 
             'grand_total' => $grandTotal,
 
             'grand_total_words' => $grandTotalWords,
+
+            'customer_state' => $customerState,
+
+            'is_kerala' => $isKerala,
         ];
     }
 

@@ -105,11 +105,11 @@ class SalesController extends Controller
                 ->exists();
     }
 
-    private function isFcaToday(SalesOrder $sale): bool
-    {
-        return ! $this->isFca()
-            || Carbon::parse($sale->d_date)->isToday();
-    }
+    // private function isFcaToday(SalesOrder $sale): bool
+    // {
+    //     return ! $this->isFca()
+    //         || Carbon::parse($sale->d_date)->isToday();
+    // }
 
     public function index(Request $request)
     {
@@ -123,7 +123,7 @@ class SalesController extends Controller
         |--------------------------------------------------------------------------
         | Farm Care Advisor Access
         |--------------------------------------------------------------------------
-        | FCA can see only their own sales for the current day.
+        | FCA can see only their own sales .
         | Other roles can see sales according to their existing permissions.
         |--------------------------------------------------------------------------
         */
@@ -135,8 +135,7 @@ class SalesController extends Controller
             // Logged-in FCA's employee ID
             $employeeId = $user->n_employee_id;
 
-            $query->where('farm_care_advisor_id', $employeeId)
-                ->whereDate('d_date', today());
+            $query->where('farm_care_advisor_id', $employeeId);
         }
 
         /*
@@ -977,7 +976,49 @@ class SalesController extends Controller
             ]
         );
 
-        return redirect()->back()->with('success', 'Approval completed successfully.');
+        /*
+|--------------------------------------------------------------------------
+| Generate Invoice Number
+|--------------------------------------------------------------------------
+|
+| Generate ONLY when the order is approved.
+|
+*/
+
+        if (
+            strtolower($request->status) === 'approved'
+            && is_null($order->invoice_no)
+        ) {
+
+            $lastInvoice = SalesOrder::whereNotNull('invoice_no')
+                ->where('invoice_no', 'like', 'FCA%')
+                ->orderByRaw(
+                    'CAST(SUBSTRING(invoice_no, 4) AS UNSIGNED) DESC'
+                )
+                ->value('invoice_no');
+
+            if ($lastInvoice) {
+
+                // FCA15 → 15
+                $lastNumber = (int) substr($lastInvoice, 3);
+
+                $nextNumber = $lastNumber + 1;
+
+            } else {
+
+                // First invoice
+                $nextNumber = 1;
+            }
+
+            $order->invoice_no = 'FCA'.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+            $order->save();
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', 'Approval completed successfully.');
+
     }
 
     public function show(Request $request, $id)
@@ -995,9 +1036,9 @@ class SalesController extends Controller
         // --------------------------------------------------
         // FCA midnight restriction
         // --------------------------------------------------
-        if (! $this->isFcaToday($sale)) {
-            abort(403, 'FCA cannot view this Sales Order after midnight.');
-        }
+        // if (! $this->isFcaToday($sale)) {
+        //     abort(403, 'FCA cannot view this Sales Order after midnight.');
+        // }
 
         $states = State::with('districts')
             ->where('status', '1')

@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 :root {
     --primary-green: #1b3e86;
@@ -113,8 +111,8 @@
     </div>
 
     <div class="card-body p-4 p-md-5">
-        <form method="POST" id="frm_create" action="{{ route('admin.employees.store') }}">
-            @csrf
+        <form method="POST" id="frm_create" action="<?php echo e(route('admin.employees.store')); ?>">
+            <?php echo csrf_field(); ?>
 
             <!-- Section 1: Identification -->
             <div class="form-section-header">
@@ -124,21 +122,35 @@
             <div class="row g-4 mb-4">
                 <!-- <div class="col-md-6">
                     <label for="c_employee_code" class="form-label">Employee Code *</label>
-                    <input type="text" id="c_employee_code" name="c_employee_code" value="{{ old('c_employee_code') }}"
+                    <input type="text" id="c_employee_code" name="c_employee_code" value="<?php echo e(old('c_employee_code')); ?>"
                         data-message="Please add Employee Code" class="form-control mandatory" placeholder="EMP-001">
-                    @error('c_employee_code')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_employee_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div> -->
 
                 <div class="col-md-6">
                     <label for="c_employee_name" class="form-label">Employee Name *</label>
-                    <input type="text" id="c_employee_name" name="c_employee_name" value="{{ old('c_employee_name') }}"
+                    <input type="text" id="c_employee_name" name="c_employee_name" value="<?php echo e(old('c_employee_name')); ?>"
                         data-message="Please enter Employee Name" class="form-control mandatory"
                         placeholder="Enter full name">
-                    @error('c_employee_name')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_employee_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -153,33 +165,49 @@
                     <select id="n_designation_id" name="n_designation_id" data-message="Please select a Designation"
                         class="form-select mandatory">
                         <option value="">Select Designation</option>
-                        @foreach($designations as $designation)
-                        @php
+                        <?php $__currentLoopData = $designations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $designation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                         $desigName = strtoupper(trim($designation->c_designation));
                         $storeRequired = in_array($desigName, ['CSA', 'C&A', 'SM']) ? 1 : 0;
-                        @endphp
-                        <!-- <option value="{{ $designation->n_designation_id }}" data-store="{{ $storeRequired }}"
-                            {{ old('n_designation_id') == $designation->n_designation_id ? 'selected' : '' }}>
-                            {{ $designation->c_designation }}
+                        ?>
+                        <!-- <option value="<?php echo e($designation->n_designation_id); ?>" data-store="<?php echo e($storeRequired); ?>"
+                            <?php echo e(old('n_designation_id') == $designation->n_designation_id ? 'selected' : ''); ?>>
+                            <?php echo e($designation->c_designation); ?>
+
                         </option> -->
-                        <option value="{{ $designation->n_designation_id }}"
-                            data-identifier="{{ $designation->identifier }}" data-store="{{ $storeRequired }}"
-                            {{ old('n_designation_id') == $designation->n_designation_id ? 'selected' : '' }}>
-                            {{ $designation->c_designation }}
+                        <option value="<?php echo e($designation->n_designation_id); ?>"
+                            data-identifier="<?php echo e($designation->identifier); ?>" data-store="<?php echo e($storeRequired); ?>"
+                            <?php echo e(old('n_designation_id') == $designation->n_designation_id ? 'selected' : ''); ?>>
+                            <?php echo e($designation->c_designation); ?>
+
                         </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
-                    @error('n_designation_id')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['n_designation_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="col-md-6">
                     <label for="c_employee_code" class="form-label">Employee Code *</label>
-                    <input type="text" id="c_employee_code" name="c_employee_code" value="{{ old('c_employee_code') }}"
+                    <input type="text" id="c_employee_code" name="c_employee_code" value="<?php echo e(old('c_employee_code')); ?>"
                         class="form-control" placeholder="Select designation" readonly>
-                    @error('c_employee_code')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_employee_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="col-md-6">
                     <label for="reporting_to" class="form-label">
@@ -187,18 +215,26 @@
                     </label>
                     <select name="reporting_to" id="reporting_to" class="form-select">
                         <option value="">Select Reporting Manager</option>
-                        @if(isset($employees))
-                        @foreach ($employees as $employee)
-                        <option value="{{ $employee->n_employee_id }}">
-                            {{ $employee->c_employee_name }}
+                        <?php if(isset($employees)): ?>
+                        <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($employee->n_employee_id); ?>">
+                            <?php echo e($employee->c_employee_name); ?>
+
                         </option>
-                        @endforeach
-                        @endif
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endif; ?>
                     </select>
 
-                    @error('reporting_to')
-                    <small class="text-danger">{{ $message }}</small>
-                    @enderror
+                    <?php $__errorArgs = ['reporting_to'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <small class="text-danger"><?php echo e($message); ?></small>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
             </div>
@@ -209,38 +245,66 @@
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <label for="account_number" class="form-label">Account Number</label>
-                    <input type="text" id="account_number" name="account_number" value="{{ old('account_number') }}"
+                    <input type="text" id="account_number" name="account_number" value="<?php echo e(old('account_number')); ?>"
                         data-message="Please add Account Number" class="form-control" placeholder="ACC-001">
 
-                    @error('account_number')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['account_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-6">
                     <label for="ifsc_code" class="form-label">IFSC Code</label>
-                    <input type="text" id="ifsc_code" name="ifsc_code" value="{{ old('ifsc_code') }}"
+                    <input type="text" id="ifsc_code" name="ifsc_code" value="<?php echo e(old('ifsc_code')); ?>"
                         data-message="Please enter IFSC Code" class="form-control" placeholder="Enter IFSC code">
-                    @error('ifsc_code')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['ifsc_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="col-md-6">
                     <label for="bank_name" class="form-label">Bank Name</label>
-                    <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}"
+                    <input type="text" id="bank_name" name="bank_name" value="<?php echo e(old('bank_name')); ?>"
                         data-message="Please add Bank name" class="form-control" placeholder="SBI">
 
-                    @error('bank_name')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['bank_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="col-md-6">
                     <label for="branch_name" class="form-label">Branch Name</label>
-                    <input type="text" id="branch_name" name="branch_name" value="{{ old('branch_name') }}"
+                    <input type="text" id="branch_name" name="branch_name" value="<?php echo e(old('branch_name')); ?>"
                         data-message="Please add Branch name" class="form-control" placeholder="KOCHI">
-                    @error('branch_name')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['branch_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -254,12 +318,19 @@
                 <div class="col-md-8">
                     <label for="c_employee_email" class="form-label">Email Address *</label>
                     <input type="email" id="c_employee_email" name="c_employee_email"
-                        value="{{ old('c_employee_email') }}" data-message="Please enter an Email Address"
+                        value="<?php echo e(old('c_employee_email')); ?>" data-message="Please enter an Email Address"
                         class="form-control mandatory" placeholder="example@company.com">
 
-                    @error('c_employee_email')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_employee_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="col-md-4">
@@ -267,13 +338,20 @@
                     <select id="c_status" name="c_status" class="form-select mandatory"
                         data-message="Please select Status">
                         <option value="">Select Status</option>
-                        <option value="Y" {{ old('c_status') === 'Y' ? 'selected' : '' }}>Active</option>
-                        <option value="N" {{ old('c_status') === 'N' ? 'selected' : '' }}>Inactive</option>
+                        <option value="Y" <?php echo e(old('c_status') === 'Y' ? 'selected' : ''); ?>>Active</option>
+                        <option value="N" <?php echo e(old('c_status') === 'N' ? 'selected' : ''); ?>>Inactive</option>
                     </select>
 
-                    @error('c_status')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="col-md-4">
                     <!-- <small class="text-muted d-block mt-1">
@@ -286,15 +364,15 @@
                 <button type="submit" id="btn_create" class="btn buttonSpc">
                     <i class="ti ti-plus me-1"></i> Create Employee
                 </button>
-                <a href="{{ route('admin.employees.index') }}"
+                <a href="<?php echo e(route('admin.employees.index')); ?>"
                     class="btn btn-outline-secondary btn-cancel-custom">Cancel</a>
             </div>
         </form>
     </div>
 </div>
 
-@push('scripts')
-<script src="{{asset('dist/js/custom.js?1')}}"></script>
+<?php $__env->startPush('scripts'); ?>
+<script src="<?php echo e(asset('dist/js/custom.js?1')); ?>"></script>
 <script>
 $(document).ready(function() {
 
@@ -315,7 +393,7 @@ $(document).ready(function() {
 
         // Generate employee code
         $.ajax({
-            url: "{{ url('/admin/employees/generate-code') }}/" + designation,
+            url: "<?php echo e(url('/admin/employees/generate-code')); ?>/" + designation,
             type: 'GET',
             success: function(response) {
                 $('#c_employee_code').val(response.employee_code);
@@ -354,5 +432,6 @@ $(document).ready(function() {
 
 });
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/employees/create.blade.php ENDPATH**/ ?>

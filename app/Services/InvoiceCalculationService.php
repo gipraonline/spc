@@ -10,91 +10,149 @@ class InvoiceCalculationService
         $totalQty = 0;
         $gstTotal = 0;
         $grandTotal = 0;
+        $totalDiscount = 0;
 
         $items = [];
 
         foreach ($order->orderProducts as $item) {
 
+            // =========================
             // Quantity
+            // =========================
+
             $qty = (float) ($item->qty ?? 0);
 
-            // GST-inclusive product price
-            $rateInclusive = (float) ($item->product_price ?? 0);
+            // =========================
+            // Product price
+            // =========================
+            // Same as JS:
+            // price * qty
 
-            // GST percentage
+            $price = (float) ($item->product_price ?? 0);
+
+            // =========================
+            // GST %
+            // =========================
+
             $gstPercentage = (float) (
                 $item->product?->n_gst_percentage ?? 0
             );
 
-            /*
-             * Calculate GST-exclusive rate
-             */
-            if ($gstPercentage > 0) {
+            // =========================
+            // Discount
+            // =========================
+            // Same as current JS:
+            // grossAmount - discount
+            //
+            // IMPORTANT:
+            // discount is treated as LINE discount,
+            // not per-unit discount.
 
-                $rateExclusive = $rateInclusive
-                    / (1 + ($gstPercentage / 100));
+            $discount = (float) ($item->discount ?? 0);
 
-            } else {
+            // =========================
+            // Gross amount
+            // =========================
 
-                $rateExclusive = $rateInclusive;
+            $grossAmount = $price * $qty;
+
+            // =========================
+            // Taxable amount
+            // =========================
+
+            $taxableAmount = $grossAmount - $discount;
+
+            if ($taxableAmount < 0) {
+                $taxableAmount = 0;
             }
 
-            /*
-             * GST per unit
-             */
-            $gstPerUnit = $rateInclusive - $rateExclusive;
+            // =========================
+            // GST amount
+            // =========================
 
-            /*
-             * Line totals
-             */
-            $amountInclusive = $rateInclusive * $qty;
-            $amountExclusive = $rateExclusive * $qty;
-            $gstAmount = $gstPerUnit * $qty;
+            $gstAmount =
+                $taxableAmount * ($gstPercentage / 100);
 
-            /*
-             * Running totals
-             */
-            $subtotal += $amountExclusive;
+            // =========================
+            // Final amount including GST
+            // =========================
+
+            $amountInclusive =
+                $taxableAmount + $gstAmount;
+
+            // =========================
+            // Running totals
+            // =========================
+
+            $subtotal += $grossAmount;
+
             $gstTotal += $gstAmount;
+
+            $totalDiscount += $discount;
+
             $totalQty += $qty;
+
             $grandTotal += $amountInclusive;
 
-            /*
-             * Store calculated item values
-             */
+            // =========================
+            // Store item calculation
+            // =========================
+
             $items[] = [
+
                 'product_name' => $item->product?->c_product_name ?? 'Product',
+
                 'hsn' => $item->product?->c_hsn_code ?? '-',
+
                 'qty' => $qty,
-                'rate_inclusive' => $rateInclusive,
-                'rate_exclusive' => $rateExclusive,
+
                 'unit' => $item->product?->c_unit ?? '-',
-                'amount_inclusive' => $amountInclusive,
-                'amount_exclusive' => $amountExclusive,
-                'gst_amount' => $gstAmount,
+
                 'gst_percentage' => $gstPercentage,
+
+                'rate_inclusive' => $price,
+
+                'rate_exclusive' => $price,
+
+                'discount' => $discount,
+
+                'discounted_price' => $taxableAmount,
+
+                'taxable_amount' => $taxableAmount,
+
+                'gst_amount' => $gstAmount,
+
+                'amount_inclusive' => $amountInclusive,
             ];
         }
-        /* * Convert grand total to words */ 
-        
-        $grandTotalWords = $this->numberToWords($grandTotal);
+
+        // =========================
+        // Amount in words
+        // =========================
+
+        $grandTotalWords =
+            $this->numberToWords($grandTotal);
 
         return [
+
             'items' => $items,
+
             'subtotal' => $subtotal,
+
             'total_qty' => $totalQty,
+
             'gst_total' => $gstTotal,
+
+            'total_discount' => $totalDiscount,
+
             'grand_total' => $grandTotal,
+
             'grand_total_words' => $grandTotalWords,
         ];
     }
 
-     /**
+    /**
      * Convert number to Indian currency words.
-     *
-     * Example:
-     * 1250.50
-     * => One Thousand Two Hundred Fifty Rupees and Fifty Paise Only
      */
     private function numberToWords($amount)
     {
@@ -102,35 +160,40 @@ class InvoiceCalculationService
 
         $rupees = (int) floor($amount);
 
-        $paise = (int) round(($amount - $rupees) * 100);
+        $paise = (int) round(
+            ($amount - $rupees) * 100
+        );
 
-        $rupeeWords = $this->convertIndianNumberToWords($rupees);
+        $rupeeWords =
+            $this->convertIndianNumberToWords($rupees);
 
         $result = '';
 
         if ($rupees > 0) {
-            $result .= $rupeeWords . ' Rupees';
+
+            $result .=
+                $rupeeWords.' Rupees';
+
         } else {
-            $result .= 'Zero Rupees';
+
+            $result .=
+                'Zero Rupees';
         }
 
         if ($paise > 0) {
-            $paiseWords = $this->convertIndianNumberToWords($paise);
 
-            $result .= ' and ' . $paiseWords . ' Paise';
+            $paiseWords =
+                $this->convertIndianNumberToWords($paise);
+
+            $result .=
+                ' and '.$paiseWords.' Paise';
         }
 
-        return $result . ' Only';
+        return $result.' Only';
     }
 
-
     /**
-     * Convert Indian number system:
-     *
-     * Crore
-     * Lakh
-     * Thousand
-     * Hundred
+     * Convert Indian number system.
      */
     private function convertIndianNumberToWords($number)
     {
@@ -141,6 +204,7 @@ class InvoiceCalculationService
         }
 
         $ones = [
+
             0 => '',
             1 => 'One',
             2 => 'Two',
@@ -164,6 +228,7 @@ class InvoiceCalculationService
         ];
 
         $tens = [
+
             2 => 'Twenty',
             3 => 'Thirty',
             4 => 'Forty',
@@ -178,57 +243,79 @@ class InvoiceCalculationService
 
         // Crore
         if ($number >= 10000000) {
-            $crore = intdiv($number, 10000000);
 
-            $words .= $this->convertIndianNumberToWords($crore)
-                . ' Crore ';
+            $crore =
+                intdiv($number, 10000000);
+
+            $words .=
+                $this->convertIndianNumberToWords($crore)
+                .' Crore ';
 
             $number %= 10000000;
         }
 
         // Lakh
         if ($number >= 100000) {
-            $lakh = intdiv($number, 100000);
 
-            $words .= $this->convertIndianNumberToWords($lakh)
-                . ' Lakh ';
+            $lakh =
+                intdiv($number, 100000);
+
+            $words .=
+                $this->convertIndianNumberToWords($lakh)
+                .' Lakh ';
 
             $number %= 100000;
         }
 
         // Thousand
         if ($number >= 1000) {
-            $thousand = intdiv($number, 1000);
 
-            $words .= $this->convertIndianNumberToWords($thousand)
-                . ' Thousand ';
+            $thousand =
+                intdiv($number, 1000);
+
+            $words .=
+                $this->convertIndianNumberToWords($thousand)
+                .' Thousand ';
 
             $number %= 1000;
         }
 
         // Hundred
         if ($number >= 100) {
-            $hundred = intdiv($number, 100);
 
-            $words .= $ones[$hundred] . ' Hundred ';
+            $hundred =
+                intdiv($number, 100);
+
+            $words .=
+                $ones[$hundred].' Hundred ';
 
             $number %= 100;
         }
 
         // 1 - 19
         if ($number > 0 && $number < 20) {
-            $words .= $ones[$number];
+
+            $words .=
+                $ones[$number];
+
         }
 
         // 20 - 99
         elseif ($number >= 20) {
-            $ten = intdiv($number, 10);
-            $one = $number % 10;
 
-            $words .= $tens[$ten];
+            $ten =
+                intdiv($number, 10);
+
+            $one =
+                $number % 10;
+
+            $words .=
+                $tens[$ten];
 
             if ($one > 0) {
-                $words .= ' ' . $ones[$one];
+
+                $words .=
+                    ' '.$ones[$one];
             }
         }
 

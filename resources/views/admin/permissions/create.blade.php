@@ -87,8 +87,6 @@
             'process-batch',
             'add-sale',
             'follow-up',
-            //Field Log
-            'check-in',
 
             // Dashboard Cards
             'employees-card',
@@ -96,6 +94,16 @@
             'products-card',
             'sales-card',
             'incentives-card',
+            // for both field log and dashboard
+            'check-in',
+            'check-out',
+            'working-hours',
+            'work-status',
+            'attendance',
+            'summary',
+            'my-orders',
+            'recent-orders',
+            'schedule',
 
 
             // Dashboard Data Cards

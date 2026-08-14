@@ -235,6 +235,11 @@
         color: #06f55ed8;
     }
 
+    .badge-status.returned {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+
     /* Pending - Yellow/Orange */
     .badge-status.pending {
         background-color: #fef3c7;
@@ -409,34 +414,39 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select Status</option>
 
-                                <option value="Pending"
-                                    <?php echo e(request('order_status') == 'Pending' ? 'selected' : ''); ?>>
+                                <option value="pending"
+                                    <?php echo e(request('order_status') == 'pending' ? 'selected' : ''); ?>>
                                     Pending
                                 </option>
 
-                                <option value="Approved"
-                                    <?php echo e(request('order_status') == 'Approved' ? 'selected' : ''); ?>>
+                                <option value="approved"
+                                    <?php echo e(request('order_status') == 'approved' ? 'selected' : ''); ?>>
                                     Approved
                                 </option>
 
-                                <option value="Dispatched"
-                                    <?php echo e(request('order_status') == 'Dispatched' ? 'selected' : ''); ?>>
+                                <option value="dispatched"
+                                    <?php echo e(request('order_status') == 'dispatched' ? 'selected' : ''); ?>>
                                     Dispatched
                                 </option>
 
-                                <option value="Shipped"
-                                    <?php echo e(request('order_status') == 'Shipped' ? 'selected' : ''); ?>>
+                                <option value="shipped"
+                                    <?php echo e(request('order_status') == 'shipped' ? 'selected' : ''); ?>>
                                     Shipped
                                 </option>
 
-                                <option value="Delivered"
-                                    <?php echo e(request('order_status') == 'Delivered' ? 'selected' : ''); ?>>
+                                <option value="delivered"
+                                    <?php echo e(request('order_status') == 'delivered' ? 'selected' : ''); ?>>
                                     Delivered
                                 </option>
 
-                                <option value="Completed"
-                                    <?php echo e(request('order_status') == 'Completed' ? 'selected' : ''); ?>>
+                                <option value="completed"
+                                    <?php echo e(request('order_status') == 'completed' ? 'selected' : ''); ?>>
                                     Completed
+                                </option>
+
+                                <option value="returned"
+                                    <?php echo e(request('order_status') == 'returned' ? 'selected' : ''); ?>>
+                                    Returned
                                 </option>
 
 
@@ -548,6 +558,8 @@ use Illuminate\Support\Facades\Crypt;
                                 <span class="badge-status delivered">Delivered</span>
                             <?php elseif($status == 'completed'): ?>
                                 <span class="badge-status completed">Completed</span>
+                            <?php elseif($status == 'returned'): ?>
+                                <span class="badge-status returned">Returned</span>
                             <?php elseif($status == 'pending'): ?>
                                 <span class="badge-status pending">Pending</span>
                             <?php endif; ?>

@@ -228,6 +228,8 @@
 
                         <th>District</th>
 
+                        <th>Pincode</th>
+
                         <th>State</th>
 
                         <th>Status</th>
@@ -268,6 +270,10 @@
                         <td class="border-bottom-0">
                             {{ $customer->district?->district_name ?? '-' }}
                         </td>
+                        <td class="border-bottom-0">
+                            {{ $customer->c_pincode ?? '-' }}
+                        </td>
+
 
                         <td class="border-bottom-0">
                             {{ $customer->state?->name ?? '-' }}

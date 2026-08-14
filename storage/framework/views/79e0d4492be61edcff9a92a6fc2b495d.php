@@ -547,16 +547,21 @@
         <div class="stats-grid">
 
             <!-- Check In Time -->
+            <!-- Check In Time -->
             <div class="dashboard-card stat-card">
+
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.check-in')): ?>
+
+                
                 <div class="stat-icon green">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5v12a2 2 0 002 2z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l2 2 4-4" />
                     </svg>
                 </div>
+
                 <div class="stat-details">
-                    <!-- Check In -->
                     <span class="stat-value green">
                         <?php echo e($checkInTime?->format('h:i A') ?? '--:-- --'); ?>
 
@@ -567,9 +572,32 @@
 
                     </span>
                 </div>
-            </div>
 
+                <?php else: ?>
+
+                
+                <div class="stat-icon green">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m0-6v2m0-8a4 4 0 014 4v2h1a2 2 0 012 2v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7a2 2 0 012-2h1V9a4 4 0 014-4z" />
+                    </svg>
+                </div>
+
+                <div class="stat-details">
+                    <span class="stat-value gray">
+                        Restricted
+                    </span>
+
+                    <span class="stat-subtext">
+                        No Permission
+                    </span>
+                </div>
+
+                <?php endif; ?>
+
+            </div>
             <!-- Check Out Time -->
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.check-out')): ?>
             <div class="dashboard-card stat-card">
                 <div class="stat-icon orange">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -590,8 +618,10 @@
                     </span>
                 </div>
             </div>
+            <?php endif; ?>
 
             <!-- Total Working Hours -->
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.working-hours')): ?>
             <div class="dashboard-card stat-card">
                 <div class="stat-icon blue">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -610,8 +640,10 @@
                     </span>
                 </div>
             </div>
+            <?php endif; ?>
 
             <!-- Work Status -->
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.work-status')): ?>
             <div class="dashboard-card stat-card">
                 <div class="stat-icon purple">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -635,10 +667,10 @@
             </div>
 
         </div>
-
+        <?php endif; ?>
         <!-- Middle Section (3 Cards) -->
         <div class="middle-grid">
-
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.attendance')): ?>
             <!-- Check In / Check Out Card -->
             <div class="dashboard-card">
                 <h2 class="card-title">Check In / Check Out</h2>
@@ -720,10 +752,12 @@
 
                 </div>
             </div>
+            <?php endif; ?>
 
 
 
             <!-- Today's Summary Card -->
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.summary')): ?>
             <div class="dashboard-card">
                 <h2 class="card-title">Today's Summary</h2>
 
@@ -738,7 +772,10 @@
                             </div>
                             <span class="summary-title">Orders Taken</span>
                         </div>
-                        <span class="summary-count">8</span>
+                        <span class="summary-count">
+                            <?php echo e($summary['ordersTaken']); ?>
+
+                        </span>
                     </div>
 
                     <div class="summary-item">
@@ -751,7 +788,7 @@
                             </div>
                             <span class="summary-title">Orders Completed</span>
                         </div>
-                        <span class="summary-count">6</span>
+                        <span class="summary-count"> <?php echo e($summary['ordersCompleted']); ?></span>
                     </div>
 
                     <div class="summary-item">
@@ -764,7 +801,7 @@
                             </div>
                             <span class="summary-title">Pending Orders</span>
                         </div>
-                        <span class="summary-count">2</span>
+                        <span class="summary-count"> <?php echo e($summary['pendingOrders']); ?></span>
                     </div>
 
                     <div class="summary-item">
@@ -777,7 +814,7 @@
                             </div>
                             <span class="summary-title">Customers Visited</span>
                         </div>
-                        <span class="summary-count">12</span>
+                        <span class="summary-count"><?php echo e($summary['customersVisited']); ?></span>
                     </div>
 
                     <div class="summary-item">
@@ -790,12 +827,14 @@
                             </div>
                             <span class="summary-title">Reports Submitted</span>
                         </div>
-                        <span class="summary-count">3</span>
+                        <span class="summary-count"><?php echo e($summary['reportsSubmitted']); ?></span>
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
 
             <!-- My Orders Card -->
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.my-orders')): ?>
             <div class="dashboard-card" style="display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <h2 class="card-title">My Orders</h2>
@@ -831,6 +870,7 @@
 
                 <button class="btn-action-outline btn-full-width" id="btnViewOrders">View All Orders</button>
             </div>
+            <?php endif; ?>
 
         </div>
 
@@ -838,6 +878,7 @@
         <div class="bottom-grid">
 
             <!-- Recent Orders Table -->
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.recent-orders')): ?>
             <div class="dashboard-card">
                 <h2 class="card-title">Recent Orders</h2>
 
@@ -886,8 +927,10 @@
                     </table>
                 </div>
             </div>
+            <?php endif; ?>
 
             <!-- Today's Schedule -->
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.schedule')): ?>
             <div class="dashboard-card">
                 <h2 class="card-title">Today's Schedule</h2>
 
@@ -933,6 +976,7 @@
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
 
         </div>
 

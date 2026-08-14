@@ -652,49 +652,49 @@
 
 
         {{-- ================= PRODUCTS ================= --}}
+        {{-- ================= PRODUCTS ================= --}}
 
         <table class="items">
 
             <thead>
-
                 <tr>
-
                     <th style="width: 5%;">
-                        Sl.<br>No.
+                        Sl No
                     </th>
 
-                    <th style="width: 25%;">
-                        Description of Goods
+                    <th style="width: 22%;">
+                        Description of goods
                     </th>
 
-                    <th style="width: 12%;">
-                        HSN/SAC
+                    <th style="width: 11%;">
+                        HSN Code
                     </th>
 
-                    <th style="width: 10%;">
+                    <th style="width: 9%;">
                         Quantity
                     </th>
 
-                    <th style="width: 11%;">
-                        Rate<br>(Incl. of Tax)
-                    </th>
-
-                    <th style="width: 11%;">
-                        Rate<br>
-                    </th>
-
                     <th style="width: 8%;">
-                        Per
+                        Unit
                     </th>
 
-                    <th style="width: 18%;">
-                        Amount
+                    <th style="width: 11%;">
+                        Price
                     </th>
 
+                    <th style="width: 10%;">
+                        Discount
+                    </th>
+
+                    <th style="width: 12%;">
+                        Discounted price
+                    </th>
+
+                    <th style="width: 12%;">
+                        Taxable Amount
+                    </th>
                 </tr>
-
             </thead>
-
 
             <tbody>
 
@@ -703,121 +703,102 @@
                 <tr>
 
                     {{-- SL NO --}}
-
                     <td>
                         {{ $index + 1 }}
                     </td>
 
-
-                    {{-- PRODUCT NAME --}}
-
+                    {{-- DESCRIPTION --}}
                     <td class="description">
                         {{ $item['product_name'] }}
                     </td>
 
-
-                    {{-- HSN --}}
-
+                    {{-- HSN CODE --}}
                     <td>
                         {{ $item['hsn'] }}
                     </td>
 
-
                     {{-- QUANTITY --}}
-
                     <td>
-                        {{ number_format($item['qty'], 0) }} Nos
+                        {{ number_format($item['qty'], 0) }}
                     </td>
 
-
-                    {{-- RATE INCLUDING GST --}}
-
-                    <td>
-                        ₹ {{ number_format($item['rate_inclusive'], 2) }}
-                    </td>
-
-
-                    {{-- RATE EXCLUDING GST --}}
-
-                    <td>
-                        ₹ {{ number_format($item['rate_exclusive'], 2) }}
-                    </td>
-
-
-                    {{-- PRODUCT UNIT --}}
-
+                    {{-- UNIT --}}
                     <td>
                         {{ $item['unit'] }}
                     </td>
 
-
-                    {{-- TOTAL AMOUNT INCLUDING GST --}}
-
+                    {{-- PRICE --}}
                     <td class="right">
-                        ₹ {{ number_format($item['amount_inclusive'], 2) }}
+                        ₹ {{ number_format($item['rate'] ?? $item['rate_inclusive'] ?? 0, 2) }}
                     </td>
 
+                    {{-- DISCOUNT --}}
+                    <td class="right">
+                        ₹ {{ number_format($item['discount'] ?? 0, 2) }}
+                    </td>
+
+                    {{-- DISCOUNTED PRICE --}}
+                    <td class="right">
+                        ₹ {{ number_format(
+        $item['discounted_price']
+        ?? (($item['rate'] ?? $item['rate_inclusive'] ?? 0) - ($item['discount'] ?? 0)),
+        2
+    ) }}
+                    </td>
+
+                    {{-- PRICE INCLUDING GST --}}
+                    <td class="right">
+                        ₹ {{ number_format($item['amount_inclusive'] ?? 0, 2) }}
+                    </td>
                 </tr>
 
                 @endforeach
 
             </tbody>
 
-
             <tfoot>
 
-                {{-- TAXABLE VALUE --}}
-
+                {{-- TAXABLE AMOUNT --}}
                 <tr>
 
-                    <td colspan="6"></td>
+                    <td colspan="7"></td>
 
                     <td class="summary-label">
-                        Taxable Value
+                        Taxable amount
                     </td>
 
                     <td class="summary-value">
-                        {{ number_format($calculation['subtotal'], 2) }}
+                        ₹ {{ number_format($calculation['subtotal'], 2) }}
                     </td>
 
                 </tr>
 
-
                 {{-- GST --}}
-
                 <tr>
 
-                    <td colspan="6"></td>
+                    <td colspan="7"></td>
 
                     <td class="summary-label">
                         GST
                     </td>
 
                     <td class="summary-value">
-                        {{ number_format($calculation['gst_total'], 2) }}
+                        ₹ {{ number_format($calculation['gst_total'], 2) }}
                     </td>
 
                 </tr>
 
-
-                {{-- TOTAL --}}
-
+                {{-- AMOUNT PAYABLE --}}
                 <tr>
 
-                    <td colspan="3" class="total-label">
-                        Total
-                    </td>
+                    <td colspan="7"></td>
 
                     <td class="total-label">
-                        {{ number_format($calculation['total_qty'], 0) }} Nos
-                    </td>
-
-                    <td colspan="3" class="total-label">
-                        Total Amount
+                        Amount Payable
                     </td>
 
                     <td class="total-value">
-                        {{ number_format($calculation['grand_total'], 2) }}
+                        ₹ {{ number_format($calculation['grand_total'], 2) }}
                     </td>
 
                 </tr>

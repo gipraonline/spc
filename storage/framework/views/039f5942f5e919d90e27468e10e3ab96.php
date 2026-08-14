@@ -664,49 +664,49 @@
 
 
         
+        
 
         <table class="items">
 
             <thead>
-
                 <tr>
-
                     <th style="width: 5%;">
-                        Sl.<br>No.
+                        Sl No
                     </th>
 
-                    <th style="width: 25%;">
-                        Description of Goods
+                    <th style="width: 22%;">
+                        Description of goods
                     </th>
 
-                    <th style="width: 12%;">
-                        HSN/SAC
+                    <th style="width: 11%;">
+                        HSN Code
                     </th>
 
-                    <th style="width: 10%;">
+                    <th style="width: 9%;">
                         Quantity
                     </th>
 
-                    <th style="width: 11%;">
-                        Rate<br>(Incl. of Tax)
-                    </th>
-
-                    <th style="width: 11%;">
-                        Rate<br>
-                    </th>
-
                     <th style="width: 8%;">
-                        Per
+                        Unit
                     </th>
 
-                    <th style="width: 18%;">
-                        Amount
+                    <th style="width: 11%;">
+                        Price
                     </th>
 
+                    <th style="width: 10%;">
+                        Discount
+                    </th>
+
+                    <th style="width: 12%;">
+                        Discounted price
+                    </th>
+
+                    <th style="width: 12%;">
+                        Taxable Amount
+                    </th>
                 </tr>
-
             </thead>
-
 
             <tbody>
 
@@ -715,130 +715,113 @@
                 <tr>
 
                     
-
                     <td>
                         <?php echo e($index + 1); ?>
 
                     </td>
 
-
                     
-
                     <td class="description">
                         <?php echo e($item['product_name']); ?>
 
                     </td>
 
-
                     
-
                     <td>
                         <?php echo e($item['hsn']); ?>
 
                     </td>
 
-
                     
-
                     <td>
-                        <?php echo e(number_format($item['qty'], 0)); ?> Nos
-                    </td>
-
-
-                    
-
-                    <td>
-                        ₹ <?php echo e(number_format($item['rate_inclusive'], 2)); ?>
+                        <?php echo e(number_format($item['qty'], 0)); ?>
 
                     </td>
 
-
                     
-
-                    <td>
-                        ₹ <?php echo e(number_format($item['rate_exclusive'], 2)); ?>
-
-                    </td>
-
-
-                    
-
                     <td>
                         <?php echo e($item['unit']); ?>
 
                     </td>
 
-
                     
-
                     <td class="right">
-                        ₹ <?php echo e(number_format($item['amount_inclusive'], 2)); ?>
+                        ₹ <?php echo e(number_format($item['rate'] ?? $item['rate_inclusive'] ?? 0, 2)); ?>
 
                     </td>
 
+                    
+                    <td class="right">
+                        ₹ <?php echo e(number_format($item['discount'] ?? 0, 2)); ?>
+
+                    </td>
+
+                    
+                    <td class="right">
+                        ₹ <?php echo e(number_format(
+        $item['discounted_price']
+        ?? (($item['rate'] ?? $item['rate_inclusive'] ?? 0) - ($item['discount'] ?? 0)),
+        2
+    )); ?>
+
+                    </td>
+
+                    
+                    <td class="right">
+                        ₹ <?php echo e(number_format($item['amount_inclusive'] ?? 0, 2)); ?>
+
+                    </td>
                 </tr>
 
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
             </tbody>
 
-
             <tfoot>
 
                 
-
                 <tr>
 
-                    <td colspan="6"></td>
+                    <td colspan="7"></td>
 
                     <td class="summary-label">
-                        Taxable Value
+                        Taxable amount
                     </td>
 
                     <td class="summary-value">
-                        <?php echo e(number_format($calculation['subtotal'], 2)); ?>
+                        ₹ <?php echo e(number_format($calculation['subtotal'], 2)); ?>
 
                     </td>
 
                 </tr>
 
-
                 
-
                 <tr>
 
-                    <td colspan="6"></td>
+                    <td colspan="7"></td>
 
                     <td class="summary-label">
                         GST
                     </td>
 
                     <td class="summary-value">
-                        <?php echo e(number_format($calculation['gst_total'], 2)); ?>
+                        ₹ <?php echo e(number_format($calculation['gst_total'], 2)); ?>
 
                     </td>
 
                 </tr>
 
-
                 
-
                 <tr>
 
-                    <td colspan="3" class="total-label">
-                        Total
-                    </td>
+                    <td colspan="7"></td>
 
                     <td class="total-label">
-                        <?php echo e(number_format($calculation['total_qty'], 0)); ?> Nos
-                    </td>
-
-                    <td colspan="3" class="total-label">
-                        Total Amount
+                        Amount Payable
                     </td>
 
                     <td class="total-value">
-                        <?php echo e(number_format($calculation['grand_total'], 2)); ?>
+                        ₹ <?php echo e(number_format($calculation['grand_total'], 2)); ?>
 
                     </td>
 

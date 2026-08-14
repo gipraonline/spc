@@ -725,9 +725,18 @@
         </div>
     </div>
 </div>
-<
 
 
+
+
+<style>
+    @media screen and (max-width:767px){
+       .form-control, .form-select {
+        width: stretch;
+        min-width: 100%;
+    }
+    }
+</style>
 
 
 

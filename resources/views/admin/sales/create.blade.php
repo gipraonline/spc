@@ -2,312 +2,357 @@
 
 @push('styles')
 <style>
-    /* Creative Light Theme & Green Palette */
-    :root {
-        --bg-body: #f4f8f5;
-        --card-bg: #ffffff;
-        --primary-green: #0f5132;
-        --emerald-green: #059669;
-        --light-green-bg: #f0fdf4;
-        --border-green: #d1e7dd;
-        --text-dark: #1e293b;
-        --text-muted: #64748b;
-        --border-slate: #e2e8f0;
+/* Creative Light Theme & Green Palette */
+:root {
+    --bg-body: #f4f8f5;
+    --card-bg: #ffffff;
+    --primary-green: #0f5132;
+    --emerald-green: #059669;
+    --light-green-bg: #f0fdf4;
+    --border-green: #d1e7dd;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --border-slate: #e2e8f0;
+}
+
+/* Main Card Container */
+.card {
+    border-radius: 14px;
+    border: 1px solid var(--border-slate);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    background-color: var(--card-bg);
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+/* Form Section Box Styling */
+.form-section,
+.form-box,
+.border.rounded {
+    border: 1px solid var(--border-slate) !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    margin-bottom: 24px !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(15, 81, 50, 0.02);
+}
+
+/* Section Titles */
+.section-title,
+.form-section-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-green);
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Badge Pills */
+.badge-new {
+    background-color: #059669;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-updated {
+    background-color: #10b981;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-renamed {
+    background-color: #047857;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Form Controls & Inputs */
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #1e293b;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--emerald-green);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    outline: none;
+}
+
+/* Highlighted Readonly Inputs */
+.order-number,
+.advisor-highlight {
+    background-color: #f4f8f5 !important;
+    color: var(--primary-green) !important;
+    font-weight: 700 !important;
+    border-color: var(--border-green) !important;
+}
+
+/* Radio Button Cards (Payment & Order Status) */
+.payment-option,
+.order-status-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.payment-option:hover,
+.order-status-option:hover {
+    background-color: #f4f8f5;
+    border-color: var(--primary-green);
+}
+
+.payment-option input[type="radio"],
+.order-status-option input[type="radio"] {
+    margin: 0;
+    accent-color: var(--primary-green);
+    width: 16px;
+    height: 16px;
+}
+
+.payment-option input[type="radio"]:checked+label,
+.order-status-option input[type="radio"]:checked+label {
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+/* Primary & Secondary Buttons */
+.buttonSpc,
+#addRow,
+#btn_create {
+    background: linear-gradient(135deg, #0f5132 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 22px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    transition: all 0.2s ease;
+}
+
+.buttonSpc:hover,
+#addRow:hover,
+#btn_create:hover {
+    background: linear-gradient(135deg, #0b3e26 0%, #047857 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+}
+
+.btn-outline-secondary {
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
+}
+
+/* Product Table Styling */
+#productTable {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-slate);
+}
+
+#productTable thead th {
+    background-color: #f8faf8;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-slate);
+}
+
+#productTable tbody td {
+    padding: 10px 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.removeRow {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+}
+
+.removeRow:hover {
+    background-color: #b91c1c !important;
+}
+
+/* Product Details Summary Box */
+.product-summary-box {
+    background-color: #f8faf8;
+    border: 1px solid var(--border-slate);
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.summary-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.summary-line:last-child {
+    margin-bottom: 0;
+}
+
+.summary-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    flex: 1;
+}
+
+.summary-input {
+    width: 140px;
+    text-align: right;
+    font-weight: 600;
+    background-color: #ffffff !important;
+}
+
+.summary-line.highlight-green {
+    background-color: #e8f5e9;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #a7f3d0;
+    margin-top: 8px;
+}
+
+.summary-line.highlight-green .summary-label {
+    color: #0f5132;
+    font-size: 14px;
+}
+
+.summary-line.highlight-green .summary-input {
+    color: #0f5132 !important;
+    font-size: 16px;
+    font-weight: 800;
+    border-color: #a7f3d0;
+}
+
+/* Modal Backdrop Z-Index */
+#approveModal {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+/* Mobile Responsive Optimizations */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 16px !important;
     }
 
-    /* Main Card Container */
-    .card {
-        border-radius: 14px;
-        border: 1px solid var(--border-slate);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-        background-color: var(--card-bg);
+    .form-section,
+    .form-box,
+    .border.rounded {
+        padding: 16px !important;
+        margin-bottom: 16px !important;
     }
 
-    .card-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--primary-green);
-    }
-
-    /* Form Section Box Styling */
-    .form-section, .form-box, .border.rounded {
-        border: 1px solid var(--border-slate) !important;
-        border-radius: 12px !important;
-        padding: 24px !important;
-        margin-bottom: 24px !important;
-        background-color: #ffffff !important;
-        box-shadow: 0 2px 10px rgba(15, 81, 50, 0.02);
-    }
-
-    /* Section Titles */
-    .section-title, .form-section-header {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--primary-green);
-        border-bottom: 1px solid #f1f5f9;
-        padding-bottom: 12px;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    /* Badge Pills */
-    .badge-new {
-        background-color: #059669;
-        color: #ffffff;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .badge-updated {
-        background-color: #10b981;
-        color: #ffffff;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .badge-renamed {
-        background-color: #047857;
-        color: #ffffff;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    /* Form Controls & Inputs */
-    .form-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #334155;
-        margin-bottom: 6px;
-    }
-
-    .form-control, .form-select {
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 14px;
-        color: #1e293b;
-        background-color: #ffffff;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: var(--emerald-green);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
-        outline: none;
-    }
-
-    /* Highlighted Readonly Inputs */
-    .order-number, .advisor-highlight {
-        background-color: #f4f8f5 !important;
-        color: var(--primary-green) !important;
-        font-weight: 700 !important;
-        border-color: var(--border-green) !important;
-    }
-
-    /* Radio Button Cards (Payment & Order Status) */
-    .payment-option, .order-status-option {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: 1.5px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 10px 16px;
-        margin-right: 10px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        background-color: #ffffff;
-        transition: all 0.2s ease;
-    }
-
-    .payment-option:hover, .order-status-option:hover {
-        background-color: #f4f8f5;
-        border-color: var(--primary-green);
-    }
-
-    .payment-option input[type="radio"], .order-status-option input[type="radio"] {
-        margin: 0;
-        accent-color: var(--primary-green);
-        width: 16px;
-        height: 16px;
-    }
-
-    .payment-option input[type="radio"]:checked + label,
-    .order-status-option input[type="radio"]:checked + label {
-        color: var(--primary-green);
-        font-weight: 700;
-    }
-
-    /* Primary & Secondary Buttons */
-    .buttonSpc, #addRow, #btn_create {
-        background: linear-gradient(135deg, #0f5132 0%, #059669 100%) !important;
-        color: #ffffff !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 10px 22px !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-        transition: all 0.2s ease;
-    }
-
-    .buttonSpc:hover, #addRow:hover, #btn_create:hover {
-        background: linear-gradient(135deg, #0b3e26 0%, #047857 100%) !important;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
-    }
-
-    .btn-outline-secondary {
-        border: 1px solid #cbd5e1 !important;
-        color: #475569 !important;
-        border-radius: 8px !important;
-        padding: 10px 20px !important;
-        font-weight: 600 !important;
-    }
-
-    .btn-outline-secondary:hover {
-        background-color: #f8fafc !important;
-        color: #1e293b !important;
-    }
-
-    /* Product Table Styling */
-    #productTable {
-        border-collapse: separate;
-        border-spacing: 0;
+    .payment-option,
+    .order-status-option {
         width: 100%;
-        border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid var(--border-slate);
+        margin-right: 0;
     }
 
-    #productTable thead th {
-        background-color: #f8faf8;
-        color: #334155;
-        font-size: 13px;
-        font-weight: 700;
-        padding: 12px 14px;
-        border-bottom: 1px solid var(--border-slate);
-    }
-
-    #productTable tbody td {
-        padding: 10px 12px;
-        vertical-align: middle;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .removeRow {
-        background-color: #dc2626 !important;
-        color: #ffffff !important;
-        border: none !important;
-        border-radius: 6px !important;
-        padding: 6px 12px !important;
-    }
-
-    .removeRow:hover {
-        background-color: #b91c1c !important;
-    }
-
-    /* Product Details Summary Box */
     .product-summary-box {
-        background-color: #f8faf8;
-        border: 1px solid var(--border-slate);
-        border-radius: 12px;
-        padding: 18px;
-    }
-
-    .summary-line {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 12px;
-        gap: 12px;
-    }
-
-    .summary-line:last-child {
-        margin-bottom: 0;
-    }
-
-    .summary-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #475569;
-        flex: 1;
+        width: 100% !important;
+        margin-top: 16px;
     }
 
     .summary-input {
-        width: 140px;
-        text-align: right;
-        font-weight: 600;
-        background-color: #ffffff !important;
+        width: 110px;
     }
+}
+.tablescrolll{
+    overflow-x: scroll;
+}
 
-    .summary-line.highlight-green {
-        background-color: #e8f5e9;
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #a7f3d0;
-        margin-top: 8px;
-    }
 
-    .summary-line.highlight-green .summary-label {
-        color: #0f5132;
-        font-size: 14px;
-    }
+#productTable tbody td input, #productTable tbody td select{
+   width: stretch;
+        min-width: 100%;
+}
 
-    .summary-line.highlight-green .summary-input {
-        color: #0f5132 !important;
-        font-size: 16px;
-        font-weight: 800;
-        border-color: #a7f3d0;
-    }
 
-    /* Modal Backdrop Z-Index */
-    #approveModal {
-        z-index: 1060 !important;
-    }
+#productTable thead th {
 
-    .modal-backdrop {
-        z-index: 1050 !important;
-    }
-
-    /* Mobile Responsive Optimizations */
-    @media (max-width: 768px) {
-        .card-body {
-            padding: 16px !important;
-        }
-
-        .form-section, .form-box, .border.rounded {
-            padding: 16px !important;
-            margin-bottom: 16px !important;
-        }
-
-        .payment-option, .order-status-option {
-            width: 100%;
-            margin-right: 0;
-        }
-
-        .product-summary-box {
-            width: 100% !important;
-            margin-top: 16px;
-        }
-
-        .summary-input {
-            width: 110px;
-        }
-    }
+    white-space: nowrap;
+}
+@media screen and (max-width:767px) {
+.summary-line{
+    flex-wrap: wrap;
+}
+.text-end {
+    text-align: left !important;
+}
+.section-title, .form-section-header{
+    flex-wrap: wrap
+}
+.tablescrolll{
+    overflow-x: scroll;
+}
+}
 </style>
 @endpush
 
@@ -338,7 +383,8 @@ use Illuminate\Support\Facades\Crypt;
         </div>
         @endif
 
-        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}" enctype="multipart/form-data">
+        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}"
+            enctype="multipart/form-data">
             @csrf
 
             <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
@@ -369,10 +415,17 @@ use Illuminate\Support\Facades\Crypt;
                             Booklet Serial No *
                         </label>
                         <div class="position-relative">
-                            <input type="text" name="c_booklet_serial_no" placeholder="BK-2026-0417" class="form-control order-number fw-bold text-success"
-                                value="{{ old('c_booklet_serial_no', isset($sale->c_booklet_serial_no) ? $sale->c_booklet_serial_no : '') }}" {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
+                            <input type="text" name="c_order_no" placeholder="BK-2026-0417"
+                                class="form-control order-number fw-bold text-success"
+                                value="{{ old('c_order_no', isset($sale->c_order_no) ? $sale->c_order_no : '') }}"
+                                {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
                         </div>
-                        <small class="text-success fs-1 mt-1 d-block">✓ Booklet Serial No is available.</small>
+                        @error('c_order_no')
+                        <div class="text-danger mt-1 fs-2">
+                            {{ $message }}
+                        </div>
+
+                        @enderror
                     </div>
 
                 </div>
@@ -387,21 +440,23 @@ use Illuminate\Support\Facades\Crypt;
                         </label>
 
                         @if($isFarmCareAdvisor)
-                            <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}" readonly>
-                            @else
-                            <select name="farm_care_advisor_id" class="form-control mandatory">
-                                <option value="">Select Farm Care Adviser</option>
-                                @foreach($employees as $employee)
-                                <option value="{{ $employee->n_employee_id }}" {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
-                                    {{ $employee->c_employee_name }}
-                                </option>
-                                @endforeach
-                            </select>
+                        <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}"
+                            readonly>
+                        @else
+                        <select name="farm_care_advisor_id" class="form-control mandatory">
+                            <option value="">Select Farm Care Adviser</option>
+                            @foreach($employees as $employee)
+                            <option value="{{ $employee->n_employee_id }}"
+                                {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
+                                {{ $employee->c_employee_name }}
+                            </option>
+                            @endforeach
+                        </select>
                         @endif
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
 
-                     <div class="col-md-6 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">
                             Sales Order Booklet Proof *
                         </label>
@@ -428,101 +483,104 @@ use Illuminate\Support\Facades\Crypt;
                     </button>
                     @endif
                 </div>
-<div class="table-responsive">
-                    <table class="table table-bordered align-middle" id="productTable">
+                <div class="tablescrolll">
+                    <table class="table table-bordered table-responsive align-middle" id="productTable">
                         <thead class="table-light">
                             <tr>
                                 <th width="25%">Product</th>
+                                <th width="12%">HSN Code</th>
                                 <th width="12%">Price</th>
                                 <th width="10%">Quantity</th>
+                                <th width="13%">Unit</th>
                                 <th width="12%">Discount</th>
                                 <th width="10%">GST %</th>
                                 <th width="13%">GST Amount</th>
+                                <th width="13%">Discounted Price</th>
                                 <th width="10%">MRP</th>
                                 <th width="8%">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if(isset($sale->orderProducts) && count($sale->orderProducts) > 0)
-                                @foreach($sale->orderProducts as $key=>$val)
-                                    <tr>
-                                        <td>
-                                            <select name="products[{{ $key }}][product_id]"
-                                                    class="form-control product mandatory">
+                            @foreach($sale->orderProducts as $key=>$val)
+                            <tr>
+                                <td>
+                                    <select name="products[{{ $key }}][product_id]"
+                                        class="form-control product mandatory">
 
-                                                <option value="">Select Product</option>
+                                        <option value="">Select Product</option>
 
-                                                @foreach($products as $product)
-                                                    <option value="{{ $product->n_product_id }}"
-                                                        data-price="{{ $product->n_mrp }}"
-                                                        data-gst="{{ $product->n_gst_percentage ?? 0 }}"
-                                                        {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
-                                                        {{ $product->c_product_name }}
-                                                    </option>
-                                                @endforeach
+                                        @foreach($products as $product)
 
-                                            </select>
-                                        </td>
+                                        <option value="{{ $product->n_product_id }}" data-price="{{ $product->n_mrp }}"
+                                            data-gst="{{ $product->n_gst_percentage ?? 0 }}"
+                                            {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
+                                            {{ $product->c_product_name }}
+                                        </option>
+                                        @endforeach
 
-                                        <td>
-                                            <input type="text"
-                                                name="products[{{ $key }}][product_price]"
-                                                class="form-control price"
-                                                value="{{ $val->product_price }}"
-                                                readonly>
-                                        </td>
+                                    </select>
+                                </td>
 
-                                        <td>
-                                            <input type="number"
-                                                name="products[{{ $key }}][qty]"
-                                                class="form-control qty"
-                                                value="{{ $val->qty }}"
-                                                min="1">
-                                        </td>
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][c_hsn_code]"
+                                        class="form-control c_hsn_code" value="{{ $val->c_hsn_code }}" readonly>
+                                </td>
 
-                                        <td>
-                                            <input type="number"
-                                                name="products[{{ $key }}][discount]"
-                                                class="form-control discount"
-                                                value="{{ $val->discount ?? '0.00' }}"
-                                                step="">
-                                        </td>
 
-                                        <!-- Product GST % -->
-                                        <td>
-                                            <input type="number"
-                                                name="products[{{ $key }}][n_gst_percentage]"
-                                                class="form-control gst_percentage"
-                                                value="{{ $val->n_gst_percentage ?? 0 }}"
-                                                step="0.01"
-                                                readonly>
-                                        </td>
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][product_price]"
+                                        class="form-control price" value="{{ $val->product_price }}" readonly>
+                                </td>
 
-                                        <!-- Product GST Amount -->
-                                        <td>
-                                            <input type="text"
-                                                name="products[{{ $key }}][gst_amount]"
-                                                class="form-control gst_amount"
-                                                value="{{ $val->gst_amount ?? '0.00' }}"
-                                                readonly>
-                                        </td>
+                                <td>
+                                    <input type="number" name="products[{{ $key }}][qty]" class="form-control qty"
+                                        value="{{ $val->qty }}" min="1">
+                                </td>
 
-                                        <td>
-                                            <input type="text"
-                                                name="products[{{ $key }}][product_total]"
-                                                class="form-control total"
-                                                value="{{ $val->product_total }}"
-                                                readonly>
-                                        </td>
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][c_unit]"
+                                        class="form-control c_unit" value="{{ $val->c_unit }}" readonly>
+                                </td>
 
-                                        <td class="text-center">
-                                            <button type="button"
-                                                    class="btn btn-danger btn-sm removeRow">
-                                                <i class="ti ti-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                                <td>
+                                    <input type="number" name="products[{{ $key }}][discount]"
+                                        class="form-control discount" value="{{ $val->discount ?? '0.00' }}" step="">
+                                </td>
+
+                                <!-- Product GST % -->
+                                <td>
+                                    <input type="number" name="products[{{ $key }}][n_gst_percentage]"
+                                        class="form-control gst_percentage" value="{{ $val->n_gst_percentage ?? 0 }}"
+                                        step="0.01" readonly>
+                                </td>
+
+                                <!-- Product GST Amount -->
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][gst_amount]"
+                                        class="form-control gst_amount" value="{{ $val->gst_amount ?? '0.00' }}"
+                                        readonly>
+                                </td>
+
+                                <!-- Discounted Price -->
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][discounted_price]"
+                                        class="form-control discounted_price" value="{{ $val->discounted_price ?? '0.00' }}"
+                                        readonly>
+                                </td>
+
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][product_total]"
+                                        class="form-control total" value="{{ $val->product_total }}" readonly>
+                                </td>
+
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm removeRow">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            @endforeach
 
                             @endif
                         </tbody>
@@ -541,55 +599,48 @@ use Illuminate\Support\Facades\Crypt;
                                     Total Sales Amount
                                 </span>
 
-                                <input type="text"
-                                    name="n_total_sales_amount"
-                                    class="form-control summary-input text-end"
-                                    id="summaryTotalSales"
+                                <input type="text" name="n_total_sales_amount"
+                                    class="form-control summary-input text-end" id="summaryTotalSales"
                                     value="{{ old('n_total_sales_amount', $sale->n_total_sales_amount ?? '0.00') }}"
                                     readonly>
                             </div>
 
-                            <!-- Product Discount Total -->
+                           {{--  <!-- Product Discount Total -->
                             <div class="summary-line">
                                 <span class="summary-label">
                                     Product Discount Total
                                 </span>
 
-                                <input type="text"
-                                    name="n_product_discount_total"
-                                    class="form-control summary-input text-end"
-                                    id="summaryProductDiscount"
+                                <input type="text" name="n_product_discount_total"
+                                    class="form-control summary-input text-end" id="summaryProductDiscount"
                                     value="{{ old('n_product_discount_total', $sale->n_product_discount_total ?? '0.00') }}"
                                     readonly>
-                            </div>
+                            </div> --}}
 
                             <!-- Additional Discount -->
-                          {{--   <div class="summary-line">
+                            <div class="summary-line">
                                 <span class="summary-label">
-                                    Additional Discount
+                                    Total GST
 
                                 </span>
 
                                 <input type="number"
-                                    name="n_additional_discount"
+                                    name="n_total_gst"
                                     class="form-control summary-input text-end"
-                                    id="summaryAdditionalDiscount"
-                                    value="{{ old('n_additional_discount', $sale->n_additional_discount ?? '0.00') }}"
-                                    step="0.01"
-                                    min="0">
-                            </div> --}}
+                                    id="summaryGstAmount"
+                                    value="{{ old('n_total_gst', $sale->n_total_gst ?? '0.00') }}"
+                            step="0.01"
+                            min="0">
+                            </div>
                             <!-- Total Discount -->
                             <div class="summary-line">
                                 <span class="summary-label">
                                     Total Discount
                                 </span>
 
-                                <input type="text"
-                                    name="n_total_discount"
-                                    class="form-control summary-input text-end"
+                                <input type="text" name="n_product_discount_total" class="form-control summary-input"
                                     id="summaryTotalDiscount"
-                                    value="{{ old('n_total_discount', $sale->n_total_discount ?? '0.00') }}"
-                                    >
+                                    value="{{ old('n_total_discount', $sale->n_product_discount_total ?? '0.00') }}">
                             </div>
 
                             <!-- Net Sales Amount -->
@@ -598,17 +649,14 @@ use Illuminate\Support\Facades\Crypt;
                                     Net Sales Amount
                                 </span>
 
-                                <input type="text"
-                                    name="n_net_sales_amount"
-                                    class="form-control summary-input text-end fw-bold text-success"
-                                    id="summaryNetSales"
-                                    value="{{ old('n_net_sales_amount', $sale->n_net_sales_amount ?? '0.00') }}"
-                                    readonly>
+                                <input type="text" name="n_net_sales_amount"
+                                    class="form-control summary-input text-end fw-bold text-success" id="summaryNetSales"
+                                    value="{{ old('n_net_sales_amount', $sale->n_net_sales_amount ?? '0.00') }}" readonly>
                             </div>
 
-                        </div>
                     </div>
                 </div>
+            </div>
 
             </div>
 
@@ -813,7 +861,7 @@ use Illuminate\Support\Facades\Crypt;
                 <div class="row g-4 mt-1">
                     <div class="col-md-4">
                         <label class="form-label">
-                            Amount to Pay * <span class="badge-new">NEW</span>
+                            Amount to Pay *
                         </label>
                         <div class="input-group">
                             <span class="input-group-text bg-light text-success fw-bold">₹</span>
@@ -824,14 +872,14 @@ use Illuminate\Support\Facades\Crypt;
 
                     <div class="col-md-4">
                         <label class="form-label">
-                            Transaction ID * <span class="badge-new">NEW</span>
+                            Transaction ID *
                         </label>
                         <input type="text" name="c_transaction_id" class="form-control" placeholder="Enter Transaction / UTR / Reference No">
                     </div>
 
                     <div class="col-md-4" id="payment_image" >
                         <label class="form-label">
-                            Transaction Proof * <span class="badge-updated">UPDATED</span>
+                            Transaction Proof *
                         </label>
                         <input type="file" name="payment_image" class="form-control">
                     </div>
@@ -934,7 +982,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 <div class="form-section-header mb-3">
                     <i class="ti ti-map-pin fs-5"></i>
-                    SPC Organic Clinic / Franchise / Stock Point Details <span class="badge-renamed">RENAMED</span>
+                    SPC Organic Clinic / Franchise / Stock Point Details
                 </div>
 
                 <div class="row g-4 mb-4">
@@ -1040,6 +1088,11 @@ use Illuminate\Support\Facades\Crypt;
                 </button>
                 @endcan
                 @if(isset($sale) && $sale->n_sl_no)
+                       {{-- Always available: Preview --}}
+                        <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
+                            Order Summary Preview
+                        </a>
+
                      <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button" class="btn buttonSpc" style="height:61px;margin-top: 4px;"
                     >Download Invoice</button></a>
                @endif
@@ -1051,7 +1104,14 @@ use Illuminate\Support\Facades\Crypt;
             </div>
 
         </form>
+
     </div>
+
+
+
+
+    </form>
+</div>
 </div>
 
 <!-- Follow-up Modal -->
@@ -1100,6 +1160,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <option value="delivered">Delivered</option>
                                 <option value="completed">Completed</option>
                                 <option value="cancelled">Cancelled</option>
+                                <option value="returned">Returned</option>
                             </select>
                         </div>
                         @endif
@@ -1144,7 +1205,8 @@ use Illuminate\Support\Facades\Crypt;
                     <input type="hidden" name="id" id="approval_id">
                     <div class="mb-3">
                         <label class="form-label">Remarks <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="remarks" id="approval_remarks" rows="3" required></textarea>
+                        <textarea class="form-control" name="remarks" id="approval_remarks" rows="3"
+                            required></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Approval Status <span class="text-danger">*</span></label>
@@ -1163,7 +1225,9 @@ use Illuminate\Support\Facades\Crypt;
         </form>
     </div>
 </div>
-
+@php
+$hasPaymentImage = isset($sale) && !empty($sale->payment_image);
+@endphp
 @endsection
 
 @push('scripts')
@@ -1187,9 +1251,9 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-     $('#addRow').on('click', function() {
+    $('#addRow').on('click', function() {
 
-            let row = `
+        let row = `
                 <tr>
 
                     <!-- Product -->
@@ -1219,6 +1283,15 @@ $(document).ready(function() {
                         <div class="text-danger mt-1 fs-2"></div>
                     </td>
 
+                    <!-- HSN Code -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][c_hsn_code]"
+                            class="form-control "
+                            readonly>
+                    </td>
+
 
                     <!-- Price -->
                     <td>
@@ -1238,6 +1311,16 @@ $(document).ready(function() {
                             class="form-control qty"
                             value="1"
                             min="1">
+                    </td>
+
+
+                    <!-- Unit -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][c_unit]"
+                            class="form-control "
+                            readonly>
                     </td>
 
 
@@ -1275,6 +1358,15 @@ $(document).ready(function() {
                             readonly>
                     </td>
 
+                    <!-- Discounted Price -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][discounted_price]"
+                            class="form-control discounted_price"
+                            value="0.00"
+                            readonly>
+                    </td>
 
                     <!-- Product Total -->
                     <td>
@@ -1301,15 +1393,15 @@ $(document).ready(function() {
                 </tr>
             `;
 
-            $('#productTable tbody').append(row);
+        $('#productTable tbody').append(row);
 
-            rowIndex++;
+        rowIndex++;
 
-            console.log(
-                "Product row added. Current rowIndex:",
-                rowIndex
-            );
-        });
+        console.log(
+            "Product row added. Current rowIndex:",
+            rowIndex
+        );
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -1344,178 +1436,186 @@ $(document).ready(function() {
 
     function productTotal(productSelect) {
 
-    let row = productSelect.closest('tr');
+        let row = productSelect.closest('tr');
 
-    let selectedOption = productSelect.find(':selected');
+        let selectedOption = productSelect.find(':selected');
 
-    // Price from product
-    let price = parseFloat(
-        selectedOption.attr('data-price')
-    ) || parseFloat(row.find('.price').val()) || 0;
-
-    // GST percentage from product
-    let gstPercentage = parseFloat(
-        selectedOption.attr('data-gst')
-    ) || parseFloat(row.find('.gst_percentage').val()) || 0;
-
-    let qty = parseFloat(row.find('.qty').val()) || 0;
-
-    let discount = parseFloat(row.find('.discount').val()) || 0;
+        // Price from product
+        let mrp = parseFloat(
+            selectedOption.attr('data-price')
+        ) || parseFloat(row.find('.price').val()) || 0;
 
 
-    // Gross amount
-    let grossAmount = price * qty;
 
+        // GST percentage from product
+        let gstPercentage = parseFloat(
+            selectedOption.attr('data-gst')
+        ) || parseFloat(row.find('.gst_percentage').val()) || 0;
 
-    // Amount after discount
-    let taxableAmount = grossAmount - discount;
+        let gstAmount = mrp - (mrp / (1 + gstPercentage / 100));
 
-    if (taxableAmount < 0) {
-        taxableAmount = 0;
-    }
-
-
-    // Product-wise GST
-    let gstAmount = taxableAmount * gstPercentage / 100;
-
-
-    // Product total including GST
-    let lineTotal = taxableAmount + gstAmount;
-
-
-    // Set values
-    row.find('.price').val(
-        price.toFixed(2)
-    );
-
-    row.find('.gst_percentage').val(
-        gstPercentage.toFixed(2)
-    );
-
-    row.find('.gst_amount').val(
-        gstAmount.toFixed(2)
-    );
-
-    row.find('.total').val(
-        lineTotal.toFixed(2)
-    );
-
-
-    calculateSummary();
-}
-
-  function calculateSummary() {
-
-    let totalSales = 0;
-    let productDiscount = 0;
-    let totalGst = 0;
-
-    $('#productTable tbody tr').each(function () {
-
-        let row = $(this);
-
-        let price = parseFloat(row.find('.price').val()) || 0;
         let qty = parseFloat(row.find('.qty').val()) || 0;
-        let discount = parseFloat(row.find('.discount').val()) || 0;
-        let gstPercentage =
-            parseFloat(row.find('.gst_percentage').val()) || 0;
 
-        // Gross product amount
+        let discount = parseFloat(row.find('.discount').val()) || 0;
+
+        // Product-wise GST
+        let price = mrp -gstAmount;
+
+        // Gross amount
         let grossAmount = price * qty;
 
-        // Taxable amount for this product
-        let productTaxableAmount = grossAmount - discount;
 
-        if (productTaxableAmount < 0) {
-            productTaxableAmount = 0;
+
+        // Amount after discount
+        let taxableAmount = grossAmount - discount;
+
+        if (taxableAmount < 0) {
+            taxableAmount = 0;
         }
 
-        // Product GST
-        let gstAmount =
-            productTaxableAmount * gstPercentage / 100;
 
         // Product total including GST
-        let productTotal =
-            productTaxableAmount + gstAmount;
+        let lineTotal = taxableAmount + gstAmount;
 
-        // Set product GST
+
+        // Set values
+
+        row.find('.price').val(
+            price.toFixed(2)
+        );
+
+        row.find('.gst_percentage').val(
+            gstPercentage.toFixed(2)
+        );
+
         row.find('.gst_amount').val(
             gstAmount.toFixed(2)
         );
 
-        // Set product total
-        row.find('.total').val(
-            productTotal.toFixed(2)
+        row.find('.discounted_price').val(
+            taxableAmount.toFixed(2)
         );
 
-        // Summary
-        totalSales += grossAmount;
-        productDiscount += discount;
-        totalGst += gstAmount;
-    });
+        row.find('.total').val(
+            lineTotal.toFixed(2)
+        );
 
 
-    // Additional discount
-    let additionalDiscount =
-        parseFloat(
-            $('#summaryAdditionalDiscount').val()
-        ) || 0;
-
-
-    // Total discount
-    let totalDiscount =
-        productDiscount + additionalDiscount;
-
-
-    // Taxable amount
-    let taxableAmount =
-        totalSales - totalDiscount;
-
-    if (taxableAmount < 0) {
-        taxableAmount = 0;
+        calculateSummary();
     }
 
+    function calculateSummary() {
 
-    // Net Sales Amount
-    let netSalesAmount =
-        taxableAmount + totalGst;
+        let totalSales = 0;
+        let productDiscount = 0;
+        let totalGst = 0;
+
+        $('#productTable tbody tr').each(function() {
+
+            let row = $(this);
+
+            let price = parseFloat(row.find('.price').val()) || 0;
+            let qty = parseFloat(row.find('.qty').val()) || 0;
+            let discount = parseFloat(row.find('.discount').val()) || 0;
+            let gstPercentage =
+                parseFloat(row.find('.gst_percentage').val()) || 0;
+
+            // Gross product amount
+            let grossAmount = price * qty;
+
+            // Taxable amount for this product
+            let productTaxableAmount = grossAmount - discount;
+
+            if (productTaxableAmount < 0) {
+                productTaxableAmount = 0;
+            }
+
+            // Product GST
+            let gstAmount =
+                productTaxableAmount * gstPercentage / 100;
+
+            // Product total including GST
+            let productTotal =
+                productTaxableAmount + gstAmount;
+
+            // Set product GST
+            row.find('.gst_amount').val(
+                gstAmount.toFixed(2)
+            );
+
+            // Set product total
+            row.find('.total').val(
+                productTotal.toFixed(2)
+            );
+
+            // Summary
+            totalSales += grossAmount;
+            productDiscount += discount;
+            totalGst += gstAmount;
+        });
 
 
-    // Display summary
-    $('#summaryTotalSales').val(
-        totalSales.toFixed(2)
-    );
+        // Additional discount
+        let additionalDiscount =
+            parseFloat(
+                $('#summaryAdditionalDiscount').val()
+            ) || 0;
 
-    $('#summaryProductDiscount').val(
-        productDiscount.toFixed(2)
-    );
 
-    $('#summaryTotalDiscount').val(
-        totalDiscount.toFixed(2)
-    );
+        // Total discount
+        let totalDiscount =
+            productDiscount + additionalDiscount;
 
-    $('#summaryTaxableAmount').val(
-        taxableAmount.toFixed(2)
-    );
 
-    $('#summaryGstAmount').val(
-        totalGst.toFixed(2)
-    );
+        // Taxable amount
+        let taxableAmount =
+            totalSales - totalDiscount;
 
-    $('#summaryNetSales').val(
-        netSalesAmount.toFixed(2)
-    );
+        if (taxableAmount < 0) {
+            taxableAmount = 0;
+        }
 
-    $('#n_amount_to_pay').val(
-        netSalesAmount.toFixed(2)
-    );
 
-}
+        // Net Sales Amount
+        let netSalesAmount =
+            taxableAmount + totalGst;
+
+
+        // Display summary
+        $('#summaryTotalSales').val(
+            totalSales.toFixed(2)
+        );
+
+        $('#summaryProductDiscount').val(
+            productDiscount.toFixed(2)
+        );
+
+        $('#summaryTotalDiscount').val(
+            productDiscount.toFixed(2)
+        );
+
+        $('#summaryTaxableAmount').val(
+            taxableAmount.toFixed(2)
+        );
+
+        $('#summaryGstAmount').val(
+            totalGst.toFixed(2)
+        );
+
+        $('#summaryNetSales').val(
+            netSalesAmount.toFixed(2)
+        );
+
+        $('#n_amount_to_pay').val(
+            netSalesAmount.toFixed(2)
+        );
+
+    }
 
     $(document).on(
         'input',
         '#summaryTotalDiscount',
-        function () {
+        function() {
             calculateSummary();
         }
     );
@@ -1570,7 +1670,9 @@ $(document).ready(function() {
         $.ajax({
             type: 'GET',
             url: "{{ route('admin.filterDistrict') }}",
-            data: { state: stateId },
+            data: {
+                state: stateId
+            },
             dataType: 'json',
             beforeSend: function() {
                 $('#customer_district').html('<option value="">Loading...</option>');
@@ -1580,7 +1682,8 @@ $(document).ready(function() {
                 if (data.districts) {
                     $.each(data.districts, function(index, district) {
                         $('#customer_district').append(
-                            '<option value="' + district.id + '">' + district.district_name + '</option>'
+                            '<option value="' + district.id + '">' + district
+                            .district_name + '</option>'
                         );
                     });
                 }
@@ -1588,7 +1691,8 @@ $(document).ready(function() {
             },
             error: function(xhr) {
                 console.error('Customer district loading failed:', xhr.responseText);
-                $('#customer_district').html('<option value="">Unable to load districts</option>');
+                $('#customer_district').html(
+                    '<option value="">Unable to load districts</option>');
             }
         });
     });
@@ -1615,21 +1719,25 @@ $(document).ready(function() {
         $.ajax({
             url: "{{ route('admin.filterDistrict') }}",
             type: 'GET',
-            data: { state: stateId },
+            data: {
+                state: stateId
+            },
             dataType: 'json',
             success: function(response) {
                 $('#franchise_district').html('<option value="">Select District</option>');
                 if (response.districts) {
                     $.each(response.districts, function(index, district) {
                         $('#franchise_district').append(
-                            '<option value="' + district.id + '">' + district.district_name + '</option>'
+                            '<option value="' + district.id + '">' + district
+                            .district_name + '</option>'
                         );
                     });
                 }
             },
             error: function(xhr) {
                 console.error('Franchise district loading failed:', xhr.responseText);
-                $('#franchise_district').html('<option value="">Unable to load districts</option>');
+                $('#franchise_district').html(
+                    '<option value="">Unable to load districts</option>');
             }
         });
     });
@@ -1667,7 +1775,8 @@ $(document).ready(function() {
                     $.each(response.franchises, function(index, franchise) {
                         $('#franchise').append(
                             '<option value="' + franchise.n_store_id + '">' +
-                            franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
+                            franchise.c_store_name + ' (' + franchise
+                            .c_store_code + ')' +
                             '</option>'
                         );
                     });
@@ -1689,7 +1798,7 @@ $(document).ready(function() {
 
     const approveModalEl = document.getElementById('approveModal');
     if (approveModalEl) {
-        approveModalEl.addEventListener('show.bs.modal', function (event) {
+        approveModalEl.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             if (!button) return;
             const id = button.getAttribute('data-id');
@@ -1700,7 +1809,7 @@ $(document).ready(function() {
         });
     }
 
-    $(document).on('click', '.approvalSubmit', function () {
+    $(document).on('click', '.approvalSubmit', function() {
         const id = $(this).attr('data-id');
         console.log('Encrypted ID:', id);
         $('#approval_id').val(id);
@@ -1725,42 +1834,45 @@ $(document).ready(function() {
 </script>
 
 <script>
-    $(document).ready(function() {
-        $("#n_customer_id").change(function() {
-            let option = $(this).find(":selected");
+$(document).ready(function() {
+    $("#n_customer_id").change(function() {
+        let option = $(this).find(":selected");
 
-            $("#c_customer_email").val(option.data("email"));
-            $("#n_customer_mobile").val(option.data("mobile"));
-            $("#c_customer_address").val(option.data("address"));
+        $("#c_customer_email").val(option.data("email"));
+        $("#n_customer_mobile").val(option.data("mobile"));
+        $("#c_customer_address").val(option.data("address"));
 
-            let stateId = option.data("state");
-            let districtId = option.data("district");
+        let stateId = option.data("state");
+        let districtId = option.data("district");
 
-            $("#customer_state").val(stateId);
+        $("#customer_state").val(stateId);
 
-            $.ajax({
-                type: "GET",
-                url: "{{ route('admin.filterDistrict') }}",
-                data: { state: stateId },
-                dataType: "json",
-                success: function(data) {
-                    $("#customer_district").html('<option value="">Select District</option>');
+        $.ajax({
+            type: "GET",
+            url: "{{ route('admin.filterDistrict') }}",
+            data: {
+                state: stateId
+            },
+            dataType: "json",
+            success: function(data) {
+                $("#customer_district").html('<option value="">Select District</option>');
 
-                    $.each(data.districts, function(i, district) {
-                        $("#customer_district").append(
-                            '<option value="' + district.id + '">' + district.district_name + '</option>'
-                        );
-                    });
+                $.each(data.districts, function(i, district) {
+                    $("#customer_district").append(
+                        '<option value="' + district.id + '">' + district
+                        .district_name + '</option>'
+                    );
+                });
 
-                    $("#customer_district").val(districtId);
-                }
-            });
+                $("#customer_district").val(districtId);
+            }
         });
     });
+});
 </script>
 
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
 
     $('#franchise_state').change(function() {
         let stateId = $(this).val();
@@ -1769,12 +1881,15 @@ $(document).ready(function(){
         $.ajax({
             url: "{{ route('admin.filterDistrict') }}",
             type: "GET",
-            data: { state: stateId },
+            data: {
+                state: stateId
+            },
             success: function(response) {
                 $('#franchise_district').html('<option value="">Select District</option>');
                 $.each(response.districts, function(index, district) {
                     $('#franchise_district').append(
-                        '<option value="' + district.id + '">' + district.district_name + '</option>'
+                        '<option value="' + district.id + '">' + district
+                        .district_name + '</option>'
                     );
                 });
             }
@@ -1787,7 +1902,7 @@ $(document).ready(function(){
 </script>
 
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
     $('#franchise_district').change(function() {
 
         let stateId = $('#franchise_state').val();
@@ -1807,7 +1922,8 @@ $(document).ready(function(){
                 $.each(response.franchises, function(i, franchise) {
                     $('#franchise').append(
                         '<option value="' + franchise.n_store_id + '">' +
-                        franchise.c_store_name + ' (' + franchise.c_store_code + ')' +
+                        franchise.c_store_name + ' (' + franchise.c_store_code +
+                        ')' +
                         '</option>'
                     );
                 });
@@ -1816,6 +1932,57 @@ $(document).ready(function(){
 
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Payment Status - Transaction ID & Proof
+|--------------------------------------------------------------------------
+*/
+function togglePaymentFields() {
+    let status = $('#paymentStatus').val();
+
+    let transactionId = $('#c_transaction_id');
+    let paymentImage = $('#payment_image_input');
+
+    if (status === 'confirmed') {
+        // Enable fields
+        transactionId.prop('disabled', false);
+        paymentImage.prop('disabled', false);
+
+        // Make transaction ID required
+        transactionId.prop('required', true);
+
+        // Show enabled styling
+        transactionId.removeClass('bg-light');
+        paymentImage.removeClass('bg-light');
+
+    } else {
+        // Disable fields
+        transactionId.prop('disabled', true);
+        paymentImage.prop('disabled', true);
+
+        // Remove required
+        transactionId.prop('required', false);
+
+        // Clear transaction ID when pending
+        transactionId.val('');
+
+        // Clear file input
+        paymentImage.val('');
+
+        // Disabled styling
+        transactionId.addClass('bg-light');
+        paymentImage.addClass('bg-light');
+    }
+}
+
+// When Payment Status changes
+$('#paymentStatus').on('change', function() {
+    togglePaymentFields();
+});
+
+// Run on page load
+togglePaymentFields();
 </script>
 
 @endpush

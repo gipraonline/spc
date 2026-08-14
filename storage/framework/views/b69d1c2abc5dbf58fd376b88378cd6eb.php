@@ -731,9 +731,18 @@
         </div>
     </div>
 </div>
-<
 
 
+
+
+<style>
+    @media screen and (max-width:767px){
+       .form-control, .form-select {
+        width: stretch;
+        min-width: 100%;
+    }
+    }
+</style>
 
 
 
@@ -761,4 +770,5 @@
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 
-</html><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+</html>
+<?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/layouts/app.blade.php ENDPATH**/ ?>

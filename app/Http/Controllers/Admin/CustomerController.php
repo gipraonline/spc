@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerMaster;
 use App\Models\District;
+use App\Models\Lead;
 use App\Models\State;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -67,22 +69,67 @@ class CustomerController extends Controller
         $search = session('customer_search');
         $status = session('customer_status');
 
+        /*
+        |--------------------------------------------------------------------------
+        | FCA restriction
+        |--------------------------------------------------------------------------
+        | FCA can see only customers whose lead:
+        | 1. Belongs to logged-in FCA
+        | 2. Has today's visit date
+        |--------------------------------------------------------------------------
+        */
+        if ($isFarmCareAdvisor) {
+
+            $todayMobiles = Lead::where(
+                'n_fca_id',
+                Auth::user()->n_employee_id
+            )
+                ->whereDate('d_visit_date', Carbon::today())
+                ->whereNotNull('n_mobile')
+                ->pluck('n_mobile');
+
+            $query->whereIn('n_mobile', $todayMobiles);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Search
+        |--------------------------------------------------------------------------
+        */
         if (! empty($search)) {
-            $query->where(function ($q) use ($search) {
+
+            $query->where(function ($q) use ($search, $isFarmCareAdvisor) {
+
                 $q->where('c_customer_code', 'LIKE', "%{$search}%")
-                    ->orWhere('c_customer_name', 'LIKE', "%{$search}%")
-                    ->orWhere('n_mobile', 'LIKE', "%{$search}%")
-                    ->orWhere('n_whatsapp', 'LIKE', "%{$search}%");
+                    ->orWhere('c_customer_name', 'LIKE', "%{$search}%");
+
+                // Only non-FCA users can search by phone/WhatsApp
+                if (! $isFarmCareAdvisor) {
+
+                    $q->orWhere('n_mobile', 'LIKE', "%{$search}%")
+                        ->orWhere('n_whatsapp', 'LIKE', "%{$search}%");
+                }
             });
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Status
+        |--------------------------------------------------------------------------
+        */
         if (! empty($status)) {
             $query->where('c_status', $status);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Customers
+        |--------------------------------------------------------------------------
+        */
         $customers = $query
             ->orderBy('n_customer_id', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.customers.index', compact(
             'customers',

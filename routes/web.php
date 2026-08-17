@@ -126,6 +126,9 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('/employees/reporting-managers/{designation}', [EmployeeController::class, 'getReportingManagers']);
 
+        Route::get('employees/generate-code/{designationId}', [EmployeeController::class, 'generateEmployeeCode'])
+            ->name('admin.employees.generateCode');
+
         /*
         |--------------------------------------------------------------------------
         | Stores

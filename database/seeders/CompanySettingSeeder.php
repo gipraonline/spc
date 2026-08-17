@@ -2,33 +2,43 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\CompanySetting;
+use Illuminate\Database\Seeder;
 
 class CompanySettingSeeder extends Seeder
 {
     public function run(): void
     {
-        CompanySetting::create([
-            'company_name' => 'SPC Spices Producers Company',
+        CompanySetting::updateOrCreate(
+            
+            ['id' => 1],
+            [
+                'company_name' => 'SPICES PRODUCER COMPANY LIMITED',
 
-            'address' => '123, Spice Valley Road, Kochi, Kerala, India - 682018',
+                'gst_number' => '33AASCS9554J1ZL',
 
-            'phone' => '+91 98765 43210',
+                'address' => 'SF No. 790/1A1, SF No. 808/1B
+K M P Thottam, Opp RTO Check Post,
+Palakkad Road,
+Madukkarai,
+Coimbatore - 641105',
 
-            'email' => 'info@spcspices.com',
+                'phone' => '8592841999',
 
-            'website' => 'www.spcspices.com',
+                'email' => 'info@spcuinversal.com',
 
-            'bank_name' => 'State Bank of India',
+                'website' => 'https://spcuniversal.com',
 
-            'account_name' => 'SPC Spices Producers Company',
+                'bank_name' => null,
 
-            'account_number' => '1234567890',
+                'account_name' => 'SPICES PRODUCER COMPANY LIMITED',
 
-            'ifsc_code' => 'ABCD0123456',
+                'account_number' => null,
 
-            'branch' => 'Kochi',
-        ]);
+                'ifsc_code' => null,
+
+                'branch' => null,
+            ]
+        );
     }
 }

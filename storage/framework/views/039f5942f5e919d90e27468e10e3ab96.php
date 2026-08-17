@@ -388,7 +388,7 @@
                                 </td>
 
                                 <td class="value">
-                                    <?php echo e($order->c_order_no); ?>
+                                    FCA<?php echo e(str_pad($order->invoice_no, 4, '0', STR_PAD_LEFT)); ?>
 
                                 </td>
                             </tr>
@@ -442,13 +442,15 @@
 
                         <div class="box-content">
 
-
                             <div class="company-name">
                                 <?php echo e($company->company_name); ?>
 
                             </div>
 
                             <div class="small-line">
+
+                                GSTIN: <?php echo e($company->gst_number); ?><br>
+
                                 <?php echo e($company->address); ?><br>
 
                                 <?php if($company->phone): ?>
@@ -463,6 +465,7 @@
                                 Website: <?php echo e($company->website); ?>
 
                                 <?php endif; ?>
+
                             </div>
 
                             <div class="section-label">
@@ -475,7 +478,11 @@
                             </div>
 
                             <div class="small-line">
+
                                 <?php echo e($order->c_customer_address); ?><br>
+
+                                Pin Code: <?php echo e($order->customer?->c_pincode); ?><br>
+
                                 Ph: <?php echo e($order->n_customer_mobile); ?>
 
 
@@ -484,6 +491,7 @@
                                 Email: <?php echo e($order->c_customer_email); ?>
 
                                 <?php endif; ?>
+
                             </div>
 
                         </div>
@@ -515,7 +523,7 @@
                                     </td>
 
                                     <td class="d-value">
-                                        <?php echo e($order->c_order_no); ?>
+                                        FCA<?php echo e(str_pad($order->invoice_no, 4, '0', STR_PAD_LEFT)); ?>
 
                                     </td>
                                 </tr>
@@ -662,27 +670,27 @@
         </table>
 
 
-
-        
         
 
         <table class="items">
 
             <thead>
+
                 <tr>
+
                     <th style="width: 5%;">
                         Sl No
                     </th>
 
-                    <th style="width: 22%;">
+                    <th style="width: 20%;">
                         Description of goods
                     </th>
 
-                    <th style="width: 11%;">
+                    <th style="width: 10%;">
                         HSN Code
                     </th>
 
-                    <th style="width: 9%;">
+                    <th style="width: 8%;">
                         Quantity
                     </th>
 
@@ -699,18 +707,45 @@
                     </th>
 
                     <th style="width: 12%;">
-                        Discounted price
+                        Discounted Price
+                    </th>
+
+                    <th style="width: 8%;">
+                        GST
                     </th>
 
                     <th style="width: 12%;">
-                        Taxable Amount
+                        Amount
                     </th>
+
                 </tr>
+
             </thead>
+
 
             <tbody>
 
                 <?php $__currentLoopData = $calculation['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                <?php
+
+                $price = $item['rate']
+                ?? $item['rate_inclusive']
+                ?? 0;
+
+                $discount = $item['discount']
+                ?? 0;
+
+                $discountedPrice = $item['discounted_price']
+                ?? ($price - $discount);
+
+                $gstAmount = $item['gst_amount']
+                ?? 0;
+
+                $amount = $item['amount_inclusive']
+                ?? ($discountedPrice + $gstAmount);
+
+                ?>
 
                 <tr>
 
@@ -720,11 +755,13 @@
 
                     </td>
 
+
                     
                     <td class="description">
                         <?php echo e($item['product_name']); ?>
 
                     </td>
+
 
                     
                     <td>
@@ -732,11 +769,13 @@
 
                     </td>
 
+
                     
                     <td>
                         <?php echo e(number_format($item['qty'], 0)); ?>
 
                     </td>
+
 
                     
                     <td>
@@ -744,84 +783,146 @@
 
                     </td>
 
-                    
-                    <td class="right">
-                        ₹ <?php echo e(number_format($item['rate'] ?? $item['rate_inclusive'] ?? 0, 2)); ?>
-
-                    </td>
 
                     
                     <td class="right">
-                        ₹ <?php echo e(number_format($item['discount'] ?? 0, 2)); ?>
+                        ₹ <?php echo e(number_format($price, 2)); ?>
 
                     </td>
+
 
                     
                     <td class="right">
-                        ₹ <?php echo e(number_format(
-        $item['discounted_price']
-        ?? (($item['rate'] ?? $item['rate_inclusive'] ?? 0) - ($item['discount'] ?? 0)),
-        2
-    )); ?>
+                        ₹ <?php echo e(number_format($discount, 2)); ?>
 
                     </td>
+
 
                     
                     <td class="right">
-                        ₹ <?php echo e(number_format($item['amount_inclusive'] ?? 0, 2)); ?>
+                        ₹ <?php echo e(number_format($discountedPrice, 2)); ?>
 
                     </td>
+
+
+                    
+                    <td class="right">
+                        ₹ <?php echo e(number_format($gstAmount, 2)); ?>
+
+                    </td>
+
+
+                    
+                    <td class="right">
+                        ₹ <?php echo e(number_format($amount, 2)); ?>
+
+                    </td>
+
                 </tr>
 
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
             </tbody>
 
+
             <tfoot>
 
                 
                 <tr>
 
-                    <td colspan="7"></td>
+                    <td colspan="8"></td>
 
                     <td class="summary-label">
-                        Taxable amount
+                        Taxable Amount
                     </td>
 
                     <td class="summary-value">
-                        ₹ <?php echo e(number_format($calculation['subtotal'], 2)); ?>
+                        ₹ <?php echo e(number_format($calculation['subtotal'] ?? 0, 2)); ?>
 
                     </td>
 
                 </tr>
 
+
                 
                 <tr>
 
-                    <td colspan="7"></td>
+                    <td colspan="8"></td>
 
                     <td class="summary-label">
-                        GST
+                        CGST
                     </td>
 
                     <td class="summary-value">
-                        ₹ <?php echo e(number_format($calculation['gst_total'], 2)); ?>
+                        ₹ <?php echo e(number_format($calculation['cgst_total'] ?? 0, 2)); ?>
 
                     </td>
 
                 </tr>
 
+
                 
                 <tr>
 
-                    <td colspan="7"></td>
+                    <td colspan="8"></td>
+
+                    <td class="summary-label">
+                        SGST
+                    </td>
+
+                    <td class="summary-value">
+                        ₹ <?php echo e(number_format($calculation['sgst_total'] ?? 0, 2)); ?>
+
+                    </td>
+
+                </tr>
+
+
+                
+                <tr>
+
+                    <td colspan="8"></td>
+
+                    <td class="summary-label">
+                        IGST
+                    </td>
+
+                    <td class="summary-value">
+                        ₹ <?php echo e(number_format($calculation['igst_total'] ?? 0, 2)); ?>
+
+                    </td>
+
+                </tr>
+
+
+                
+                <tr>
+
+                    <td colspan="8"></td>
+
+                    <td class="summary-label">
+                        Total GST
+                    </td>
+
+                    <td class="summary-value">
+                        ₹ <?php echo e(number_format($calculation['gst_total'] ?? 0, 2)); ?>
+
+                    </td>
+
+                </tr>
+
+
+                
+                <tr>
+
+                    <td colspan="8"></td>
 
                     <td class="total-label">
                         Amount Payable
                     </td>
 
                     <td class="total-value">
-                        ₹ <?php echo e(number_format($calculation['grand_total'], 2)); ?>
+                        ₹ <?php echo e(number_format($calculation['grand_total'] ?? 0, 2)); ?>
 
                     </td>
 
@@ -841,7 +942,7 @@
             </div>
 
             <div class="words">
-                <?php echo e($calculation['grand_total_words']); ?>
+                <?php echo e($calculation['grand_total_words'] ?? '-'); ?>
 
             </div>
 
@@ -858,7 +959,7 @@
 
             <tr>
 
-                <td class="footer-left">
+                <!-- <td class="footer-left">
 
                     <div class="payment-box">
 
@@ -898,18 +999,20 @@
                         </div>
 
                         <?php if($company->branch): ?>
+
                         <div class="payment-line">
                             Branch: <?php echo e($company->branch); ?>
 
                         </div>
+
                         <?php endif; ?>
 
                     </div>
 
-                </td>
+                </td> -->
 
 
-                <td class="footer-right">
+                <td class="footer">
 
                     <div class="declaration-box">
 
@@ -922,7 +1025,6 @@
                             price of the goods described and that all
                             particulars are true and correct.
                         </div>
-
 
                         <div class="signature">
 

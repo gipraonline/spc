@@ -35,11 +35,11 @@ class SalesController extends Controller
                 ->exists();
     }
 
-    private function isFcaToday(SalesOrder $sale): bool
-    {
-        return ! $this->isFca()
-            || Carbon::parse($sale->d_date)->isToday();
-    }
+    // private function isFcaToday(SalesOrder $sale): bool
+    // {
+    //     return ! $this->isFca()
+    //         || Carbon::parse($sale->d_date)->isToday();
+    // }
 
             public function index(Request $request)
             {
@@ -83,10 +83,10 @@ class SalesController extends Controller
                         $employeeId
                     );
 
-                    $query->whereDate(
+                  /*   $query->whereDate(
                         'sales_orders.d_date',
                         today()
-                    );
+                    ); */
                 }
 
 
@@ -266,6 +266,23 @@ class SalesController extends Controller
         $countQuery = SalesOrder::query()
             ->whereNull('sales_orders.deleted_at');
 
+       /* | Farm Care Advisor Access
+        |--------------------------------------------------------------------------
+        | FCA can see only their own sales .
+        | Other roles can see sales according to their existing permissions.
+        |--------------------------------------------------------------------------
+        */
+
+        $isFarmCareAdvisor = $this->isFca();
+
+        if ($this->isFca()) {
+
+            // Logged-in FCA's employee ID
+            $employeeId = $user->n_employee_id;
+
+            $query->where('farm_care_advisor_id', $employeeId);
+        }
+
         /*
         | FCA restriction
         */
@@ -276,10 +293,10 @@ class SalesController extends Controller
                 $user->n_employee_id
             );
 
-            $countQuery->whereDate(
+           /*  $countQuery->whereDate(
                 'sales_orders.d_date',
                 today()
-            );
+            ); */
         }
 
 
@@ -1198,7 +1215,51 @@ class SalesController extends Controller
             ]
         );
 
-        return redirect()->back()->with('success', 'Approval completed successfully.');
+        $salesOrder=SalesOrder::findOrFail($id);
+
+        /*
+|--------------------------------------------------------------------------
+| Generate Invoice Number
+|--------------------------------------------------------------------------
+|
+| Generate ONLY when the order is approved.
+|
+*/
+
+        if (
+            strtolower($request->status) === 'approved'
+            && is_null($salesOrder->invoice_no)
+        ) {
+
+            $lastInvoice = SalesOrder::whereNotNull('invoice_no')
+                ->where('invoice_no', 'like', 'FCA%')
+                ->orderByRaw(
+                    'CAST(SUBSTRING(invoice_no, 4) AS UNSIGNED) DESC'
+                )
+                ->value('invoice_no');
+
+            if ($lastInvoice) {
+
+                // FCA15 → 15
+                $lastNumber = (int) substr($lastInvoice, 3);
+
+                $nextNumber = $lastNumber + 1;
+
+            } else {
+
+                // First invoice
+                $nextNumber = 1;
+            }
+
+            $salesOrder->invoice_no = 'FCA'.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+            $salesOrder->save();
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', 'Approval completed successfully.');
+
     }
 
     public function show(Request $request, $id)
@@ -1216,9 +1277,9 @@ class SalesController extends Controller
         // --------------------------------------------------
         // FCA midnight restriction
         // --------------------------------------------------
-        if (! $this->isFcaToday($sale)) {
-            abort(403, 'FCA cannot view this Sales Order after midnight.');
-        }
+        // if (! $this->isFcaToday($sale)) {
+        //     abort(403, 'FCA cannot view this Sales Order after midnight.');
+        // }
 
         $states = State::with('districts')
             ->where('status', '1')

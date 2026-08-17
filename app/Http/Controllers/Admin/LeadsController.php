@@ -3,29 +3,44 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Support\Facades\Auth;
-
-
-
+use App\Models\Admin;
 use App\Models\CustomerMaster;
 use App\Models\Lead;
 use App\Models\State;
-use App\Models\District;
-use App\Models\EmployeeMaster;
-use App\Models\Admin;
-
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
-use DB;
 
 class LeadsController extends Controller
 {
-  public function index(Request $request)
+    private function isFca(): bool
+    {
+        return Auth::check()
+            && Auth::user()->roles()
+                ->where('identifier', 'FCA')
+                ->exists();
+    }
+
+    private function isFcaToday(Lead $lead): bool
+    {
+        return ! $this->isFca()
+            || (
+                (int) $lead->n_fca_id === (int) Auth::user()->n_employee_id
+                && Carbon::parse($lead->d_visit_date)->isToday()
+            );
+    }
+
+    public function index(Request $request)
     {
         $query = Lead::query();
+
+        // FCA: only own leads created/assigned for today
+        if ($this->isFca()) {
+            $query->where('n_fca_id', Auth::user()->n_employee_id)
+                ->whereDate('d_visit_date', Carbon::today());
+        }
 
         // Search: Customer / Mobile
         if ($request->filled('search')) {
@@ -34,12 +49,12 @@ class LeadsController extends Controller
 
             $query->where(function ($q) use ($search) {
 
-                $q->where('c_customer_name', 'like', '%' . $search . '%')
-                ->orWhere('n_mobile', 'like', '%' . $search . '%');
+                $q->where('c_customer_name', 'like', '%'.$search.'%')
+                    ->orWhere('n_mobile', 'like', '%'.$search.'%');
             });
         }
 
-        //FCA
+        // FCA
 
         if ($request->filled('n_fca_id')) {
 
@@ -75,12 +90,12 @@ class LeadsController extends Controller
             );
         }
 
-        //Employees
-        $employees = Admin::join('employee_masters as em','em.n_employee_id','admins.n_employee_id')
-        ->join('designation_masters as dm','dm.n_designation_id','em.n_designation_id')
-        ->where('em.c_status', 'Y')
-        ->select('em.n_employee_id','em.c_employee_name','dm.identifier')
-        ->get();
+        // Employees
+        $employees = Admin::join('employee_masters as em', 'em.n_employee_id', 'admins.n_employee_id')
+            ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
+            ->where('em.c_status', 'Y')
+            ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
+            ->get();
 
         // Leads
         $leads = $query
@@ -88,89 +103,87 @@ class LeadsController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-
         // User
         $user = Admin::join(
-                    'model_has_roles as mr',
-                    'mr.model_id',
-                    '=',
-                    'admins.n_role_id'
-                )
-                ->join(
-                    'roles',
-                    'roles.id',
-                    '=',
-                    'mr.role_id'
-                )
-                ->where(
-                    'admins.n_role_id',
-                    Auth::user()->n_role_id
-                )
-                ->first();
-
+            'model_has_roles as mr',
+            'mr.model_id',
+            '=',
+            'admins.n_role_id'
+        )
+            ->join(
+                'roles',
+                'roles.id',
+                '=',
+                'mr.role_id'
+            )
+            ->where(
+                'admins.n_role_id',
+                Auth::user()->n_role_id
+            )
+            ->first();
 
         return view(
             'admin.leads.index',
-            compact('leads', 'user','employees')
+            compact('leads', 'user', 'employees')
         );
     }
 
     public function create()
     {
-        $employees = Admin::join('employee_masters as em','em.n_employee_id','admins.n_employee_id')
-        ->join('designation_masters as dm','dm.n_designation_id','em.n_designation_id')
-        ->where('em.c_status', 'Y')
-        ->select('em.n_employee_id','em.c_employee_name','dm.identifier')
-        ->get();
+        $employees = Admin::join('employee_masters as em', 'em.n_employee_id', 'admins.n_employee_id')
+            ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
+            ->where('em.c_status', 'Y')
+            ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
+            ->get();
 
-        $states=State::where('status', '1')->get();
-        $lead=new Lead;
-        $user=Admin::join('model_has_roles as mr','mr.model_id','admins.n_role_id')
-                ->join('roles','roles.id','mr.role_id')
-                ->where('admins.n_role_id',Auth::user()->n_role_id)->first();
-        $viewMode="Off";
-        return view('admin.leads.create',compact('states','lead','user','viewMode','employees'));
+        $states = State::where('status', '1')->get();
+        $lead = new Lead;
+        $user = Admin::join('model_has_roles as mr', 'mr.model_id', 'admins.n_role_id')
+            ->join('roles', 'roles.id', 'mr.role_id')
+            ->where('admins.n_role_id', Auth::user()->n_role_id)->first();
+        $viewMode = 'Off';
+
+        return view('admin.leads.create', compact('states', 'lead', 'user', 'viewMode', 'employees'));
     }
 
-    public function show(Request $request,$id)
+    public function show(Request $request, $id)
     {
-        $employees = Admin::join('employee_masters as em','em.n_employee_id','admins.n_employee_id')
-        ->join('designation_masters as dm','dm.n_designation_id','em.n_designation_id')
-        ->where('em.c_status', 'Y')
-        ->select('em.n_employee_id','em.c_employee_name','dm.identifier')
-        ->get();
+        $employees = Admin::join('employee_masters as em', 'em.n_employee_id', 'admins.n_employee_id')
+            ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
+            ->where('em.c_status', 'Y')
+            ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
+            ->get();
 
         $id = Crypt::decryptString($id);
-        $lead=Lead::with('fca')->findOrFail($id );
+        $lead = Lead::with('fca')->findOrFail($id);
         $states = State::where('status', 1)->get();
-        $user=Admin::join('model_has_roles as mr','mr.model_id','admins.n_role_id')
-                ->join('roles','roles.id','mr.role_id')
-                ->where('admins.n_role_id',Auth::user()->n_role_id)->first();
-        $viewMode="On";
-        return view('admin.leads.create', compact('lead','user','states','viewMode','employees'));
+        $user = Admin::join('model_has_roles as mr', 'mr.model_id', 'admins.n_role_id')
+            ->join('roles', 'roles.id', 'mr.role_id')
+            ->where('admins.n_role_id', Auth::user()->n_role_id)->first();
+        $viewMode = 'On';
+
+        return view('admin.leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees'));
     }
 
-
-
-    public function edit(Request $request,$id)
+    public function edit(Request $request, $id)
     {
-        $employees = Admin::join('employee_masters as em','em.n_employee_id','admins.n_employee_id')
-        ->join('designation_masters as dm','dm.n_designation_id','em.n_designation_id')
-        ->where('em.c_status', 'Y')
-        ->select('em.n_employee_id','em.c_employee_name','dm.identifier')
-        ->get();
+        $employees = Admin::join('employee_masters as em', 'em.n_employee_id', 'admins.n_employee_id')
+            ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
+            ->where('em.c_status', 'Y')
+            ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
+            ->get();
 
         $id = Crypt::decryptString($id);
-        $lead=Lead::with('fca')->findOrFail($id );
+        $lead = Lead::with('fca')->findOrFail($id);
         $states = State::where('status', 1)->get();
-        $user=Admin::join('model_has_roles as mr','mr.model_id','admins.n_role_id')
-                ->join('roles','roles.id','mr.role_id')
-                ->where('admins.n_role_id',Auth::user()->n_role_id)->first();
-        $viewMode="Off";
-        return view('admin.leads.create', compact('lead','user','states','viewMode','employees'));
+        $user = Admin::join('model_has_roles as mr', 'mr.model_id', 'admins.n_role_id')
+            ->join('roles', 'roles.id', 'mr.role_id')
+            ->where('admins.n_role_id', Auth::user()->n_role_id)->first();
+        $viewMode = 'Off';
+
+        return view('admin.leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees'));
 
     }
-
 
     public function existingCustomer(Request $request)
     {
@@ -181,22 +194,20 @@ class LeadsController extends Controller
         if ($customer) {
             return response()->json([
                 'status' => true,
-                'customer' => $customer
+                'customer' => $customer,
             ]);
         }
 
         return response()->json([
             'status' => false,
-            'message' => 'Customer not found'
+            'message' => 'Customer not found',
         ]);
     }
 
-
-
     public function store(Request $request)
     {
-        $id=isset($request->n_lead_id) ? $request->n_lead_id : '';
-         $validator = Validator::make($request->all(), [
+        $id = isset($request->n_lead_id) ? $request->n_lead_id : '';
+        $validator = Validator::make($request->all(), [
             'c_customer_type' => 'required|in:new,existing',
             'c_customer_name' => 'required|string|max:255',
             'n_mobile' => 'required|digits:10',
@@ -212,8 +223,8 @@ class LeadsController extends Controller
             'd_expected_availability_date' => 'nullable|date',
 
             /* 'next_followup_date' => 'nullable|date',
-            'next_followup_time' => 'nullable',
-            'followup_type' => 'nullable|string|max:100',
+           'next_followup_time' => 'nullable',
+           'followup_type' => 'nullable|string|max:100',
  */
             'priority' => 'required|in:Low,Medium,High,Urgent',
 
@@ -242,7 +253,7 @@ class LeadsController extends Controller
             'c_lead_status' => $request->c_lead_status,
             'd_expected_availability_date' => $request->d_expected_availability_date,
 
-           'next_followup_date' => $request->next_followup_date,
+            'next_followup_date' => $request->next_followup_date,
             'next_followup_time' => $request->next_followup_time,
             'followup_type' => $request->followup_type,
 
@@ -275,16 +286,12 @@ class LeadsController extends Controller
                 ->with('success', 'Lead updated successfully.');
         }
 
-
     }
-
 
     public function destroy(Lead $lead)
     {
         $lead->delete();
+
         return redirect()->route('admin.leads.index')->with('success', 'Leads entry deleted successfully.');
     }
-
-
-
 }

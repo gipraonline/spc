@@ -358,6 +358,8 @@
 <?php
 use Illuminate\Support\Facades\Crypt;
 ?>
+
+
 <div class="card w-100 position-relative overflow-hidden mb-4">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Add Sales Orders</h5>
@@ -532,8 +534,8 @@ unset($__errorArgs, $__bag); ?>
                                 </td>
 
                                 <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][n_hsn_code]"
-                                        class="form-control n_hsn_code" value="<?php echo e($val->n_hsn_code); ?>" readonly>
+                                    <input type="text" name="products[<?php echo e($key); ?>][c_hsn_code]"
+                                        class="form-control c_hsn_code" value="<?php echo e($val->c_hsn_code); ?>" readonly>
                                 </td>
 
 
@@ -1107,44 +1109,122 @@ unset($__errorArgs, $__bag); ?>
     </div>
 </div>
 
-<!-- Approval Modal -->
-<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+
+    <div class="modal fade" id="approveModal" tabindex="-1"
+     aria-labelledby="approveModalLabel" aria-hidden="true">
+
     <div class="modal-dialog">
-        <form method="POST" id="approveForm" action="<?php echo e(route('admin.salesorders.approval.save')); ?>">
+        <div class="modal-content">
+
+        <form method="POST"
+              id="approveForm"
+              action="<?php echo e(route('admin.salesorders.approval.save')); ?>">
+
             <?php echo csrf_field(); ?>
             <?php echo method_field('PUT'); ?>
+
+
             <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
-                    <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+
+                <div class="modal-header"
+                     style="background: linear-gradient(135deg, #0f5132, #074E30);"">
+
+                    <h5 class="modal-title text-white"
+                        id="approveModalLabel">
+                        Approval
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                    </button>
+
                 </div>
+
                 <div class="modal-body">
-                    <input type="hidden" name="id" id="approval_id">
+
+                    <input type="hidden"
+                           name="id"
+                           id="approval_id">
+
                     <div class="mb-3">
-                        <label class="form-label">Remarks <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="remarks" id="approval_remarks" rows="3"
+
+                        <label class="form-label">
+                            Remarks <span class="text-danger">*</span>
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            name="remarks"
+                            id="approval_remarks"
+                            rows="3"
                             required></textarea>
+
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Approval Status <span class="text-danger">*</span></label>
-                        <select class="form-select" name="status" id="approval_status" required>
-                            <option value="">Select Status</option>
-                            <option value="Approved">Approve</option>
-                            <option value="Rejected">Reject</option>
+
+                        <label class="form-label">
+                            Approval Status
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select class="form-select"
+                                name="status"
+                                id="approval_status"
+                                required>
+
+                            <option value="">
+                                Select Status
+                            </option>
+
+                            <option value="Approved">
+                                Approve
+                            </option>
+
+                            <option value="Rejected">
+                                Reject
+                            </option>
+
                         </select>
+
                     </div>
+
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn buttonSpc" id="approvalSubmit">Submit</button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                    <button type="submit"
+                            class="btn buttonSpc"
+                            id="approvalSubmit">
+                        Submit
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
                 </div>
+
             </div>
+
         </form>
+
+
+
+        </div>
     </div>
 </div>
+
+
+<!-- Approval Modal -->
+
 <?php
 $hasPaymentImage = isset($sale) && !empty($sale->payment_image);
 ?>
+
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('scripts'); ?>
@@ -1186,7 +1266,9 @@ $(document).ready(function() {
                                 <option
                                     value="<?php echo e($product->n_product_id); ?>"
                                     data-price="<?php echo e($product->n_mrp); ?>"
-                                    data-gst="<?php echo e($product->n_gst_percentage); ?>">
+                                    data-gst="<?php echo e($product->n_gst_percentage); ?>"
+                                    data-hsnCode="<?php echo e($product->c_hsn_code); ?>"
+                                    data-unit="<?php echo e($product->c_unit); ?>">
 
                                     <?php echo e($product->c_product_name); ?>
 
@@ -1205,8 +1287,9 @@ $(document).ready(function() {
                     <td>
                         <input
                             type="text"
-                            name="products[${rowIndex}][n_hsn_code]"
-                            class="form-control "
+                            name="products[${rowIndex}][c_hsn_code]"
+                            class="form-control c_hsn_code"
+                            value="<?php echo e($product->c_hsn_code); ?>"
                             readonly>
                     </td>
 
@@ -1237,7 +1320,7 @@ $(document).ready(function() {
                         <input
                             type="text"
                             name="products[${rowIndex}][c_unit]"
-                            class="form-control "
+                            class="form-control c_unit"
                             readonly>
                     </td>
 
@@ -1363,7 +1446,8 @@ $(document).ready(function() {
             selectedOption.attr('data-price')
         ) || parseFloat(row.find('.price').val()) || 0;
 
-
+        let hsnCode = selectedOption.attr('data-hsnCode');
+        let unit = selectedOption.attr('data-unit');
 
         // GST percentage from product
         let gstPercentage = parseFloat(
@@ -1397,9 +1481,16 @@ $(document).ready(function() {
 
 
         // Set values
+        row.find('.c_hsn_code').val(
+            hsnCode
+        );
 
         row.find('.price').val(
             price.toFixed(2)
+        );
+
+        row.find('.c_unit').val(
+            unit
         );
 
         row.find('.gst_percentage').val(

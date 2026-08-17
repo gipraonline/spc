@@ -42,6 +42,7 @@ class SalesOrder extends Model
         'n_total_discount',
         'n_net_sales_amount',
 
+        'invoice_no',
     ];
 
     protected $casts = [

@@ -26,11 +26,14 @@
     }
 
     .preview-wrapper {
+        width: 100%;
         max-width: 900px;
         margin: 0 auto;
     }
 
-    /* ================= ACTIONS ================= */
+    /* =========================================================
+           ACTION BUTTONS
+        ========================================================= */
 
     .actions {
         display: flex;
@@ -59,7 +62,9 @@
         color: #fff;
     }
 
-    /* ================= PAGE ================= */
+    /* =========================================================
+           PAGE
+        ========================================================= */
 
     .page {
         width: 100%;
@@ -68,7 +73,9 @@
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
     }
 
-    /* ================= HEADER ================= */
+    /* =========================================================
+           HEADER
+        ========================================================= */
 
     .header {
         width: 100%;
@@ -98,6 +105,7 @@
         font-size: 32px;
         font-weight: bold;
         font-style: italic;
+        line-height: 1;
     }
 
     .logo-sub {
@@ -105,7 +113,7 @@
         font-size: 7px;
         font-weight: bold;
         letter-spacing: 2px;
-        margin-top: -3px;
+        margin-top: 3px;
     }
 
     .invoice-title {
@@ -113,6 +121,7 @@
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 7px;
+        line-height: 1.1;
     }
 
     .header-info {
@@ -136,7 +145,9 @@
         font-weight: bold;
     }
 
-    /* ================= INFO BOXES ================= */
+    /* =========================================================
+           INFO BOXES
+        ========================================================= */
 
     .info-table {
         width: 100%;
@@ -159,6 +170,7 @@
     }
 
     .box {
+        width: 100%;
         border: 1px solid #d4e4d0;
         border-radius: 6px;
         overflow: hidden;
@@ -203,6 +215,7 @@
     .details {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed;
     }
 
     .details td {
@@ -222,9 +235,17 @@
     .details .d-value {
         width: 58%;
         font-weight: bold;
+        word-break: break-word;
     }
 
-    /* ================= PRODUCT TABLE ================= */
+    /* =========================================================
+           PRODUCT TABLE
+        ========================================================= */
+
+    .items-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
 
     .items {
         width: 100%;
@@ -241,6 +262,7 @@
         text-align: center;
         font-weight: bold;
         line-height: 1.3;
+        vertical-align: middle;
     }
 
     .items td {
@@ -249,6 +271,7 @@
         text-align: center;
         line-height: 1.3;
         vertical-align: middle;
+        word-wrap: break-word;
     }
 
     .items .description {
@@ -258,16 +281,19 @@
 
     .items .right {
         text-align: right;
+        white-space: nowrap;
     }
 
     .items .summary-label {
         text-align: right;
         font-style: italic;
+        font-weight: normal;
     }
 
     .items .summary-value {
         text-align: right;
         font-weight: bold;
+        white-space: nowrap;
     }
 
     .items .total-label {
@@ -282,11 +308,15 @@
         text-align: right;
         font-weight: bold;
         font-size: 10px;
+        white-space: nowrap;
     }
 
-    /* ================= AMOUNT WORDS ================= */
+    /* =========================================================
+           AMOUNT WORDS
+        ========================================================= */
 
     .amount-words {
+        width: 100%;
         margin-top: 7px;
         margin-bottom: 8px;
     }
@@ -300,6 +330,7 @@
         font-weight: bold;
         font-size: 10px;
         margin-top: 3px;
+        line-height: 1.4;
     }
 
     .currency {
@@ -307,7 +338,9 @@
         font-size: 7px;
     }
 
-    /* ================= FOOTER ================= */
+    /* =========================================================
+           FOOTER
+        ========================================================= */
 
     .footer-table {
         width: 100%;
@@ -327,6 +360,7 @@
     }
 
     .payment-box {
+        width: 100%;
         background: #e7f2e4;
         border-radius: 6px;
         padding: 9px;
@@ -345,6 +379,7 @@
     }
 
     .declaration-box {
+        width: 100%;
         border: 1px solid #d4e4d0;
         border-radius: 6px;
         padding: 9px;
@@ -375,9 +410,12 @@
         border-top: 1px solid #333;
     }
 
-    /* ================= BOTTOM ================= */
+    /* =========================================================
+           BOTTOM
+        ========================================================= */
 
     .bottom {
+        width: 100%;
         margin-top: 8px;
         border-top: 1px solid #126b39;
         padding-top: 6px;
@@ -390,30 +428,52 @@
         font-style: italic;
     }
 
-    /* ================= PRINT ================= */
+    /* =========================================================
+           PRINT
+        ========================================================= */
 
     @media print {
+
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
 
         body {
             background: #fff;
             padding: 0;
+            margin: 0;
         }
 
         .preview-wrapper {
+            width: 100%;
             max-width: none;
-        }
-
-        .page {
-            box-shadow: none;
-            padding: 10px;
+            margin: 0;
         }
 
         .actions {
-            display: none;
+            display: none !important;
+        }
+
+        .page {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            box-shadow: none;
+        }
+
+        .items-wrapper {
+            overflow: visible;
+        }
+
+        .items {
+            width: 100%;
         }
     }
 
-    /* ================= MOBILE ================= */
+    /* =========================================================
+           MOBILE
+        ========================================================= */
 
     @media screen and (max-width: 700px) {
 
@@ -461,17 +521,19 @@
             margin-top: 10px;
         }
 
-        .items {
-            font-size: 7px;
-            min-width: 700px;
-        }
-
         .items-wrapper {
             overflow-x: auto;
+            width: 100%;
+        }
+
+        .items {
+            min-width: 750px;
+            font-size: 7px;
         }
     }
     </style>
 </head>
+
 
 <body>
 
@@ -492,7 +554,10 @@
         </div>
 
 
+        
+
         <div class="page">
+
 
             
 
@@ -514,26 +579,32 @@
 
                         </td>
 
+
                         <td class="invoice-cell">
 
                             <div class="invoice-title">
-                                INVOICE
+                                Sales Order Summary
                             </div>
+
 
                             <table class="header-info">
 
                                 <tr>
+
                                     <td class="label">
-                                        Invoice No:
+                                        Order No:
                                     </td>
 
                                     <td class="value">
-                                        <?php echo e($order->c_order_no); ?>
+                                        <?php echo e($order->n_sl_no); ?>
 
                                     </td>
+
                                 </tr>
 
+
                                 <tr>
+
                                     <td class="label">
                                         Date:
                                     </td>
@@ -542,9 +613,12 @@
                                         <?php echo e($order->d_date?->format('d M Y')); ?>
 
                                     </td>
+
                                 </tr>
 
+
                                 <tr>
+
                                     <td class="label">
                                         Due Date:
                                     </td>
@@ -553,6 +627,7 @@
                                         <?php echo e($order->d_date?->format('d M Y')); ?>
 
                                     </td>
+
                                 </tr>
 
                             </table>
@@ -572,6 +647,8 @@
 
                 <tr>
 
+                    
+
                     <td class="left-info">
 
                         <div class="box">
@@ -580,6 +657,7 @@
                                 Billed From
                             </div>
 
+
                             <div class="box-content">
 
                                 <div class="company-name">
@@ -587,44 +665,72 @@
 
                                 </div>
 
+
                                 <div class="small-line">
 
                                     <?php echo e($company->address); ?><br>
 
+                                    GSTIN:
+                                    <?php echo e($company->gst_number); ?><br>
+
+
                                     <?php if($company->phone): ?>
-                                    Phone: <?php echo e($company->phone); ?><br>
+
+                                    Phone:
+                                    <?php echo e($company->phone); ?><br>
+
                                     <?php endif; ?>
+
 
                                     <?php if($company->email): ?>
-                                    Email: <?php echo e($company->email); ?><br>
+
+                                    Email:
+                                    <?php echo e($company->email); ?><br>
+
                                     <?php endif; ?>
 
+
                                     <?php if($company->website): ?>
-                                    Website: <?php echo e($company->website); ?>
+
+                                    Website:
+                                    <?php echo e($company->website); ?>
+
 
                                     <?php endif; ?>
 
                                 </div>
+
 
                                 <div class="section-label">
                                     Buyer (Bill to)
                                 </div>
+
 
                                 <div class="buyer-name">
                                     <?php echo e($order->c_customer_name); ?>
 
                                 </div>
 
+
                                 <div class="small-line">
 
                                     <?php echo e($order->c_customer_address); ?><br>
 
-                                    Ph: <?php echo e($order->n_customer_mobile); ?>
+                                    Pin Code:
+                                    <?php echo e($order->customer?->c_pincode); ?><br>
+
+                                    Ph:
+                                    <?php echo e($order->n_customer_mobile); ?>
+
 
 
                                     <?php if($order->c_customer_email): ?>
+
                                     <br>
-                                    Email: <?php echo e($order->c_customer_email); ?>
+
+                                    Email:
+                                    <?php echo e($order->c_customer_email); ?>
+
 
                                     <?php endif; ?>
 
@@ -637,140 +743,192 @@
                     </td>
 
 
+                    
+
                     <td class="right-info">
 
                         <div class="box">
 
                             <div class="box-title">
-                                Invoice Details
+                                Order Summary
                             </div>
+
 
                             <div class="box-content">
 
                                 <table class="details">
 
                                     <tr>
+
                                         <td class="d-label">
-                                            Invoice No.
+                                            Order No.
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
-                                            <?php echo e($order->c_order_no); ?>
+                                            <?php echo e($order->n_sl_no); ?>
 
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Dated
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             <?php echo e($order->d_date?->format('d-M-y')); ?>
 
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Delivery Note
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
-                                            Reference No. & Date
+                                            Reference No. &amp; Date
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Buyer's Order No.
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Dispatch Doc No.
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Dispatched through
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Mode of Payment
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             <?php echo e(ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-'))); ?>
 
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             LOAD
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             <?php echo e($order->c_customer_address ?? '-'); ?>
 
                                         </td>
+
                                     </tr>
 
+
                                     <tr>
+
                                         <td class="d-label">
                                             Terms of Delivery
                                         </td>
 
-                                        <td class="colon">:</td>
+                                        <td class="colon">
+                                            :
+                                        </td>
 
                                         <td class="d-value">
                                             -
                                         </td>
+
                                     </tr>
 
                                 </table>
@@ -785,52 +943,76 @@
 
             </table>
 
+
             
 
             <div class="items-wrapper">
 
                 <table class="items">
 
+                    <colgroup>
+
+                        <col style="width: 5%;">
+                        <col style="width: 19%;">
+                        <col style="width: 10%;">
+                        <col style="width: 7%;">
+                        <col style="width: 7%;">
+                        <col style="width: 10%;">
+                        <col style="width: 9%;">
+                        <col style="width: 12%;">
+                        <col style="width: 8%;">
+                        <col style="width: 13%;">
+
+                    </colgroup>
+
+
                     <thead>
+
                         <tr>
 
-                            <th style="width: 5%;">
+                            <th>
                                 Sl No
                             </th>
 
-                            <th style="width: 22%;">
+                            <th>
                                 Description of goods
                             </th>
 
-                            <th style="width: 11%;">
+                            <th>
                                 HSN Code
                             </th>
 
-                            <th style="width: 9%;">
-                                Quantity
+                            <th>
+                                Qty
                             </th>
 
-                            <th style="width: 8%;">
+                            <th>
                                 Unit
                             </th>
 
-                            <th style="width: 11%;">
+                            <th>
                                 Price
                             </th>
 
-                            <th style="width: 10%;">
+                            <th>
                                 Discount
                             </th>
 
-                            <th style="width: 12%;">
-                                Discounted Price
+                            <th>
+                                Discounted<br>
+                                Amount
                             </th>
 
-                            <th style="width: 12%;">
-                                Taxable Amount
+                            <th>
+                                GST
+                            </th>
+
+                            <th>
+                                Amount
                             </th>
 
                         </tr>
+
                     </thead>
 
 
@@ -841,6 +1023,7 @@
                         <tr>
 
                             
+
                             <td>
                                 <?php echo e($index + 1); ?>
 
@@ -848,6 +1031,7 @@
 
 
                             
+
                             <td class="description">
                                 <?php echo e($item['product_name']); ?>
 
@@ -855,6 +1039,7 @@
 
 
                             
+
                             <td>
                                 <?php echo e($item['hsn']); ?>
 
@@ -862,6 +1047,7 @@
 
 
                             
+
                             <td>
                                 <?php echo e(number_format($item['qty'], 0)); ?>
 
@@ -869,6 +1055,7 @@
 
 
                             
+
                             <td>
                                 <?php echo e($item['unit']); ?>
 
@@ -876,6 +1063,7 @@
 
 
                             
+
                             <td class="right">
                                 ₹ <?php echo e(number_format($item['rate_exclusive'], 2)); ?>
 
@@ -883,6 +1071,7 @@
 
 
                             
+
                             <td class="right">
                                 ₹ <?php echo e(number_format($item['discount'], 2)); ?>
 
@@ -890,6 +1079,7 @@
 
 
                             
+
                             <td class="right">
                                 ₹ <?php echo e(number_format($item['discounted_price'], 2)); ?>
 
@@ -897,8 +1087,16 @@
 
 
                             
+
                             <td class="right">
-                                ₹ <?php echo e(number_format($item['taxable_amount'], 2)); ?>
+                                <?php echo e(number_format($item['gst_percentage'] ?? 0, 2)); ?>%
+                            </td>
+
+
+                            
+
+                            <td class="right">
+                                ₹ <?php echo e(number_format($item['amount_inclusive'], 2)); ?>
 
                             </td>
 
@@ -909,20 +1107,22 @@
                     </tbody>
 
 
+                    
+
                     <tfoot>
 
                         
 
                         <tr>
 
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
 
                             <td class="summary-label">
                                 Taxable Amount
                             </td>
 
                             <td class="summary-value">
-                                ₹ <?php echo e(number_format($calculation['subtotal'], 2)); ?>
+                                ₹ <?php echo e(number_format($calculation['taxable_total'], 2)); ?>
 
                             </td>
 
@@ -933,10 +1133,64 @@
 
                         <tr>
 
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
 
                             <td class="summary-label">
-                                GST
+                                CGST
+                            </td>
+
+                            <td class="summary-value">
+                                ₹ <?php echo e(number_format($calculation['cgst_total'], 2)); ?>
+
+                            </td>
+
+                        </tr>
+
+
+                        
+
+                        <tr>
+
+                            <td colspan="8"></td>
+
+                            <td class="summary-label">
+                                SGST
+                            </td>
+
+                            <td class="summary-value">
+                                ₹ <?php echo e(number_format($calculation['sgst_total'], 2)); ?>
+
+                            </td>
+
+                        </tr>
+
+
+                        
+
+                        <tr>
+
+                            <td colspan="8"></td>
+
+                            <td class="summary-label">
+                                IGST
+                            </td>
+
+                            <td class="summary-value">
+                                ₹ <?php echo e(number_format($calculation['igst_total'], 2)); ?>
+
+                            </td>
+
+                        </tr>
+
+
+                        
+
+                        <tr>
+
+                            <td colspan="8"></td>
+
+                            <td class="summary-label">
+                                Total GST
                             </td>
 
                             <td class="summary-value">
@@ -951,7 +1205,7 @@
 
                         <tr>
 
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
 
                             <td class="summary-label">
                                 Total Quantity
@@ -969,7 +1223,7 @@
 
                         <tr>
 
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
 
                             <td class="total-label">
                                 Amount Payable
@@ -988,137 +1242,155 @@
 
             </div>
 
-        </div>
 
-    </div>
+            
 
+            <div class="amount-words">
 
-    
+                <div class="amount-label">
+                    Amount Chargeable (in words)
+                </div>
 
-    <div class="amount-words">
-
-        <div class="amount-label">
-            Amount Chargeable (in words)
-        </div>
-
-        <div class="words">
-            <?php echo e($calculation['grand_total_words']); ?>
-
-        </div>
-
-        <div class="currency">
-            E. &amp; O. E
-        </div>
-
-    </div>
-
-
-    
-
-    <table class="footer-table">
-
-        <tr>
-
-            <td class="footer-left">
-
-                <div class="payment-box">
-
-                    <div class="payment-title">
-                        Payment Method
-                    </div>
-
-                    <div class="payment-line">
-                        <?php echo e(ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-'))); ?>
-
-                    </div>
-
-                    <br>
-
-                    <div class="payment-line">
-                        <strong>Bank Details:</strong>
-                    </div>
-
-                    <div class="payment-line">
-                        <?php echo e($company->account_name); ?>
-
-                    </div>
-
-                    <div class="payment-line">
-                        A/c No: <?php echo e($company->account_number); ?>
-
-                    </div>
-
-                    <div class="payment-line">
-                        IFSC: <?php echo e($company->ifsc_code); ?>
-
-                    </div>
-
-                    <div class="payment-line">
-                        Bank: <?php echo e($company->bank_name); ?>
-
-                    </div>
-
-                    <?php if($company->branch): ?>
-
-                    <div class="payment-line">
-                        Branch: <?php echo e($company->branch); ?>
-
-                    </div>
-
-                    <?php endif; ?>
+                <div class="words">
+                    <?php echo e($calculation['grand_total_words']); ?>
 
                 </div>
 
-            </td>
-
-
-            <td class="footer-right">
-
-                <div class="declaration-box">
-
-                    <div class="declaration-title">
-                        Declaration
-                    </div>
-
-                    <div class="declaration-text">
-
-                        We declare that this invoice shows the actual
-                        price of the goods described and that all
-                        particulars are true and correct.
-
-                    </div>
-
-
-                    <div class="signature">
-
-                        <div class="signature-line"></div>
-
-                        Authorised Signatory
-
-                    </div>
-
+                <div class="currency">
+                    E. &amp; O. E
                 </div>
 
-            </td>
-
-        </tr>
-
-    </table>
+            </div>
 
 
+            
+
+            <table class="footer-table">
+
+                <tr>
+
+                    
+                    <!-- 
+                    <td class="footer-left">
+
+                        <div class="payment-box">
+
+                            <div class="payment-title">
+                                Payment Method
+                            </div>
+
+
+                            <div class="payment-line">
+                                <?php echo e(ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-'))); ?>
+
+                            </div>
+
+
+                            <br>
+
+
+                            <div class="payment-line">
+                                <strong>Bank Details:</strong>
+                            </div>
+
+
+                            <div class="payment-line">
+                                <?php echo e($company->account_name); ?>
+
+                            </div>
+
+
+                            <div class="payment-line">
+                                A/c No:
+                                <?php echo e($company->account_number); ?>
+
+                            </div>
+
+
+                            <div class="payment-line">
+                                IFSC:
+                                <?php echo e($company->ifsc_code); ?>
+
+                            </div>
+
+
+                            <div class="payment-line">
+                                Bank:
+                                <?php echo e($company->bank_name); ?>
+
+                            </div>
+
+
+                            <?php if($company->branch): ?>
+
+                            <div class="payment-line">
+                                Branch:
+                                <?php echo e($company->branch); ?>
+
+                            </div>
+
+                            <?php endif; ?>
+
+                        </div>
+
+                    </td> -->
+
+
+                    
+
+                    <td class="footer-right">
+
+                        <div class="declaration-box">
+
+                            <div class="declaration-title">
+                                Declaration
+                            </div>
+
+
+                            <div class="declaration-text">
+
+                                We declare that this invoice shows the actual
+                                price of the goods described and that all
+                                particulars are true and correct.
+
+                            </div>
+
+
+                            <div class="signature">
+
+                                <div class="signature-line"></div>
+
+                                Authorised Signatory
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+
+            
+
+            <div class="bottom">
+
+                <div class="bottom-text">
+                    Pure Spices. Better Life.
+                </div>
+
+            </div>
+
+
+        </div>
+        
+
+
+    </div>
     
 
-    <div class="bottom">
-
-        <div class="bottom-text">
-            Pure Spices. Better Life.
-        </div>
-
-    </div>
-
-    </div>
-
-    </div>
 
 </body>
 

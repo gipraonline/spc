@@ -31,7 +31,7 @@ class AdminUserController extends Controller
             })
             ->orderBy('c_employee_name')
             ->get();
-// dd(EmployeeMaster::all());
+// dd($employees);
         return view('admin.users.create', compact('roles', 'employees'));
     }
 

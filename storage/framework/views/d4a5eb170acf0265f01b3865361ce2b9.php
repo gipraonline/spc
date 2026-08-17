@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     /* Global Page & Background Reset */
     .content-wrapper {
@@ -267,12 +265,12 @@
         }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
-@php
+<?php $__env->startSection('content'); ?>
+<?php
 use Illuminate\Support\Facades\Crypt;
-@endphp
+?>
 
 <!-- Top 5 Stat Widget Cards (As shown in reference image) -->
 <div class="widgets-grid">
@@ -285,7 +283,7 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $totalSalesOrders ?? $sales->total() ?? 0 }}</span>
+            <span class="widget-count"><?php echo e($totalSalesOrders ?? $sales->total() ?? 0); ?></span>
             <span class="widget-label">Total Sales Orders</span>
         </div>
     </div>
@@ -298,7 +296,7 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $pendingOrders ?? 0 }}</span>
+            <span class="widget-count"><?php echo e($pendingOrders ?? 0); ?></span>
             <span class="widget-label">Pending</span>
         </div>
     </div>
@@ -311,7 +309,7 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $approvedOrders ?? 0 }}</span>
+            <span class="widget-count"><?php echo e($approvedOrders ?? 0); ?></span>
             <span class="widget-label">Order Approved</span>
         </div>
     </div>
@@ -325,7 +323,7 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $dispatchedOrders ?? 0 }}</span>
+            <span class="widget-count"><?php echo e($dispatchedOrders ?? 0); ?></span>
             <span class="widget-label">Dispatched</span>
         </div>
     </div>
@@ -338,7 +336,7 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $completedOrders ?? 0 }}</span>
+            <span class="widget-count"><?php echo e($completedOrders ?? 0); ?></span>
             <span class="widget-label">Order Completed</span>
         </div>
     </div>
@@ -351,23 +349,20 @@ use Illuminate\Support\Facades\Crypt;
 <div class="card w-100 position-relative overflow-hidden mb-4">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
-       {{--  @can('sales-orders.create')
-        <a href="{{ route('admin.salesorders.create') }}" class="btn buttonSpc">
-            <i class="ti ti-plus me-1"></i> Add Sales Entry
-        </a>
-        @endcan --}}
+       
     </div>
 
     <div class="card-body p-4">
 
-        @if ($message = Session::get('success'))
+        <?php if($message = Session::get('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ $message }}
+            <?php echo e($message); ?>
+
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        @endif
+        <?php endif; ?>
 
-        <form method="GET" action="{{ route('admin.salesorders.index') }}" class="p-0">
+        <form method="GET" action="<?php echo e(route('admin.salesorders.index')); ?>" class="p-0">
             <div class="card refine-search-card border-0 rounded-4 mb-4">
                 <div class="card-body p-3">
 
@@ -376,20 +371,20 @@ use Illuminate\Support\Facades\Crypt;
                         <div class="col-lg-3 col-md-3">
                             <label class="form-label fw-semibold">Search</label>
                             <input type="text" name="search" class="form-control"
-                                placeholder="Farm Care Advisor name/Code" value="{{ request('search') }}">
+                                placeholder="Farm Care Advisor name/Code" value="<?php echo e(request('search')); ?>">
                         </div>
 
                         <!-- From Date -->
                         <div class="col-lg-3 col-md-3">
                             <label class="form-label fw-semibold">From Date</label>
-                            <input type="date" name="start_date" value="{{ request('start_date') }}"
+                            <input type="date" name="start_date" value="<?php echo e(request('start_date')); ?>"
                                 class="form-control">
                         </div>
 
                         <!-- To Date -->
                         <div class="col-lg-3 col-md-3">
                             <label class="form-label fw-semibold">To Date</label>
-                            <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
+                            <input type="date" name="end_date" value="<?php echo e(request('end_date')); ?>" class="form-control">
                         </div>
 
                         <!-- Payment Status -->
@@ -401,8 +396,8 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select Status</option>
 
-                                <option value="pending" {{ old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : '' }}>Pending</option>
-                                <option value="confirmed"  {{ old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : '' }}>Confirmed</option>
+                                <option value="pending" <?php echo e(old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending</option>
+                                <option value="confirmed"  <?php echo e(old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : ''); ?>>Confirmed</option>
 
                             </select>
                         </div>
@@ -416,37 +411,37 @@ use Illuminate\Support\Facades\Crypt;
                                 <option value="">Select Status</option>
 
                                 <option value="pending"
-                                    {{ request('order_status') == 'pending' ? 'selected' : '' }}>
+                                    <?php echo e(request('order_status') == 'pending' ? 'selected' : ''); ?>>
                                     Pending
                                 </option>
 
                                 <option value="approved"
-                                    {{ request('order_status') == 'approved' ? 'selected' : '' }}>
+                                    <?php echo e(request('order_status') == 'approved' ? 'selected' : ''); ?>>
                                     Approved
                                 </option>
 
                                 <option value="dispatched"
-                                    {{ request('order_status') == 'dispatched' ? 'selected' : '' }}>
+                                    <?php echo e(request('order_status') == 'dispatched' ? 'selected' : ''); ?>>
                                     Dispatched
                                 </option>
 
                                 <option value="shipped"
-                                    {{ request('order_status') == 'shipped' ? 'selected' : '' }}>
+                                    <?php echo e(request('order_status') == 'shipped' ? 'selected' : ''); ?>>
                                     Shipped
                                 </option>
 
                                 <option value="delivered"
-                                    {{ request('order_status') == 'delivered' ? 'selected' : '' }}>
+                                    <?php echo e(request('order_status') == 'delivered' ? 'selected' : ''); ?>>
                                     Delivered
                                 </option>
 
                                 <option value="completed"
-                                    {{ request('order_status') == 'completed' ? 'selected' : '' }}>
+                                    <?php echo e(request('order_status') == 'completed' ? 'selected' : ''); ?>>
                                     Completed
                                 </option>
 
                                 <option value="returned"
-                                    {{ request('order_status') == 'returned' ? 'selected' : '' }}>
+                                    <?php echo e(request('order_status') == 'returned' ? 'selected' : ''); ?>>
                                     Returned
                                 </option>
 
@@ -457,13 +452,13 @@ use Illuminate\Support\Facades\Crypt;
                         <!-- Buttons -->
                         <div class="col-lg-3 col-md-3 d-flex gap-2">
                             <button class="btn buttonSpc w-100">Filter Report</button>
-                            @can('sales-orders.export')
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.export')): ?>
                             <button type="submit" name="export" value="excel" class="btn btn-success">
                                 <i class="ti ti-file-export me-1"></i>
                                 Export
                             </button>
-                            @endcan
-                            <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Reset</a>
+                            <?php endif; ?>
+                            <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Reset</a>
                         </div>
                     </div>
 
@@ -480,145 +475,148 @@ use Illuminate\Support\Facades\Crypt;
                         <th scope="col">Order Date</th>
                         <th scope="col">Customer Name</th>
                         <th scope="col">Customer Address</th>
-                        @if(isset($isFarmCareAdvisor))
+                        <?php if(isset($isFarmCareAdvisor)): ?>
                         <th scope="col">Farm Care Advisor</th>
-                        @endif
+                        <?php endif; ?>
                         <th scope="col">Franchise</th>
                         <th scope="col">Payment Image</th>
                         <th scope="col">Payment Status</th>
                         <th scope="col">Order Status</th>
-                        @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <th scope="col">Actions</th>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
 
-                    @forelse($sales as $key=>$sale)
+                    <?php $__empty_1 = true; $__currentLoopData = $sales; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$sale): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
                         <td class="text-center">
-                            <span class="fw-normal">{{ $sales->firstItem() + $key }}</span>
+                            <span class="fw-normal"><?php echo e($sales->firstItem() + $key); ?></span>
                         </td>
-                        <td><strong>{{ $sale?->c_order_no ?? 'N/A' }}</strong></td>
-                        <td>{{ \Carbon\Carbon::parse($sale->d_date)->format('d M Y') }}</td>
-                        <td>{{ $sale?->c_customer_name ?? 'N/A' }}</td>
-                        <td>{{ $sale?->c_customer_address ?? 'N/A' }}</td>
+                        <td><strong><?php echo e($sale?->c_order_no ?? 'N/A'); ?></strong></td>
+                        <td><?php echo e(\Carbon\Carbon::parse($sale->d_date)->format('d M Y')); ?></td>
+                        <td><?php echo e($sale?->c_customer_name ?? 'N/A'); ?></td>
+                        <td><?php echo e($sale?->c_customer_address ?? 'N/A'); ?></td>
 
-                        @if(isset($isFarmCareAdvisor))
+                        <?php if(isset($isFarmCareAdvisor)): ?>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div>
-                                    <h6 class="mb-0 fw-semibold">{{ $sale->employee?->c_employee_name ?? 'N/A' }}</h6>
-                                    <span class="fs-2 text-muted">{{ $sale->employee?->c_employee_code ?? '' }}</span>
+                                    <h6 class="mb-0 fw-semibold"><?php echo e($sale->employee?->c_employee_name ?? 'N/A'); ?></h6>
+                                    <span class="fs-2 text-muted"><?php echo e($sale->employee?->c_employee_code ?? ''); ?></span>
                                 </div>
                             </div>
                         </td>
-                        @endif
+                        <?php endif; ?>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div>
-                                    <h6 class="mb-0 fw-semibold">{{ $sale->franchise?->c_store_name ?? 'N/A' }}</h6>
-                                    <span class="fs-2 text-muted">{{ $sale->franchise?->c_store_code ?? '' }}</span>
+                                    <h6 class="mb-0 fw-semibold"><?php echo e($sale->franchise?->c_store_name ?? 'N/A'); ?></h6>
+                                    <span class="fs-2 text-muted"><?php echo e($sale->franchise?->c_store_code ?? ''); ?></span>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            @if($sale->payment_image)
-                                <a href="{{ asset('uploads/payment_images/' . $sale->payment_image) }}" target="_blank">
-                                    <img src="{{ asset('uploads/payment_images/' . $sale->payment_image) }}"
+                            <?php if($sale->payment_image): ?>
+                                <a href="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" target="_blank">
+                                    <img src="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>"
                                         width="50"
                                         height="50"
                                         style="object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0;">
                                 </a>
-                            @else
+                            <?php else: ?>
                                 <span class="text-muted">No Image</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
                          <td>
-                            @php
+                            <?php
                                 $status = strtolower($sale->payment_status ?? 'pending');
-                            @endphp
-                            @if($status == 'confirmed' )
+                            ?>
+                            <?php if($status == 'confirmed' ): ?>
                                 <span class="badge-status confirmed">Confirmed</span>
-                            @else
+                            <?php else: ?>
                                 <span class="badge-status pending">Pending</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
 
                         <td>
-                            @php
+                            <?php
                                 $status = strtolower($sale->current_order_status ?? 'pending');
-                            @endphp
-                            @if($status == 'approved' )
+                            ?>
+                            <?php if($status == 'approved' ): ?>
                                 <span class="badge-status approved">Order Approved</span>
-                            @elseif($status == 'dispatched')
+                            <?php elseif($status == 'dispatched'): ?>
                                 <span class="badge-status dispatched">Dispatched</span>
-                            @elseif($status == 'shipped')
+                            <?php elseif($status == 'shipped'): ?>
                                 <span class="badge-status shipped">Shipped</span>
-                            @elseif($status == 'delivered')
+                            <?php elseif($status == 'delivered'): ?>
                                 <span class="badge-status delivered">Delivered</span>
-                            @elseif($status == 'completed')
+                            <?php elseif($status == 'completed'): ?>
                                 <span class="badge-status completed">Completed</span>
-                            @elseif($status == 'returned')
+                            <?php elseif($status == 'returned'): ?>
                                 <span class="badge-status returned">Returned</span>
-                            @elseif($status == 'pending')
+                            <?php elseif($status == 'pending'): ?>
                                 <span class="badge-status pending">Pending</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
 
-                        @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <td>
                             <div class="dropdown dropstart">
-                                <a href="#" class="text-muted p-1" id="dropdownMenuButton_{{ $sale->n_sl_no }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a href="#" class="text-muted p-1" id="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="ti ti-dots-vertical fs-6"></i>
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton_{{ $sale->n_sl_no }}">
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>">
                                     <li>
-                                        @can('sales-orders.view-details')
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.view-details')): ?>
                                         <a class="dropdown-item d-flex align-items-center gap-3"
-                                            href="{{ route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no)) }}">
+                                            href="<?php echo e(route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no))); ?>">
                                             <i class="fs-4 ti ti-eye text-primary"></i>View Details
                                         </a>
-                                        @endcan
+                                        <?php endif; ?>
                                     </li>
                                     <li>
-                                        @can('sales-orders.edit')
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.edit')): ?>
                                         <a class="dropdown-item d-flex align-items-center gap-3"
-                                            href="{{ route('admin.salesorders.edit', Crypt::encryptString($sale->n_sl_no)) }}">
+                                            href="<?php echo e(route('admin.salesorders.edit', Crypt::encryptString($sale->n_sl_no))); ?>">
                                             <i class="fs-4 ti ti-edit text-success"></i>Edit
                                         </a>
-                                        @endcan
+                                        <?php endif; ?>
                                     </li>
                                     <li>
-                                        @can('sales-orders.delete')
-                                        <form action="{{ route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no)) }}"
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.delete')): ?>
+                                        <form action="<?php echo e(route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no))); ?>"
                                             method="POST" onsubmit="return confirm('Are you sure?')">
-                                            @csrf
-                                            @method('DELETE')
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('DELETE'); ?>
                                             <button type="submit" class="dropdown-item d-flex align-items-center gap-3 text-danger">
                                                 <i class="fs-4 ti ti-trash"></i>Delete
                                             </button>
                                         </form>
-                                        @endcan
+                                        <?php endif; ?>
                                     </li>
                                 </ul>
                             </div>
                         </td>
-                        @endcanany
+                        <?php endif; ?>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="10" class="text-center py-4 text-muted">No sales records found</td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
         <div class="mt-3 d-flex justify-content-end">
-            {{ $sales->links() }}
+            <?php echo e($sales->links()); ?>
+
         </div>
 
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\neenu\OneDrive\Documents\gipraLaravel\SPC\spc\resources\views/admin/sales/index.blade.php ENDPATH**/ ?>

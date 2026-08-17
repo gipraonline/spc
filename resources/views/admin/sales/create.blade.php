@@ -417,11 +417,14 @@ use Illuminate\Support\Facades\Crypt;
                             Booklet Serial No *
                         </label>
                         <div class="position-relative">
-                            <input type="text" name="c_order_no" placeholder="BK-2026-0417"
-                                class="form-control order-number fw-bold text-success"
+                            <input type="text"  name="c_order_no" placeholder="BK-2026-0417"
+                                class="form-control order-number fw-bold text-success mandatory"
+                                data-message="Please Enter Booklet Serial No"
                                 value="{{ old('c_order_no', isset($sale->c_order_no) ? $sale->c_order_no : '') }}"
                                 {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
+                                <div class="text-danger mt-1 fs-2"></div>
                         </div>
+
                         @error('c_order_no')
                         <div class="text-danger mt-1 fs-2">
                             {{ $message }}
@@ -445,7 +448,7 @@ use Illuminate\Support\Facades\Crypt;
                         <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}"
                             readonly>
                         @else
-                        <select name="farm_care_advisor_id" class="form-control mandatory">
+                        <select name="farm_care_advisor_id" class="form-control mandatory" data-message="Please Enter Farm Care Advisor">
                             <option value="">Select Farm Care Adviser</option>
                             @foreach($employees as $employee)
                             <option value="{{ $employee->n_employee_id }}"
@@ -453,16 +456,19 @@ use Illuminate\Support\Facades\Crypt;
                                 {{ $employee->c_employee_name }}
                             </option>
                             @endforeach
+
                         </select>
-                        @endif
                         <div class="text-danger mt-1 fs-2"></div>
+                        @endif
+
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">
                             Sales Order Booklet Proof *
                         </label>
-                        <input type="file" name="f_booklet_proof" class="form-control">
+                        <input type="file" name="f_booklet_proof" class="form-control mandatory" data-message="Please Enter Booklet Proof">
+                        <div class="text-danger mt-1 fs-2"></div>
                     </div>
 
                 </div>
@@ -796,18 +802,19 @@ use Illuminate\Support\Facades\Crypt;
 
                     <div class="col-md-9 d-flex flex-wrap">
                         <div class="payment-option">
-                            <input class="form-check-input mandatory mode_of_payment" type="radio" name="c_mode_of_payment" id="cod"
-                                value="Cash on delivery" checked {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "cash_on_delivery" ? 'checked' : '' }}>
+                            <input class="form-check-input mandatory mode_of_payment " type="radio" name="c_mode_of_payment" id="cod"
+                                value="Cash on delivery"  data-message="Please Choose a Payment Mode"  {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on delivery" ? 'checked' : '' }}>
 
                             <label for="cod" class="mb-0">
                                 <i class="ti ti-truck"></i>
                                 Cash on Delivery
                             </label>
+
                         </div>
 
                         <div class="payment-option">
                             <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
-                                value="UPI" {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
+                                value="UPI" {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
 
                             <label for="upi" class="mb-0">
                                 <i class="ti ti-brand-google-pay"></i>
@@ -817,7 +824,7 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="payment-option">
                             <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
-                                value="Bank Deposit"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
+                                value="Bank Deposit"  {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
 
                             <label for="bkd" class="mb-0">
                                 <i class="ti ti-building-bank"></i>
@@ -827,17 +834,18 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="payment-option">
                             <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
-                                value="Paid to Franchise"  {{ old('mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
+                                value="Paid to Franchise"{{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
 
                             <label for="pf" class="mb-0">
                                 <i class="ti ti-cash"></i>
                                 Paid to Franchise
                             </label>
                         </div>
+                        <div class="text-danger mt-1 fs-2"></div>
                     </div>
                 </div>
 
-                <div class="row g-4 mt-1">
+                <div class="row g-4 mt-1" id="ps" style="display:none;">
                     <div class="col-md-4">
 
                           <label class="form-label fw-semibold">
@@ -860,14 +868,14 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
                 <!-- Payment Details Extra Fields -->
-                <div class="row g-4 mt-1">
+                <div class="row g-4 mt-1" id="paymet-proofs" style="display:none;">
                     <div class="col-md-4">
                         <label class="form-label">
                             Amount to Pay *
                         </label>
                         <div class="input-group">
                             <span class="input-group-text bg-light text-success fw-bold">₹</span>
-                            <input type="text" name="n_amount_to_pay" id="n_amount_to_pay" class="form-control fw-bold text-success" value="" readonly>
+                            <input type="text" name="n_amount_to_pay" data-message="Please Enter Transaction id" id="n_amount_to_pay" class="form-control fw-bold text-success" value="" readonly>
                         </div>
                         <small class="text-muted fs-1 mt-1 d-block">Should match product total: ₹4,250.00</small>
                     </div>
@@ -876,15 +884,16 @@ use Illuminate\Support\Facades\Crypt;
                         <label class="form-label">
                             Transaction ID *
                         </label>
-                        <input type="text" name="c_transaction_id" class="form-control" placeholder="Enter Transaction / UTR / Reference No">
+                        <input type="text" id="c_transaction_id" name="c_transaction_id" data-message="Please Enter Transaction id" class="form-control " placeholder="Enter Transaction / UTR / Reference No">
                     </div>
 
                     <div class="col-md-4" id="payment_image" >
                         <label class="form-label">
                             Transaction Proof *
                         </label>
-                        <input type="file" name="payment_image" class="form-control">
+                        <input type="file" id="payment_image" name="payment_image" data-message="Please Enter Transaction Proof"  class="form-control ">
                     </div>
+                    <div class="text-danger mt-1 fs-2"></div>
                 </div>
 
             </div>
@@ -980,7 +989,7 @@ use Illuminate\Support\Facades\Crypt;
             </div> --}}
 
             <!-- Section 6: Franchise Details Section -->
-            <div class="form-box mb-4">
+            <div class="form-box mb-4" id="franchise-details" style="display:none;">
 
                 <div class="form-section-header mb-3">
                     <i class="ti ti-map-pin fs-5"></i>
@@ -994,7 +1003,7 @@ use Illuminate\Support\Facades\Crypt;
                             State <span class="text-danger">*</span>
                         </label>
 
-                        <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                        <select class="form-select" id="franchise_state" name="n_state_id"
                             data-message="Please Select State">
 
                             <option value="">Select State</option>
@@ -1009,6 +1018,7 @@ use Illuminate\Support\Facades\Crypt;
                             @endif
 
                         </select>
+                        <div class="text-danger mt-1 fs-2"></div>
 
                         @error('n_state_id')
                         <div class="text-danger mt-1 fs-2">
@@ -1019,7 +1029,7 @@ use Illuminate\Support\Facades\Crypt;
 
                     <div class="col-md-6">
                         <label for="state" class="form-label">District</label>
-                        <select class="form-select mandatory" data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="franchise_district" name="n_district_id">
+                        <select class="form-select " data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="franchise_district" name="n_district_id">
                             <option value="" selected>Select District</option>
                             @if(isset($sale->n_district_id))
                                 @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
@@ -1044,7 +1054,7 @@ use Illuminate\Support\Facades\Crypt;
                             Nearest Franchise
                         </label>
 
-                        <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                        <select class="form-select " id="franchise" name="nearest_franchise_id"
                             data-message="Please enter Nearest Franchise">
 
                             <option value="">
@@ -1061,6 +1071,7 @@ use Illuminate\Support\Facades\Crypt;
                             @endif
 
                         </select>
+                        <div class="text-danger mt-1 fs-2"></div>
                     </div>
 
                 </div>
@@ -1760,6 +1771,35 @@ $(document).ready(function() {
     | Customer Selection
     |--------------------------------------------------------------------------
     */
+
+
+    $('.mode_of_payment').on('change', function() {
+        var payment_mode=$(this).val();
+
+        if(payment_mode=="Paid to Franchise"){
+            $("#paymet-proofs").hide();
+            $("#ps").hide();
+            $("#franchise-details").show();
+            $("#franchise_state").addClass("mandatory");
+            $("#franchise_district").addClass("mandatory");
+            $("#franchise").addClass("mandatory");
+            $("#ps").removeClass("mandatory");
+            $("#c_transaction_id").removeClass("mandatory");
+            $("#payment_image").removeClass("mandatory");
+
+        }else{
+            $("#paymet-proofs").show();
+            $("#ps").show();
+            $("#franchise-details").hide();
+            $("#franchise_state").removeClass("mandatory");
+            $("#franchise_district").removeClass("mandatory");
+            $("#franchise").removeClass("mandatory");
+            $("#ps").addClass("mandatory");
+            $("#c_transaction_id").addClass("mandatory");
+            $("#payment_image").addClass("mandatory");
+
+        }
+    });
 
     $('#n_customer_id').on('change', function() {
 

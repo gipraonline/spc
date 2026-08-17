@@ -159,6 +159,15 @@ $(document).on('click', '#btn_create,#btn_update', function () {
 
     // }
 
+
+    // Check payment mode
+    if ($('input[name="c_mode_of_payment"]:checked').length === 0) {
+
+        $('#payment_mode_error').text('Please Choose a Payment Mode');
+
+        error = 1;
+    }
+
     if ($(this).val() == '') {
       $(this).siblings(".text-danger").text($(this).data('message'));
       error = 1;
@@ -174,39 +183,92 @@ $(document).on('click', '#btn_create,#btn_update', function () {
 // ==============================================================
 //                      ONLOAD VALIDATION
 // ==============================================================
+$(document).on('click', '#btn_create, #btn_update', function (e) {
 
-$(document).on('click', '#btn_create,#btn_update', function () {
+    e.preventDefault();
 
-  var error = 0;
+    var error = 0;
 
-  $('.mandatory').each(function (index, obj) {
+    // Clear previous validation messages
+    $('.mandatory').each(function () {
 
-        if ($(this).is(':radio')) {
+        $(this)
+            .closest('.col-md-6, .col-md-9')
+            .find('.text-danger')
+            .first()
+            .text('');
+    });
 
-            let name = $(this).attr('name');
+    $('.mandatory').each(function (index, obj) {
+
+        var $field = $(this);
+        var message = $(obj).data('message');
+
+        // ==========================
+        // RADIO BUTTON
+        // ==========================
+        if ($field.is(':radio')) {
+
+            var name = $field.attr('name');
 
             if ($('input[name="' + name + '"]:checked').length == 0) {
 
-                $(this).parent().siblings('.text-danger')
-                       .text($(obj).data('message'));
+                $field
+                    .closest('.col-md-6, .col-md-9')
+                    .find('.text-danger')
+                    .first()
+                    .text(message);
 
                 error = 1;
+            }
 
+        }
+
+        // ==========================
+        // SELECT
+        // ==========================
+        else if ($field.is('select')) {
+
+            if ($field.val() == '' || $field.val() == null) {
+
+                $field
+                    .closest('.col-md-6, .col-md-9')
+                    .find('.text-danger')
+                    .first()
+                    .text(message);
+
+                error = 1;
+            }
+
+        }
+
+        // ==========================
+        // INPUT / TEXTAREA
+        // ==========================
+        else {
+
+            if ($.trim($field.val()) == '') {
+
+                $field
+                    .closest('.col-md-6, .col-md-9')
+                    .find('.text-danger')
+                    .first()
+                    .text(message);
+
+                error = 1;
             }
         }
 
-    if(obj.value==''){
-      $(this).siblings(".text-danger").text($(obj).data('message'));
-      error = 1;
+    });
+
+    // ==========================
+    // SUBMIT
+    // ==========================
+    if (error == 0) {
+        $("#frm_create")[0].submit();
     }
 
-  });
-
-  if (error == 0) {
-    $("#frm_create").submit();
-  }
 });
-
 
 /* $(document).on('click', '#btn_create, #btn_update', function (e) {
 

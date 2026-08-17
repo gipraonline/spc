@@ -482,13 +482,44 @@ class SalesController extends Controller
 
             'n_customer_mobile' => 'required|digits_between:10,15',
 
-            'n_state_id' => 'required|integer|exists:states,n_state_id',
 
-            'n_district_id' => 'required|integer|exists:districts,id',
+             /*
+            |--------------------------------------------------------------------------
+            | Payment Mode
+            |--------------------------------------------------------------------------
+            */
 
-            'nearest_franchise_id' => 'required',
+            'c_mode_of_payment' =>
+                'required|string',
 
-            'c_mode_of_payment' => 'required|string',
+            /*
+
+            /*
+            |--------------------------------------------------------------------------
+            | Franchise Details
+            |--------------------------------------------------------------------------
+            */
+
+            'n_state_id' => [
+                'nullable',
+                'integer',
+                'exists:states,n_state_id',
+                'required_if:c_mode_of_payment,Paid to Franchise',
+            ],
+
+            'n_district_id' => [
+                'nullable',
+                'integer',
+                'exists:districts,id',
+                'required_if:c_mode_of_payment,Paid to Franchise',
+            ],
+
+            'nearest_franchise_id' => [
+                'nullable',
+                'required_if:c_mode_of_payment,Paid to Franchise',
+            ],
+
+
 
             //Totals//
             'n_total_sales_amount' => 'nullable|numeric|min:0',
@@ -504,13 +535,13 @@ class SalesController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'payment_status' => 'required|in:pending,confirmed',
+            'payment_status' => 'required_if:c_mode_of_payment,Paid to Franchise',
 
             'c_transaction_id' => [
                 'nullable',
                 'string',
                 'max:255',
-                'required_if:payment_status,confirmed',
+                  'required_if:c_mode_of_payment,Paid to Franchise',
             ],
 
             'payment_image' => [
@@ -518,6 +549,7 @@ class SalesController extends Controller
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:5120',
+                'required_if:c_mode_of_payment,Paid to Franchise',
             ],
 
             /*

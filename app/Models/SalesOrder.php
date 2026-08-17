@@ -18,31 +18,29 @@ class SalesOrder extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'd_date',
         'c_order_no',
-
+        'd_date',
         'farm_care_advisor_id',
-
-        // Customer ID
         'n_customer_id',
-
-        // Customer details
         'c_customer_name',
-        'c_customer_address',
         'c_customer_email',
+        'c_customer_address',
         'n_customer_mobile',
-
         'n_state_id',
         'n_district_id',
-
         'c_mode_of_payment',
         'c_order_status',
-        'payment_image',
-        'c_transaction_id',
         'nearest_franchise_id',
         'payment_status',
+        'c_transaction_id',
+        'payment_image',
         'booklet_image',
-        'delivery_status',
+
+        'n_total_sales_amount',
+        'n_product_discount_total',
+        'n_total_gst',
+        'n_total_discount',
+        'n_net_sales_amount',
 
         'invoice_no',
     ];

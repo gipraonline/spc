@@ -225,11 +225,75 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:products.view')
             ->name('products.clearSearch');
 
-        /*
-        |--------------------------------------------------------------------------
-        | District Filter
-        |--------------------------------------------------------------------------
-        */
+    Route::get('districts/{stateId}',[StoreController::class, 'getDistricts'])
+        ->middleware('permission:franchises.view')
+        ->name('districts');
+    // *********************************************
+
+    /*
+    |--------------------------------------------------------------------------
+    | Products
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('products', [ProductController::class, 'index'])
+        ->middleware('permission:products.view')
+        ->name('products.index');
+
+
+    Route::get('products/create', [ProductController::class, 'create'])
+        ->middleware('permission:products.create')
+        ->name('products.create');
+
+
+    Route::post('products', [ProductController::class, 'store'])
+        ->middleware('permission:products.create')
+        ->name('products.store');
+
+
+    // Route::get('products/{product}', [ProductController::class, 'show'])
+    //     ->middleware('permission:products.view')
+    //     ->name('products.show');
+
+
+    Route::get('products/{product}/edit', [ProductController::class, 'edit'])
+        ->middleware('permission:products.edit')
+        ->name('products.edit');
+
+
+    Route::put('products/{product}', [ProductController::class, 'update'])
+        ->middleware('permission:products.edit')
+        ->name('products.update');
+
+
+    Route::delete('products/{product}', [ProductController::class, 'destroy'])
+        ->middleware('permission:products.delete')
+        ->name('products.destroy');
+
+
+    Route::get('products/export', [ProductController::class, 'export'])
+        ->middleware('permission:products.export')
+        ->name('products.export');
+
+
+    Route::get('check-product-code', [ProductController::class, 'checkCode'])
+        ->middleware('permission:products.create|products.edit')
+        ->name('check.product.code');
+
+    Route::post('products/search', [ProductController::class, 'search'])
+        ->middleware('permission:products.view')
+        ->name('products.search');
+
+    Route::get('products/clear-search', [ProductController::class, 'clearSearch'])
+        ->middleware('permission:products.view')
+        ->name('products.clearSearch');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | District Filter
+    |--------------------------------------------------------------------------
+    */
         Route::get('districts', [SalesController::class, 'districtFilter'])
             ->name('filterDistrict');
         /*
@@ -357,6 +421,9 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:customers.view')
             ->name('customers.index');
 
+    Route::post('salesorders/followup', [SalesController::class, 'storeFollowup'])
+    ->middleware('permission:sales-orders.follow-up')
+    ->name('salesorders.followup.store');
         Route::get('customers/create', [CustomerController::class, 'create'])
             ->middleware('permission:customers.create')
             ->name('customers.create');
@@ -388,7 +455,79 @@ Route::middleware(['auth', 'admin'])
         Route::get('districts/{state}', [CustomerController::class, 'getDistricts'])
             ->name('admin.districts');
 
-        /*
+    Route::get('filterDistrict', [SalesController::class, 'franchiseFilter'])
+        ->name('salesorders.filterDistrict');
+
+    Route::get('filter-franchise', [SalesController::class, 'franchiseFilter'])
+        ->name('admin.filterFranchise');
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RBAC Management
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource('menus', MenuController::class)
+        ->middleware('permission:menu-management.view');
+
+
+    Route::resource('roles', RoleController::class)
+        ->middleware('permission:role-management.view');
+
+
+    Route::resource('users', AdminUserController::class)
+        ->middleware('permission:user-management.view');
+
+
+    Route::resource('permissions', PermissionController::class)
+        ->middleware('permission:permission-management.view');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Customers
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('customers', [CustomerController::class, 'index'])
+        ->middleware('permission:customers.view')
+        ->name('customers.index');
+
+    Route::get('customers/create', [CustomerController::class, 'create'])
+        ->middleware('permission:customers.create')
+        ->name('customers.create');
+
+    Route::post('customers', [CustomerController::class, 'store'])
+        ->middleware('permission:customers.create')
+        ->name('customers.store');
+
+    Route::get('customers/{customer}/edit', [CustomerController::class, 'edit'])
+        ->middleware('permission:customers.edit')
+        ->name('customers.edit');
+
+    Route::put('customers/{customer}', [CustomerController::class, 'update'])
+        ->middleware('permission:customers.edit')
+        ->name('customers.update');
+
+    Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])
+        ->middleware('permission:customers.delete')
+        ->name('customers.destroy');
+
+    Route::post('customers/search', [CustomerController::class, 'search'])
+        ->middleware('permission:customers.view')
+        ->name('customers.search');
+
+    Route::get('customers/clear-search', [CustomerController::class, 'clearSearch'])
+        ->middleware('permission:customers.view')
+        ->name('customers.clearSearch');
+
+    Route::get('districts/{state}', [CustomerController::class, 'getDistricts'])
+        ->name('admin.districts');
+
+
+     /*
     |--------------------------------------------------------------------------
     | Field log
     |--------------------------------------------------------------------------

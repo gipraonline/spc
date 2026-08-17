@@ -10,6 +10,7 @@ class CompanySettingSeeder extends Seeder
     public function run(): void
     {
         CompanySetting::updateOrCreate(
+            
             ['id' => 1],
             [
                 'company_name' => 'SPICES PRODUCER COMPANY LIMITED',

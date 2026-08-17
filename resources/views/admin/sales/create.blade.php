@@ -324,6 +324,42 @@
         width: 110px;
     }
 }
+
+.tablescrolll {
+    overflow-x: scroll;
+}
+
+
+#productTable tbody td input,
+#productTable tbody td select {
+    width: stretch;
+    min-width: 100%;
+}
+
+
+#productTable thead th {
+
+    white-space: nowrap;
+}
+
+@media screen and (max-width:767px) {
+    .summary-line {
+        flex-wrap: wrap;
+    }
+
+    .text-end {
+        text-align: left !important;
+    }
+
+    .section-title,
+    .form-section-header {
+        flex-wrap: wrap
+    }
+
+    .tablescrolll {
+        overflow-x: scroll;
+    }
+}
 </style>
 @endpush
 
@@ -331,6 +367,8 @@
 @php
 use Illuminate\Support\Facades\Crypt;
 @endphp
+
+
 <div class="card w-100 position-relative overflow-hidden mb-4">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Add Sales Orders</h5>
@@ -454,16 +492,19 @@ use Illuminate\Support\Facades\Crypt;
                     </button>
                     @endif
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-bordered align-middle" id="productTable">
+                <div class="tablescrolll">
+                    <table class="table table-bordered table-responsive align-middle" id="productTable">
                         <thead class="table-light">
                             <tr>
                                 <th width="25%">Product</th>
+                                <th width="12%">HSN Code</th>
                                 <th width="12%">Price</th>
                                 <th width="10%">Quantity</th>
+                                <th width="13%">Unit</th>
                                 <th width="12%">Discount</th>
                                 <th width="10%">GST %</th>
                                 <th width="13%">GST Amount</th>
+                                <th width="13%">Discounted Price</th>
                                 <th width="10%">MRP</th>
                                 <th width="8%">Action</th>
                             </tr>
@@ -479,6 +520,7 @@ use Illuminate\Support\Facades\Crypt;
                                         <option value="">Select Product</option>
 
                                         @foreach($products as $product)
+
                                         <option value="{{ $product->n_product_id }}" data-price="{{ $product->n_mrp }}"
                                             data-gst="{{ $product->n_gst_percentage ?? 0 }}"
                                             {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
@@ -490,6 +532,12 @@ use Illuminate\Support\Facades\Crypt;
                                 </td>
 
                                 <td>
+                                    <input type="text" name="products[{{ $key }}][c_hsn_code]"
+                                        class="form-control c_hsn_code" value="{{ $val->c_hsn_code }}" readonly>
+                                </td>
+
+
+                                <td>
                                     <input type="text" name="products[{{ $key }}][product_price]"
                                         class="form-control price" value="{{ $val->product_price }}" readonly>
                                 </td>
@@ -497,6 +545,11 @@ use Illuminate\Support\Facades\Crypt;
                                 <td>
                                     <input type="number" name="products[{{ $key }}][qty]" class="form-control qty"
                                         value="{{ $val->qty }}" min="1">
+                                </td>
+
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][c_unit]" class="form-control c_unit"
+                                        value="{{ $val->c_unit }}" readonly>
                                 </td>
 
                                 <td>
@@ -516,6 +569,13 @@ use Illuminate\Support\Facades\Crypt;
                                     <input type="text" name="products[{{ $key }}][gst_amount]"
                                         class="form-control gst_amount" value="{{ $val->gst_amount ?? '0.00' }}"
                                         readonly>
+                                </td>
+
+                                <!-- Discounted Price -->
+                                <td>
+                                    <input type="text" name="products[{{ $key }}][discounted_price]"
+                                        class="form-control discounted_price"
+                                        value="{{ $val->discounted_price ?? '0.00' }}" readonly>
                                 </td>
 
                                 <td>
@@ -554,7 +614,7 @@ use Illuminate\Support\Facades\Crypt;
                                     readonly>
                             </div>
 
-                            <!-- Product Discount Total -->
+                            {{--  <!-- Product Discount Total -->
                             <div class="summary-line">
                                 <span class="summary-label">
                                     Product Discount Total
@@ -563,33 +623,29 @@ use Illuminate\Support\Facades\Crypt;
                                 <input type="text" name="n_product_discount_total"
                                     class="form-control summary-input text-end" id="summaryProductDiscount"
                                     value="{{ old('n_product_discount_total', $sale->n_product_discount_total ?? '0.00') }}"
-                                    readonly>
-                            </div>
-
-                            <!-- Additional Discount -->
-                            {{--   <div class="summary-line">
-                                <span class="summary-label">
-                                    Additional Discount
-
-                                </span>
-
-                                <input type="number"
-                                    name="n_additional_discount"
-                                    class="form-control summary-input text-end"
-                                    id="summaryAdditionalDiscount"
-                                    value="{{ old('n_additional_discount', $sale->n_additional_discount ?? '0.00') }}"
-                            step="0.01"
-                            min="0">
+                            readonly>
                         </div> --}}
+
+                        <!-- Additional Discount -->
+                        <div class="summary-line">
+                            <span class="summary-label">
+                                Total GST
+
+                            </span>
+
+                            <input type="number" name="n_total_gst" class="form-control summary-input text-end"
+                                id="summaryGstAmount" value="{{ old('n_total_gst', $sale->n_total_gst ?? '0.00') }}"
+                                step="0.01" min="0">
+                        </div>
                         <!-- Total Discount -->
                         <div class="summary-line">
                             <span class="summary-label">
                                 Total Discount
                             </span>
 
-                            <input type="text" name="n_total_discount" class="form-control summary-input text-end"
+                            <input type="text" name="n_product_discount_total" class="form-control summary-input"
                                 id="summaryTotalDiscount"
-                                value="{{ old('n_total_discount', $sale->n_total_discount ?? '0.00') }}">
+                                value="{{ old('n_total_discount', $sale->n_product_discount_total ?? '0.00') }}">
                         </div>
 
                         <!-- Net Sales Amount -->
@@ -795,24 +851,16 @@ use Illuminate\Support\Facades\Crypt;
                     Payment Status
                 </label>
 
-                <select name="payment_status" id="paymentStatus" class="form-select">
+                <select name="payment_status" id="leadStatus" class="form-select">
 
                     <option value="">Select Status</option>
 
-                    <!-- <option value="pending"
-                        {{ old('c_lead_status', $lead->c_lead_status ?? '') == "pending" ? 'selected' : '' }}>Pending
-                    </option> -->
                     <option value="pending"
-                        {{ old('payment_status', $sale->payment_status ?? '') == 'pending' ? 'selected' : '' }}>
-                        Pending
+                        {{ old('c_lead_status', $sale->payment_status ?? '') == "pending" ? 'selected' : '' }}>Pending
                     </option>
-                    <!-- <option value="confirmed"
-                        {{ old('c_lead_status', $lead->c_lead_status ?? '') == "confirmed" ? 'selected' : '' }}>
-                        Confirmed</option> -->
                     <option value="confirmed"
-                        {{ old('payment_status', $sale->payment_status ?? '') == 'confirmed' ? 'selected' : '' }}>
-                        Confirmed
-                    </option>
+                        {{ old('c_lead_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : '' }}>
+                        Confirmed</option>
 
                 </select>
 
@@ -838,10 +886,7 @@ use Illuminate\Support\Facades\Crypt;
                 <label class="form-label">
                     Transaction ID *
                 </label>
-                <!-- <input type="text" name="c_transaction_id" class="form-control"
-                    placeholder="Enter Transaction / UTR / Reference No"> -->
-                <input type="text" name="c_transaction_id" id="c_transaction_id" class="form-control"
-                    value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
+                <input type="text" name="c_transaction_id" class="form-control"
                     placeholder="Enter Transaction / UTR / Reference No">
             </div>
 
@@ -849,228 +894,460 @@ use Illuminate\Support\Facades\Crypt;
                 <label class="form-label">
                     Transaction Proof *
                 </label>
-                <!-- <input type="file" name="payment_image" class="form-control"> -->
-                <input type="file" name="payment_image" id="payment_image_input" class="form-control"
-                    accept=".jpg,.jpeg,.png,.webp">
+                <input type="file" name="payment_image" class="form-control">
             </div>
         </div>
 
     </div>
+    {{--
+            <!-- Section 5: Order Status Section -->
+            <div class="form-box mb-4">
 
-    <!-- Section 5: Order Status Section -->
-    <div class="form-box mb-4">
+                <div class="form-section-header mb-3">
+                    <i class="ti ti-package fs-5"></i>
+                    Order Status
+                </div>
 
-        <div class="form-section-header mb-3">
-            <i class="ti ti-package fs-5"></i>
-            Order Status
-        </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-md-3 col-form-label fw-semibold">
+                        Status <span class="text-danger">*</span>
+                    </label>
 
-        <div class="row mb-3 align-items-center">
-            <label class="col-md-3 col-form-label fw-semibold">
-                Status <span class="text-danger">*</span>
+                    <div class="col-md-9 d-flex flex-wrap">
+
+                        <div class="order-status-option">
+                            <input
+                                class="form-check-input mandatory order-status"
+                                type="radio"
+                                name="c_order_status"
+                                id="order_status_approved"
+                                value="Approved"
+                                {{ old('c_order_status', $sale->c_order_status ?? '') == 'Approved' ? 'checked' : '' }}
+    >
+    <label for="order_status_approved" class="mb-0">
+        <i class="ti ti-circle-check text-success me-1"></i> Approved
+    </label>
+</div>
+
+<div class="order-status-option">
+    <input class="form-check-input order-status" type="radio" name="c_order_status" id="order_status_dispatched"
+        value="Dispatched" {{ old('c_order_status', $sale->c_order_status ?? '') == 'Dispatched' ? 'checked' : '' }}>
+    <label for="order_status_dispatched" class="mb-0">
+        <i class="ti ti-truck-loading text-info me-1"></i> Dispatched
+    </label>
+</div>
+
+<div class="order-status-option">
+    <input class="form-check-input order-status" type="radio" name="c_order_status" id="order_status_shipped"
+        value="Shipped" {{ old('c_order_status', $sale->c_order_status ?? '') == 'Shipped' ? 'checked' : '' }}>
+    <label for="order_status_shipped" class="mb-0">
+        <i class="ti ti-truck text-primary me-1"></i> Shipped
+    </label>
+</div>
+
+<div class="order-status-option">
+    <input class="form-check-input order-status" type="radio" name="c_order_status" id="order_status_delivered"
+        value="Delivered" {{ old('c_order_status', $sale->c_order_status ?? '') == 'Delivered' ? 'checked' : '' }}>
+    <label for="order_status_delivered" class="mb-0">
+        <i class="ti ti-package-export text-success me-1"></i> Delivered
+    </label>
+</div>
+
+<div class="order-status-option">
+    <input class="form-check-input order-status" type="radio" name="c_order_status" id="order_status_cancelled"
+        value="Cancelled" {{ old('c_order_status', $sale->c_order_status ?? '') == 'Cancelled' ? 'checked' : '' }}>
+    <label for="order_status_cancelled" class="mb-0">
+        <i class="ti ti-circle-x text-danger me-1"></i> Cancelled
+    </label>
+</div>
+
+</div>
+</div>
+
+</div> --}}
+
+<!-- Section 6: Franchise Details Section -->
+<div class="form-box mb-4">
+
+    <div class="form-section-header mb-3">
+        <i class="ti ti-map-pin fs-5"></i>
+        SPC Organic Clinic / Franchise / Stock Point Details
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <label class="form-label">
+                State <span class="text-danger">*</span>
             </label>
 
-            <div class="col-md-9 d-flex flex-wrap">
+            <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                data-message="Please Select State">
 
-                <div class="order-status-option">
-                    <input class="form-check-input mandatory order-status" type="radio" name="c_order_status"
-                        id="order_status_approved" value="Approved"
-                        {{ old('c_order_status', $sale->c_order_status ?? '') == 'Approved' ? 'checked' : '' }}>
-                    <label for="order_status_approved" class="mb-0">
-                        <i class="ti ti-circle-check text-success me-1"></i> Approved
-                    </label>
-                </div>
+                <option value="">Select State</option>
 
-                <div class="order-status-option">
-                    <input class="form-check-input order-status" type="radio" name="c_order_status"
-                        id="order_status_dispatched" value="Dispatched"
-                        {{ old('c_order_status', $sale->c_order_status ?? '') == 'Dispatched' ? 'checked' : '' }}>
-                    <label for="order_status_dispatched" class="mb-0">
-                        <i class="ti ti-truck-loading text-info me-1"></i> Dispatched
-                    </label>
-                </div>
+                @if(isset($states))
+                @foreach($states as $state)
+                <option value="{{ $state->n_state_id }}"
+                    {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
+                    {{ $state->name }}
+                </option>
+                @endforeach
+                @endif
 
-                <div class="order-status-option">
-                    <input class="form-check-input order-status" type="radio" name="c_order_status"
-                        id="order_status_shipped" value="Shipped"
-                        {{ old('c_order_status', $sale->c_order_status ?? '') == 'Shipped' ? 'checked' : '' }}>
-                    <label for="order_status_shipped" class="mb-0">
-                        <i class="ti ti-truck text-primary me-1"></i> Shipped
-                    </label>
-                </div>
+            </select>
 
-                <div class="order-status-option">
-                    <input class="form-check-input order-status" type="radio" name="c_order_status"
-                        id="order_status_delivered" value="Delivered"
-                        {{ old('c_order_status', $sale->c_order_status ?? '') == 'Delivered' ? 'checked' : '' }}>
-                    <label for="order_status_delivered" class="mb-0">
-                        <i class="ti ti-package-export text-success me-1"></i> Delivered
-                    </label>
-                </div>
-
-                <div class="order-status-option">
-                    <input class="form-check-input order-status" type="radio" name="c_order_status"
-                        id="order_status_cancelled" value="Cancelled"
-                        {{ old('c_order_status', $sale->c_order_status ?? '') == 'Cancelled' ? 'checked' : '' }}>
-                    <label for="order_status_cancelled" class="mb-0">
-                        <i class="ti ti-circle-x text-danger me-1"></i> Cancelled
-                    </label>
-                </div>
-
+            @error('n_state_id')
+            <div class="text-danger mt-1 fs-2">
+                {{ $message }}
             </div>
+            @enderror
+        </div>
+
+        <div class="col-md-6">
+            <label for="state" class="form-label">District</label>
+            <select class="form-select mandatory" data-message="Please enter District"
+                {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }} id="franchise_district" name="n_district_id">
+                <option value="" selected>Select District</option>
+                @if(isset($sale->n_district_id))
+                @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
+
+                @if(isset($districts))
+                @foreach($districts as $district)
+                <option value="{{$district->id}}"
+                    {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
+                    {{$district->district_name}}</option>
+                @endforeach
+                @endif
+                @endif
+
+            </select>
+            <div class="text-danger mt-1 fs-2"></div>
         </div>
 
     </div>
 
-    <!-- Section 6: Franchise Details Section -->
-    <div class="form-box mb-4">
+    <div class="row g-4 mb-4">
 
-        <div class="form-section-header mb-3">
-            <i class="ti ti-map-pin fs-5"></i>
-            SPC Organic Clinic / Franchise / Stock Point Details
+        <div class="col-md-6">
+            <label class="form-label">
+                Nearest Franchise
+            </label>
+
+            <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                data-message="Please enter Nearest Franchise">
+
+                <option value="">
+                    Select Franchise
+                </option>
+
+                @if(isset($franchises))
+                @foreach($franchises as $franchise)
+                <option value="{{ $franchise->n_store_id }}"
+                    {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
+                    {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
+                </option>
+                @endforeach
+                @endif
+
+            </select>
         </div>
 
-        <div class="row g-4 mb-4">
+    </div>
 
-            <div class="col-md-6">
-                <label class="form-label">
-                    State <span class="text-danger">*</span>
+</div>
+
+<!-- Action Buttons -->
+<div class="mt-4 d-flex gap-2 flex-wrap">
+    @if(isset($viewmode) && $viewmode=="on")
+    @can('sales-orders.follow-up')
+    <!--Follow-up Button-->
+    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
+        data-bs-target="#followUpModal" data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}"
+        id="followup">Update
+        Follow-up</button>
+    @endcan
+    @can('sales-orders.approval')
+    <!--Approval Button-->
+    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
+        data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
+        Approve
+    </button>
+    @endcan
+    @if(isset($sale) && $sale->n_sl_no)
+    {{-- Always available: Preview --}}
+    <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
+        Order Summary Preview
+    </a>
+
+    <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button" class="btn buttonSpc"
+            style="height:61px;margin-top: 4px;">Download Invoice</button></a>
+    @endif
+    @else
+    <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
+        id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
+    <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
+    @endif
+</div>
+
+</form>
+
+</div>
+
+
+
+</div>
+</div>
+
+<!-- Payment Details Extra Fields -->
+<div class="row g-4 mt-1">
+    <div class="col-md-4">
+        <label class="form-label">
+            Amount to Pay *
+        </label>
+        <div class="input-group">
+            <span class="input-group-text bg-light text-success fw-bold">₹</span>
+            <input type="text" name="n_amount_to_pay" id="n_amount_to_pay" class="form-control fw-bold text-success"
+                value="" readonly>
+        </div>
+        <small class="text-muted fs-1 mt-1 d-block">Should match product total: ₹4,250.00</small>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">
+            Transaction ID *
+        </label>
+        <!-- <input type="text" name="c_transaction_id" class="form-control"
+                    placeholder="Enter Transaction / UTR / Reference No"> -->
+        <input type="text" name="c_transaction_id" id="c_transaction_id" class="form-control"
+            value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
+            placeholder="Enter Transaction / UTR / Reference No">
+    </div>
+
+    <div class="col-md-4" id="payment_image">
+        <label class="form-label">
+            Transaction Proof *
+        </label>
+        <!-- <input type="file" name="payment_image" class="form-control"> -->
+        <input type="file" name="payment_image" id="payment_image_input" class="form-control"
+            accept=".jpg,.jpeg,.png,.webp">
+    </div>
+</div>
+
+</div>
+
+<!-- Section 5: Order Status Section -->
+<div class="form-box mb-4">
+
+    <div class="form-section-header mb-3">
+        <i class="ti ti-package fs-5"></i>
+        Order Status
+    </div>
+
+    <div class="row mb-3 align-items-center">
+        <label class="col-md-3 col-form-label fw-semibold">
+            Status <span class="text-danger">*</span>
+        </label>
+
+        <div class="col-md-9 d-flex flex-wrap">
+
+            <div class="order-status-option">
+                <input class="form-check-input mandatory order-status" type="radio" name="c_order_status"
+                    id="order_status_approved" value="Approved"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Approved' ? 'checked' : '' }}>
+                <label for="order_status_approved" class="mb-0">
+                    <i class="ti ti-circle-check text-success me-1"></i> Approved
                 </label>
-
-                <select class="form-select mandatory" id="franchise_state" name="n_state_id"
-                    data-message="Please Select State">
-
-                    <option value="">Select State</option>
-
-                    @if(isset($states))
-                    @foreach($states as $state)
-                    <option value="{{ $state->n_state_id }}"
-                        {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
-                        {{ $state->name }}
-                    </option>
-                    @endforeach
-                    @endif
-
-                </select>
-
-                @error('n_state_id')
-                <div class="text-danger mt-1 fs-2">
-                    {{ $message }}
-                </div>
-                @enderror
             </div>
 
-            <div class="col-md-6">
-                <label for="state" class="form-label">District</label>
-                <select class="form-select mandatory" data-message="Please enter District"
-                    {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }} id="franchise_district"
-                    name="n_district_id">
-                    <option value="" selected>Select District</option>
-                    @if(isset($sale->n_district_id))
-                    @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
-
-                    @if(isset($districts))
-                    @foreach($districts as $district)
-                    <option value="{{$district->id}}"
-                        {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
-                        {{$district->district_name}}</option>
-                    @endforeach
-                    @endif
-                    @endif
-
-                </select>
-                <div class="text-danger mt-1 fs-2"></div>
+            <div class="order-status-option">
+                <input class="form-check-input order-status" type="radio" name="c_order_status"
+                    id="order_status_dispatched" value="Dispatched"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Dispatched' ? 'checked' : '' }}>
+                <label for="order_status_dispatched" class="mb-0">
+                    <i class="ti ti-truck-loading text-info me-1"></i> Dispatched
+                </label>
             </div>
 
-            {{-- Panchayath --}}
-            <div class="col-md-6">
-                <label class="form-label">
-                    Panchayath
+            <div class="order-status-option">
+                <input class="form-check-input order-status" type="radio" name="c_order_status"
+                    id="order_status_shipped" value="Shipped"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Shipped' ? 'checked' : '' }}>
+                <label for="order_status_shipped" class="mb-0">
+                    <i class="ti ti-truck text-primary me-1"></i> Shipped
                 </label>
-
-                <select class="form-select" id="franchise_panchayath" name="n_panchayath_id">
-
-                    <option value="">Select Panchayath</option>
-
-                </select>
             </div>
 
-
-            <div class="col-md-6">
-                <label class="form-label">
-                    Nearest Franchise
+            <div class="order-status-option">
+                <input class="form-check-input order-status" type="radio" name="c_order_status"
+                    id="order_status_delivered" value="Delivered"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Delivered' ? 'checked' : '' }}>
+                <label for="order_status_delivered" class="mb-0">
+                    <i class="ti ti-package-export text-success me-1"></i> Delivered
                 </label>
+            </div>
 
-                <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
-                    data-message="Please enter Nearest Franchise">
-
-                    <option value="">
-                        Select Franchise
-                    </option>
-
-                    @if(isset($franchises))
-                    @foreach($franchises as $franchise)
-                    <option value="{{ $franchise->n_store_id }}"
-                        {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
-                        {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
-                    </option>
-                    @endforeach
-                    @endif
-
-                </select>
+            <div class="order-status-option">
+                <input class="form-check-input order-status" type="radio" name="c_order_status"
+                    id="order_status_cancelled" value="Cancelled"
+                    {{ old('c_order_status', $sale->c_order_status ?? '') == 'Cancelled' ? 'checked' : '' }}>
+                <label for="order_status_cancelled" class="mb-0">
+                    <i class="ti ti-circle-x text-danger me-1"></i> Cancelled
+                </label>
             </div>
 
         </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="mt-4 d-flex gap-2 flex-wrap">
-        @if(isset($viewmode) && $viewmode=="on")
-        @can('sales-orders.follow-up')
-        <!--Follow-up Button-->
-        <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
-            data-bs-target="#followUpModal" data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}"
-            id="followup">Update
-            Follow-up</button>
-        @endcan
-        @can('sales-orders.approval')
-        <!--Approval Button-->
+</div>
 
-        <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
-            data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
-            Approve
-        </button>
-        @endcan
-        <!-- @if(isset($sale) && $sale->n_sl_no)
+<!-- Section 6: Franchise Details Section -->
+<div class="form-box mb-4">
+
+    <div class="form-section-header mb-3">
+        <i class="ti ti-map-pin fs-5"></i>
+        SPC Organic Clinic / Franchise / Stock Point Details
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <label class="form-label">
+                State <span class="text-danger">*</span>
+            </label>
+
+            <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                data-message="Please Select State">
+
+                <option value="">Select State</option>
+
+                @if(isset($states))
+                @foreach($states as $state)
+                <option value="{{ $state->n_state_id }}"
+                    {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
+                    {{ $state->name }}
+                </option>
+                @endforeach
+                @endif
+
+            </select>
+
+            @error('n_state_id')
+            <div class="text-danger mt-1 fs-2">
+                {{ $message }}
+            </div>
+            @enderror
+        </div>
+
+        <div class="col-md-6">
+            <label for="state" class="form-label">District</label>
+            <select class="form-select mandatory" data-message="Please enter District"
+                {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }} id="franchise_district" name="n_district_id">
+                <option value="" selected>Select District</option>
+                @if(isset($sale->n_district_id))
+                @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
+
+                @if(isset($districts))
+                @foreach($districts as $district)
+                <option value="{{$district->id}}"
+                    {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
+                    {{$district->district_name}}</option>
+                @endforeach
+                @endif
+                @endif
+
+            </select>
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+
+        {{-- Panchayath --}}
+        <div class="col-md-6">
+            <label class="form-label">
+                Panchayath
+            </label>
+
+            <select class="form-select" id="franchise_panchayath" name="n_panchayath_id">
+
+                <option value="">Select Panchayath</option>
+
+            </select>
+        </div>
+
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Nearest Franchise
+            </label>
+
+            <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                data-message="Please enter Nearest Franchise">
+
+                <option value="">
+                    Select Franchise
+                </option>
+
+                @if(isset($franchises))
+                @foreach($franchises as $franchise)
+                <option value="{{ $franchise->n_store_id }}"
+                    {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
+                    {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
+                </option>
+                @endforeach
+                @endif
+
+            </select>
+        </div>
+
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="mt-4 d-flex gap-2 flex-wrap">
+    @if(isset($viewmode) && $viewmode=="on")
+    @can('sales-orders.follow-up')
+    <!--Follow-up Button-->
+    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
+        data-bs-target="#followUpModal" data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}"
+        id="followup">Update
+        Follow-up</button>
+    @endcan
+    @can('sales-orders.approval')
+    <!--Approval Button-->
+
+    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
+        data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
+        Approve
+    </button>
+    @endcan
+    <!-- @if(isset($sale) && $sale->n_sl_no)
         <a href="{{route('admin.invoice-orders.preview', $sale->n_sl_no)}}"><button type="button"
                 class="btn mt-1 buttonSpc" id="btn_create">Order Summary Preview</button></a>
         <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button" class="btn mt-1 buttonSpc"
                 id="btn_create">Download Invoice</button></a>
         @endif -->
 
-        @if(isset($sale) && $sale->n_sl_no)
+    @if(isset($sale) && $sale->n_sl_no)
 
-        {{-- Always available: Preview --}}
-        <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
-            Order Summary Preview
-        </a>
+    {{-- Always available: Preview --}}
+    <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
+        Order Summary Preview
+    </a>
 
-        {{-- Available only after approval --}}
-        @if($sale->c_order_status === 'Approved')
-        <a href="{{ route('admin.invoice.download', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
-            Download Invoice
-        </a>
-        @endif
+    {{-- Available only after approval --}}
+    @if($sale->c_order_status === 'Approved')
+    <a href="{{ route('admin.invoice.download', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
+        Download Invoice
+    </a>
+    @endif
 
-        @endif
-        @else
-        <button type="submit" class="btn buttonSpc"
-            id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
-        <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
-        @endif
-    </div>
+    @endif
+    @else
+    <button type="submit" class="btn buttonSpc" id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
+    <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
+    @endif
+</div>
 
-    </form>
+</form>
 </div>
 </div>
 
@@ -1084,29 +1361,24 @@ use Illuminate\Support\Facades\Crypt;
 
                 <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
                     <h5 class="modal-title text-white" id="followUpModalLabel">
-                        Lead Follow-up Form
+                        Order Follow-up Form
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
 
-                    <input type="hidden" name="lead_id" value="{{ $lead->id ?? '' }}">
+                    <input type="hidden" name="n_sale_id" value="{{ $sale->n_sl_no ?? '' }}">
 
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Date</label>
-                            <input type="date" name="followup_date" class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Next Follow-up Date</label>
-                            <input type="date" name="next_followup_date" class="form-control">
+                            <input type="date" name="d_followup_date" class="form-control" required>
                         </div>
 
                         @if(isset($user) && $user->identifier != "FCA")
-                        <div class="col-md-6 mb-3">
+                        {{-- <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Type</label>
                             <select name="followup_type" class="form-select" required>
                                 <option value="">Select</option>
@@ -1114,35 +1386,21 @@ use Illuminate\Support\Facades\Crypt;
                                 <option value="WhatsApp">WhatsApp</option>
                                 <option value="Site Visit">Site Visit</option>
                             </select>
-                        </div>
+                        </div> --}}
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Lead Status</label>
-                            <select name="status" class="form-select" required>
+                            <label class="form-label">Order Status</label>
+                            <select name="c_order_status" class="form-select" required>
                                 <option value="">Select Status</option>
-                                <option value="New">New</option>
-                                <option value="Contacted">Contacted</option>
-                                <option value="Interested">Interested</option>
-                                <option value="Negotiation">Negotiation</option>
-                                <option value="Won">Won</option>
-                                <option value="Lost">Lost</option>
+                                <option value="dispatched">Dispatched</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="returned">Returned</option>
                             </select>
                         </div>
                         @endif
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Priority</label>
-                            <select name="priority" class="form-select">
-                                <option>Low</option>
-                                <option selected>Medium</option>
-                                <option>High</option>
-                                <option>Urgent</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Reminder</label>
-                            <input type="datetime-local" name="reminder_at" class="form-control">
-                        </div>
 
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Remarks</label>
@@ -1169,44 +1427,134 @@ use Illuminate\Support\Facades\Crypt;
     </div>
 </div>
 
-<!-- Approval Modal -->
+
 <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+
     <div class="modal-dialog">
-        <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
-            @csrf
-            @method('PUT')
-            <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
-                    <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="id" id="approval_id">
-                    <div class="mb-3">
-                        <label class="form-label">Remarks <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="remarks" id="approval_remarks" rows="3"
-                            required></textarea>
+        <div class="modal-content">
+
+            <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
+
+                @csrf
+                @method('PUT')
+
+
+                <div class="modal-content">
+
+                    <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);"">
+
+                    <h5 class=" modal-title text-white" id="approveModalLabel">
+                        Approval
+                        </h5>
+
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                        </button>
+
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Approval Status <span class="text-danger">*</span></label>
-                        <select class="form-select" name="status" id="approval_status" required>
-                            <option value="">Select Status</option>
-                            <option value="Approved">Approve</option>
-                            <option value="Rejected">Reject</option>
-                        </select>
+
+                    <div class="modal-body">
+
+                        <input type="hidden" name="id" id="approval_id">
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Remarks <span class="text-danger">*</span>
+                            </label>
+
+                            <textarea class="form-control" name="remarks" id="approval_remarks" rows="3"
+                                required></textarea>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Approval Status
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <select class="form-select" name="status" id="approval_status" required>
+
+                                <option value="">
+                                    Select Status
+                                </option>
+
+                                <option value="Approved">
+                                    Approve
+                                </option>
+
+                                <option value="Rejected">
+                                    Reject
+                                </option>
+
+                            </select>
+
+                        </div>
+
                     </div>
+
+                    <div class="modal-footer">
+
+                        <button type="submit" class="btn buttonSpc" id="approvalSubmit">
+                            Submit
+                        </button>
+
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                    </div>
+
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn buttonSpc" id="approvalSubmit">Submit</button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-        </form>
+
+            </form>
+
+
+
+        </div>
     </div>
 </div>
+
+
+<!-- Approval Modal -->
+{{-- <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
+@csrf
+@method('PUT')
+<div class="modal-content">
+    <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
+        <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <input type="hidden" name="id" id="approval_id">
+        <div class="mb-3">
+            <label class="form-label">Remarks <span class="text-danger">*</span></label>
+            <textarea class="form-control" name="remarks" id="approval_remarks" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Approval Status <span class="text-danger">*</span></label>
+            <select class="form-select" name="status" id="approval_status" required>
+                <option value="">Select Status</option>
+                <option value="Approved">Approve</option>
+                <option value="Rejected">Reject</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn buttonSpc" id="approvalSubmit">Submit</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</div>
+</form>
+</div>
+</div> --}}
 @php
 $hasPaymentImage = isset($sale) && !empty($sale->payment_image);
 @endphp
+
 @endsection
 
 @push('scripts')
@@ -1248,7 +1596,9 @@ $(document).ready(function() {
                                 <option
                                     value="{{ $product->n_product_id }}"
                                     data-price="{{ $product->n_mrp }}"
-                                    data-gst="{{ $product->n_gst_percentage }}">
+                                    data-gst="{{ $product->n_gst_percentage }}"
+                                    data-hsnCode="{{ $product->c_hsn_code }}"
+                                    data-unit="{{ $product->c_unit }}">
 
                                     {{ $product->c_product_name }}
                                     ({{ $product->c_product_code }})
@@ -1260,6 +1610,16 @@ $(document).ready(function() {
                         </select>
 
                         <div class="text-danger mt-1 fs-2"></div>
+                    </td>
+
+                    <!-- HSN Code -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][c_hsn_code]"
+                            class="form-control c_hsn_code"
+                            value="{{$product->c_hsn_code}}"
+                            readonly>
                     </td>
 
 
@@ -1281,6 +1641,16 @@ $(document).ready(function() {
                             class="form-control qty"
                             value="1"
                             min="1">
+                    </td>
+
+
+                    <!-- Unit -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][c_unit]"
+                            class="form-control c_unit"
+                            readonly>
                     </td>
 
 
@@ -1318,6 +1688,15 @@ $(document).ready(function() {
                             readonly>
                     </td>
 
+                    <!-- Discounted Price -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][discounted_price]"
+                            class="form-control discounted_price"
+                            value="0.00"
+                            readonly>
+                    </td>
 
                     <!-- Product Total -->
                     <td>
@@ -1392,22 +1771,30 @@ $(document).ready(function() {
         let selectedOption = productSelect.find(':selected');
 
         // Price from product
-        let price = parseFloat(
+        let mrp = parseFloat(
             selectedOption.attr('data-price')
         ) || parseFloat(row.find('.price').val()) || 0;
+
+        let hsnCode = selectedOption.attr('data-hsnCode');
+        let unit = selectedOption.attr('data-unit');
 
         // GST percentage from product
         let gstPercentage = parseFloat(
             selectedOption.attr('data-gst')
         ) || parseFloat(row.find('.gst_percentage').val()) || 0;
 
+        let gstAmount = mrp - (mrp / (1 + gstPercentage / 100));
+
         let qty = parseFloat(row.find('.qty').val()) || 0;
 
         let discount = parseFloat(row.find('.discount').val()) || 0;
 
+        // Product-wise GST
+        let price = mrp - gstAmount;
 
         // Gross amount
         let grossAmount = price * qty;
+
 
 
         // Amount after discount
@@ -1418,17 +1805,21 @@ $(document).ready(function() {
         }
 
 
-        // Product-wise GST
-        let gstAmount = taxableAmount * gstPercentage / 100;
-
-
         // Product total including GST
         let lineTotal = taxableAmount + gstAmount;
 
 
         // Set values
+        row.find('.c_hsn_code').val(
+            hsnCode
+        );
+
         row.find('.price').val(
             price.toFixed(2)
+        );
+
+        row.find('.c_unit').val(
+            unit
         );
 
         row.find('.gst_percentage').val(
@@ -1437,6 +1828,10 @@ $(document).ready(function() {
 
         row.find('.gst_amount').val(
             gstAmount.toFixed(2)
+        );
+
+        row.find('.discounted_price').val(
+            taxableAmount.toFixed(2)
         );
 
         row.find('.total').val(
@@ -1534,7 +1929,7 @@ $(document).ready(function() {
         );
 
         $('#summaryTotalDiscount').val(
-            totalDiscount.toFixed(2)
+            productDiscount.toFixed(2)
         );
 
         $('#summaryTaxableAmount').val(

@@ -10,6 +10,7 @@ use App\Models\DesignationMaster;
 use App\Models\District;
 use App\Models\EmployeeMaster;
 use App\Models\OrderProduct;
+use App\Models\Panchayath;
 use App\Models\ProductMaster;
 use App\Models\SalesApproval;
 use App\Models\SalesOrder;
@@ -262,13 +263,6 @@ class SalesController extends Controller
             'farmCareAdvisorId',
             'isFarmCareAdvisor'
         ));
-    }
-
-    public function districtFilter(Request $request)
-    {
-        $districts = District::where('state_id', $request->state)->get();
-
-        return response()->json(['districts' => $districts]);
     }
 
     // public function store(Request $request)
@@ -1218,11 +1212,36 @@ class SalesController extends Controller
             ->with('success', 'Sales entry deleted successfully.');
     }
 
+    public function districtFilter(Request $request)
+    {
+        $districts = District::where('state_id', $request->state)->get();
+
+        return response()->json(['districts' => $districts]);
+    }
+
+    public function panchayathFilter(Request $request)
+    {
+        $panchayaths = Panchayath::where('district_id', $request->district)
+            ->where('status', 'Y')
+            ->orderBy('panchayath_name', 'ASC')
+            ->get([
+                'id',
+                'panchayath_name',
+            ]);
+
+        return response()->json([
+            'panchayaths' => $panchayaths,
+        ]);
+    }
+
     public function franchiseFilter(Request $request)
     {
+
+        // dd($request->all());
         $franchises = StoreMaster::where('c_store_status', 'Y')
             ->where('n_state_id', $request->state)
             ->where('n_district_id', $request->district)
+            ->where('n_panchayath_id', $request->panchayath)
             ->orderBy('c_store_name', 'ASC')
             ->get([
                 'n_store_id',
@@ -1234,4 +1253,22 @@ class SalesController extends Controller
             'franchises' => $franchises,
         ]);
     }
+
+    // public function franchiseFilter(Request $request)
+    // {
+    //     $franchises = StoreMaster::where('c_store_status', 'Y')
+    //         ->where('n_state_id', $request->state)
+    //         ->where('n_district_id', $request->district)
+    //         ->where('n_panchayat_id', $request->panchayat)
+    //         ->orderBy('c_store_name', 'ASC')
+    //         ->get([
+    //             'n_store_id',
+    //             'c_store_name',
+    //             'c_store_code',
+    //         ]);
+
+    //     return response()->json([
+    //         'franchises' => $franchises,
+    //     ]);
+    // }
 }

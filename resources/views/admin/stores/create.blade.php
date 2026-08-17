@@ -197,7 +197,7 @@
                 </div>
             </div>
 
-            <div class="row g-4 mb-4">
+            <!-- <div class="row g-4 mb-4">
 
                 <div class="col-md-6">
                     <label for="n_state_id" class="form-label">State *</label>
@@ -223,6 +223,64 @@
                     </select>
 
                     @error('n_district_id')
+                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+            </div> -->
+            <div class="row g-4 mb-4">
+
+                {{-- State --}}
+                <div class="col-md-4">
+                    <label for="n_state_id" class="form-label">
+                        State *
+                    </label>
+
+                    <select id="n_state_id" name="n_state_id" class="form-select mandatory">
+
+                        <option value="">Select State</option>
+
+                        @foreach($states as $state)
+                        <option value="{{ $state->n_state_id }}"
+                            {{ old('n_state_id') == $state->n_state_id ? 'selected' : '' }}>
+                            {{ $state->name }}
+                        </option>
+                        @endforeach
+
+                    </select>
+
+                    @error('n_state_id')
+                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+
+                {{-- District --}}
+                <div class="col-md-4">
+                    <label for="n_district_id" class="form-label">
+                        District *
+                    </label>
+
+                    <select id="n_district_id" name="n_district_id" class="form-select mandatory">
+
+                        <option value="">Select District</option>
+
+                    </select>
+
+                    @error('n_district_id')
+                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+
+                {{-- Panchayath --}}
+                <div class="col-md-4">
+                    <label for="c_panchayath" class="form-label">Panchayath *</label>
+
+                    <input type="text" id="c_panchayath" name="c_panchayath" value="{{ old('c_panchayath') }}"
+                        maxlength="100" class="form-control mandatory" placeholder="Enter Panchayath">
+
+                    @error('c_panchayath')
                     <div class="text-danger mt-1 fs-2">{{ $message }}</div>
                     @enderror
                 </div>
@@ -278,27 +336,91 @@
         </form>
     </div>
 </div>
-
+@endsection
 @push('scripts')
 <script>
-$('#n_state_id').on('change', function() {
+$(document).ready(function() {
 
-    let stateId = $(this).val();
+    /*
+    |--------------------------------------------------------------------------
+    | STATE → DISTRICT
+    |--------------------------------------------------------------------------
+    */
 
-    $('#n_district_id').html('<option>Loading...</option>');
+    $('#n_state_id').on('change', function() {
 
-    $.get('/admin/districts/' + stateId, function(response) {
+        let stateId = $(this).val();
 
-        $('#n_district_id').html('<option value="">Select District</option>');
+        // Clear district
+        $('#n_district_id').html(
+            '<option value="">Loading...</option>'
+        );
 
-        $.each(response, function(index, district) {
+        if (!stateId) {
 
-            $('#n_district_id').append(
-                '<option value="' + district.id + '">' +
-                district.district_name +
-                '</option>'
+            $('#n_district_id').html(
+                '<option value="">Select District</option>'
             );
 
+            return;
+        }
+
+        $.ajax({
+            type: 'GET',
+
+            url: "{{ route('admin.filterDistrict') }}",
+
+            data: {
+                state: stateId
+            },
+
+            dataType: 'json',
+
+            success: function(response) {
+
+                console.log('District response:', response);
+
+                $('#n_district_id').html(
+                    '<option value="">Select District</option>'
+                );
+
+                if (
+                    response.districts &&
+                    response.districts.length > 0
+                ) {
+
+                    $.each(response.districts, function(index, district) {
+
+                        $('#n_district_id').append(
+                            '<option value="' +
+                            district.id +
+                            '">' +
+                            district.district_name +
+                            '</option>'
+                        );
+
+                    });
+
+                } else {
+
+                    $('#n_district_id').html(
+                        '<option value="">No Districts Found</option>'
+                    );
+                }
+
+            },
+
+            error: function(xhr) {
+
+                console.error(
+                    'District loading failed:',
+                    xhr.responseText
+                );
+
+                $('#n_district_id').html(
+                    '<option value="">Unable to load districts</option>'
+                );
+            }
         });
 
     });
@@ -306,4 +428,3 @@ $('#n_state_id').on('change', function() {
 });
 </script>
 @endpush
-@endsection

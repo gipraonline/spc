@@ -170,6 +170,9 @@ Route::middleware(['auth', 'admin'])
         Route::get('districts/{stateId}', [StoreController::class, 'getDistricts'])
             ->middleware('permission:franchises.view')
             ->name('districts');
+
+        Route::get('filter-panchayath', [StoreController::class, 'filterPanchayath'])
+            ->name('admin.filterPanchayath');
         // *********************************************
 
         /*
@@ -229,6 +232,13 @@ Route::middleware(['auth', 'admin'])
         */
         Route::get('districts', [SalesController::class, 'districtFilter'])
             ->name('filterDistrict');
+        /*
+                |--------------------------------------------------------------------------
+                | Panchayath Filter
+                |--------------------------------------------------------------------------
+                */
+        Route::get('/filter-panchayath', [SalesController::class, 'panchayathFilter'])
+            ->name('filterPanchayath');
 
         /*
         |--------------------------------------------------------------------------

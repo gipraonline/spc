@@ -223,7 +223,7 @@ unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
-            <div class="row g-4 mb-4">
+            <!-- <div class="row g-4 mb-4">
 
                 <div class="col-md-6">
                     <label for="n_state_id" class="form-label">State *</label>
@@ -257,6 +257,86 @@ unset($__errorArgs, $__bag); ?>
                     </select>
 
                     <?php $__errorArgs = ['n_district_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1 fs-2"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
+
+            </div> -->
+            <div class="row g-4 mb-4">
+
+                
+                <div class="col-md-4">
+                    <label for="n_state_id" class="form-label">
+                        State *
+                    </label>
+
+                    <select id="n_state_id" name="n_state_id" class="form-select mandatory">
+
+                        <option value="">Select State</option>
+
+                        <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($state->n_state_id); ?>"
+                            <?php echo e(old('n_state_id') == $state->n_state_id ? 'selected' : ''); ?>>
+                            <?php echo e($state->name); ?>
+
+                        </option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                    </select>
+
+                    <?php $__errorArgs = ['n_state_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1 fs-2"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
+
+
+                
+                <div class="col-md-4">
+                    <label for="n_district_id" class="form-label">
+                        District *
+                    </label>
+
+                    <select id="n_district_id" name="n_district_id" class="form-select mandatory">
+
+                        <option value="">Select District</option>
+
+                    </select>
+
+                    <?php $__errorArgs = ['n_district_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1 fs-2"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
+
+
+                
+                <div class="col-md-4">
+                    <label for="c_panchayath" class="form-label">Panchayath *</label>
+
+                    <input type="text" id="c_panchayath" name="c_panchayath" value="<?php echo e(old('c_panchayath')); ?>"
+                        maxlength="100" class="form-control mandatory" placeholder="Enter Panchayath">
+
+                    <?php $__errorArgs = ['c_panchayath'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -340,27 +420,91 @@ unset($__errorArgs, $__bag); ?>
         </form>
     </div>
 </div>
-
+<?php $__env->stopSection(); ?>
 <?php $__env->startPush('scripts'); ?>
 <script>
-$('#n_state_id').on('change', function() {
+$(document).ready(function() {
 
-    let stateId = $(this).val();
+    /*
+    |--------------------------------------------------------------------------
+    | STATE → DISTRICT
+    |--------------------------------------------------------------------------
+    */
 
-    $('#n_district_id').html('<option>Loading...</option>');
+    $('#n_state_id').on('change', function() {
 
-    $.get('/admin/districts/' + stateId, function(response) {
+        let stateId = $(this).val();
 
-        $('#n_district_id').html('<option value="">Select District</option>');
+        // Clear district
+        $('#n_district_id').html(
+            '<option value="">Loading...</option>'
+        );
 
-        $.each(response, function(index, district) {
+        if (!stateId) {
 
-            $('#n_district_id').append(
-                '<option value="' + district.id + '">' +
-                district.district_name +
-                '</option>'
+            $('#n_district_id').html(
+                '<option value="">Select District</option>'
             );
 
+            return;
+        }
+
+        $.ajax({
+            type: 'GET',
+
+            url: "<?php echo e(route('admin.filterDistrict')); ?>",
+
+            data: {
+                state: stateId
+            },
+
+            dataType: 'json',
+
+            success: function(response) {
+
+                console.log('District response:', response);
+
+                $('#n_district_id').html(
+                    '<option value="">Select District</option>'
+                );
+
+                if (
+                    response.districts &&
+                    response.districts.length > 0
+                ) {
+
+                    $.each(response.districts, function(index, district) {
+
+                        $('#n_district_id').append(
+                            '<option value="' +
+                            district.id +
+                            '">' +
+                            district.district_name +
+                            '</option>'
+                        );
+
+                    });
+
+                } else {
+
+                    $('#n_district_id').html(
+                        '<option value="">No Districts Found</option>'
+                    );
+                }
+
+            },
+
+            error: function(xhr) {
+
+                console.error(
+                    'District loading failed:',
+                    xhr.responseText
+                );
+
+                $('#n_district_id').html(
+                    '<option value="">Unable to load districts</option>'
+                );
+            }
         });
 
     });
@@ -368,5 +512,4 @@ $('#n_state_id').on('change', function() {
 });
 </script>
 <?php $__env->stopPush(); ?>
-<?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/stores/create.blade.php ENDPATH**/ ?>

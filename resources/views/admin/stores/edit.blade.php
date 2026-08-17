@@ -182,9 +182,12 @@
 
                 <div class="row g-4 mb-4">
 
-                    <div class="col-md-6">
+
+
+                    <div class="col-md-4">
                         <label for="n_state_id" class="form-label">State *</label>
-                        <select id="n_state_id" name="n_state_id" class="form-select">
+
+                        <select id="n_state_id" name="n_state_id" class="form-select" required>
                             <option value="">Select State</option>
 
                             @foreach($states as $state)
@@ -200,9 +203,11 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-6">
+
+                    <div class="col-md-4">
                         <label for="n_district_id" class="form-label">District *</label>
-                        <select id="n_district_id" name="n_district_id" class="form-select">
+
+                        <select id="n_district_id" name="n_district_id" class="form-select" required>
                             <option value="">Select District</option>
 
                             @foreach($districts as $district)
@@ -218,57 +223,71 @@
                         @enderror
                     </div>
 
-                </div>
-            </div>
 
-            <!-- Section 2: Contact & Operational Details -->
-            <div class="field-group-title mt-5">
-                <i class="ti ti-address-book fs-5"></i> Contact & Status
-            </div>
+                    {{-- Panchayath --}}
+                    <div class="col-md-4">
+                        <label for="c_panchayath" class="form-label">Panchayath *</label>
 
-            <div class="row g-4 mb-5">
-                <div class="col-md-6">
-                    <label for="c_store_email" class="form-label">Email</label>
-                    <input type="email" id="c_store_email" name="c_store_email"
-                        value="{{ old('c_store_email', $franchise->c_store_email) }}" class="form-control">
-                    @error('c_store_email')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
-                </div>
+                        <input type="text" id="c_panchayath" name="c_panchayath" class="form-control" maxlength="150"
+                            required placeholder="Enter Panchayath"
+                            value="{{ old('c_panchayath', $franchise->panchayath?->panchayath_name) }}">
 
-                <div class="col-md-6">
-                    <label for="n_store_phone" class="form-label">Phone</label>
-                    <input type="text" id="n_store_phone" name="n_store_phone" max-length="10"
-                        value="{{ old('n_store_phone', $franchise->n_store_phone) }}" class="form-control">
-                    @error('n_store_phone')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
+                        @error('c_panchayath')
+                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+
                 </div>
 
-                <div class="col-12">
-                    <label for="c_store_status" class="form-label">Status *</label>
-                    <select id="c_store_status" name="c_store_status" data-message="Please select Status" required
-                        class="form-select mandatory">
-                        <option value="Y"
-                            {{ old('c_store_status', $franchise->c_store_status) === 'Y' ? 'selected' : '' }}>
-                            Active</option>
-                        <option value="N"
-                            {{ old('c_store_status', $franchise->c_store_status) === 'N' ? 'selected' : '' }}>
-                            Inactive</option>
-                    </select>
-                    @error('c_store_status')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
+                <!-- Section 2: Contact & Operational Details -->
+                <div class="field-group-title mt-5">
+                    <i class="ti ti-address-book fs-5"></i> Contact & Status
                 </div>
-            </div>
 
-            <!-- Footer Action Bar -->
-            <div class="pt-4 border-top d-flex gap-3">
-                <button type="button" id="btn_create" class="btn buttonSpc">
-                    <i class="ti ti-refresh fs-4"></i> Update Record
-                </button>
-                <a href="{{ route('admin.franchises.index') }}" class="btn btn-cancel-action">Cancel</a>
-            </div>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <label for="c_store_email" class="form-label">Email</label>
+                        <input type="email" id="c_store_email" name="c_store_email"
+                            value="{{ old('c_store_email', $franchise->c_store_email) }}" class="form-control">
+                        @error('c_store_email')
+                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="n_store_phone" class="form-label">Phone</label>
+                        <input type="text" id="n_store_phone" name="n_store_phone" max-length="10"
+                            value="{{ old('n_store_phone', $franchise->n_store_phone) }}" class="form-control">
+                        @error('n_store_phone')
+                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-12">
+                        <label for="c_store_status" class="form-label">Status *</label>
+                        <select id="c_store_status" name="c_store_status" data-message="Please select Status" required
+                            class="form-select mandatory">
+                            <option value="Y"
+                                {{ old('c_store_status', $franchise->c_store_status) === 'Y' ? 'selected' : '' }}>
+                                Active</option>
+                            <option value="N"
+                                {{ old('c_store_status', $franchise->c_store_status) === 'N' ? 'selected' : '' }}>
+                                Inactive</option>
+                        </select>
+                        @error('c_store_status')
+                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Footer Action Bar -->
+                <div class="pt-4 border-top d-flex gap-3">
+                    <button type="submit" id="btn_create" class="btn buttonSpc">
+                        <i class="ti ti-refresh fs-4"></i> Update Record
+                    </button>
+                    <a href="{{ route('admin.franchises.index') }}" class="btn btn-cancel-action">Cancel</a>
+                </div>
         </form>
     </div>
 </div>

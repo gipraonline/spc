@@ -250,6 +250,25 @@
 
                             </select>
                         </div>
+                        {{-- Panchayath --}}
+                        <div class="col-md-3">
+                            <label class="search-label" for="panchayath_id">
+                                Panchayath
+                            </label>
+
+                            <select name="panchayath_id" id="panchayath_id" class="form-select custom-select">
+
+                                <option value="">All Panchayaths</option>
+
+                                @foreach($panchayaths as $panchayath)
+                                <option value="{{ $panchayath->id }}"
+                                    {{ session('store_panchayath_id') == $panchayath->id ? 'selected' : '' }}>
+                                    {{ $panchayath->panchayath_name }}
+                                </option>
+                                @endforeach
+
+                            </select>
+                        </div>
 
                     </div>
 
@@ -288,12 +307,15 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Owner Name</h6>
                         </th>
-                        <th>
+                        <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">State</h6>
                         </th>
 
-                        <th>
+                        <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">District</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Panchayath</h6>
                         </th>
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Email</h6>
@@ -333,6 +355,9 @@
 
                         <td class="border-bottom-0"><span class="fw-normal">
                                 {{ $store->district->district_name ?? '-' }} </span>
+                        </td>
+                        <td class="border-bottom-0"><span class="fw-normal">
+                                {{ $store->panchayath->panchayath_name ?? '-' }} </span>
                         </td>
                         <td class="border-bottom-0">
                             <span class="fw-normal">{{ $store->c_store_email ?? '-' }}</span>
@@ -380,26 +405,43 @@
 
 @endsection
 @push('scripts')
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
     const stateSelect = document.getElementById('state_id');
     const districtSelect = document.getElementById('district_id');
+    const panchayathSelect = document.getElementById('panchayath_id');
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATE → DISTRICT
+    |--------------------------------------------------------------------------
+    */
 
     stateSelect.addEventListener('change', function() {
 
         const stateId = this.value;
 
         districtSelect.innerHTML =
-            '<option value="">Select District</option>';
+            '<option value="">Loading Districts...</option>';
+
+        panchayathSelect.innerHTML =
+            '<option value="">All Panchayaths</option>';
 
         if (!stateId) {
+            districtSelect.innerHTML =
+                '<option value="">All Districts</option>';
             return;
         }
 
-        fetch("{{ route('admin.districts', ':stateId') }}".replace(':stateId', stateId))
+        fetch("{{ route('admin.districts', ':stateId') }}"
+                .replace(':stateId', stateId))
             .then(response => response.json())
             .then(districts => {
+
+                districtSelect.innerHTML =
+                    '<option value="">All Districts</option>';
 
                 districts.forEach(district => {
 
@@ -408,15 +450,83 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${district.district_name}
                         </option>
                     `;
-
                 });
 
             })
             .catch(error => {
+
                 console.error('Error loading districts:', error);
+
+                districtSelect.innerHTML =
+                    '<option value="">Unable to load districts</option>';
+            });
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DISTRICT → PANCHAYATH
+    |--------------------------------------------------------------------------
+    */
+
+    districtSelect.addEventListener('change', function() {
+
+        const districtId = this.value;
+
+        panchayathSelect.innerHTML =
+            '<option value="">Loading Panchayaths...</option>';
+
+        if (!districtId) {
+
+            panchayathSelect.innerHTML =
+                '<option value="">All Panchayaths</option>';
+
+            return;
+        }
+
+        fetch("{{ route('admin.filterPanchayath') }}?district=" + districtId)
+            .then(response => response.json())
+            .then(response => {
+
+                console.log('Panchayath response:', response);
+
+                panchayathSelect.innerHTML =
+                    '<option value="">All Panchayaths</option>';
+
+                if (
+                    response.panchayaths &&
+                    response.panchayaths.length > 0
+                ) {
+
+                    response.panchayaths.forEach(panchayath => {
+
+                        panchayathSelect.innerHTML += `
+                            <option value="${panchayath.id}">
+                                ${panchayath.panchayath_name}
+                            </option>
+                        `;
+                    });
+
+                } else {
+
+                    panchayathSelect.innerHTML =
+                        '<option value="">No Panchayaths Found</option>';
+                }
+
+            })
+            .catch(error => {
+
+                console.error(
+                    'Error loading panchayaths:',
+                    error
+                );
+
+                panchayathSelect.innerHTML =
+                    '<option value="">Unable to load Panchayaths</option>';
             });
     });
 
 });
 </script>
+
 @endpush

@@ -993,9 +993,19 @@ unset($__errorArgs, $__bag); ?>
                 <div class="text-danger mt-1 fs-2"></div>
             </div>
 
-        </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">
+                    Panchayath
+                </label>
 
-        <div class="row g-4 mb-4">
+                <select class="form-select" id="franchise_panchayath" name="n_panchayath_id">
+
+                    <option value="">Select Panchayath</option>
+
+                </select>
+            </div>
+
 
             <div class="col-md-6">
                 <label class="form-label">
@@ -1022,7 +1032,6 @@ unset($__errorArgs, $__bag); ?>
             </div>
 
         </div>
-
     </div>
 
     <!-- Action Buttons -->
@@ -1644,97 +1653,6 @@ $(document).ready(function() {
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Franchise State Selection
-    |--------------------------------------------------------------------------
-    */
-
-    $('#franchise_state').on('change', function() {
-
-        let stateId = $(this).val();
-
-        $('#franchise_district').html('<option value="">Loading...</option>');
-        $('#franchise').html('<option value="">Select Franchise</option>');
-
-        if (!stateId) {
-            $('#franchise_district').html('<option value="">Select District</option>');
-            return;
-        }
-
-        $.ajax({
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
-            type: 'GET',
-            data: {
-                state: stateId
-            },
-            dataType: 'json',
-            success: function(response) {
-                $('#franchise_district').html('<option value="">Select District</option>');
-                if (response.districts) {
-                    $.each(response.districts, function(index, district) {
-                        $('#franchise_district').append(
-                            '<option value="' + district.id + '">' + district
-                            .district_name + '</option>'
-                        );
-                    });
-                }
-            },
-            error: function(xhr) {
-                console.error('Franchise district loading failed:', xhr.responseText);
-                $('#franchise_district').html(
-                    '<option value="">Unable to load districts</option>');
-            }
-        });
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Franchise District Selection
-    |--------------------------------------------------------------------------
-    */
-
-    $('#franchise_district').on('change', function() {
-
-        let stateId = $('#franchise_state').val();
-        let districtId = $(this).val();
-
-        $('#franchise').html('<option value="">Loading...</option>');
-
-        if (!stateId || !districtId) {
-            $('#franchise').html('<option value="">Select Franchise</option>');
-            return;
-        }
-
-        $.ajax({
-            url: "<?php echo e(url('admin/filter-franchise')); ?>",
-            type: 'GET',
-            data: {
-                state: stateId,
-                district: districtId
-            },
-            dataType: 'json',
-            success: function(response) {
-                $('#franchise').html('<option value="">Select Franchise</option>');
-                if (response.franchises) {
-                    $.each(response.franchises, function(index, franchise) {
-                        $('#franchise').append(
-                            '<option value="' + franchise.n_store_id + '">' +
-                            franchise.c_store_name + ' (' + franchise
-                            .c_store_code + ')' +
-                            '</option>'
-                        );
-                    });
-                }
-            },
-            error: function(xhr) {
-                console.error('Franchise loading failed:', xhr.responseText);
-                $('#franchise').html('<option value="">Unable to load franchise</option>');
-            }
-        });
-    });
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1780,103 +1698,250 @@ $(document).ready(function() {
 </script>
 
 <script>
-$(document).ready(function() {
-    $("#n_customer_id").change(function() {
-        let option = $(this).find(":selected");
+/*
+|--------------------------------------------------------------------------
+| FRANCHISE LOCATION: State → District
+|--------------------------------------------------------------------------
+*/
 
-        $("#c_customer_email").val(option.data("email"));
-        $("#n_customer_mobile").val(option.data("mobile"));
-        $("#c_customer_address").val(option.data("address"));
+$('#franchise_state').on('change', function() {
 
-        let stateId = option.data("state");
-        let districtId = option.data("district");
+    let stateId = $(this).val();
 
-        $("#customer_state").val(stateId);
+    $('#franchise_district').html(
+        '<option value="">Loading...</option>'
+    );
 
-        $.ajax({
-            type: "GET",
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
-            data: {
-                state: stateId
-            },
-            dataType: "json",
-            success: function(data) {
-                $("#customer_district").html('<option value="">Select District</option>');
+    $('#franchise_panchayath').html(
+        '<option value="">Select Panchayath</option>'
+    );
 
-                $.each(data.districts, function(i, district) {
-                    $("#customer_district").append(
-                        '<option value="' + district.id + '">' + district
-                        .district_name + '</option>'
-                    );
-                });
+    $('#franchise').html(
+        '<option value="">Select Franchise</option>'
+    );
 
-                $("#customer_district").val(districtId);
-            }
-        });
-    });
-});
-</script>
+    if (!stateId) {
+        $('#franchise_district').html(
+            '<option value="">Select District</option>'
+        );
+        return;
+    }
 
-<script>
-$(document).ready(function() {
+    $.ajax({
+        type: 'GET',
+        url: "<?php echo e(route('admin.filterDistrict')); ?>",
+        data: {
+            state: stateId
+        },
+        dataType: 'json',
 
-    $('#franchise_state').change(function() {
-        let stateId = $(this).val();
-        $('#franchise_district').html('<option value="">Loading...</option>');
+        success: function(response) {
 
-        $.ajax({
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
-            type: "GET",
-            data: {
-                state: stateId
-            },
-            success: function(response) {
-                $('#franchise_district').html('<option value="">Select District</option>');
+            $('#franchise_district').html(
+                '<option value="">Select District</option>'
+            );
+
+            if (response.districts) {
+
                 $.each(response.districts, function(index, district) {
+
                     $('#franchise_district').append(
-                        '<option value="' + district.id + '">' + district
-                        .district_name + '</option>'
+                        '<option value="' + district.id + '">' +
+                        district.district_name +
+                        '</option>'
                     );
+
                 });
             }
-        });
+        },
+
+        error: function(xhr) {
+            console.error('District AJAX Error:', xhr.responseText);
+
+            $('#franchise_district').html(
+                '<option value="">Unable to load districts</option>'
+            );
+        }
+    });
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| FRANCHISE LOCATION: District → Panchayath
+|--------------------------------------------------------------------------
+*/
+
+$('#franchise_district').on('change', function() {
+
+    let districtId = $(this).val();
+
+    $('#franchise_panchayath').html(
+        '<option value="">Loading...</option>'
+    );
+
+    $('#franchise').html(
+        '<option value="">Select Franchise</option>'
+    );
+
+    if (!districtId) {
+
+        $('#franchise_panchayath').html(
+            '<option value="">Select Panchayath</option>'
+        );
+
+        return;
+    }
+
+    $.ajax({
+        type: 'GET',
+        url: "<?php echo e(route('admin.filterPanchayath')); ?>",
+        data: {
+            district: districtId
+        },
+        dataType: 'json',
+
+        success: function(response) {
+
+            console.log('Panchayath response:', response);
+
+            $('#franchise_panchayath').html(
+                '<option value="">Select Panchayath</option>'
+            );
+
+            if (
+                response.panchayaths &&
+                response.panchayaths.length > 0
+            ) {
+
+                $.each(response.panchayaths, function(index, panchayat) {
+
+                    $('#franchise_panchayath').append(
+                        '<option value="' + panchayat.id + '">' +
+                        panchayat.panchayath_name +
+                        '</option>'
+                    );
+
+                });
+
+            } else {
+
+                $('#franchise_panchayath').html(
+                    '<option value="">No Panchayaths Found</option>'
+                );
+            }
+        },
+
+        error: function(xhr) {
+
+            console.error(
+                'Panchayath AJAX Error:',
+                xhr.responseText
+            );
+
+            $('#franchise_panchayath').html(
+                '<option value="">Unable to load Panchayaths</option>'
+            );
+        }
+    });
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| FRANCHISE LOCATION: Panchayath → Franchise
+|--------------------------------------------------------------------------
+*/
+
+$('#franchise_panchayath').on('change', function() {
+
+    let stateId = $('#franchise_state').val();
+    let districtId = $('#franchise_district').val();
+    let panchayathId = $(this).val();
+
+    console.log('Loading franchises:', {
+        state: stateId,
+        district: districtId,
+        panchayath: panchayathId
     });
 
+    $('#franchise').html(
+        '<option value="">Loading franchises...</option>'
+    );
 
+    if (!stateId || !districtId || !panchayathId) {
 
-});
-</script>
+        $('#franchise').html(
+            '<option value="">Select Franchise</option>'
+        );
 
-<script>
-$(document).ready(function() {
-    $('#franchise_district').change(function() {
+        return;
+    }
 
-        let stateId = $('#franchise_state').val();
-        let districtId = $(this).val();
+    $.ajax({
+        type: 'GET',
 
-        $.ajax({
-            url: "<?php echo e(url('admin/filter-franchise')); ?>",
-            type: "GET",
-            data: {
-                state: stateId,
-                district: districtId
-            },
-            dataType: "json",
-            success: function(response) {
-                $('#franchise').html('<option value="">Select Franchise</option>');
+        url: "<?php echo e(url('admin/filter-franchise')); ?>",
 
-                $.each(response.franchises, function(i, franchise) {
+        data: {
+            state: stateId,
+            district: districtId,
+            panchayath: panchayathId
+        },
+
+        dataType: 'json',
+
+        success: function(response) {
+
+            console.log('Franchise response:', response);
+
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+            if (
+                response.franchises &&
+                response.franchises.length > 0
+            ) {
+
+                $.each(response.franchises, function(index, franchise) {
+
                     $('#franchise').append(
-                        '<option value="' + franchise.n_store_id + '">' +
-                        franchise.c_store_name + ' (' + franchise.c_store_code +
+                        '<option value="' +
+                        franchise.n_store_id +
+                        '">' +
+                        franchise.c_store_name +
+                        ' (' +
+                        franchise.c_store_code +
                         ')' +
                         '</option>'
                     );
-                });
-            }
-        });
 
+                });
+
+            } else {
+
+                $('#franchise').html(
+                    '<option value="">No Franchises Found</option>'
+                );
+
+                console.log('No franchises found');
+            }
+        },
+
+        error: function(xhr, status, error) {
+
+            console.error('Franchise AJAX failed');
+            console.error('Status:', status);
+            console.error('Error:', error);
+            console.error('Response:', xhr.responseText);
+
+            $('#franchise').html(
+                '<option value="">Unable to load franchises</option>'
+            );
+        }
     });
+
 });
 
 /*

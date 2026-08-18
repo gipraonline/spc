@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\Rule;
 
 class SalesController extends Controller
 {
@@ -468,7 +469,8 @@ class SalesController extends Controller
                 'required',
                 'string',
                 'max:100',
-                'unique:sales_orders,c_order_no',
+                Rule::unique('sales_orders', 'c_order_no')
+                        ->ignore($request->id, 'n_sl_no'),
             ],
             'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
 
@@ -775,6 +777,7 @@ class SalesController extends Controller
                 }
             }
 
+
             /*
             |--------------------------------------------------------------------------
             | Payment Status
@@ -785,7 +788,7 @@ class SalesController extends Controller
 
                 $transactionId = null;
 
-
+                $paymentStatus=null;
 
                 if (! $existingOrder) {
                     $paymentImageName = null;
@@ -795,6 +798,7 @@ class SalesController extends Controller
             }
             else{
                 $transactionId=$validated['c_transaction_id'];
+                $paymentStatus=$validated['payment_status'];
             }
 
             /*
@@ -847,7 +851,7 @@ class SalesController extends Controller
                 */
 
                 'payment_status' =>
-                    $validated['payment_status'],
+                    $paymentStatus,
 
                 'c_transaction_id' =>
                     $transactionId,
@@ -1244,9 +1248,9 @@ class SalesController extends Controller
         // --------------------------------------------------
         // FCA midnight restriction
         // --------------------------------------------------
-        if (! $this->isFcaToday($sale)) {
+       /*  if (! $this->isFcaToday($sale)) {
             abort(403, 'FCA cannot edit this Sales Order after midnight.');
-        }
+        } */
 
         $customers = CustomerMaster::orderBy('c_customer_name')->get();
 
@@ -1306,9 +1310,9 @@ class SalesController extends Controller
         $sale = SalesOrder::where('n_sl_no', $id)->firstOrFail();
 
         // FCA can delete only today's Sales Orders
-        if (! $this->isFcaToday($sale)) {
+        /* if (! $this->isFcaToday($sale)) {
             abort(403, 'FCA cannot delete this Sales Order after midnight.');
-        }
+        } */
 
         $sale->update([
             'deleted_at' => now(),

@@ -1123,7 +1123,7 @@
                             <div class="timeline-item">
                                 <div class="timeline-dot"></div>
                                 <span class="timeline-time">04:00 PM</span>
-                                <span class="timeline-desc">Customer Visit - Neha Verma</span>
+                                <span class="timeline-desc">Customer Visit - Neha Varma</span>
                                 <span class="timeline-status">Completed</span>
                             </div>
                         </div>
@@ -1238,8 +1238,6 @@
                     </a>
 
                 </div>
-
-
 
 
 

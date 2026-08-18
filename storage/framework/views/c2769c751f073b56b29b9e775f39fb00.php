@@ -674,7 +674,7 @@ unset($__errorArgs, $__bag); ?>
                     <i class="ti ti-user fs-5"></i> Customer Information
                 </div>
 
-                <input type="hidden" name="c_customer_name" id="c_customer_name" value="">
+                <input type="hidden" name="c_customer_name" id="c_customer_name" value="<?php echo e(isset($sale) && $sale->c_customer_name); ?>">
 
                 <div class="row g-4 mb-4">
                     <div class="col-md-6">
@@ -1014,7 +1014,7 @@ unset($__errorArgs, $__bag); ?>
                 <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
                     data-bs-toggle="modal" data-bs-target="#followUpModal"
                     data-id="<?php echo e(isset($sale) ? Crypt::encryptString($sale->n_sl_no) : ''); ?>" id="followup">Update
-                    Follow-up</button>
+                    Order Status</button>
                 <?php endif; ?>
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.approval')): ?>
                 <!--Approval Button-->
@@ -1088,9 +1088,11 @@ unset($__errorArgs, $__bag); ?>
                             <label class="form-label">Order Status</label>
                             <select name="c_order_status" class="form-select" required>
                                 <option value="">Select Status</option>
-                                <option value="dispatched">Dispatched</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
+
+                                    <option value="dispatched">Dispatched</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+
                                 <option value="completed">Completed</option>
                                 <option value="cancelled">Cancelled</option>
                                 <option value="returned">Returned</option>
@@ -1110,7 +1112,7 @@ unset($__errorArgs, $__bag); ?>
 
                 <div class="modal-footer">
                     <button type="submit" class="btn buttonSpc">
-                        Save Follow-up
+                        Save Order Status
                     </button>
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         Close
@@ -1244,6 +1246,8 @@ $hasPaymentImage = isset($sale) && !empty($sale->payment_image);
 <?php $__env->startPush('scripts'); ?>
 
 <script>
+
+
 $(document).ready(function() {
 
     console.log("Sales Order JS loaded");
@@ -1261,6 +1265,7 @@ $(document).ready(function() {
     | Add New Product
     |--------------------------------------------------------------------------
     */
+
 
     $('#addRow').on('click', function() {
 

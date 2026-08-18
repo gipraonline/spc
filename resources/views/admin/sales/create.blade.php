@@ -675,7 +675,7 @@ use Illuminate\Support\Facades\Crypt;
                     <i class="ti ti-user fs-5"></i> Customer Information
                 </div>
 
-                <input type="hidden" name="c_customer_name" id="c_customer_name" value="">
+                <input type="hidden" name="c_customer_name" id="c_customer_name" value="{{isset($sale) && $sale->c_customer_name}}">
 
                 <div class="row g-4 mb-4">
                     <div class="col-md-6">
@@ -1089,7 +1089,7 @@ use Illuminate\Support\Facades\Crypt;
                 <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
                     data-bs-toggle="modal" data-bs-target="#followUpModal"
                     data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}" id="followup">Update
-                    Follow-up</button>
+                    Order Status</button>
                 @endcan
                 @can('sales-orders.approval')
                 <!--Approval Button-->
@@ -1171,9 +1171,11 @@ use Illuminate\Support\Facades\Crypt;
                             <label class="form-label">Order Status</label>
                             <select name="c_order_status" class="form-select" required>
                                 <option value="">Select Status</option>
-                                <option value="dispatched">Dispatched</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
+
+                                    <option value="dispatched">Dispatched</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+
                                 <option value="completed">Completed</option>
                                 <option value="cancelled">Cancelled</option>
                                 <option value="returned">Returned</option>
@@ -1193,7 +1195,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 <div class="modal-footer">
                     <button type="submit" class="btn buttonSpc">
-                        Save Follow-up
+                        Save Order Status
                     </button>
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         Close
@@ -1360,6 +1362,8 @@ $hasPaymentImage = isset($sale) && !empty($sale->payment_image);
 @push('scripts')
 
 <script>
+
+
 $(document).ready(function() {
 
     console.log("Sales Order JS loaded");
@@ -1377,6 +1381,7 @@ $(document).ready(function() {
     | Add New Product
     |--------------------------------------------------------------------------
     */
+
 
     $('#addRow').on('click', function() {
 

@@ -535,13 +535,13 @@ class SalesController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'payment_status' => 'required_if:c_mode_of_payment,Paid to Franchise',
+            'payment_status' => 'required_unless:c_mode_of_payment,Paid to Franchise',
 
             'c_transaction_id' => [
                 'nullable',
                 'string',
                 'max:255',
-                  'required_if:c_mode_of_payment,Paid to Franchise',
+                  'required_unless:c_mode_of_payment,Paid to Franchise',
             ],
 
             'payment_image' => [
@@ -549,7 +549,7 @@ class SalesController extends Controller
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:5120',
-                'required_if:c_mode_of_payment,Paid to Franchise',
+                'required_unless:c_mode_of_payment,Paid to Franchise',
             ],
 
             /*
@@ -781,22 +781,20 @@ class SalesController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            if ($validated['payment_status'] === 'pending') {
+            if (isset($validated['c_mode_of_payment']) && $validated['c_mode_of_payment'] === 'Paid to Franchise') {
 
                 $transactionId = null;
 
-                /*
-                | New pending order should not have payment proof
-                */
+
 
                 if (! $existingOrder) {
                     $paymentImageName = null;
                 }
 
-            } else {
 
-                $transactionId =
-                    $validated['c_transaction_id'] ?? null;
+            }
+            else{
+                $transactionId=$validated['c_transaction_id'];
             }
 
             /*
@@ -804,72 +802,6 @@ class SalesController extends Controller
             | Order Data
             |--------------------------------------------------------------------------
             */
-
-            // $orderData = [
-
-            //     'c_order_no' => $validated['c_order_no'],
-
-            //     'd_date' => $validated['d_date'],
-
-            //     'farm_care_advisor_id' => $validated['farm_care_advisor_id'] ?? null,
-
-            //     'n_customer_id' => $customer->n_customer_id,
-
-            //     'c_customer_name' => $validated['c_customer_name'],
-
-            //     'c_customer_email' => $validated['c_customer_email'] ?? null,
-
-            //     'c_customer_address' => $validated['c_customer_address'] ?? null,
-
-            //     'n_customer_mobile' => $validated['n_customer_mobile'],
-
-            //     'n_state_id' => $validated['n_state_id'],
-
-            //     'n_district_id' => $validated['n_district_id'],
-
-            //     'c_mode_of_payment' => $validated['c_mode_of_payment'],
-
-            //     'c_order_status' => 'pending',
-
-            //     'nearest_franchise_id' => $validated['nearest_franchise_id'],
-
-            //     /*
-            //     | Payment
-            //     */
-
-            //     'payment_status' => $validated['payment_status'],
-
-            //     'c_transaction_id' => $transactionId,
-
-            //     'payment_image' => $paymentImageName,
-
-            //     /*
-            //     | Booklet
-            //     */
-
-            //     'booklet_image' => $bookletImageName,
-            //     'booklet_image' => $bookletImageName,
-
-            //     /*
-            //     | Order Summary
-            //     */
-
-            //     'n_total_sales_amount' =>
-            //         $validated['n_total_sales_amount'] ?? 0,
-
-            //     'n_product_discount_total' =>
-            //         $validated['n_product_discount_total'] ?? 0,
-
-            //     'n_total_gst' =>
-            //         $validated['n_total_gst'] ?? 0,
-
-            //     'n_total_discount' =>
-            //         $validated['n_total_discount'] ?? 0,
-
-            //     'n_net_sales_amount' =>
-            //         $validated['n_net_sales_amount'] ?? 0,
-
-            // ];
 
 
             $orderData = [
@@ -956,110 +888,6 @@ class SalesController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            // if ($existingOrder) {
-
-            //     $existingOrder->update($orderData);
-
-            //     /*
-            //     | Delete old products
-            //     */
-
-            //     OrderProduct::where(
-            //         'n_order_id',
-            //         $existingOrder->n_sl_no
-            //     )->delete();
-
-            //     /*
-            //     | Insert products again
-            //     */
-
-            //     foreach ($validated['products'] as $product) {
-
-
-
-            //            OrderProduct::create([
-
-            //                 'n_order_id' => $existingOrder->n_sl_no,
-
-            //                 'product_id' => $product['product_id'],
-
-            //                 'n_hsn_code' => $product['n_hsn_code'] ?? null,
-
-            //                 'product_price' => $product['product_price'],
-
-            //                 'qty' => $product['qty'],
-
-            //                 'c_unit' => $product['c_unit'] ?? null,
-
-            //                 'discount' => $product['discount'] ?? 0,
-
-            //                 'n_gst_percentage' =>
-            //                     $product['n_gst_percentage'] ?? 0,
-
-            //                 'gst_amount' =>
-            //                     $product['gst_amount'] ?? 0,
-
-            //                 'discounted_price' =>
-            //                     $product['discounted_price'] ?? 0,
-
-            //                 'product_total' =>
-            //                     $product['product_total'],
-            //         ]);
-            //     }
-
-            //     $message =
-            //         'Sales order updated successfully.';
-
-            // } else {
-
-            //     /*
-            //     |--------------------------------------------------------------------------
-            //     | Create New Order
-            //     |--------------------------------------------------------------------------
-            //     */
-
-            //     $salesOrder =
-            //         SalesOrder::create($orderData);
-
-            //     /*
-            //     | Insert products
-            //     */
-
-            //     foreach ($validated['products'] as $product) {
-
-            //         OrderProduct::create([
-
-            //             'n_order_id' => $salesOrder->n_sl_no,
-
-            //             'product_id' => $product['product_id'],
-
-            //             'n_hsn_code' => $product['n_hsn_code'] ?? null,
-
-            //             'product_price' => $product['product_price'],
-
-            //             'qty' => $product['qty'],
-
-            //             'c_unit' => $product['c_unit'] ?? null,
-
-            //             'discount' => $product['discount'] ?? 0,
-
-            //             'n_gst_percentage' =>
-            //                 $product['n_gst_percentage'] ?? 0,
-
-            //             'gst_amount' =>
-            //                 $product['gst_amount'] ?? 0,
-
-            //             'discounted_price' =>
-            //                 $product['discounted_price'] ?? 0,
-
-            //             'product_total' =>
-            //                 $product['product_total'],
-            //         ]);
-            //     }
-
-            //     $message =
-            //         'Sales order created successfully.';
-            // }
 
               if ($existingOrder) {
 

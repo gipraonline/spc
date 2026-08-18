@@ -189,11 +189,11 @@ $(document).on('click', '#btn_create, #btn_update', function (e) {
 
     var error = 0;
 
-    // Clear previous validation messages
+    // Clear previous errors
     $('.mandatory').each(function () {
 
         $(this)
-            .closest('.col-md-6, .col-md-9')
+            .closest('.col-md-4, .col-md-6, .col-md-9')
             .find('.text-danger')
             .first()
             .text('');
@@ -204,14 +204,12 @@ $(document).on('click', '#btn_create, #btn_update', function (e) {
         var $field = $(this);
         var message = $(obj).data('message');
 
-        // ==========================
-        // RADIO BUTTON
-        // ==========================
+        // RADIO
         if ($field.is(':radio')) {
 
             var name = $field.attr('name');
 
-            if ($('input[name="' + name + '"]:checked').length == 0) {
+            if ($('input[name="' + name + '"]:checked').length === 0) {
 
                 $field
                     .closest('.col-md-6, .col-md-9')
@@ -221,36 +219,45 @@ $(document).on('click', '#btn_create, #btn_update', function (e) {
 
                 error = 1;
             }
-
         }
 
-        // ==========================
+        // FILE
+        else if ($field.is(':file')) {
+
+            if ($field[0].files.length === 0) {
+
+                $field
+                    .closest('.col-md-4, .col-md-6')
+                    .find('.text-danger')
+                    .first()
+                    .text(message);
+
+                error = 1;
+            }
+        }
+
         // SELECT
-        // ==========================
         else if ($field.is('select')) {
 
-            if ($field.val() == '' || $field.val() == null) {
+            if (!$field.val()) {
 
                 $field
-                    .closest('.col-md-6, .col-md-9')
+                    .closest('.col-md-4, .col-md-6')
                     .find('.text-danger')
                     .first()
                     .text(message);
 
                 error = 1;
             }
-
         }
 
-        // ==========================
-        // INPUT / TEXTAREA
-        // ==========================
+        // TEXT / OTHER INPUT
         else {
 
-            if ($.trim($field.val()) == '') {
+            if ($.trim($field.val()) === '') {
 
                 $field
-                    .closest('.col-md-6, .col-md-9')
+                    .closest('.col-md-4, .col-md-6')
                     .find('.text-danger')
                     .first()
                     .text(message);
@@ -258,16 +265,11 @@ $(document).on('click', '#btn_create, #btn_update', function (e) {
                 error = 1;
             }
         }
-
     });
 
-    // ==========================
-    // SUBMIT
-    // ==========================
-    if (error == 0) {
+    if (error === 0) {
         $("#frm_create")[0].submit();
     }
-
 });
 
 /* $(document).on('click', '#btn_create, #btn_update', function (e) {

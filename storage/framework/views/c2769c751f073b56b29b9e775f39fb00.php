@@ -858,16 +858,17 @@ unset($__errorArgs, $__bag); ?>
                             </label>
 
                             <select name="payment_status"
-                                    id="leadStatus"
+                                    id="payment_status"
+                                    data-message="Please Select Payment Status"
                                     class="form-select">
 
                                 <option value="">Select Status</option>
 
-                                <option value="pending" <?php echo e(old('c_lead_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending</option>
-                                <option value="confirmed"  <?php echo e(old('c_lead_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : ''); ?>>Confirmed</option>
+                                <option value="pending" <?php echo e(old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending</option>
+                                <option value="confirmed"  <?php echo e(old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : ''); ?>>Paid</option>
 
                             </select>
-
+                            <div class="text-danger mt-1 fs-2"></div>
 
                     </div>
                 </div>
@@ -889,16 +890,18 @@ unset($__errorArgs, $__bag); ?>
                         <label class="form-label">
                             Transaction ID *
                         </label>
-                        <input type="text" id="c_transaction_id" name="c_transaction_id" data-message="Please Enter Transaction id" class="form-control " placeholder="Enter Transaction / UTR / Reference No">
+                        <input type="text" id="c_transaction_id" name="c_transaction_id" data-message="Please Enter Transaction id" class="form-control" placeholder="Enter Transaction / UTR / Reference No">
+                        <div class="text-danger mt-1 fs-2"></div>
                     </div>
 
-                    <div class="col-md-4" id="payment_image" >
+                    <div class="col-md-4">
                         <label class="form-label">
                             Transaction Proof *
                         </label>
                         <input type="file" id="payment_image" name="payment_image" data-message="Please Enter Transaction Proof"  class="form-control ">
+                        <div class="text-danger mt-1 fs-2"></div>
                     </div>
-                    <div class="text-danger mt-1 fs-2"></div>
+
                 </div>
 
             </div>
@@ -1653,7 +1656,7 @@ $(document).ready(function() {
 
     /*
     |--------------------------------------------------------------------------
-    | Customer Selection
+    | Payment Status - Transaction ID & Proof
     |--------------------------------------------------------------------------
     */
 
@@ -1668,7 +1671,7 @@ $(document).ready(function() {
             $("#franchise_state").addClass("mandatory");
             $("#franchise_district").addClass("mandatory");
             $("#franchise").addClass("mandatory");
-            $("#ps").removeClass("mandatory");
+            $("#payment_status").removeClass("mandatory");
             $("#c_transaction_id").removeClass("mandatory");
             $("#payment_image").removeClass("mandatory");
 
@@ -1679,12 +1682,20 @@ $(document).ready(function() {
             $("#franchise_state").removeClass("mandatory");
             $("#franchise_district").removeClass("mandatory");
             $("#franchise").removeClass("mandatory");
-            $("#ps").addClass("mandatory");
+            $("#payment_status").addClass("mandatory");
             $("#c_transaction_id").addClass("mandatory");
             $("#payment_image").addClass("mandatory");
 
         }
     });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Customer Selection
+    |--------------------------------------------------------------------------
+    */
+
 
     $('#n_customer_id').on('change', function() {
 
@@ -1982,12 +1993,8 @@ $(document).ready(function() {
     });
 });
 
-/*
-|--------------------------------------------------------------------------
-| Payment Status - Transaction ID & Proof
-|--------------------------------------------------------------------------
-*/
-function togglePaymentFields() {
+
+/* function togglePaymentFields() {
     let status = $('#paymentStatus').val();
 
     let transactionId = $('#c_transaction_id');
@@ -2023,15 +2030,9 @@ function togglePaymentFields() {
         transactionId.addClass('bg-light');
         paymentImage.addClass('bg-light');
     }
-}
+} */
 
-// When Payment Status changes
-$('#paymentStatus').on('change', function() {
-    togglePaymentFields();
-});
 
-// Run on page load
-togglePaymentFields();
 </script>
 
 <?php $__env->stopPush(); ?>

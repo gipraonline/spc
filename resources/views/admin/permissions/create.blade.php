@@ -93,6 +93,11 @@
             'stores-card',
             'products-card',
             'sales-card',
+            'sales-card-pending',
+            'sales-card-approved',
+            'sales-card-dispatched',
+            'sales-card-delivered',
+
             'incentives-card',
             // for both field log and dashboard
             'check-in',

@@ -535,34 +535,6 @@
 
                                 <tr>
                                     <td class="d-label">
-                                        Delivery Note
-                                    </td>
-
-                                    <td class="colon">
-                                        :
-                                    </td>
-
-                                    <td class="d-value">
-                                        -
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td class="d-label">
-                                        Reference No. & Date
-                                    </td>
-
-                                    <td class="colon">
-                                        :
-                                    </td>
-
-                                    <td class="d-value">
-                                        -
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td class="d-label">
                                         Buyer's Order No.
                                     </td>
 
@@ -571,23 +543,11 @@
                                     </td>
 
                                     <td class="d-value">
-                                        -
+                                        {{ $order->c_order_no ?? '-' }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td class="d-label">
-                                        Dispatch Doc No.
-                                    </td>
 
-                                    <td class="colon">
-                                        :
-                                    </td>
-
-                                    <td class="d-value">
-                                        -
-                                    </td>
-                                </tr>
 
                                 <tr>
                                     <td class="d-label">
@@ -599,7 +559,7 @@
                                     </td>
 
                                     <td class="d-value">
-                                        -
+                                        <!-- -to do -->
                                     </td>
                                 </tr>
 
@@ -613,37 +573,10 @@
                                     </td>
 
                                     <td class="d-value">
-                                        {{ ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-')) }}
+                                        {{ ucwords(str_replace('_', ' ', $paymentMode ?? '-')) }}
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td class="d-label">
-                                        LOAD
-                                    </td>
-
-                                    <td class="colon">
-                                        :
-                                    </td>
-
-                                    <td class="d-value">
-                                        {{ $order->c_customer_address ?? '-' }}
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td class="d-label">
-                                        Terms of Delivery
-                                    </td>
-
-                                    <td class="colon">
-                                        :
-                                    </td>
-
-                                    <td class="d-value">
-                                        -
-                                    </td>
-                                </tr>
 
                             </table>
 

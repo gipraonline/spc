@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('content'); ?>
 
 <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
@@ -920,4 +918,4 @@ $(function() {
 <?php $__env->stopPush(); ?>
 
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/field-log/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/field-log/index.blade.php ENDPATH**/ ?>

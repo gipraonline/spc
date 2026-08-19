@@ -16,6 +16,7 @@ use App\Models\SalesOrder;
 use App\Models\State;
 use App\Models\StoreMaster;
 use App\Models\SalesOrderFollowup;
+use App\Models\Panchayath;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -543,7 +544,12 @@ class SalesController extends Controller
                 'nullable',
                 'string',
                 'max:255',
-                  'required_unless:c_mode_of_payment,Paid to Franchise',
+                Rule::requiredIf(function () use ($request) {
+                    return !in_array($request->c_mode_of_payment, [
+                        'Paid to Franchise',
+                        'Cash on Delivery',
+                    ]);
+                }),
             ],
 
             'payment_image' => [
@@ -551,7 +557,12 @@ class SalesController extends Controller
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:5120',
-                'required_unless:c_mode_of_payment,Paid to Franchise',
+                Rule::requiredIf(function () use ($request) {
+                    return !in_array($request->c_mode_of_payment, [
+                        'Paid to Franchise',
+                        'Cash on Delivery',
+                    ]);
+                }),
             ],
 
             /*
@@ -1337,6 +1348,21 @@ class SalesController extends Controller
 
         return response()->json([
             'franchises' => $franchises,
+        ]);
+    }
+
+    public function panchayathFilter(Request $request)
+    {
+        $panchayaths = Panchayath::where('district_id', $request->district)
+            ->where('status', 'Y')
+            ->orderBy('panchayath_name', 'ASC')
+            ->get([
+                'id',
+                'panchayath_name',
+            ]);
+
+        return response()->json([
+            'panchayaths' => $panchayaths,
         ]);
     }
 }

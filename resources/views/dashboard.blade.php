@@ -1127,8 +1127,10 @@
 
 
         <!-- Order Overview Card Section -->
+        @canany(['dashboard.sales-card-pending', 'dashboard.sales-card-approved', 'dashboard.sales-card-dispatched',
+            'dashboard.sales-card-delivered'])
         <div class="order-overview">
-
+                
             <div class="order-overview-header">
                 <div>
                     <h2 class="order-overview-title">Order Overview</h2>
@@ -1141,6 +1143,7 @@
             <div class="order-stats-grid">
 
                 <!-- Pending Orders -->
+                @can('dashboard.sales-card-pending')
                 <div class="order-stat-card order-pending">
                     <a
                         href="{{ route('admin.salesorders.index', [
@@ -1167,8 +1170,9 @@
                     </a>
 
                 </div>
-
+                @endcan
                 <!-- Approved Orders -->
+                @can('dashboard.sales-card-approved')
                 <div class="order-stat-card order-approved">
                     <a
                         href="{{ route('admin.salesorders.index', [
@@ -1194,9 +1198,10 @@
                     </a>
 
                 </div>
-
+                @endcan
 
                 <!-- Dispatched Orders -->
+                @can('dashboard.sales-card-dispatched')
                 <div class="order-stat-card order-dispatched">
 
                     <a
@@ -1226,10 +1231,11 @@
                     </a>
 
                 </div>
-
+                @endcan
 
 
                 <!-- Delivered Orders -->
+                @can('dashboard.sales-card-delivered')
                 <div class="order-stat-card order-delivered">
                     <a
                         href="{{ route('admin.salesorders.index', [
@@ -1256,9 +1262,10 @@
                     </a>
 
                 </div>
-
+                @endcan
             </div>
         </div>
+        @endcan
         <!-- end - Order Overview Card Section -->
     </section>
 @endsection

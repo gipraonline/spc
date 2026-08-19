@@ -10,7 +10,9 @@ class District extends Model
     use HasFactory;
 
     protected $table = 'districts';
+
     public $timestamps = true;
+
     protected $fillable = [
         'district_name',
         'state_id',
@@ -22,5 +24,10 @@ class District extends Model
     public function state()
     {
         return $this->belongsTo(State::class, 'state_id');
+    }
+
+    public function panchayaths()
+    {
+        return $this->hasMany(Panchayath::class, 'district_id', 'id');
     }
 }

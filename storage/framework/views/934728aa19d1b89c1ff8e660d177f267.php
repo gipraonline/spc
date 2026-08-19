@@ -693,6 +693,107 @@ unset($__errorArgs, $__bag); ?>
 </div>
 
 
+
+
+<!-- Follow-up Modal -->
+<div class="modal fade" id="followUpModal" tabindex="-1" aria-labelledby="followUpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <form action="<?php echo e(route('admin.salesorders.followup.store')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="followUpModalLabel">
+                        Lead Follow-up Form
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden" name="lead_id" value="<?php echo e($lead->id ?? ''); ?>">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Follow-up Date</label>
+                            <input type="date" name="followup_date" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Next Follow-up Date</label>
+                            <input type="date" name="next_followup_date" class="form-control">
+                        </div>
+
+                        <?php if(isset($user) && $user->identifier != "FCA"): ?>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Follow-up Type</label>
+                            <select name="followup_type" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Phone Call">Phone Call</option>
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Site Visit">Site Visit</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Lead Status</label>
+                            <select name="status" class="form-select" required>
+                                <option value="">Select Status</option>
+                                <option value="New">New</option>
+                                <option value="Contacted">Contacted</option>
+                                <option value="Interested">Interested</option>
+                                <option value="Negotiation">Negotiation</option>
+                                <option value="Won">Won</option>
+                                <option value="Lost">Lost</option>
+                            </select>
+                        </div>
+                        <?php endif; ?>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Priority</label>
+                            <select name="priority" class="form-select">
+                                <option>Low</option>
+                                <option selected>Medium</option>
+                                <option>High</option>
+                                <option>Urgent</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Reminder</label>
+                            <input type="datetime-local" name="reminder_at" class="form-control">
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Remarks</label>
+                            <textarea name="remarks" class="form-control" rows="4"
+                                placeholder="Enter follow-up remarks..." required></textarea>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="submit" class="btn buttonSpc">
+                        Save Follow-up
+                    </button>
+
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
 <?php $__env->stopSection(); ?>
 
 

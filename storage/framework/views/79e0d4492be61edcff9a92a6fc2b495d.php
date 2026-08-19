@@ -1136,8 +1136,10 @@
 
 
         <!-- Order Overview Card Section -->
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['dashboard.sales-card-pending', 'dashboard.sales-card-approved', 'dashboard.sales-card-dispatched',
+            'dashboard.sales-card-delivered'])): ?>
         <div class="order-overview">
-
+                
             <div class="order-overview-header">
                 <div>
                     <h2 class="order-overview-title">Order Overview</h2>
@@ -1150,6 +1152,7 @@
             <div class="order-stats-grid">
 
                 <!-- Pending Orders -->
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.sales-card-pending')): ?>
                 <div class="order-stat-card order-pending">
                     <a
                         href="<?php echo e(route('admin.salesorders.index', [
@@ -1177,8 +1180,9 @@
                     </a>
 
                 </div>
-
+                <?php endif; ?>
                 <!-- Approved Orders -->
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.sales-card-approved')): ?>
                 <div class="order-stat-card order-approved">
                     <a
                         href="<?php echo e(route('admin.salesorders.index', [
@@ -1205,9 +1209,10 @@
                     </a>
 
                 </div>
-
+                <?php endif; ?>
 
                 <!-- Dispatched Orders -->
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.sales-card-dispatched')): ?>
                 <div class="order-stat-card order-dispatched">
 
                     <a
@@ -1238,10 +1243,11 @@
                     </a>
 
                 </div>
-
+                <?php endif; ?>
 
 
                 <!-- Delivered Orders -->
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.sales-card-delivered')): ?>
                 <div class="order-stat-card order-delivered">
                     <a
                         href="<?php echo e(route('admin.salesorders.index', [
@@ -1269,9 +1275,10 @@
                     </a>
 
                 </div>
-
+                <?php endif; ?>
             </div>
         </div>
+        <?php endif; ?>
         <!-- end - Order Overview Card Section -->
     </section>
 <?php $__env->stopSection(); ?>

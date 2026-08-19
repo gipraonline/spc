@@ -808,7 +808,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="col-md-9 d-flex flex-wrap">
                         <div class="payment-option">
                             <input class="form-check-input mandatory mode_of_payment " type="radio" name="c_mode_of_payment" id="cod"
-                                value="Cash on delivery"  data-message="Please Choose a Payment Mode"  <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on delivery" ? 'checked' : ''); ?>>
+                                value="Cash on Delivery"  data-message="Please Choose a Payment Mode"  <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on Delivery" ? 'checked' : ''); ?>>
 
                             <label for="cod" class="mb-0">
                                 <i class="ti ti-truck"></i>
@@ -874,7 +874,7 @@ unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <!-- Payment Details Extra Fields -->
-                <div class="row g-4 mt-1" id="paymet-proofs" style="display:none;">
+                <div class="row g-4 mt-1" id="paymet-proofs" style="display:none !important;">
                     <div class="col-md-4">
                         <label class="form-label">
                             Amount to Pay *
@@ -908,103 +908,131 @@ unset($__errorArgs, $__bag); ?>
 
 
             <!-- Section 6: Franchise Details Section -->
-            <div class="form-box mb-4" id="franchise-details" style="display:none;">
+                <div class="form-box mb-4 " id="franchise-details" style="dislplay:none;">
 
-                <div class="form-section-header mb-3">
-                    <i class="ti ti-map-pin fs-5"></i>
-                    SPC Organic Clinic / Franchise / Stock Point Details
-                </div>
+                    <div class="form-section-header mb-3">
+                        <i class="ti ti-map-pin fs-5"></i>
+                        SPC Organic Clinic / Franchise / Stock Point Details
+                    </div>
 
-                <div class="row g-4 mb-4">
+                    <div class="row g-4 mb-4">
 
-                    <div class="col-md-6">
-                        <label class="form-label">
-                            State <span class="text-danger">*</span>
-                        </label>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                State <span class="text-danger">*</span>
+                            </label>
 
-                        <select class="form-select" id="franchise_state" name="n_state_id"
-                            data-message="Please Select State">
+                            <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                                data-message="Please Select State">
 
-                            <option value="">Select State</option>
+                                <option value="">Select State</option>
 
-                            <?php if(isset($states)): ?>
-                            <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($state->n_state_id); ?>"
-                                <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : ''); ?>>
-                                <?php echo e($state->name); ?>
+                                <?php if(isset($states)): ?>
+                                <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($state->n_state_id); ?>"
+                                    <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : ''); ?>>
+                                    <?php echo e($state->name); ?>
 
-                            </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            <?php endif; ?>
+                                </option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
 
-                        </select>
-                        <div class="text-danger mt-1 fs-2"></div>
+                            </select>
 
-                        <?php $__errorArgs = ['n_state_id'];
+                            <?php $__errorArgs = ['n_state_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                        <div class="text-danger mt-1 fs-2">
-                            <?php echo e($message); ?>
+                            <div class="text-danger mt-1 fs-2">
+                                <?php echo e($message); ?>
 
-                        </div>
-                        <?php unset($message);
+                            </div>
+                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                    </div>
+                        </div>
 
-                    <div class="col-md-6">
-                        <label for="state" class="form-label">District</label>
-                        <select class="form-select " data-message="Please enter District" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>  id="franchise_district" name="n_district_id">
-                            <option value="" selected>Select District</option>
-                            <?php if(isset($sale->n_district_id)): ?>
+                        <div class="col-md-6">
+                            <label for="state" class="form-label">District</label>
+                            <select class="form-select mandatory" data-message="Please enter District"
+                                <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?> id="franchise_district"
+                                name="n_district_id">
+                                <option value="" selected>Select District</option>
+                                <?php if(isset($sale->n_district_id)): ?>
                                 <?php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); ?>
 
                                 <?php if(isset($districts)): ?>
-                                    <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($district->id); ?>" <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>><?php echo e($district->district_name); ?></option>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($district->id); ?>"
+                                    <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>>
+                                    <?php echo e($district->district_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 <?php endif; ?>
-                            <?php endif; ?>
+                                <?php endif; ?>
 
-                        </select>
-                        <div class="text-danger mt-1 fs-2"></div>
+                            </select>
+                            <div class="text-danger mt-1 fs-2"></div>
+                        </div>
+
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Panchayath
+                            </label>
+
+                            <select class="form-select" id="franchise_panchayath" name="n_panchayath_id">
+                                <option value="">Select Panchayath</option>
+
+                                <?php if(isset($sale->n_district_id)): ?>
+
+                                <?php
+                                $panchayaths = \App\Models\Panchayath::where(
+                                'district_id',
+                                $sale->n_district_id
+                                )->get();
+                                ?>
+
+                                <?php $__currentLoopData = $panchayaths; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $panchayath): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($panchayath->id); ?>"
+                                    <?php echo e(old('n_panchayath_id', $franchisePanchayathId ?? '') == $panchayath->id ? 'selected' : ''); ?>>
+                                    <?php echo e($panchayath->panchayath_name); ?>
+
+                                </option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Nearest Franchise
+                            </label>
+
+                            <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                                data-message="Please enter Nearest Franchise">
+
+                                <option value="">
+                                    Select Franchise
+                                </option>
+
+                                <?php if(isset($franchises)): ?>
+                                <?php $__currentLoopData = $franchises; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $franchise): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($franchise->n_store_id); ?>"
+                                    <?php echo e(old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : ''); ?>>
+                                    <?php echo e($franchise->c_store_name); ?> (<?php echo e($franchise->c_store_code); ?>)
+                                </option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
+
+                            </select>
+                        </div>
+
                     </div>
-
                 </div>
-
-                <div class="row g-4 mb-4">
-
-                    <div class="col-md-6">
-                        <label class="form-label">
-                            Nearest Franchise
-                        </label>
-
-                        <select class="form-select " id="franchise" name="nearest_franchise_id"
-                            data-message="Please enter Nearest Franchise">
-
-                            <option value="">
-                                Select Franchise
-                            </option>
-
-                            <?php if(isset($franchises)): ?>
-                            <?php $__currentLoopData = $franchises; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $franchise): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($franchise->n_store_id); ?>"
-                                <?php echo e(old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : ''); ?>>
-                                <?php echo e($franchise->c_store_name); ?> (<?php echo e($franchise->c_store_code); ?>)
-                            </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            <?php endif; ?>
-
-                        </select>
-                        <div class="text-danger mt-1 fs-2"></div>
-                    </div>
-
-                </div>
-
-            </div>
 
             <!-- Action Buttons -->
             <div class="mt-4 d-flex gap-2 flex-wrap">
@@ -1665,35 +1693,79 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
+    function handlePaymentMode() {
 
-    $('.mode_of_payment').on('change', function() {
-        var payment_mode=$(this).val();
+        var payment_mode = $('.mode_of_payment:checked').val();
 
-        if(payment_mode=="Paid to Franchise"){
+        // Nothing selected
+        if (!payment_mode) {
             $("#paymet-proofs").hide();
             $("#ps").hide();
-            $("#franchise-details").show();
-            $("#franchise_state").addClass("mandatory");
-            $("#franchise_district").addClass("mandatory");
-            $("#franchise").addClass("mandatory");
+            $("#franchise-details").hide();
+
+            $("#franchise_state").removeClass("mandatory");
+            $("#franchise_district").removeClass("mandatory");
+            $("#franchise").removeClass("mandatory");
+
             $("#payment_status").removeClass("mandatory");
             $("#c_transaction_id").removeClass("mandatory");
             $("#payment_image").removeClass("mandatory");
 
-        }else{
-            $("#paymet-proofs").show();
+            return;
+        }
+
+        if (payment_mode == "Paid to Franchise") {
+
+            $("#paymet-proofs").hide();
+            $("#ps").hide();
+            $("#franchise-details").show();
+
+            $("#franchise_state").addClass("mandatory");
+            $("#franchise_district").addClass("mandatory");
+            $("#franchise").addClass("mandatory");
+
+            $("#payment_status").removeClass("mandatory");
+            $("#c_transaction_id").removeClass("mandatory");
+            $("#payment_image").removeClass("mandatory");
+
+        } else if (payment_mode == "Cash on Delivery") {
+
+
+            $("#paymet-proofs").hide();
             $("#ps").show();
             $("#franchise-details").hide();
+
             $("#franchise_state").removeClass("mandatory");
             $("#franchise_district").removeClass("mandatory");
             $("#franchise").removeClass("mandatory");
+
+            $("#payment_status").removeClass("mandatory");
+            $("#c_transaction_id").removeClass("mandatory");
+            $("#payment_image").removeClass("mandatory");
+
+        } else {
+
+            $("#paymet-proofs").show();
+            $("#ps").show();
+            $("#franchise-details").hide();
+
+            $("#franchise_state").removeClass("mandatory");
+            $("#franchise_district").removeClass("mandatory");
+            $("#franchise").removeClass("mandatory");
+
             $("#payment_status").addClass("mandatory");
             $("#c_transaction_id").addClass("mandatory");
             $("#payment_image").addClass("mandatory");
-
         }
-    });
+    }
 
+    $(document).ready(function () {
+
+        $('.mode_of_payment').on('change', handlePaymentMode);
+
+        // Run immediately on page load
+        handlePaymentMode();
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -1937,7 +2009,255 @@ $(document).ready(function() {
 </script>
 
 <script>
-$(document).ready(function() {
+/*
+|--------------------------------------------------------------------------
+| FRANCHISE LOCATION: State → District
+|--------------------------------------------------------------------------
+*/
+
+$('#franchise_state').on('change', function() {
+
+    let stateId = $(this).val();
+
+    $('#franchise_district').html(
+        '<option value="">Loading...</option>'
+    );
+
+    $('#franchise_panchayath').html(
+        '<option value="">Select Panchayath</option>'
+    );
+
+    $('#franchise').html(
+        '<option value="">Select Franchise</option>'
+    );
+
+    if (!stateId) {
+        $('#franchise_district').html(
+            '<option value="">Select District</option>'
+        );
+        return;
+    }
+
+    $.ajax({
+        type: 'GET',
+        url: "<?php echo e(route('admin.filterDistrict')); ?>",
+        data: {
+            state: stateId
+        },
+        dataType: 'json',
+
+        success: function(response) {
+
+            $('#franchise_district').html(
+                '<option value="">Select District</option>'
+            );
+
+            if (response.districts) {
+
+                $.each(response.districts, function(index, district) {
+
+                    $('#franchise_district').append(
+                        '<option value="' + district.id + '">' +
+                        district.district_name +
+                        '</option>'
+                    );
+
+                });
+            }
+        },
+
+        error: function(xhr) {
+            console.error('District AJAX Error:', xhr.responseText);
+
+            $('#franchise_district').html(
+                '<option value="">Unable to load districts</option>'
+            );
+        }
+    });
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| FRANCHISE LOCATION: District → Panchayath
+|--------------------------------------------------------------------------
+*/
+
+$('#franchise_district').on('change', function() {
+
+    let districtId = $(this).val();
+
+    $('#franchise_panchayath').html(
+        '<option value="">Loading...</option>'
+    );
+
+    $('#franchise').html(
+        '<option value="">Select Franchise</option>'
+    );
+
+    if (!districtId) {
+
+        $('#franchise_panchayath').html(
+            '<option value="">Select Panchayath</option>'
+        );
+
+        return;
+    }
+
+    $.ajax({
+        type: 'GET',
+        url: "<?php echo e(route('admin.filterPanchayath')); ?>",
+        data: {
+            district: districtId
+        },
+        dataType: 'json',
+
+        success: function(response) {
+
+            console.log('Panchayath response:', response);
+
+            $('#franchise_panchayath').html(
+                '<option value="">Select Panchayath</option>'
+            );
+
+            if (
+                response.panchayaths &&
+                response.panchayaths.length > 0
+            ) {
+
+                $.each(response.panchayaths, function(index, panchayat) {
+
+                    $('#franchise_panchayath').append(
+                        '<option value="' + panchayat.id + '">' +
+                        panchayat.panchayath_name +
+                        '</option>'
+                    );
+
+                });
+
+            } else {
+
+                $('#franchise_panchayath').html(
+                    '<option value="">No Panchayaths Found</option>'
+                );
+            }
+        },
+
+        error: function(xhr) {
+
+            console.error(
+                'Panchayath AJAX Error:',
+                xhr.responseText
+            );
+
+            $('#franchise_panchayath').html(
+                '<option value="">Unable to load Panchayaths</option>'
+            );
+        }
+    });
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| FRANCHISE LOCATION: Panchayath → Franchise
+|--------------------------------------------------------------------------
+*/
+
+$('#franchise_panchayath').on('change', function() {
+
+    let stateId = $('#franchise_state').val();
+    let districtId = $('#franchise_district').val();
+    let panchayathId = $(this).val();
+
+    console.log('Loading franchises:', {
+        state: stateId,
+        district: districtId,
+        panchayath: panchayathId
+    });
+
+    $('#franchise').html(
+        '<option value="">Loading franchises...</option>'
+    );
+
+    if (!stateId || !districtId || !panchayathId) {
+
+        $('#franchise').html(
+            '<option value="">Select Franchise</option>'
+        );
+
+        return;
+    }
+
+    $.ajax({
+        type: 'GET',
+
+        url: "<?php echo e(url('admin/filter-franchise')); ?>",
+
+        data: {
+            state: stateId,
+            district: districtId,
+            panchayath: panchayathId
+        },
+
+        dataType: 'json',
+
+        success: function(response) {
+
+            console.log('Franchise response:', response);
+
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+            if (
+                response.franchises &&
+                response.franchises.length > 0
+            ) {
+
+                $.each(response.franchises, function(index, franchise) {
+
+                    $('#franchise').append(
+                        '<option value="' +
+                        franchise.n_store_id +
+                        '">' +
+                        franchise.c_store_name +
+                        ' (' +
+                        franchise.c_store_code +
+                        ')' +
+                        '</option>'
+                    );
+
+                });
+
+            } else {
+
+                $('#franchise').html(
+                    '<option value="">No Franchises Found</option>'
+                );
+
+                console.log('No franchises found');
+            }
+        },
+
+        error: function(xhr, status, error) {
+
+            console.error('Franchise AJAX failed');
+            console.error('Status:', status);
+            console.error('Error:', error);
+            console.error('Response:', xhr.responseText);
+
+            $('#franchise').html(
+                '<option value="">Unable to load franchises</option>'
+            );
+        }
+    });
+
+});
+
+</script>
+<script>
+/* $(document).ready(function() {
 
     $('#franchise_state').change(function() {
         let stateId = $(this).val();
@@ -1963,11 +2283,11 @@ $(document).ready(function() {
 
 
 
-});
-</script>
+}); */
+</>
 
 <script>
-$(document).ready(function() {
+/* $(document).ready(function() {
     $('#franchise_district').change(function() {
 
         let stateId = $('#franchise_state').val();
@@ -1996,46 +2316,9 @@ $(document).ready(function() {
         });
 
     });
-});
+}); */
 
 
-/* function togglePaymentFields() {
-    let status = $('#paymentStatus').val();
-
-    let transactionId = $('#c_transaction_id');
-    let paymentImage = $('#payment_image_input');
-
-    if (status === 'confirmed') {
-        // Enable fields
-        transactionId.prop('disabled', false);
-        paymentImage.prop('disabled', false);
-
-        // Make transaction ID required
-        transactionId.prop('required', true);
-
-        // Show enabled styling
-        transactionId.removeClass('bg-light');
-        paymentImage.removeClass('bg-light');
-
-    } else {
-        // Disable fields
-        transactionId.prop('disabled', true);
-        paymentImage.prop('disabled', true);
-
-        // Remove required
-        transactionId.prop('required', false);
-
-        // Clear transaction ID when pending
-        transactionId.val('');
-
-        // Clear file input
-        paymentImage.val('');
-
-        // Disabled styling
-        transactionId.addClass('bg-light');
-        paymentImage.addClass('bg-light');
-    }
-} */
 
 
 </script>

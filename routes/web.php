@@ -233,10 +233,10 @@ Route::middleware(['auth', 'admin'])
         Route::get('districts', [SalesController::class, 'districtFilter'])
             ->name('filterDistrict');
         /*
-                |--------------------------------------------------------------------------
-                | Panchayath Filter
-                |--------------------------------------------------------------------------
-                */
+        |--------------------------------------------------------------------------
+        | Panchayath Filter
+        |--------------------------------------------------------------------------
+        */
         Route::get('/filter-panchayath', [SalesController::class, 'panchayathFilter'])
             ->name('filterPanchayath');
 

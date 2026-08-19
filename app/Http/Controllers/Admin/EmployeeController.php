@@ -36,11 +36,43 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
-        $query = EmployeeMaster::with(['designation'])->whereNull('deleted_at');
+        $query = EmployeeMaster::with(['designation'])
+            ->whereNull('deleted_at');
 
         // Get filters from session
         $search = session('employee_search');
         $designation = session('designation_filter');
+
+        /*
+         * Get logged-in user's role identifier from Spatie.
+         *
+         * Example:
+         * Farm Care Officer -> FCO
+         * National Sales Head -> NSH
+         */
+        $role = auth()->user()->roles->first();
+
+        $userDesignation = null;
+
+        if ($role) {
+            $userDesignation = DesignationMaster::where(
+                'identifier',
+                $role->identifier
+            )
+                ->where('c_status', 'Y')
+                ->first();
+        }
+
+        /*
+         * Get employees only from designations below
+         * the logged-in user's designation.
+         */
+        if ($userDesignation) {
+            $query->whereHas('designation', function ($q) use ($userDesignation) {
+                $q->where('hierarchy_level', '>', $userDesignation->hierarchy_level)
+                    ->where('c_status', 'Y');
+            });
+        }
 
         // Search by employee code or employee name
         if (! empty($search)) {
@@ -50,23 +82,68 @@ class EmployeeController extends Controller
             });
         }
 
-        // Filter by designation
-        if (! empty($designation)) {
-            $query->where('n_designation_id', $designation);
+        /*
+         * Apply designation filter only if it belongs
+         * to the logged-in user's allowed hierarchy.
+         */
+        if (! empty($designation) && $userDesignation) {
+            $query->whereHas('designation', function ($q) use ($designation, $userDesignation) {
+                $q->where('n_designation_id', $designation)
+                    ->where(
+                        'hierarchy_level',
+                        '>',
+                        $userDesignation->hierarchy_level
+                    );
+            });
         }
 
         $employees = $query->paginate(10);
 
-        // Dropdown data
-        $designations = DesignationMaster::where('c_status', 'Y')->get();
+        /*
+         * Designation dropdown:
+         * Show only designations below the logged-in user.
+         */
+        $designations = DesignationMaster::where('c_status', 'Y')
+            ->when($userDesignation, function ($q) use ($userDesignation) {
+                $q->where(
+                    'hierarchy_level',
+                    '>',
+                    $userDesignation->hierarchy_level
+                );
+            })
+            ->orderBy('hierarchy_level')
+            ->get();
 
-        // Employee list for autocomplete
-        $employeesForSearch = EmployeeMaster::select('n_employee_id', 'c_employee_name', 'c_employee_code')
+        /*
+         * Employee autocomplete:
+         * Show only employees from allowed designations.
+         */
+        $employeesForSearch = EmployeeMaster::select(
+            'n_employee_id',
+            'c_employee_name',
+            'c_employee_code'
+        )
             ->where('c_status', 'Y')
+            ->when($userDesignation, function ($q) use ($userDesignation) {
+                $q->whereHas('designation', function ($designationQuery) use ($userDesignation) {
+                    $designationQuery->where(
+                        'hierarchy_level',
+                        '>',
+                        $userDesignation->hierarchy_level
+                    );
+                });
+            })
             ->orderBy('c_employee_name')
             ->get();
 
-        return view('admin.employees.index', compact('employees', 'designations', 'employeesForSearch'));
+        return view(
+            'admin.employees.index',
+            compact(
+                'employees',
+                'designations',
+                'employeesForSearch'
+            )
+        );
     }
 
     public function generateEmployeeCode($designationId)

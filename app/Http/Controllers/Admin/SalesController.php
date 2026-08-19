@@ -10,25 +10,24 @@ use App\Models\DesignationMaster;
 use App\Models\District;
 use App\Models\EmployeeMaster;
 use App\Models\OrderProduct;
+use App\Models\Panchayath;
 use App\Models\ProductMaster;
 use App\Models\SalesApproval;
 use App\Models\SalesOrder;
+use App\Models\SalesOrderFollowup;
 use App\Models\State;
 use App\Models\StoreMaster;
-use App\Models\SalesOrderFollowup;
-use App\Models\Panchayath;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SalesController extends Controller
 {
-
     private function isFca(): bool
     {
         return Auth::check()
@@ -43,147 +42,140 @@ class SalesController extends Controller
     //         || Carbon::parse($sale->d_date)->isToday();
     // }
 
-            public function index(Request $request)
-            {
-                /*
-                |--------------------------------------------------------------------------
-                | Base Sales Order Query
-                |--------------------------------------------------------------------------
-                */
+    public function index(Request $request)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | Base Sales Order Query
+        |--------------------------------------------------------------------------
+        */
 
-                $query = SalesOrder::with(
-                    'employee',
-                    'franchise',
-                    'customer'
-                )
-                ->whereNull('sales_orders.deleted_at');
+        $query = SalesOrder::with(
+            'employee',
+            'franchise',
+            'customer'
+        )
+            ->whereNull('sales_orders.deleted_at');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Logged-in User
+        |--------------------------------------------------------------------------
+        */
 
-                /*
-                |--------------------------------------------------------------------------
-                | Logged-in User
-                |--------------------------------------------------------------------------
-                */
+        $user = Auth::user();
 
-                $user = Auth::user();
+        /*
+        |--------------------------------------------------------------------------
+        | Farm Care Advisor Access
+        |--------------------------------------------------------------------------
+        */
 
+        $isFarmCareAdvisor = $this->isFca();
 
-                /*
-                |--------------------------------------------------------------------------
-                | Farm Care Advisor Access
-                |--------------------------------------------------------------------------
-                */
+        if ($isFarmCareAdvisor) {
 
-                $isFarmCareAdvisor = $this->isFca();
+            $employeeId = $user->n_employee_id;
 
-                if ($isFarmCareAdvisor) {
+            $query->where(
+                'sales_orders.farm_care_advisor_id',
+                $employeeId
+            );
 
-                    $employeeId = $user->n_employee_id;
+            /*   $query->whereDate(
+                  'sales_orders.d_date',
+                  today()
+              ); */
+        }
 
-                    $query->where(
-                        'sales_orders.farm_care_advisor_id',
-                        $employeeId
-                    );
+        /*
+        |--------------------------------------------------------------------------
+        | Employee Search
+        |--------------------------------------------------------------------------
+        */
 
-                  /*   $query->whereDate(
-                        'sales_orders.d_date',
-                        today()
-                    ); */
-                }
+        if ($request->filled('search')) {
 
+            $search = trim($request->search);
 
-                /*
-                |--------------------------------------------------------------------------
-                | Employee Search
-                |--------------------------------------------------------------------------
-                */
+            $query->whereHas('employee', function ($q) use ($search) {
 
-                if ($request->filled('search')) {
+                $q->where(function ($sub) use ($search) {
 
-                    $search = trim($request->search);
+                    $sub->where(
+                        'c_employee_name',
+                        'like',
+                        "%{$search}%"
+                    )
+                        ->orWhere(
+                            'c_employee_code',
+                            'like',
+                            "%{$search}%"
+                        );
 
-                    $query->whereHas('employee', function ($q) use ($search) {
+                });
 
-                        $q->where(function ($sub) use ($search) {
+            });
+        }
 
-                            $sub->where(
-                                'c_employee_name',
-                                'like',
-                                "%{$search}%"
-                            )
-                            ->orWhere(
-                                'c_employee_code',
-                                'like',
-                                "%{$search}%"
-                            );
+        /*
+        |--------------------------------------------------------------------------
+        | From Date
+        |--------------------------------------------------------------------------
+        */
 
-                        });
+        if ($request->filled('start_date')) {
 
-                    });
-                }
+            $query->whereDate(
+                'sales_orders.d_date',
+                '>=',
+                $request->start_date
+            );
+        }
 
+        /*
+        |--------------------------------------------------------------------------
+        | To Date
+        |--------------------------------------------------------------------------
+        */
 
-                /*
-                |--------------------------------------------------------------------------
-                | From Date
-                |--------------------------------------------------------------------------
-                */
+        if ($request->filled('end_date')) {
 
-                if ($request->filled('start_date')) {
+            $query->whereDate(
+                'sales_orders.d_date',
+                '<=',
+                $request->end_date
+            );
+        }
 
-                    $query->whereDate(
-                        'sales_orders.d_date',
-                        '>=',
-                        $request->start_date
-                    );
-                }
+        /*
+        |--------------------------------------------------------------------------
+        | Payment Status
+        |--------------------------------------------------------------------------
+        */
 
+        if ($request->filled('payment_status')) {
 
-                /*
-                |--------------------------------------------------------------------------
-                | To Date
-                |--------------------------------------------------------------------------
-                */
+            $query->where(
+                'sales_orders.payment_status',
+                $request->payment_status
+            );
+        }
 
-                if ($request->filled('end_date')) {
+        /*
+        |--------------------------------------------------------------------------
+        | CURRENT ORDER STATUS
+        |--------------------------------------------------------------------------
+        |
+        | Priority:
+        |
+        | 1. Latest follow-up status
+        | 2. Latest approval status
+        | 3. sales_orders.c_order_status
+        |
+        */
 
-                    $query->whereDate(
-                        'sales_orders.d_date',
-                        '<=',
-                        $request->end_date
-                    );
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Payment Status
-                |--------------------------------------------------------------------------
-                */
-
-                if ($request->filled('payment_status')) {
-
-                    $query->where(
-                        'sales_orders.payment_status',
-                        $request->payment_status
-                    );
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | CURRENT ORDER STATUS
-                |--------------------------------------------------------------------------
-                |
-                | Priority:
-                |
-                | 1. Latest follow-up status
-                | 2. Latest approval status
-                | 3. sales_orders.c_order_status
-                |
-                */
-
-                $currentStatusSql = "
+        $currentStatusSql = "
                     COALESCE(
 
                         (
@@ -207,59 +199,56 @@ class SalesController extends Controller
                     )
                 ";
 
+        /*
+        |--------------------------------------------------------------------------
+        | Add Current Status to Result
+        |--------------------------------------------------------------------------
+        */
 
-                /*
-                |--------------------------------------------------------------------------
-                | Add Current Status to Result
-                |--------------------------------------------------------------------------
-                */
+        $query->select('sales_orders.*');
 
-                $query->select('sales_orders.*');
+        $query->addSelect(
+            DB::raw("$currentStatusSql AS current_order_status")
+        );
 
-                $query->addSelect(
-                    DB::raw("$currentStatusSql AS current_order_status")
-                );
+        /*
+        |--------------------------------------------------------------------------
+        | Order Status Filter
+        |--------------------------------------------------------------------------
+        */
 
+        if ($request->filled('order_status')) {
 
-                /*
-                |--------------------------------------------------------------------------
-                | Order Status Filter
-                |--------------------------------------------------------------------------
-                */
+            $orderStatus = trim($request->order_status);
 
-                if ($request->filled('order_status')) {
+            $query->whereRaw(
+                "LOWER(TRIM($currentStatusSql)) = LOWER(TRIM(?))",
+                [$orderStatus]
+            );
+        }
 
-                    $orderStatus = trim($request->order_status);
+        /*
+        |--------------------------------------------------------------------------
+        | Export Excel
+        |--------------------------------------------------------------------------
+        */
 
-                    $query->whereRaw(
-                        "LOWER(TRIM($currentStatusSql)) = LOWER(TRIM(?))",
-                        [$orderStatus]
-                    );
-                }
+        if ($request->export === 'excel') {
 
+            $sales = $query
+                ->orderBy(
+                    'sales_orders.d_date',
+                    'desc'
+                )
+                ->get();
 
-                /*
-                |--------------------------------------------------------------------------
-                | Export Excel
-                |--------------------------------------------------------------------------
-                */
+            return Excel::download(
+                new IncentiveSalesReportExport($sales),
+                'sales-report.xlsx'
+            );
+        }
 
-                if ($request->export === 'excel') {
-
-                    $sales = $query
-                        ->orderBy(
-                            'sales_orders.d_date',
-                            'desc'
-                        )
-                        ->get();
-
-                    return Excel::download(
-                        new IncentiveSalesReportExport($sales),
-                        'sales-report.xlsx'
-                    );
-                }
-
-                /*
+        /*
         |--------------------------------------------------------------------------
         | Total Counts by Current Order Status
         |--------------------------------------------------------------------------
@@ -268,12 +257,12 @@ class SalesController extends Controller
         $countQuery = SalesOrder::query()
             ->whereNull('sales_orders.deleted_at');
 
-       /* | Farm Care Advisor Access
-        |--------------------------------------------------------------------------
-        | FCA can see only their own sales .
-        | Other roles can see sales according to their existing permissions.
-        |--------------------------------------------------------------------------
-        */
+        /* | Farm Care Advisor Access
+         |--------------------------------------------------------------------------
+         | FCA can see only their own sales .
+         | Other roles can see sales according to their existing permissions.
+         |--------------------------------------------------------------------------
+         */
 
         $isFarmCareAdvisor = $this->isFca();
 
@@ -295,12 +284,11 @@ class SalesController extends Controller
                 $user->n_employee_id
             );
 
-           /*  $countQuery->whereDate(
-                'sales_orders.d_date',
-                today()
-            ); */
+            /*  $countQuery->whereDate(
+                 'sales_orders.d_date',
+                 today()
+             ); */
         }
-
 
         /*
         | Get current status for each order
@@ -337,7 +325,6 @@ class SalesController extends Controller
                 return strtolower(trim($order->current_status ?? 'pending'));
             });
 
-
         /*
         |--------------------------------------------------------------------------
         | Status Counts
@@ -372,7 +359,6 @@ class SalesController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-
         /*
         |--------------------------------------------------------------------------
         | Return View
@@ -384,7 +370,7 @@ class SalesController extends Controller
             compact(
                 'sales',
                 'isFarmCareAdvisor',
-                //'totalSalesOrders',
+                // 'totalSalesOrders',
                 'pendingOrders',
                 'completedOrders',
                 'approvedOrders',
@@ -392,7 +378,6 @@ class SalesController extends Controller
             )
         );
     }
-
 
     public function create()
     {
@@ -453,7 +438,6 @@ class SalesController extends Controller
         return response()->json(['districts' => $districts]);
     }
 
-
     public function store(Request $request)
     {
         /*
@@ -471,7 +455,7 @@ class SalesController extends Controller
                 'string',
                 'max:100',
                 Rule::unique('sales_orders', 'c_order_no')
-                        ->ignore($request->id, 'n_sl_no'),
+                    ->ignore($request->id, 'n_sl_no'),
             ],
             'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
 
@@ -485,15 +469,13 @@ class SalesController extends Controller
 
             'n_customer_mobile' => 'required|digits_between:10,15',
 
-
-             /*
+            /*
             |--------------------------------------------------------------------------
             | Payment Mode
             |--------------------------------------------------------------------------
             */
 
-            'c_mode_of_payment' =>
-                'required|string',
+            'c_mode_of_payment' => 'required|string',
 
             /*
 
@@ -522,15 +504,12 @@ class SalesController extends Controller
                 'required_if:c_mode_of_payment,Paid to Franchise',
             ],
 
-
-
-            //Totals//
+            // Totals//
             'n_total_sales_amount' => 'nullable|numeric|min:0',
             'n_product_discount_total' => 'nullable|numeric|min:0',
             'n_total_gst' => 'nullable|numeric|min:0',
             'n_total_discount' => 'nullable|numeric|min:0',
             'n_net_sales_amount' => 'nullable|numeric|min:0',
-
 
             /*
             |--------------------------------------------------------------------------
@@ -545,7 +524,7 @@ class SalesController extends Controller
                 'string',
                 'max:255',
                 Rule::requiredIf(function () use ($request) {
-                    return !in_array($request->c_mode_of_payment, [
+                    return ! in_array($request->c_mode_of_payment, [
                         'Paid to Franchise',
                         'Cash on Delivery',
                     ]);
@@ -558,7 +537,7 @@ class SalesController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:5120',
                 Rule::requiredIf(function () use ($request) {
-                    return !in_array($request->c_mode_of_payment, [
+                    return ! in_array($request->c_mode_of_payment, [
                         'Paid to Franchise',
                         'Cash on Delivery',
                     ]);
@@ -788,7 +767,6 @@ class SalesController extends Controller
                 }
             }
 
-
             /*
             |--------------------------------------------------------------------------
             | Payment Status
@@ -799,17 +777,15 @@ class SalesController extends Controller
 
                 $transactionId = null;
 
-                $paymentStatus=null;
+                $paymentStatus = null;
 
                 if (! $existingOrder) {
                     $paymentImageName = null;
                 }
 
-
-            }
-            else{
-                $transactionId=$validated['c_transaction_id'];
-                $paymentStatus=$validated['payment_status'];
+            } else {
+                $transactionId = $validated['c_transaction_id'];
+                $paymentStatus = $validated['payment_status'];
             }
 
             /*
@@ -818,83 +794,64 @@ class SalesController extends Controller
             |--------------------------------------------------------------------------
             */
 
-
             $orderData = [
 
                 'c_order_no' => $validated['c_order_no'],
 
                 'd_date' => $validated['d_date'],
 
-                'farm_care_advisor_id' =>
-                    $validated['farm_care_advisor_id'] ?? null,
+                'farm_care_advisor_id' => $validated['farm_care_advisor_id'] ?? null,
 
                 'n_customer_id' => $customer->n_customer_id,
 
                 'c_customer_name' => $validated['c_customer_name'],
 
-                'c_customer_email' =>
-                    $validated['c_customer_email'] ?? null,
+                'c_customer_email' => $validated['c_customer_email'] ?? null,
 
-                'c_customer_address' =>
-                    $validated['c_customer_address'] ?? null,
+                'c_customer_address' => $validated['c_customer_address'] ?? null,
 
-                'n_customer_mobile' =>
-                    $validated['n_customer_mobile'],
+                'n_customer_mobile' => $validated['n_customer_mobile'],
 
-                'n_state_id' =>
-                    $validated['n_state_id'],
+                'n_state_id' => $validated['n_state_id'],
 
-                'n_district_id' =>
-                    $validated['n_district_id'],
+                'n_district_id' => $validated['n_district_id'],
 
-                'c_mode_of_payment' =>
-                    $validated['c_mode_of_payment'],
+                'c_mode_of_payment' => $validated['c_mode_of_payment'],
 
                 // IMPORTANT
-                'c_order_status' =>
-                    $validated['c_order_status'] ?? 'Pending',
+                'c_order_status' => $validated['c_order_status'] ?? 'Pending',
 
-                'nearest_franchise_id' =>
-                    $validated['nearest_franchise_id'],
+                'nearest_franchise_id' => $validated['nearest_franchise_id'],
 
                 /*
                 | Payment
                 */
 
-                'payment_status' =>
-                    $paymentStatus,
+                'payment_status' => $paymentStatus,
 
-                'c_transaction_id' =>
-                    $transactionId,
+                'c_transaction_id' => $transactionId,
 
-                'payment_image' =>
-                    $paymentImageName,
+                'payment_image' => $paymentImageName,
 
                 /*
                 | Booklet
                 */
 
-                'booklet_image' =>
-                    $bookletImageName,
+                'booklet_image' => $bookletImageName,
 
                 /*
                 | Order Summary
                 */
 
-                'n_total_sales_amount' =>
-                    $validated['n_total_sales_amount'] ?? 0,
+                'n_total_sales_amount' => $validated['n_total_sales_amount'] ?? 0,
 
-                'n_product_discount_total' =>
-                    $validated['n_product_discount_total'] ?? 0,
+                'n_product_discount_total' => $validated['n_product_discount_total'] ?? 0,
 
-                'n_total_gst' =>
-                    $validated['n_total_gst'] ?? 0,
+                'n_total_gst' => $validated['n_total_gst'] ?? 0,
 
-                'n_total_discount' =>
-                    $validated['n_total_discount'] ?? 0,
+                'n_total_discount' => $validated['n_total_discount'] ?? 0,
 
-                'n_net_sales_amount' =>
-                    $validated['n_net_sales_amount'] ?? 0,
+                'n_net_sales_amount' => $validated['n_net_sales_amount'] ?? 0,
             ];
 
             /*
@@ -903,8 +860,7 @@ class SalesController extends Controller
             |--------------------------------------------------------------------------
             */
 
-
-              if ($existingOrder) {
+            if ($existingOrder) {
 
                 /*
                 |--------------------------------------------------------------------------
@@ -931,29 +887,21 @@ class SalesController extends Controller
 
                     OrderProduct::create([
 
-                        'n_order_id' =>
-                            $existingOrder->n_sl_no,
+                        'n_order_id' => $existingOrder->n_sl_no,
 
-                        'product_id' =>
-                            $product['product_id'],
+                        'product_id' => $product['product_id'],
 
-                        'product_price' =>
-                            $product['product_price'],
+                        'product_price' => $product['product_price'],
 
-                        'qty' =>
-                            $product['qty'],
+                        'qty' => $product['qty'],
 
-                        'discount' =>
-                            $product['discount'] ?? 0,
+                        'discount' => $product['discount'] ?? 0,
 
-                        'n_gst_percentage' =>
-                            $product['n_gst_percentage'] ?? 0,
+                        'n_gst_percentage' => $product['n_gst_percentage'] ?? 0,
 
-                        'gst_amount' =>
-                            $product['gst_amount'] ?? 0,
+                        'gst_amount' => $product['gst_amount'] ?? 0,
 
-                        'product_total' =>
-                            $product['product_total'] ?? 0,
+                        'product_total' => $product['product_total'] ?? 0,
                     ]);
                 }
 
@@ -978,29 +926,21 @@ class SalesController extends Controller
                     OrderProduct::create([
 
                         // IMPORTANT: use new order ID
-                        'n_order_id' =>
-                            $salesOrder->n_sl_no,
+                        'n_order_id' => $salesOrder->n_sl_no,
 
-                        'product_id' =>
-                            $product['product_id'],
+                        'product_id' => $product['product_id'],
 
-                        'product_price' =>
-                            $product['product_price'],
+                        'product_price' => $product['product_price'],
 
-                        'qty' =>
-                            $product['qty'],
+                        'qty' => $product['qty'],
 
-                        'discount' =>
-                            $product['discount'] ?? 0,
+                        'discount' => $product['discount'] ?? 0,
 
-                        'n_gst_percentage' =>
-                            $product['n_gst_percentage'] ?? 0,
+                        'n_gst_percentage' => $product['n_gst_percentage'] ?? 0,
 
-                        'gst_amount' =>
-                            $product['gst_amount'] ?? 0,
+                        'gst_amount' => $product['gst_amount'] ?? 0,
 
-                        'product_total' =>
-                            $product['product_total'] ?? 0,
+                        'product_total' => $product['product_total'] ?? 0,
                     ]);
                 }
 
@@ -1035,7 +975,7 @@ class SalesController extends Controller
         }
     }
 
-   public function storeFollowup(Request $request)
+    public function storeFollowup(Request $request)
     {
         $request->validate([
             'n_sale_id' => 'required|exists:sales_orders,n_sl_no',
@@ -1044,9 +984,7 @@ class SalesController extends Controller
             'remarks' => 'required|string',
         ]);
 
-
         $sale = SalesOrder::findOrFail($request->n_sale_id);
-
 
         SalesOrderFollowup::create([
             'n_sale_id' => $sale->n_sl_no,
@@ -1056,7 +994,6 @@ class SalesController extends Controller
             'n_created_by' => Auth::id(),
         ]);
 
-
         // Optional: update current order status
         if ($request->filled('c_order_status')) {
 
@@ -1064,7 +1001,6 @@ class SalesController extends Controller
 
             $sale->save();
         }
-
 
         return redirect()
             ->back()
@@ -1090,7 +1026,7 @@ class SalesController extends Controller
             ]
         );
 
-        $salesOrder=SalesOrder::findOrFail($id);
+        $salesOrder = SalesOrder::findOrFail($id);
 
         /*
 |--------------------------------------------------------------------------
@@ -1149,6 +1085,13 @@ class SalesController extends Controller
             'customer',
         ])->findOrFail($id);
 
+        $franchise = StoreMaster::where(
+            'n_store_id',
+            $sale->nearest_franchise_id
+        )->first();
+
+        $franchisePanchayathId = $franchise->n_panchayath_id ?? null;
+
         // --------------------------------------------------
         // FCA midnight restriction
         // --------------------------------------------------
@@ -1197,6 +1140,7 @@ class SalesController extends Controller
                 'products',
                 'states',
                 'franchises',
+                'franchisePanchayathId',
                 'viewmode',
                 'user',
                 'farmCareAdvisorId',
@@ -1259,9 +1203,9 @@ class SalesController extends Controller
         // --------------------------------------------------
         // FCA midnight restriction
         // --------------------------------------------------
-       /*  if (! $this->isFcaToday($sale)) {
-            abort(403, 'FCA cannot edit this Sales Order after midnight.');
-        } */
+        /*  if (! $this->isFcaToday($sale)) {
+             abort(403, 'FCA cannot edit this Sales Order after midnight.');
+         } */
 
         $customers = CustomerMaster::orderBy('c_customer_name')->get();
 
@@ -1339,6 +1283,7 @@ class SalesController extends Controller
         $franchises = StoreMaster::where('c_store_status', 'Y')
             ->where('n_state_id', $request->state)
             ->where('n_district_id', $request->district)
+            ->where('n_panchayath_id', $request->panchayath)
             ->orderBy('c_store_name', 'ASC')
             ->get([
                 'n_store_id',

@@ -58,9 +58,17 @@ class SalesOrder extends Model
         );
     }
 
+    // public function customer()
+    // {
+    //     return $this->hasOne(
+    //         CustomerMaster::class,
+    //         'n_customer_id',
+    //         'n_customer_id'
+    //     );
+    // }
     public function customer()
     {
-        return $this->hasOne(
+        return $this->belongsTo(
             CustomerMaster::class,
             'n_customer_id',
             'n_customer_id'

@@ -13,34 +13,48 @@
     <div class="card-body">
 
         
-        <form method="GET">
+        <form method="POST" action="<?php echo e(route('admin.admin-log.search')); ?>">
+            <?php echo csrf_field(); ?>
 
             <div class="row">
 
                 <div class="col-md-3">
-                    <input type="date" name="from_date" class="form-control">
+                    <input type="date" name="from_date" value="<?php echo e($fromDate ?? ''); ?>" class="form-control">
                 </div>
 
                 <div class="col-md-3">
-                    <input type="date" name="to_date" class="form-control">
+                    <input type="date" name="to_date" value="<?php echo e($toDate ?? ''); ?>" class="form-control">
                 </div>
 
                 <div class="col-md-3">
                     <select name="status" class="form-select">
+
                         <option value="">All Status</option>
-                        <option value="Checked In">Working</option>
-                        <option value="Checked Out">Checked Out</option>
+
+                        <option value="Checked In" <?php echo e(($status ?? '') === 'Checked In' ? 'selected' : ''); ?>>
+                            Working
+                        </option>
+
+                        <option value="Checked Out" <?php echo e(($status ?? '') === 'Checked Out' ? 'selected' : ''); ?>>
+                            Checked Out
+                        </option>
+
                     </select>
                 </div>
 
                 <div class="col-md-3">
-                    <button class="btn buttonSpc">
+
+                    <button type="submit" class="btn buttonSpc">
                         Search
                     </button>
+
+                    <a href="<?php echo e(route('admin.admin-log.clearSearch')); ?>" class="btn btn-secondary">
+                        Clear
+                    </a>
+
                 </div>
 
             </div>
-
         </form>
 
         <hr>
@@ -148,5 +162,4 @@
 </div>
 
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/admin-log/index.blade.php ENDPATH**/ ?>

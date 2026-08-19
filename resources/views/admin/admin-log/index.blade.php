@@ -15,34 +15,48 @@
     <div class="card-body">
 
         {{-- Filters (Next Step) --}}
-        <form method="GET">
+        <form method="POST" action="{{ route('admin.admin-log.search') }}">
+            @csrf
 
             <div class="row">
 
                 <div class="col-md-3">
-                    <input type="date" name="from_date" class="form-control">
+                    <input type="date" name="from_date" value="{{ $fromDate ?? '' }}" class="form-control">
                 </div>
 
                 <div class="col-md-3">
-                    <input type="date" name="to_date" class="form-control">
+                    <input type="date" name="to_date" value="{{ $toDate ?? '' }}" class="form-control">
                 </div>
 
                 <div class="col-md-3">
                     <select name="status" class="form-select">
+
                         <option value="">All Status</option>
-                        <option value="Checked In">Working</option>
-                        <option value="Checked Out">Checked Out</option>
+
+                        <option value="Checked In" {{ ($status ?? '') === 'Checked In' ? 'selected' : '' }}>
+                            Working
+                        </option>
+
+                        <option value="Checked Out" {{ ($status ?? '') === 'Checked Out' ? 'selected' : '' }}>
+                            Checked Out
+                        </option>
+
                     </select>
                 </div>
 
                 <div class="col-md-3">
-                    <button class="btn buttonSpc">
+
+                    <button type="submit" class="btn buttonSpc">
                         Search
                     </button>
+
+                    <a href="{{ route('admin.admin-log.clearSearch') }}" class="btn btn-secondary">
+                        Clear
+                    </a>
+
                 </div>
 
             </div>
-
         </form>
 
         <hr>

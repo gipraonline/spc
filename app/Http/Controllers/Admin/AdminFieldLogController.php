@@ -3,22 +3,66 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\FieldLog;
+use Illuminate\Http\Request;
 
 class AdminFieldLogController extends Controller
 {
-    /**
-     * Display all field logs with filters.
-     */
+    public function search(Request $request)
+    {
+        session([
+            'field_log_from_date' => $request->input('from_date'),
+            'field_log_to_date' => $request->input('to_date'),
+            'field_log_status' => $request->input('status', ''),
+        ]);
+
+        return redirect()->route('admin.admin-log.index');
+    }
+
+    public function clearSearch()
+    {
+        session()->forget([
+            'field_log_from_date',
+            'field_log_to_date',
+            'field_log_status',
+        ]);
+
+        return redirect()->route('admin.admin-log.index');
+    }
+
     public function index(Request $request)
     {
-        $fieldLogs = FieldLog::with(['admin', 'tasks'])
+        $fromDate = session('field_log_from_date');
+        $toDate = session('field_log_to_date');
+        $status = session('field_log_status', '');
+
+        $query = FieldLog::with(['admin', 'tasks']);
+
+        // Date filter
+        if (! empty($fromDate)) {
+            $query->whereDate('work_date', '>=', $fromDate);
+        }
+
+        if (! empty($toDate)) {
+            $query->whereDate('work_date', '<=', $toDate);
+        }
+
+        // Status filter ONLY when a status is selected
+        if (! empty($status)) {
+            $query->where('status', $status);
+        }
+
+        $fieldLogs = $query
             ->latest('work_date')
             ->latest('check_in_time')
             ->paginate(15);
 
-        return view('admin.admin-log.index', compact('fieldLogs'));
+        return view('admin.admin-log.index', compact(
+            'fieldLogs',
+            'fromDate',
+            'toDate',
+            'status'
+        ));
     }
 
     /**

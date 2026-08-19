@@ -349,7 +349,11 @@ use Illuminate\Support\Facades\Crypt;
 <div class="card w-100 position-relative overflow-hidden mb-4">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
-       
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.create')): ?>
+            <a href="<?php echo e(route('admin.salesorders.create')); ?>" class="btn buttonSpc">
+                <i class="ti ti-plus me-1"></i> Add Sales Entry
+            </a>
+        <?php endif; ?>
     </div>
 
     <div class="card-body p-4">
@@ -397,7 +401,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <option value="">Select Status</option>
 
                                 <option value="pending" <?php echo e(old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending</option>
-                                <option value="confirmed"  <?php echo e(old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : ''); ?>>Confirmed</option>
+                                <option value="confirmed"  <?php echo e(old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : ''); ?>>Paid</option>
 
                             </select>
                         </div>
@@ -534,7 +538,7 @@ use Illuminate\Support\Facades\Crypt;
                                 $status = strtolower($sale->payment_status ?? 'pending');
                             ?>
                             <?php if($status == 'confirmed' ): ?>
-                                <span class="badge-status confirmed">Confirmed</span>
+                                <span class="badge-status confirmed">Paid</span>
                             <?php else: ?>
                                 <span class="badge-status pending">Pending</span>
                             <?php endif; ?>

@@ -22,10 +22,18 @@ class InvoiceController extends Controller
 
         $calculation = $calculator->calculate($order);
 
+        // Determine invoice payment mode
+        $paymentMode = $order->c_mode_of_payment;
+
+        if (in_array(strtolower(trim($paymentMode)), ['upi', 'bank deposit'])) {
+            $paymentMode = 'Paid';
+        }
+
         return view('admin.pdf.invoice-preview', [
             'order' => $order,
             'company' => $company,
             'calculation' => $calculation,
+            'paymentMode' => $paymentMode,
         ]);
     }
 
@@ -41,14 +49,23 @@ class InvoiceController extends Controller
         // Calculate invoice values
         $calculation = $calculator->calculate($order);
 
+        // Determine invoice payment mode
+        $paymentMode = $order->c_mode_of_payment;
+
+        if (in_array(strtolower(trim($paymentMode)), ['upi', 'bank deposit'])) {
+            $paymentMode = 'Paid';
+        }
+
         $pdf = Pdf::loadView('admin.pdf.invoice', [
             'order' => $order,
             'company' => $company,
             'calculation' => $calculation,
+            'paymentMode' => $paymentMode,
         ]);
+        $invoiceNo = 'FCA'.str_pad($order->invoice_no, 4, '0', STR_PAD_LEFT);
 
         return $pdf->download(
-            'invoice-'.$order->c_order_no.'.pdf'
+            'invoice-'.$invoiceNo.'.pdf'
         );
     }
 }

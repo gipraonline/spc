@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\FieldLogController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadsController;
 use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\PaymentManagementController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoleController;
@@ -574,6 +575,24 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('/invoice/{id}/download', [InvoiceController::class, 'download'])
             ->name('invoice.download');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Payment Management Report
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/payment-management', [PaymentManagementController::class, 'index'])
+            ->name('payment-management.index');
+
+        Route::patch('/payment-management/{salesOrder}/status', [PaymentManagementController::class, 'updatePaymentStatus'])
+            ->name('payment-management.update-status');
+
+        Route::patch('/payment-management/{salesOrder}/remarks', [PaymentManagementController::class, 'updateRemarks'])
+            ->name('payment-management.update-remarks');
+
+        Route::get('payment-management/export', [PaymentManagementController::class, 'export'])
+            ->name('payment-management.export');
 
     });
 

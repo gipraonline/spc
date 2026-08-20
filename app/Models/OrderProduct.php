@@ -20,7 +20,7 @@ class OrderProduct extends Model
 
         'n_order_id',
         'product_id',
-        'n_hsn_code',
+        'c_hsn_code',
         'product_price',
         'qty',
         'c_unit',

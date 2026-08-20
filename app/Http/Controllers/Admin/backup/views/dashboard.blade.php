@@ -1,4 +1,6 @@
-<?php $__env->startPush('styles'); ?>
+@extends('layouts.app')
+
+@push('styles')
 <style>
 /* Global Dashboard Reset & Typography */
 .content-wrapper {
@@ -530,179 +532,29 @@
         flex-direction: column;
     }
 }
-
-/* Order Overview */
-.order-overview {
-    margin-bottom: 24px;
-}
-
-.order-overview-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-}
-
-.order-overview-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #0f5132;
-    margin: 0;
-}
-
-.order-overview-subtitle {
-    font-size: 13px;
-    color: #64748b;
-    margin: 3px 0 0;
-}
-
-.order-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-}
-
-.order-stat-card {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 18px 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-    overflow: hidden;
-    transition: all 0.2s ease;
-}
-
-.order-stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
-}
-
-.order-stat-card::after {
-    content: '';
-    position: absolute;
-    right: -20px;
-    top: -20px;
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    opacity: 0.08;
-}
-
-.order-stat-icon {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.order-stat-icon svg {
-    width: 23px;
-    height: 23px;
-}
-
-.order-stat-content {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.order-stat-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #64748b;
-}
-
-.order-stat-value {
-    font-size: 24px;
-    line-height: 1.2;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-/* Approved */
-.order-approved .order-stat-icon {
-    background: #e8f5e9;
-    color: #059669;
-}
-
-.order-approved::after {
-    background: #059669;
-}
-
-/* Dispatched */
-.order-dispatched .order-stat-icon {
-    background: #e0f2fe;
-    color: #0284c7;
-}
-
-.order-dispatched::after {
-    background: #0284c7;
-}
-
-/* Pending */
-.order-pending .order-stat-icon {
-    background: #fff3e0;
-    color: #f97316;
-}
-
-.order-pending::after {
-    background: #f97316;
-}
-
-/* Delivered */
-.order-delivered .order-stat-icon {
-    background: #ede9fe;
-    color: #7c3aed;
-}
-
-.order-delivered::after {
-    background: #7c3aed;
-}
-
-@media (max-width: 1100px) {
-    .order-stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 640px) {
-    .order-stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .order-stat-card {
-        padding: 16px;
-    }
-}
 </style>
-<?php $__env->stopPush(); ?>
+@endpush
 
-<?php $__env->startSection('content'); ?>
+@section('content')
 <section class="content-wrapper">
     <div class="dashboard-container">
 
         <!-- Welcome Header -->
         <div class="dashboard-header">
-            <h1>Welcome, <?php echo e($user->name); ?>!</h1>
+            <h1>Welcome, {{ $user->name }}!</h1>
             <p>Here's your work overview for today.</p>
         </div>
 
-
         <!-- Top Stat Cards (4 Columns) -->
         <div class="stats-grid">
+
             <!-- Check In Time -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.check-in')): ?>
+            <!-- Check In Time -->
             <div class="dashboard-card stat-card">
 
+                @can('dashboard.check-in')
 
-                
+                {{-- User HAS permission --}}
                 <div class="stat-icon green">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -713,21 +565,39 @@
 
                 <div class="stat-details">
                     <span class="stat-value green">
-                        <?php echo e($checkInTime?->format('h:i A') ?? '--:-- --'); ?>
-
+                        {{ $checkInTime?->format('h:i A') ?? '--:-- --' }}
                     </span>
 
                     <span class="stat-subtext">
-                        <?php echo e($todayLog?->work_date?->format('d M Y') ?? now()->format('d M Y')); ?>
-
+                        {{ $todayLog?->work_date?->format('d M Y') ?? now()->format('d M Y') }}
                     </span>
                 </div>
 
-                <?php endif; ?>
+                @else
+
+                {{-- User DOES NOT have permission --}}
+                <div class="stat-icon green">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m0-6v2m0-8a4 4 0 014 4v2h1a2 2 0 012 2v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7a2 2 0 012-2h1V9a4 4 0 014-4z" />
+                    </svg>
+                </div>
+
+                <div class="stat-details">
+                    <span class="stat-value gray">
+                        Restricted
+                    </span>
+
+                    <span class="stat-subtext">
+                        No Permission
+                    </span>
+                </div>
+
+                @endcan
 
             </div>
             <!-- Check Out Time -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.check-out')): ?>
+            @can('dashboard.check-out')
             <div class="dashboard-card stat-card">
                 <div class="stat-icon orange">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -737,21 +607,19 @@
                 </div>
                 <div class="stat-details">
                     <!-- Check Out -->
-                    <span class="stat-value <?php echo e($checkOutTime ? 'orange' : 'gray'); ?>">
-                        <?php echo e($checkOutTime?->format('h:i A') ?? '--:-- --'); ?>
-
+                    <span class="stat-value {{ $checkOutTime ? 'orange' : 'gray' }}">
+                        {{ $checkOutTime?->format('h:i A') ?? '--:-- --' }}
                     </span>
 
                     <span class="stat-subtext orange">
-                        <?php echo e($checkOutTime ? 'Checked Out' : 'Not Checked Out'); ?>
-
+                        {{ $checkOutTime ? 'Checked Out' : 'Not Checked Out' }}
                     </span>
                 </div>
             </div>
-            <?php endif; ?>
+            @endcan
 
             <!-- Total Working Hours -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.working-hours')): ?>
+            @can('dashboard.working-hours')
             <div class="dashboard-card stat-card">
                 <div class="stat-icon blue">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -762,7 +630,7 @@
                 <div class="stat-details">
                     <!-- Total Working Hours -->
                     <span class="stat-value blue">
-                        <?php echo e($totalWorkingHours); ?> Hrs
+                        {{ $totalWorkingHours }} Hrs
                     </span>
 
                     <span class="stat-subtext">
@@ -770,10 +638,10 @@
                     </span>
                 </div>
             </div>
-            <?php endif; ?>
+            @endcan
 
             <!-- Work Status -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.work-status')): ?>
+            @can('dashboard.work-status')
             <div class="dashboard-card stat-card">
                 <div class="stat-icon purple">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -784,30 +652,27 @@
                 <div class="stat-details">
                     <!-- Work Status -->
                     <span
-                        class="stat-value <?php echo e($workStatus === 'Checked In' ? 'green' : ($workStatus === 'Checked Out' ? 'orange' : 'gray')); ?>">
-                        <?php echo e($workStatus); ?>
-
+                        class="stat-value {{ $workStatus === 'Checked In' ? 'green' : ($workStatus === 'Checked Out' ? 'orange' : 'gray') }}">
+                        {{ $workStatus }}
                     </span>
 
                     <span class="stat-subtext">
-                        <?php echo e($workStatusSubtext); ?>
-
+                        {{ $workStatusSubtext }}
                     </span>
                 </div>
             </div>
 
         </div>
-        <?php endif; ?>
+        @endcan
         <!-- Middle Section (3 Cards) -->
         <div class="middle-grid">
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.attendance')): ?>
+            @can('dashboard.attendance')
             <!-- Check In / Check Out Card -->
             <div class="dashboard-card">
                 <h2 class="card-title">Check In / Check Out</h2>
 
                 <span class="status-badge-pill" id="statusPill">
-                    Status : <?php echo e($workStatus); ?>
-
+                    Status : {{ $workStatus }}
                 </span>
 
                 <div class="check-times-container">
@@ -817,13 +682,11 @@
                         <span class="stat-label">Check In Time</span>
 
                         <span class="stat-value green" style="font-size: 18px;">
-                            <?php echo e($checkInTime?->format('h:i A') ?? '--:-- --'); ?>
-
+                            {{ $checkInTime?->format('h:i A') ?? '--:-- --' }}
                         </span>
 
                         <span class="stat-subtext">
-                            <?php echo e($todayLog?->work_date?->format('d M Y') ?? now()->format('d M Y')); ?>
-
+                            {{ $todayLog?->work_date?->format('d M Y') ?? now()->format('d M Y') }}
                         </span>
                     </div>
 
@@ -832,10 +695,9 @@
                     <div class="check-time-box has-border">
                         <span class="stat-label">Check Out Time</span>
 
-                        <span class="stat-value <?php echo e($checkOutTime ? 'orange' : 'gray'); ?>" style="font-size: 18px;"
+                        <span class="stat-value {{ $checkOutTime ? 'orange' : 'gray' }}" style="font-size: 18px;"
                             id="checkOutBoxValue">
-                            <?php echo e($checkOutTime?->format('h:i A') ?? '--:-- --'); ?>
-
+                            {{ $checkOutTime?->format('h:i A') ?? '--:-- --' }}
                         </span>
                     </div>
 
@@ -845,7 +707,8 @@
                 <div class="action-buttons">
 
                     <!-- Check Out Button -->
-                    <?php if($todayLog && $checkInTime && !$checkOutTime): ?>
+                    @if($todayLog && $checkInTime && !$checkOutTime)
+
                     <button class="btn-action-solid" id="btnCheckOut">
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -854,7 +717,9 @@
 
                         <span>Check Out</span>
                     </button>
-                    <?php elseif($checkOutTime): ?>
+
+                    @elseif($checkOutTime)
+
                     <button class="btn-action-solid" disabled>
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -862,11 +727,14 @@
 
                         <span>Checked Out</span>
                     </button>
-                    <?php else: ?>
+
+                    @else
+
                     <button class="btn-action-solid" disabled>
                         <span>Not Checked In</span>
                     </button>
-                    <?php endif; ?>
+
+                    @endif
 
 
                     <!-- View Attendance -->
@@ -876,12 +744,12 @@
 
                 </div>
             </div>
-            <?php endif; ?>
+            @endcan
 
 
 
             <!-- Today's Summary Card -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.summary')): ?>
+            @can('dashboard.summary')
             <div class="dashboard-card">
                 <h2 class="card-title">Today's Summary</h2>
 
@@ -897,8 +765,7 @@
                             <span class="summary-title">Orders Taken</span>
                         </div>
                         <span class="summary-count">
-                            <?php echo e($summary['ordersTaken']); ?>
-
+                            {{ $summary['ordersTaken'] }}
                         </span>
                     </div>
 
@@ -912,7 +779,7 @@
                             </div>
                             <span class="summary-title">Orders Completed</span>
                         </div>
-                        <span class="summary-count"> <?php echo e($summary['ordersCompleted']); ?></span>
+                        <span class="summary-count"> {{ $summary['ordersCompleted'] }}</span>
                     </div>
 
                     <div class="summary-item">
@@ -925,7 +792,7 @@
                             </div>
                             <span class="summary-title">Pending Orders</span>
                         </div>
-                        <span class="summary-count"> <?php echo e($summary['pendingOrders']); ?></span>
+                        <span class="summary-count"> {{ $summary['pendingOrders'] }}</span>
                     </div>
 
                     <div class="summary-item">
@@ -938,7 +805,7 @@
                             </div>
                             <span class="summary-title">Customers Visited</span>
                         </div>
-                        <span class="summary-count"><?php echo e($summary['customersVisited']); ?></span>
+                        <span class="summary-count">{{ $summary['customersVisited'] }}</span>
                     </div>
 
                     <div class="summary-item">
@@ -951,14 +818,14 @@
                             </div>
                             <span class="summary-title">Reports Submitted</span>
                         </div>
-                        <span class="summary-count"><?php echo e($summary['reportsSubmitted']); ?></span>
+                        <span class="summary-count">{{ $summary['reportsSubmitted'] }}</span>
                     </div>
                 </div>
             </div>
-            <?php endif; ?>
+            @endcan
 
             <!-- My Orders Card -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.my-orders')): ?>
+            @can('dashboard.my-orders')
             <div class="dashboard-card" style="display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <h2 class="card-title">My Orders</h2>
@@ -994,18 +861,15 @@
 
                 <button class="btn-action-outline btn-full-width" id="btnViewOrders">View All Orders</button>
             </div>
-            <?php endif; ?>
+            @endcan
 
         </div>
-
-
-
 
         <!-- Bottom Section (Recent Orders & Schedule) -->
         <div class="bottom-grid">
 
             <!-- Recent Orders Table -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.recent-orders')): ?>
+            @can('dashboard.recent-orders')
             <div class="dashboard-card">
                 <h2 class="card-title">Recent Orders</h2>
 
@@ -1054,10 +918,10 @@
                     </table>
                 </div>
             </div>
-            <?php endif; ?>
+            @endcan
 
             <!-- Today's Schedule -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.schedule')): ?>
+            @can('dashboard.schedule')
             <div class="dashboard-card">
                 <h2 class="card-title">Today's Schedule</h2>
 
@@ -1098,162 +962,20 @@
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <span class="timeline-time">04:00 PM</span>
-                        <span class="timeline-desc">Customer Visit - Neha Varma</span>
+                        <span class="timeline-desc">Customer Visit - Neha Verma</span>
                         <span class="timeline-status">Completed</span>
                     </div>
                 </div>
             </div>
-            <?php endif; ?>
+            @endcan
 
         </div>
 
     </div>
-
-
-    <!-- Order Overview Card Section -->
-    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['dashboard.sales-card-pending', 'dashboard.sales-card-approved', 'dashboard.sales-card-dispatched',
-    'dashboard.sales-card-delivered'])): ?>
-    <div class="order-overview">
-
-        <div class="order-overview-header">
-            <div>
-                <h2 class="order-overview-title">Order Overview</h2>
-                <p class="order-overview-subtitle">
-                    Current order status at a glance
-                </p>
-            </div>
-        </div>
-
-        <div class="order-stats-grid">
-
-            <!-- Pending Orders -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.sales-card-pending')): ?>
-            <div class="order-stat-card order-pending">
-                <a href="<?php echo e(route('admin.salesorders.index', [
-                            'search' => '',
-                            'start_date' => '',
-                            'end_date' => '',
-                            'payment_status' => '',
-                            'order_status' => 'pending',
-                        ])); ?>">
-
-                    <div class="order-stat-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0
-                                                                                   9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-
-                    <div class="order-stat-content">
-                        <span class="order-stat-label">Pending Orders</span>
-                        <span class="order-stat-value">
-                            <?php echo e($pendingOrders); ?>
-
-                        </span>
-                    </div>
-                </a>
-
-            </div>
-            <?php endif; ?>
-            <!-- Approved Orders -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.sales-card-approved')): ?>
-            <div class="order-stat-card order-approved">
-                <a href="<?php echo e(route('admin.salesorders.index', [
-                            'search' => '',
-                            'start_date' => '',
-                            'end_date' => '',
-                            'payment_status' => '',
-                            'order_status' => 'approved',
-                        ])); ?>">
-                    <div class="order-stat-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0
-                                                                                   9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-
-                    <div class="order-stat-content">
-                        <span class="order-stat-label">Approved Orders</span>
-                        <span class="order-stat-value">
-                            <?php echo e($approvedOrders); ?>
-
-                        </span>
-                    </div>
-                </a>
-
-            </div>
-            <?php endif; ?>
-
-            <!-- Dispatched Orders -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.sales-card-dispatched')): ?>
-            <div class="order-stat-card order-dispatched">
-
-                <a href="<?php echo e(route('admin.salesorders.index', [
-                            'search' => '',
-                            'start_date' => '',
-                            'end_date' => '',
-                            'payment_status' => '',
-                            'order_status' => 'dispatched',
-                        ])); ?>">
-
-                    <div class="order-stat-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 7h11v10H3V7zm11 3h4l3 3v4h-7v-7z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 17a2 2 0 104 0m-13 0a2 2 0 104 0" />
-                        </svg>
-                    </div>
-
-                    <div class="order-stat-content">
-                        <span class="order-stat-label">Dispatched Orders</span>
-                        <span class="order-stat-value">
-                            <?php echo e($dispatchedOrders); ?>
-
-                        </span>
-                    </div>
-                </a>
-
-            </div>
-            <?php endif; ?>
-
-
-            <!-- Delivered Orders -->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.sales-card-delivered')): ?>
-            <div class="order-stat-card order-delivered">
-                <a href="<?php echo e(route('admin.salesorders.index', [
-                            'search' => '',
-                            'start_date' => '',
-                            'end_date' => '',
-                            'payment_status' => '',
-                            'order_status' => 'delivered',
-                        ])); ?>">
-
-                    <div class="order-stat-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-
-                    <div class="order-stat-content">
-                        <span class="order-stat-label">Delivered Orders</span>
-                        <span class="order-stat-value">
-                            <?php echo e($deliveredOrders); ?>
-
-                        </span>
-                    </div>
-                </a>
-
-            </div>
-            <?php endif; ?>
-        </div>
-    </div>
-    <?php endif; ?>
-    <!-- end - Order Overview Card Section -->
 </section>
-<?php $__env->stopSection(); ?>
+@endsection
 
-<?php $__env->startPush('scripts'); ?>
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Toggle Check Out functionality demo
@@ -1320,5 +1042,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-<?php $__env->stopPush(); ?>
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/dashboard.blade.php ENDPATH**/ ?>
+
+@endpush
+

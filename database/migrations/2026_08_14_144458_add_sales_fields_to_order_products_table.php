@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('order_products', function (Blueprint $table) {
 
-            $table->string('n_hsn_code', 50)
+            $table->string('c_hsn_code', 50)
                 ->nullable()
                 ->after('product_id');
 

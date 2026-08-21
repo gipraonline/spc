@@ -1,17 +1,11 @@
 @extends('layouts.app')
+
 @push('styles')
 <style>
 .status-pending {
     background-color: #fff3cd;
     color: #856404;
     border-color: #ffeeba;
-    font-weight: 600;
-}
-
-.status-confirmed {
-    background-color: #cff4fc;
-    color: #055160;
-    border-color: #b6effb;
     font-weight: 600;
 }
 
@@ -25,12 +19,19 @@
 .status-default {
     background-color: #e2e3e5;
     color: #41464b;
+    border-color: #d6d8db;
     font-weight: 600;
 }
 
+.status-select {
+    width: 140px !important;
+    min-width: 140px;
+}
+
 .remarks-input {
+    width: 100%;
     min-width: 280px;
-    max-width: 400px;
+    max-width: 450px;
     resize: vertical;
     overflow-y: auto;
 }
@@ -40,18 +41,87 @@
     margin-top: 3px;
     font-size: 11px;
 }
+
+/* Table column widths */
+.payment-table {
+    min-width: 1300px;
+}
+
+.payment-table th,
+.payment-table td {
+    vertical-align: middle;
+}
+
+.payment-table th:nth-child(1),
+.payment-table td:nth-child(1) {
+    width: 70px;
+    min-width: 70px;
+    white-space: nowrap;
+}
+
+.payment-table th:nth-child(2),
+.payment-table td:nth-child(2) {
+    width: 180px;
+    min-width: 180px;
+    white-space: nowrap;
+}
+
+.payment-table th:nth-child(3),
+.payment-table td:nth-child(3) {
+    width: 150px;
+    min-width: 150px;
+    white-space: nowrap;
+}
+
+.payment-table th:nth-child(4),
+.payment-table td:nth-child(4) {
+    width: 220px;
+    min-width: 220px;
+}
+
+.payment-table th:nth-child(5),
+.payment-table td:nth-child(5) {
+    width: 150px;
+    min-width: 150px;
+    white-space: nowrap;
+}
+
+.payment-table th:nth-child(6),
+.payment-table td:nth-child(6) {
+    width: 170px;
+    min-width: 170px;
+}
+
+.payment-table th:nth-child(7),
+.payment-table td:nth-child(7) {
+    width: 160px;
+    min-width: 160px;
+}
+
+.payment-table th:nth-child(8),
+.payment-table td:nth-child(8) {
+    width: 350px;
+    min-width: 350px;
+}
+
+.payment-status-form {
+    margin: 0;
+}
 </style>
 @endpush
+
 @section('content')
 
 <div class="container-fluid">
 
+    {{-- Page Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0">
             Payment Management
         </h4>
     </div>
 
+    {{-- Filters --}}
     <div class="card">
         <div class="card-body">
 
@@ -66,7 +136,6 @@
                         </label>
 
                         <select name="payment_mode" id="payment_mode" class="form-control">
-
                             <option value="">
                                 All
                             </option>
@@ -77,18 +146,16 @@
                                 {{ $paymentMode }}
                             </option>
                             @endforeach
-
                         </select>
                     </div>
 
                     {{-- Payment Status --}}
                     <div class="col-md-3">
-                        <label for="status" class="form-label">
+                        <label for="filter_status" class="form-label">
                             Payment Status
                         </label>
 
-                        <select name="status" id="status" class="form-control">
-
+                        <select name="status" id="filter_status" class="form-control">
                             <option value="">
                                 All
                             </option>
@@ -99,7 +166,6 @@
                                 {{ ucfirst($paymentStatus) }}
                             </option>
                             @endforeach
-
                         </select>
                     </div>
 
@@ -127,7 +193,6 @@
 
                 {{-- Buttons --}}
                 <div class="row mt-3">
-
                     <div class="col-12 d-flex">
 
                         <button type="submit" class="btn btn-primary me-2">
@@ -139,14 +204,13 @@
                         </a>
 
                         <a href="{{ route(
-                            'admin.payment-management.export',
-                            request()->query()
-                        ) }}" class="btn btn-success">
+                                'admin.payment-management.export',
+                                request()->query()
+                            ) }}" class="btn btn-success">
                             Export Excel
                         </a>
 
                     </div>
-
                 </div>
 
             </form>
@@ -154,12 +218,14 @@
         </div>
     </div>
 
+    {{-- Payment Table --}}
     <div class="card mt-4">
+
         <div class="card-body">
 
             <div class="table-responsive">
 
-                <table class="table table-bordered table-hover align-middle">
+                <table class="table table-bordered table-hover align-middle payment-table">
 
                     <thead>
                         <tr>
@@ -210,34 +276,31 @@
                                 {{ $order->c_mode_of_payment }}
                             </td>
 
-                            {{-- Status --}}
+                            {{-- Payment Status --}}
                             <td>
 
-                                @php
-                                $statusClass = match ($order->payment_status) {
-                                'pending' => 'status-pending',
-                                'paid' => 'status-paid',
-                                default => 'status-default',
-                                };
-                                @endphp
                                 <form method="POST" action="{{ route(
-        'admin.payment-management.update-status',
-        $order
-    ) }}">
+                                            'admin.payment-management.update-status',
+                                            $order
+                                        ) }}" class="payment-status-form">
 
                                     @csrf
                                     @method('PATCH')
 
-                                    <select name="payment_status" class="form-select form-select-sm {{ $statusClass }}"
-                                        onchange="this.form.submit()">
+                                    <select name="payment_status" class="form-control status-select
+                                                @if($order->payment_status === 'pending')
+                                                    status-pending
+                                                @elseif($order->payment_status === 'paid')
+                                                    status-paid
+                                                @else
+                                                    status-default
+                                                @endif" onchange="this.form.submit()">
 
                                         @foreach($paymentStatuses as $paymentStatus)
 
                                         <option value="{{ $paymentStatus }}"
                                             {{ $order->payment_status === $paymentStatus ? 'selected' : '' }}>
-
                                             {{ ucfirst($paymentStatus) }}
-
                                         </option>
 
                                         @endforeach
@@ -245,27 +308,24 @@
                                     </select>
 
                                 </form>
-                            </td>
-                            {{-- Remarks --}}
 
+                            </td>
+
+                            {{-- Remarks --}}
                             <td>
-                                @if($order->payment_status === 'paid')
 
                                 <div class="remarks-wrapper">
 
                                     <textarea class="form-control form-control-sm remarks-input" rows="2"
-                                        maxlength="1000" placeholder="Enter remarks..."
-                                        data-url="{{ route('admin.payment-management.update-remarks', $order) }}">{{ $order->latestPaymentStatusLog?->remarks ?? '' }}</textarea>
+                                        maxlength="1000" placeholder="Enter remarks..." data-url="{{ route(
+                                                'admin.payment-management.update-remarks',
+                                                $order
+                                            ) }}">{{ $order->latestPaymentStatusLog?->remarks ?? '' }}</textarea>
 
                                     <small class="remarks-status text-muted"></small>
 
                                 </div>
 
-                                @else
-
-                                <span class="text-muted">—</span>
-
-                                @endif
                             </td>
 
                         </tr>
@@ -274,9 +334,7 @@
 
                         <tr>
                             <td colspan="8" class="text-center py-4">
-
                                 No payment records found.
-
                             </td>
                         </tr>
 
@@ -294,12 +352,15 @@
             </div>
 
         </div>
+
     </div>
 
 </div>
 
 @endsection
+
 @push('scripts')
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -312,7 +373,9 @@ document.addEventListener('DOMContentLoaded', function() {
             clearTimeout(timeout);
 
             const field = this;
+
             const wrapper = field.closest('.remarks-wrapper');
+
             const status = wrapper ?
                 wrapper.querySelector('.remarks-status') :
                 null;
@@ -320,20 +383,26 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show typing status
             if (status) {
                 status.textContent = 'Typing...';
-                status.className = 'remarks-status text-muted';
+                status.className =
+                    'remarks-status text-muted';
             }
 
             timeout = setTimeout(function() {
+
+                const remarks = field.value.trim();
 
                 /*
                  * Do not allow empty remarks.
                  * This prevents clearing an existing remark.
                  */
-                if (field.value.trim() === '') {
+                if (remarks === '') {
 
                     if (status) {
-                        status.textContent = 'Remark cannot be empty';
-                        status.className = 'remarks-status text-danger';
+                        status.textContent =
+                            'Remark cannot be empty';
+
+                        status.className =
+                            'remarks-status text-danger';
                     }
 
                     return;
@@ -342,10 +411,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show saving status
                 if (status) {
                     status.textContent = 'Saving...';
-                    status.className = 'remarks-status text-warning';
+                    status.className =
+                        'remarks-status text-warning';
                 }
 
                 fetch(field.dataset.url, {
+
                         method: 'PATCH',
 
                         headers: {
@@ -355,8 +426,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
 
                         body: JSON.stringify({
-                            remarks: field.value.trim()
+                            remarks: remarks
                         })
+
                     })
 
                     .then(async function(response) {
@@ -370,7 +442,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
 
                         if (!response.ok) {
-
                             throw new Error(
                                 data.message ||
                                 'Failed to save remarks'
@@ -382,15 +453,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     .then(function(data) {
 
-                        console.log('Remarks saved successfully');
-
                         if (status) {
                             status.textContent = 'Saved ✓';
                             status.className =
                                 'remarks-status text-success';
                         }
 
-                        // Remove "Saved ✓" after 2 seconds
                         setTimeout(function() {
 
                             if (status) {
@@ -417,10 +485,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
 
             }, 1000);
+
         });
 
     });
 
 });
 </script>
+
 @endpush

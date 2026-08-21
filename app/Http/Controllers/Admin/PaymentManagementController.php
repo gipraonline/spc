@@ -54,25 +54,22 @@ class PaymentManagementController extends Controller
         }
 
         $orders = $query
-            ->orderByDesc('n_sl_no')
+            ->orderBy('n_sl_no', 'asc')
             ->paginate(15)
             ->withQueryString();
 
         // Payment modes
-        $paymentModes = SalesOrder::query()
-            ->whereNotNull('c_mode_of_payment')
-            ->where('c_mode_of_payment', '!=', '')
-            ->distinct()
-            ->orderBy('c_mode_of_payment')
-            ->pluck('c_mode_of_payment');
+        $paymentModes = [
+            'Cash on delivery',
+            'Paid to Franchise',
+            'Bank Deposit',
+            'UPI',
+        ];
 
-        // Payment statuses
-        $paymentStatuses = SalesOrder::query()
-            ->whereNotNull('payment_status')
-            ->where('payment_status', '!=', '')
-            ->distinct()
-            ->orderBy('payment_status')
-            ->pluck('payment_status');
+        $paymentStatuses = [
+            'pending',
+            'paid',
+        ];
 
         return view(
             'admin.payment-management.index',
@@ -148,17 +145,53 @@ class PaymentManagementController extends Controller
         );
     }
 
-    public function updateRemarks(Request $request, SalesOrder $salesOrder)
-    {
+    // public function updateRemarks(Request $request, SalesOrder $salesOrder)
+    // {
+    //     $request->validate([
+    //         'remarks' => ['required', 'string', 'max:1000'],
+    //     ]);
+
+    //     $log = PaymentStatusLog::where(
+    //         'sales_order_n_sl_no',
+    //         $salesOrder->n_sl_no
+    //     )
+    //         ->where('new_status', 'paid')
+    //         ->latest('id')
+    //         ->first();
+
+    //     if (! $log) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Payment status log not found.',
+    //         ], 404);
+    //     }
+
+    //     $log->update([
+    //         'remarks' => $request->remarks,
+    //     ]);
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Remarks saved successfully.',
+    //     ]);
+    // }
+
+    public function updateRemarks(
+        Request $request,
+        SalesOrder $salesOrder
+    ) {
         $request->validate([
-            'remarks' => ['required', 'string', 'max:1000'],
+            'remarks' => [
+                'required',
+                'string',
+                'max:1000',
+            ],
         ]);
 
         $log = PaymentStatusLog::where(
             'sales_order_n_sl_no',
             $salesOrder->n_sl_no
         )
-            ->where('new_status', 'paid')
             ->latest('id')
             ->first();
 

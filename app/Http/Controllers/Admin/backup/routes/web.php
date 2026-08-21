@@ -361,10 +361,10 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:sales-orders.approval')
             ->name('salesorders.approval.save');
 
-        Route::put('salesorders/followup', [SalesController::class, 'followupSave'])
+       /*  Route::put('salesorders/followup', [SalesController::class, 'followupSave'])
             ->middleware('permission:sales-orders.follow-up')
             ->name('salesorders.followup.store');
-
+ */
         Route::get('salesorders/edit/{id}', [SalesController::class, 'edit'])
             ->middleware('permission:sales-orders.edit')
             ->name('salesorders.edit');
@@ -411,9 +411,10 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:customers.view')
             ->name('customers.index');
 
-    Route::post('salesorders/followup', [SalesController::class, 'storeFollowup'])
-    ->middleware('permission:sales-orders.follow-up')
-    ->name('salesorders.followup.store');
+         Route::post('salesorders/followup', [SalesController::class, 'storeFollowup'])
+            ->middleware('permission:sales-orders.follow-up')
+            ->name('salesorders.followup.store');
+
         Route::get('customers/create', [CustomerController::class, 'create'])
             ->middleware('permission:customers.create')
             ->name('customers.create');

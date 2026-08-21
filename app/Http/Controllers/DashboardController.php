@@ -50,9 +50,9 @@ class DashboardController extends Controller
 
                 (
                     SELECT NULLIF(TRIM(sof.c_order_status), '')
-                    FROM sales_order_followups AS sof
+                    FROM sales_orderstatus_updations AS sof
                     WHERE sof.n_sale_id = sales_orders.n_sl_no
-                    ORDER BY sof.created_at DESC, sof.n_followup_id DESC
+                    ORDER BY sof.created_at DESC, sof.n_statusupdate_id DESC
                     LIMIT 1
                 ),
 

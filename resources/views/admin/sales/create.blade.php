@@ -942,8 +942,8 @@ use Illuminate\Support\Facades\Crypt;
                     <option value="pending"
                         {{ old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : '' }}>Pending
                     </option>
-                    <option value="confirmed"
-                        {{ old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : '' }}>Paid
+                    <option value="paid"
+                        {{ old('payment_status', $sale->payment_status ?? '') == "paid" ? 'selected' : '' }}>Paid
                     </option>
 
                 </select>
@@ -1057,11 +1057,38 @@ use Illuminate\Support\Facades\Crypt;
 
 <!-- Section 6: Franchise Details Section -->
 <div class="form-box mb-4 " id="franchise-details" style="dislplay:none;">
+        <div class="mb-4">
+        <label class="form-label fw-semibold">
+            Select Type <span class="text-danger">*</span>
+        </label>
 
-    <div class="form-section-header mb-3">
-        <i class="ti ti-map-pin fs-5"></i>
-        SPC Organic Clinic / Franchise / Stock Point Details
+        <div class="d-flex gap-4">
+            <div class="form-check">
+                <input class="form-check-input"
+                    type="radio"
+                    name="franchise_type"
+                    id="company"
+                    value="Company"
+                    checked>
+                <label class="form-check-label" for="company">
+                    Company
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input"
+                    type="radio"
+                    name="franchise_type"
+                    id="franchise_option"
+                    value="Franchise">
+                <label class="form-check-label" for="franchise_option">
+                     <i class="ti ti-map-pin fs-5"></i>
+                        SPC Organic Clinic / Franchise / Stock Point Details
+                </label>
+            </div>
+        </div>
     </div>
+
 
     <div class="row g-4 mb-4">
 
@@ -1174,13 +1201,7 @@ use Illuminate\Support\Facades\Crypt;
 <!-- Action Buttons -->
 <div class="mt-4 d-flex gap-2 flex-wrap">
     @if(isset($viewmode) && $viewmode=="on")
-    @can('sales-orders.follow-up')
-    <!--Follow-up Button-->
-    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
-        data-bs-target="#followUpModal" data-id="{{ isset($sale) ? Crypt::encryptString($sale->n_sl_no) : '' }}"
-        id="followup">Update
-        Order Status</button>
-    @endcan
+
     @can('sales-orders.approval')
     <!--Approval Button-->
     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
@@ -1195,7 +1216,7 @@ use Illuminate\Support\Facades\Crypt;
     </a>
 
     <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button" class="btn buttonSpc"
-            style="height:61px;margin-top: 4px;">Download Invoice</button></a>
+            style="height:61px;margin-top: 4px;">Generate Invoice</button></a>
     @endif
     @else
     <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
@@ -1213,85 +1234,6 @@ use Illuminate\Support\Facades\Crypt;
 
 </form>
 </div>
-</div>
-
-<!-- Follow-up Modal -->
-<div class="modal fade" id="followUpModal" tabindex="-1" aria-labelledby="followUpModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-
-            <form action="{{ route('admin.salesorders.followup.store') }}" method="POST">
-                @csrf
-
-                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
-                    <h5 class="modal-title text-white" id="followUpModalLabel">
-                        Order Follow-up Form
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <input type="hidden" name="n_sale_id" value="{{ $sale->n_sl_no ?? '' }}">
-
-                    <div class="row">
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Follow-up Date</label>
-                            <input type="date" name="d_followup_date" class="form-control" required>
-                        </div>
-
-                        @if(isset($user) && $user->identifier != "FCA")
-                        {{-- <div class="col-md-6 mb-3">
-                            <label class="form-label">Follow-up Type</label>
-                            <select name="followup_type" class="form-select" required>
-                                <option value="">Select</option>
-                                <option value="Phone Call">Phone Call</option>
-                                <option value="WhatsApp">WhatsApp</option>
-                                <option value="Site Visit">Site Visit</option>
-                            </select>
-                        </div> --}}
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Order Status</label>
-                            <select name="c_order_status" class="form-select" required>
-                                <option value="">Select Status</option>
-
-                                @if(isset($sale) && $sale->c_mode_of_payment != "Paid to Franchise")
-                                    <option value="dispatched">Dispatched</option>
-                                    <option value="shipped">Shipped</option>
-                                    <option value="delivered">Delivered</option>
-                                @endif
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                                <option value="returned">Returned</option>
-                            </select>
-                        </div>
-                        @endif
-
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Remarks</label>
-                            <textarea name="remarks" class="form-control" rows="4"
-                                placeholder="Enter follow-up remarks..." required></textarea>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn buttonSpc">
-                        Save Order Status
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        Close
-                    </button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
 </div>
 
 
@@ -1843,71 +1785,7 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    /* function handlePaymentMode() {
 
-        var payment_mode = $('.mode_of_payment:checked').val();
-
-        // Nothing selected
-        if (!payment_mode) {
-            $("#paymet-proofs").hide();
-            $("#ps").hide();
-            $("#franchise-details").hide();
-
-            $("#franchise_state").removeClass("mandatory");
-            $("#franchise_district").removeClass("mandatory");
-            $("#franchise").removeClass("mandatory");
-
-            $("#payment_status").removeClass("mandatory");
-            $("#c_transaction_id").removeClass("mandatory");
-            $("#payment_image").removeClass("mandatory");
-
-            return;
-        }
-
-        if (payment_mode == "Paid to Franchise") {
-
-            $("#paymet-proofs").hide();
-            $("#ps").hide();
-            $("#franchise-details").show();
-
-            $("#franchise_state").addClass("mandatory");
-            $("#franchise_district").addClass("mandatory");
-            $("#franchise").addClass("mandatory");
-
-            $("#payment_status").removeClass("mandatory");
-            $("#c_transaction_id").removeClass("mandatory");
-            $("#payment_image").removeClass("mandatory");
-
-        } else if (payment_mode == "Cash on Delivery") {
-
-
-            $("#paymet-proofs").hide();
-            $("#ps").show();
-            $("#franchise-details").hide();
-
-            $("#franchise_state").removeClass("mandatory");
-            $("#franchise_district").removeClass("mandatory");
-            $("#franchise").removeClass("mandatory");
-
-            $("#payment_status").removeClass("mandatory");
-            $("#c_transaction_id").removeClass("mandatory");
-            $("#payment_image").removeClass("mandatory");
-
-        } else {
-
-            $("#paymet-proofs").show();
-            $("#ps").show();
-            $("#franchise-details").hide();
-
-            $("#franchise_state").removeClass("mandatory");
-            $("#franchise_district").removeClass("mandatory");
-            $("#franchise").removeClass("mandatory");
-
-            $("#payment_status").addClass("mandatory");
-            $("#c_transaction_id").addClass("mandatory");
-            $("#payment_image").addClass("mandatory");
-        }
-    } */
 
      function handlePaymentMode() {
 
@@ -1968,6 +1846,14 @@ $(document).ready(function() {
     }
 
     $(document).ready(function() {
+
+        $('.mode_of_payment').on('change', handlePaymentMode);
+
+        // Run immediately on page load
+        handlePaymentMode();
+    });
+
+     $(document).ready(function() {
 
         $('.mode_of_payment').on('change', handlePaymentMode);
 

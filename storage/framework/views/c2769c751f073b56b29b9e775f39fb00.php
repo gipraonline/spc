@@ -997,11 +997,38 @@ unset($__errorArgs, $__bag); ?>
 
 <!-- Section 6: Franchise Details Section -->
 <div class="form-box mb-4 " id="franchise-details" style="dislplay:none;">
+        <div class="mb-4">
+        <label class="form-label fw-semibold">
+            Select Type <span class="text-danger">*</span>
+        </label>
 
-    <div class="form-section-header mb-3">
-        <i class="ti ti-map-pin fs-5"></i>
-        SPC Organic Clinic / Franchise / Stock Point Details
+        <div class="d-flex gap-4">
+            <div class="form-check">
+                <input class="form-check-input"
+                    type="radio"
+                    name="franchise_type"
+                    id="company"
+                    value="Company"
+                    checked>
+                <label class="form-check-label" for="company">
+                    Company
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input"
+                    type="radio"
+                    name="franchise_type"
+                    id="franchise_option"
+                    value="Franchise">
+                <label class="form-check-label" for="franchise_option">
+                     <i class="ti ti-map-pin fs-5"></i>
+                        SPC Organic Clinic / Franchise / Stock Point Details
+                </label>
+            </div>
+        </div>
     </div>
+
 
     <div class="row g-4 mb-4">
 
@@ -1124,13 +1151,7 @@ unset($__errorArgs, $__bag); ?>
 <!-- Action Buttons -->
 <div class="mt-4 d-flex gap-2 flex-wrap">
     <?php if(isset($viewmode) && $viewmode=="on"): ?>
-    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.follow-up')): ?>
-    <!--Follow-up Button-->
-    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
-        data-bs-target="#followUpModal" data-id="<?php echo e(isset($sale) ? Crypt::encryptString($sale->n_sl_no) : ''); ?>"
-        id="followup">Update
-        Order Status</button>
-    <?php endif; ?>
+
     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.approval')): ?>
     <!--Approval Button-->
     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
@@ -1145,7 +1166,7 @@ unset($__errorArgs, $__bag); ?>
     </a>
 
     <a href="<?php echo e(route('admin.invoice.download', $sale->n_sl_no)); ?>"><button type="button" class="btn buttonSpc"
-            style="height:61px;margin-top: 4px;">Download Invoice</button></a>
+            style="height:61px;margin-top: 4px;">Generate Invoice</button></a>
     <?php endif; ?>
     <?php else: ?>
     <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
@@ -1163,77 +1184,6 @@ unset($__errorArgs, $__bag); ?>
 
 </form>
 </div>
-</div>
-
-<!-- Follow-up Modal -->
-<div class="modal fade" id="followUpModal" tabindex="-1" aria-labelledby="followUpModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-
-            <form action="<?php echo e(route('admin.salesorders.followup.store')); ?>" method="POST">
-                <?php echo csrf_field(); ?>
-
-                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
-                    <h5 class="modal-title text-white" id="followUpModalLabel">
-                        Order Follow-up Form
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <input type="hidden" name="n_sale_id" value="<?php echo e($sale->n_sl_no ?? ''); ?>">
-
-                    <div class="row">
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Follow-up Date</label>
-                            <input type="date" name="d_followup_date" class="form-control" required>
-                        </div>
-
-                        <?php if(isset($user) && $user->identifier != "FCA"): ?>
-                        
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Order Status</label>
-                            <select name="c_order_status" class="form-select" required>
-                                <option value="">Select Status</option>
-
-                                <?php if(isset($sale) && $sale->c_mode_of_payment != "Paid to Franchise"): ?>
-                                    <option value="dispatched">Dispatched</option>
-                                    <option value="shipped">Shipped</option>
-                                    <option value="delivered">Delivered</option>
-                                <?php endif; ?>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                                <option value="returned">Returned</option>
-                            </select>
-                        </div>
-                        <?php endif; ?>
-
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Remarks</label>
-                            <textarea name="remarks" class="form-control" rows="4"
-                                placeholder="Enter follow-up remarks..." required></textarea>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn buttonSpc">
-                        Save Order Status
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        Close
-                    </button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
 </div>
 
 
@@ -2428,13 +2378,10 @@ $('#franchise_panchayath').on('change', function() {
 
 
 
-}); */
-<
-/>
+});
 
-<
-script >
-/* $(document).ready(function() {
+<script>
+    $(document).ready(function() {
     $('#franchise_district').change(function() {
 
         let stateId = $('#franchise_state').val();
@@ -2463,8 +2410,8 @@ script >
         });
 
     });
-}); */
-
+});
+ */
 
 </script>
 

@@ -275,6 +275,16 @@ use Illuminate\Support\Facades\Crypt;
 <!-- Top 5 Stat Widget Cards (As shown in reference image) -->
 <div class="widgets-grid">
 
+    <?php if($errors->any()): ?>
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li><?php echo e($error); ?></li>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </ul>
+                </div>
+    <?php endif; ?>
+
     <!-- 1. Total Sales Orders -->
     <div class="widget-card">
         <div class="widget-icon green-dark">
@@ -494,8 +504,9 @@ use Illuminate\Support\Facades\Crypt;
                 <tbody>
 
                     <?php $__empty_1 = true; $__currentLoopData = $sales; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$sale): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+
                     <tr>
-                        <td class="text-center">
+                        <td class="text-center" id="salesnumber" data-orderId="<?php echo e($sale->n_sl_no); ?>">
                             <span class="fw-normal"><?php echo e($sales->firstItem() + $key); ?></span>
                         </td>
                         <td><strong><?php echo e($sale?->c_order_no ?? 'N/A'); ?></strong></td>
@@ -600,6 +611,22 @@ use Illuminate\Support\Facades\Crypt;
                                         </form>
                                         <?php endif; ?>
                                     </li>
+                                    <li>
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.follow-up')): ?>
+                                            <!--Follow-up Button-->
+                                            <button type="button"
+                                                class="dropdown-item d-flex align-items-center gap-3 salesorder-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#salesUpdateModal"
+                                                data-id="<?php echo e(Crypt::encryptString($sale->n_sl_no)); ?>">
+
+                                                <i class="ti ti-pencil"></i>
+                                                Update Order Status
+                                            </button>
+
+                                        <?php endif; ?>
+                                    </li>
+
                                 </ul>
                             </div>
                         </td>
@@ -607,7 +634,7 @@ use Illuminate\Support\Facades\Crypt;
                     </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
-                        <td colspan="10" class="text-center py-4 text-muted">No sales records found</td>
+                        <td colspan="11" class="text-center py-4 text-muted">No sales records found</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>
@@ -621,6 +648,98 @@ use Illuminate\Support\Facades\Crypt;
 
     </div>
 </div>
+
+<!-- Follow-up Modal -->
+<div class="modal fade" id="salesUpdateModal" tabindex="-1" aria-labelledby="salesUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            
+
+            <form action="<?php echo e(route('admin.salesorders.salesUpdateStore')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+
+                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
+                    <h5 class="modal-title text-white" id="salesUpdateModalLabel">
+                        Sales Order Update Form
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden" class="n_sale_id" name="n_sale_id" value="">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Order Update Date</label>
+                            <input type="date" name="d_followup_date" class="form-control" required>
+                        </div>
+
+                        <?php if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor != true): ?>
+                        
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Order Status</label>
+                            <select name="c_order_status" class="form-select" required>
+                                <option value="">Select Status</option>
+
+                                <?php if(isset($sale) && $sale->c_mode_of_payment != "Paid to Franchise"): ?>
+                                    <option value="dispatched">Dispatched</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                <?php endif; ?>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="returned">Returned</option>
+                            </select>
+                        </div>
+                        <?php endif; ?>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Remarks</label>
+                            <textarea name="remarks" class="form-control" rows="4"
+                                placeholder="Enter follow-up remarks..." required></textarea>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn buttonSpc">
+                        Save Order Status
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
 <?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+<script>
+     $(document).ready(function(){
+
+        $('#salesUpdateModal').on('show.bs.modal', function (event) {
+
+            const button = event.relatedTarget;
+
+            const salesNumber = $(button).data('id');
+
+           var s= $('.n_sale_id').val(salesNumber);
+//alert(salesNumber);
+            console.log(salesNumber);
+        });
+    })
+</script>
+<?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/sales/index.blade.php ENDPATH**/ ?>

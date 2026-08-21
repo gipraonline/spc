@@ -14,7 +14,7 @@ use App\Models\Panchayath;
 use App\Models\ProductMaster;
 use App\Models\SalesApproval;
 use App\Models\SalesOrder;
-use App\Models\SalesOrderFollowup;
+use App\Models\SalesOrderstatusUpdation;
 use App\Models\State;
 use App\Models\StoreMaster;
 use Carbon\Carbon;
@@ -180,9 +180,9 @@ class SalesController extends Controller
 
                         (
                             SELECT NULLIF(TRIM(sof.c_order_status), '')
-                            FROM sales_order_followups AS sof
+                            FROM  sales_orderstatus_updations AS sof
                             WHERE sof.n_sale_id = sales_orders.n_sl_no
-                            ORDER BY sof.created_at DESC, sof.n_followup_id DESC
+                            ORDER BY sof.created_at DESC, sof.n_statusupdate_id DESC
                             LIMIT 1
                         ),
 
@@ -301,9 +301,9 @@ class SalesController extends Controller
 
                         (
                             SELECT NULLIF(TRIM(sof.c_order_status), '')
-                            FROM sales_order_followups AS sof
+                            FROM sales_orderstatus_updations AS sof
                             WHERE sof.n_sale_id = sales_orders.n_sl_no
-                            ORDER BY sof.created_at DESC, sof.n_followup_id DESC
+                            ORDER BY sof.created_at DESC, sof.n_statusupdate_id DESC
                             LIMIT 1
                         ),
 
@@ -984,24 +984,33 @@ class SalesController extends Controller
         }
     }
 
-    public function storeFollowup(Request $request)
+    public function salesUpdateStore(Request $request)
     {
-        $request->validate([
-            'n_sale_id' => 'required|exists:sales_orders,n_sl_no',
+        
+        $validator=Validator::make($request->all(), [
+            'n_sale_id' => 'required',
             'd_followup_date' => 'required|date',
             'c_order_status' => 'nullable|string|max:100',
             'remarks' => 'required|string',
         ]);
+        
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+        
+        $n_sale_id = Crypt::decryptString($request->n_sale_id);
+        
+        $sale = SalesOrder::findOrFail($n_sale_id);
 
-        $sale = SalesOrder::findOrFail($request->n_sale_id);
-
-        SalesOrderFollowup::create([
-            'n_sale_id' => $sale->n_sl_no,
-            'd_followup_date' => $request->d_followup_date,
-            'c_order_status' => $request->c_order_status,
-            'remarks' => $request->remarks,
-            'n_created_by' => Auth::id(),
-        ]);
+        $salesOrderUpdate=SalesOrderstatusUpdation::create([
+                                'n_sale_id' => $sale->n_sl_no,
+                                'd_followup_date' => $request->d_followup_date,
+                                'c_order_status' => $request->c_order_status,
+                                'remarks' => $request->remarks,
+                                'n_created_by' => Auth::id(),
+                            ]);
 
         // Optional: update current order status
         if ($request->filled('c_order_status')) {
@@ -1013,7 +1022,7 @@ class SalesController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', 'Follow-up saved successfully.');
+            ->with('success', 'Orer Status Updation saved successfully.');
     }
 
     public function approve(Request $request)

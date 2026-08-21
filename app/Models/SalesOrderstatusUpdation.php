@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SalesOrderFollowup extends Model
+class  SalesOrderstatusUpdation extends Model
 {
-     protected $table = 'sales_order_followups';
+     protected $table = 'sales_orderstatus_updations';
      public $incrementing = true;
 
     protected $keyType = 'int';
-    protected $primaryKey = 'n_followup_id';
+    protected $primaryKey = 'n_statusupdate_id';
 
     protected $fillable = [
         'n_sale_id',

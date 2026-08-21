@@ -794,7 +794,7 @@
                                     </tr>
 
 
-                                    <tr>
+                                    <!-- <tr>
 
                                         <td class="d-label">
                                             Delivery Note
@@ -808,10 +808,10 @@
                                             -
                                         </td>
 
-                                    </tr>
+                                    </tr> -->
 
 
-                                    <tr>
+                                    <!-- <tr>
 
                                         <td class="d-label">
                                             Reference No. &amp; Date
@@ -825,7 +825,7 @@
                                             -
                                         </td>
 
-                                    </tr>
+                                    </tr> -->
 
 
                                     <tr>
@@ -839,13 +839,14 @@
                                         </td>
 
                                         <td class="d-value">
-                                            -
+                                            <?php echo e($order->c_order_no ?? '-'); ?>
+
                                         </td>
 
                                     </tr>
 
 
-                                    <tr>
+                                    <!-- <tr>
 
                                         <td class="d-label">
                                             Dispatch Doc No.
@@ -859,7 +860,7 @@
                                             -
                                         </td>
 
-                                    </tr>
+                                    </tr> -->
 
 
                                     <tr>
@@ -873,7 +874,7 @@
                                         </td>
 
                                         <td class="d-value">
-                                            -
+                                            <!-- -To Do -->
                                         </td>
 
                                     </tr>
@@ -890,43 +891,8 @@
                                         </td>
 
                                         <td class="d-value">
-                                            <?php echo e(ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-'))); ?>
+                                            <?php echo e(ucwords(str_replace('_', ' ',$paymentMode ?? '-'))); ?>
 
-                                        </td>
-
-                                    </tr>
-
-
-                                    <tr>
-
-                                        <td class="d-label">
-                                            LOAD
-                                        </td>
-
-                                        <td class="colon">
-                                            :
-                                        </td>
-
-                                        <td class="d-value">
-                                            <?php echo e($order->c_customer_address ?? '-'); ?>
-
-                                        </td>
-
-                                    </tr>
-
-
-                                    <tr>
-
-                                        <td class="d-label">
-                                            Terms of Delivery
-                                        </td>
-
-                                        <td class="colon">
-                                            :
-                                        </td>
-
-                                        <td class="d-value">
-                                            -
                                         </td>
 
                                     </tr>

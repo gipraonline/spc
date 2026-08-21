@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sales_order_followups', function (Blueprint $table) {
-            $table->bigIncrements('n_followup_id');
+        Schema::create('sales_orderstatus_updations', function (Blueprint $table) {
+            $table->bigIncrements('n_statusupdate_id');
 
             $table->unsignedBigInteger('n_sale_id');
 
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sales_order_followups');
+        Schema::dropIfExists('sales_orderstatus_updations');
     }
 };

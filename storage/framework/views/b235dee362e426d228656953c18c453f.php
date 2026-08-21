@@ -34,6 +34,16 @@
     max-width: 450px;
     resize: vertical;
     overflow-y: auto;
+    /* Soft remarks background */
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    color: #212529;
+}
+
+.remarks-input:focus {
+    background-color: #8d886a;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
 }
 
 .remarks-status {

@@ -529,6 +529,8 @@ class SalesController extends Controller
                         'Cash on Delivery',
                     ]);
                 }),
+                Rule::unique('sales_orders', 'c_transaction_id'),
+
             ],
 
             'payment_image' => [

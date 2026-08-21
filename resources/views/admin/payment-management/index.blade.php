@@ -37,11 +37,12 @@
     /* Soft remarks background */
     background-color: #f8f9fa;
     border: 1px solid #ced4da;
-    color: #212529;
+    color: #6f42c1;
+    font-weight: 500;
 }
 
 .remarks-input:focus {
-    background-color: #8d886a;
+    background-color: #d1e7dd;
     border-color: #86b7fe;
     box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
 }
@@ -326,8 +327,8 @@
 
                                 <div class="remarks-wrapper">
 
-                                    <textarea class="form-control form-control-sm remarks-input" rows="2"
-                                        maxlength="1000" placeholder="Enter remarks..." data-url="{{ route(
+                                    <textarea class="form-control remarks-input" rows="2" maxlength="1000"
+                                        placeholder="Enter remarks..." data-url="{{ route(
                                                 'admin.payment-management.update-remarks',
                                                 $order
                                             ) }}">{{ $order->latestPaymentStatusLog?->remarks ?? '' }}</textarea>

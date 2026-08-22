@@ -21,4 +21,13 @@ class Role extends SpatieRole
             'menu_id'
         );
     }
+
+    public function designation()
+    {
+        return $this->hasOne(
+            DesignationMaster::class,
+            'identifier',
+            'identifier'
+        );
+    }
 }

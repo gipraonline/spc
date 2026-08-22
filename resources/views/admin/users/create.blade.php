@@ -64,6 +64,8 @@
 
                                 <option value="{{ $employee->n_employee_id }}"
                                     data-email="{{ $employee->c_employee_email }}"
+                                    data-designation="{{ $employee->designation?->c_designation }}"
+                                    data-designation-identifier="{{ $employee->designation?->identifier }}"
                                     {{ old('employee_id') == $employee->n_employee_id ? 'selected' : '' }}>
                                     {{ $employee->c_employee_code }}
                                     -
@@ -102,21 +104,18 @@
                 <div class="mb-4">
 
                     <label class="form-label fw-semibold">
-                        Assign Role <span class="text-danger">*</span>
+                        Assigned Role <span class="text-danger">*</span>
                     </label>
 
-                    <select class="form-select" name="role" required>
-
+                    <select class="form-select" id="role" name="role" required>
                         <option value="">Select Role</option>
 
                         @foreach($roles as $role)
-
-                        <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>
+                        <option value="{{ $role->name }}" data-identifier="{{ $role->identifier }}"
+                            {{ old('role') == $role->name ? 'selected' : '' }}>
                             {{ $role->name }}
                         </option>
-
                         @endforeach
-
                     </select>
 
                     <small class="text-muted">
@@ -157,26 +156,56 @@
     and submit user creation details with validation handling. 
 -------------------------------------------------------------->
 
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
     const employee = document.getElementById('employee');
     const email = document.getElementById('username');
+    const role = document.getElementById('role');
 
-    function fillEmail() {
+    function fillEmployeeDetails() {
 
         const option = employee.options[employee.selectedIndex];
 
-        email.value = option ? option.dataset.email : '';
+        if (!option || !option.value) {
+            email.value = '';
+            role.value = '';
+            return;
+        }
 
+        // Fill employee email
+        email.value = option.dataset.email || '';
+
+        // Get employee designation identifier
+        const designationIdentifier =
+            option.dataset.designationIdentifier || '';
+
+        // Reset role
+        role.value = '';
+
+        // Find matching role
+        Array.from(role.options).forEach(function(roleOption) {
+
+            const roleIdentifier =
+                roleOption.dataset.identifier || '';
+
+            if (
+                roleIdentifier.toLowerCase() ===
+                designationIdentifier.toLowerCase()
+            ) {
+                roleOption.selected = true;
+            }
+
+        });
     }
 
-    employee.addEventListener('change', fillEmail);
+    employee.addEventListener('change', fillEmployeeDetails);
 
-    fillEmail();
+    // Run on page load for old/selected employee
+    fillEmployeeDetails();
 
 });
 </script>
+
 
 @endsection

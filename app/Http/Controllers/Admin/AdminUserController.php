@@ -17,7 +17,12 @@ class AdminUserController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin.users.index', compact('users'));
+        $hasActivePasswords = Admin::whereNotNull('initial_password')
+            ->whereNotNull('initial_password_expires_at')
+            ->where('initial_password_expires_at', '>=', now())
+            ->exists();
+
+        return view('admin.users.index', compact('users', 'hasActivePasswords'));
     }
 
     public function create()
@@ -31,7 +36,8 @@ class AdminUserController extends Controller
             })
             ->orderBy('c_employee_name')
             ->get();
-// dd($employees);
+
+        // dd($employees);
         return view('admin.users.create', compact('roles', 'employees'));
     }
 
@@ -72,14 +78,30 @@ class AdminUserController extends Controller
         $specialChars = ['@', '#', '$', '%', '&', '!'];
         $special = $specialChars[array_rand($specialChars)];
 
-        $password = $firstName . $upper . $lower . $special . $number;
+        $password = $firstName.$upper.$lower.$special.$number;
 
         // Create Admin User
+        // $user = Admin::create([
+        //     'n_employee_id' => $employee->n_employee_id,
+        //     'c_name' => $name,
+        //     'c_username' => $username,
+        //     'c_password' => Hash::make($password),
+        //     'c_status' => 'Active',
+        // ]);
         $user = Admin::create([
             'n_employee_id' => $employee->n_employee_id,
             'c_name' => $name,
             'c_username' => $username,
+
+            // Password used for login
             'c_password' => Hash::make($password),
+
+            // Temporary encrypted copy for admin viewing
+            'initial_password' => $password,
+
+            // Available for 48 hours
+            'initial_password_expires_at' => now()->addDays(2),
+
             'c_status' => 'Active',
         ]);
 
@@ -87,11 +109,75 @@ class AdminUserController extends Controller
         $user->syncRoles([$request->role]);
 
         return redirect()
-            ->route('admin.users.index')
-            ->with([
-                'success' => 'User created successfully.',
-                'password' => $password,
+            ->route('admin.users.index');
+    }
+
+    public function showPassword(Admin $user)
+    {
+        // Only Super Admin can view passwords
+        if (! auth('web')->check() || ! auth('web')->user()->hasRole('Super Admin')) {
+            abort(403);
+        }
+
+        // Check whether password viewing has expired
+        if (
+            ! $user->initial_password_expires_at ||
+            now()->greaterThan($user->initial_password_expires_at)
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The initial password has expired and can no longer be viewed.',
+            ], 403);
+        }
+
+        if (! $user->initial_password) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Initial password is not available.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'password' => $user->initial_password,
+            'expires_at' => $user->initial_password_expires_at->format('d M Y h:i A'),
+        ]);
+    }
+
+    public function copyAllLoginDetails()
+    {
+
+        if (! auth()->check() || ! auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'You are not authorized to view passwords.');
+        }
+
+        $users = Admin::whereNotNull('initial_password')
+            ->whereNotNull('initial_password_expires_at')
+            ->where('initial_password_expires_at', '>=', now())
+            ->orderBy('c_name')
+            ->get();
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No active passwords are available.',
+            ], 404);
+        }
+
+        $loginDetails = $users->map(function ($user) {
+            return implode("\n", [
+                $user->c_name,
+                'Username: '.$user->c_username,
+                'Password: '.$user->initial_password,
+                '',
             ]);
+        })->implode("\n");
+
+        return response()->json([
+            'success' => true,
+            'count' => $users->count(),
+            'details' => $loginDetails,
+        ]);
     }
 
     public function edit(Admin $user)
@@ -105,7 +191,7 @@ class AdminUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'username' => 'required|email|unique:admins,c_username,' . $user->n_role_id . ',n_role_id',
+            'username' => 'required|email|unique:admins,c_username,'.$user->n_role_id.',n_role_id',
             'role' => 'required|exists:roles,name',
         ]);
 

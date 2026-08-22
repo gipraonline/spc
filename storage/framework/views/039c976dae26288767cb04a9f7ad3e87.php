@@ -62,6 +62,8 @@
 
                                 <option value="<?php echo e($employee->n_employee_id); ?>"
                                     data-email="<?php echo e($employee->c_employee_email); ?>"
+                                    data-designation="<?php echo e($employee->designation?->c_designation); ?>"
+                                    data-designation-identifier="<?php echo e($employee->designation?->identifier); ?>"
                                     <?php echo e(old('employee_id') == $employee->n_employee_id ? 'selected' : ''); ?>>
                                     <?php echo e($employee->c_employee_code); ?>
 
@@ -102,22 +104,19 @@
                 <div class="mb-4">
 
                     <label class="form-label fw-semibold">
-                        Assign Role <span class="text-danger">*</span>
+                        Assigned Role <span class="text-danger">*</span>
                     </label>
 
-                    <select class="form-select" name="role" required>
-
+                    <select class="form-select" id="role" name="role" required>
                         <option value="">Select Role</option>
 
                         <?php $__currentLoopData = $roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                        <option value="<?php echo e($role->name); ?>" <?php echo e(old('role') == $role->name ? 'selected' : ''); ?>>
+                        <option value="<?php echo e($role->name); ?>" data-identifier="<?php echo e($role->identifier); ?>"
+                            <?php echo e(old('role') == $role->name ? 'selected' : ''); ?>>
                             <?php echo e($role->name); ?>
 
                         </option>
-
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
                     </select>
 
                     <small class="text-muted">
@@ -158,27 +157,57 @@
     and submit user creation details with validation handling. 
 -------------------------------------------------------------->
 
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
     const employee = document.getElementById('employee');
     const email = document.getElementById('username');
+    const role = document.getElementById('role');
 
-    function fillEmail() {
+    function fillEmployeeDetails() {
 
         const option = employee.options[employee.selectedIndex];
 
-        email.value = option ? option.dataset.email : '';
+        if (!option || !option.value) {
+            email.value = '';
+            role.value = '';
+            return;
+        }
 
+        // Fill employee email
+        email.value = option.dataset.email || '';
+
+        // Get employee designation identifier
+        const designationIdentifier =
+            option.dataset.designationIdentifier || '';
+
+        // Reset role
+        role.value = '';
+
+        // Find matching role
+        Array.from(role.options).forEach(function(roleOption) {
+
+            const roleIdentifier =
+                roleOption.dataset.identifier || '';
+
+            if (
+                roleIdentifier.toLowerCase() ===
+                designationIdentifier.toLowerCase()
+            ) {
+                roleOption.selected = true;
+            }
+
+        });
     }
 
-    employee.addEventListener('change', fillEmail);
+    employee.addEventListener('change', fillEmployeeDetails);
 
-    fillEmail();
+    // Run on page load for old/selected employee
+    fillEmployeeDetails();
 
 });
 </script>
+
 
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/users/create.blade.php ENDPATH**/ ?>

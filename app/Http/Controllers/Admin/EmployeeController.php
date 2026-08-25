@@ -187,12 +187,44 @@ class EmployeeController extends Controller
 
     public function create()
     {
-        $designations = DesignationMaster::where('c_status', 'Y')->get();
         $employees = EmployeeMaster::where('c_status', 'Y')
             ->orderBy('c_employee_name')
             ->get();
 
-        return view('admin.employees.create', compact('designations', 'employees'));
+        $user = auth()->user();
+
+        /*
+         * Super Admin and Gipra Admin
+         * can create employees for all designations
+         */
+        if ($user->hasAnyRole(['Super Admin', 'Gipra Admin'])) {
+
+            $designations = DesignationMaster::where('c_status', 'Y')
+                ->orderBy('hierarchy_level')
+                ->get();
+
+            /*
+             * Farm Care Officer can create
+             * employee only for Farm Care Advisor
+             */
+        } elseif ($user->hasRole('Farm Care Officer')) {
+
+            $designations = DesignationMaster::where('c_status', 'Y')
+                ->where('identifier', 'FCA')
+                ->get();
+
+        } else {
+
+            /*
+             * No allowed designation
+             */
+            $designations = collect();
+        }
+
+        return view(
+            'admin.employees.create',
+            compact('designations', 'employees')
+        );
     }
 
     public function store(Request $request)

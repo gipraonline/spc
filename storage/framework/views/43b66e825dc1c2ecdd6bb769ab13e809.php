@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 .action-btn {
     width: 60px;
@@ -17,22 +15,22 @@
 
         <div class="d-flex gap-2">
 
-            @if($hasActivePasswords)
+            <?php if($hasActivePasswords): ?>
             <button type="button" id="copyAllLoginDetailsBtn" class="btn buttonSpc"
-                data-url="{{ route('admin.users.copy-all-login-details') }}">
+                data-url="<?php echo e(route('admin.users.copy-all-login-details')); ?>">
                 📋 Copy All Login Details
             </button>
-            @else
+            <?php else: ?>
             <button type="button" class="btn buttonSpc" disabled>
                 🔒 No Active Passwords
             </button>
-            @endif
+            <?php endif; ?>
 
-            @can('user-management.create')
-            <a href="{{ route('admin.users.create') }}" class="btn buttonSpc">
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('user-management.create')): ?>
+            <a href="<?php echo e(route('admin.users.create')); ?>" class="btn buttonSpc">
                 + Create User
             </a>
-            @endcan
+            <?php endif; ?>
 
         </div>
 
@@ -41,21 +39,22 @@
 
     <div class="card-body">
 
-        @if(session('success'))
+        <?php if(session('success')): ?>
         <div class="alert alert-success">
-            {{ session('success') }}
+            <?php echo e(session('success')); ?>
 
-            @if(session('password'))
+
+            <?php if(session('password')): ?>
             <hr class="my-2">
             <strong>Temporary Password:</strong>
-            <span class="text-danger">{{ session('password') }}</span>
+            <span class="text-danger"><?php echo e(session('password')); ?></span>
             <br>
             <small class="text-muted">
                 Please share this password securely with the user.
             </small>
-            @endif
+            <?php endif; ?>
         </div>
-        @endif
+        <?php endif; ?>
         <table class="table table-bordered table-hover">
 
             <thead>
@@ -64,56 +63,56 @@
                     <th>Name</th>
                     <th>Username</th>
                     <th>Role</th>
-                    @canany(['user-management.edit', 'user-management.delete'])
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['user-management.edit', 'user-management.delete'])): ?>
                     <th width="180">Action</th>
-                    @endcanany
+                    <?php endif; ?>
                     <th>Password</th>
                 </tr>
             </thead>
 
             <tbody>
 
-                @forelse($users as $user)
+                <?php $__empty_1 = true; $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
 
                 <tr>
 
-                    <td>{{ $users->firstItem() + $loop->index }}</td>
+                    <td><?php echo e($users->firstItem() + $loop->index); ?></td>
 
-                    <td>{{ $user->c_name }}</td>
+                    <td><?php echo e($user->c_name); ?></td>
 
-                    <td>{{ $user->c_username }}</td>
+                    <td><?php echo e($user->c_username); ?></td>
 
-                    <td>{{ $user->roles->pluck('name')->implode(', ') }}</td>
+                    <td><?php echo e($user->roles->pluck('name')->implode(', ')); ?></td>
                     <td>
-                        @if(
+                        <?php if(
                         $user->initial_password &&
                         $user->initial_password_expires_at &&
                         now()->lessThanOrEqualTo($user->initial_password_expires_at)
-                        )
+                        ): ?>
                         <button type="button" class="btn btn-sm btn-outline-primary show-password-btn"
-                            data-url="{{ route('admin.users.show-password', $user) }}">
+                            data-url="<?php echo e(route('admin.users.show-password', $user)); ?>">
                             👁 Show Password
                         </button>
-                        @else
+                        <?php else: ?>
                         <span class="text-muted">
                             🔒 Expired
                         </span>
-                        @endif
+                        <?php endif; ?>
                     </td>
-                    @canany(['user-management.edit', 'user-management.delete'])
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['user-management.edit', 'user-management.delete'])): ?>
                     <td>
-                        @can('user-management.edit')
-                        <a href="{{ route('admin.users.edit', $user->n_role_id) }}"
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('user-management.edit')): ?>
+                        <a href="<?php echo e(route('admin.users.edit', $user->n_role_id)); ?>"
                             class="btn btn-primary btn-sm action-btn">
                             Edit
                         </a>
-                        @endcan
-                        @can('user-management.delete')
-                        <form action="{{ route('admin.users.destroy', $user->n_role_id) }}" method="POST"
+                        <?php endif; ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('user-management.delete')): ?>
+                        <form action="<?php echo e(route('admin.users.destroy', $user->n_role_id)); ?>" method="POST"
                             class="d-inline">
 
-                            @csrf
-                            @method('DELETE')
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('DELETE'); ?>
 
                             <button type="submit" class="btn btn-danger btn-sm action-btn"
                                 onclick="return confirm('Delete this user?')">
@@ -121,13 +120,13 @@
                             </button>
 
                         </form>
-                        @endcan
+                        <?php endif; ?>
 
                     </td>
-                    @endcanany
+                    <?php endif; ?>
                 </tr>
 
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 
                 <tr>
                     <td colspan="5" class="text-center">
@@ -135,13 +134,14 @@
                     </td>
                 </tr>
 
-                @endforelse
+                <?php endif; ?>
 
             </tbody>
 
         </table>
         <div class="d-flex justify-content-center mt-3">
-            {{ $users->links() }}
+            <?php echo e($users->links()); ?>
+
         </div>
     </div>
 
@@ -193,9 +193,9 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -396,4 +396,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/users/index.blade.php ENDPATH**/ ?>

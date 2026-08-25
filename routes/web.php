@@ -387,24 +387,6 @@ Route::middleware(['auth', 'admin'])
 
         /*
         |--------------------------------------------------------------------------
-        | RBAC Management
-        |--------------------------------------------------------------------------
-        */
-
-        Route::resource('menus', MenuController::class)
-            ->middleware('permission:menu-management.view');
-
-        Route::resource('roles', RoleController::class)
-            ->middleware('permission:role-management.view');
-
-        Route::resource('users', AdminUserController::class)
-            ->middleware('permission:user-management.view');
-
-        Route::resource('permissions', PermissionController::class)
-            ->middleware('permission:permission-management.view');
-
-        /*
-        |--------------------------------------------------------------------------
         | Customers
         |--------------------------------------------------------------------------
         */
@@ -465,11 +447,25 @@ Route::middleware(['auth', 'admin'])
         Route::resource('roles', RoleController::class)
             ->middleware('permission:role-management.view');
 
-        Route::resource('users', AdminUserController::class)
-            ->middleware('permission:user-management.view');
-
         Route::resource('permissions', PermissionController::class)
             ->middleware('permission:permission-management.view');
+
+        /*
+|--------------------------------------------------------------------------
+| Admin User Management
+|--------------------------------------------------------------------------
+*/
+
+        Route::get('/users/copy-all-login-details', [AdminUserController::class, 'copyAllLoginDetails'])
+            ->middleware('permission:user-management.view')
+            ->name('users.copy-all-login-details');
+
+        Route::get('/users/{user}/show-password', [AdminUserController::class, 'showPassword'])
+            ->middleware('permission:user-management.view')
+            ->name('users.show-password');
+
+        Route::resource('users', AdminUserController::class)
+            ->middleware('permission:user-management.view');
 
         /*
         |--------------------------------------------------------------------------

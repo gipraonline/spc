@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <div class="container-fluid">
 
@@ -19,7 +17,7 @@
                 </small>
             </div>
 
-            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary rounded-pill">
+            <a href="<?php echo e(route('admin.users.index')); ?>" class="btn btn-outline-secondary rounded-pill">
                 <i class="fas fa-arrow-left me-1"></i>
                 Back
             </a>
@@ -28,19 +26,19 @@
 
         <div class="card-body bg-white">
 
-            @if ($errors->any())
+            <?php if($errors->any()): ?>
             <div class="alert alert-danger">
                 <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
+                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <li><?php echo e($error); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </ul>
             </div>
-            @endif
+            <?php endif; ?>
 
-            <form action="{{ route('admin.users.store') }}" method="POST">
+            <form action="<?php echo e(route('admin.users.store')); ?>" method="POST">
 
-                @csrf
+                <?php echo csrf_field(); ?>
 
                 <div class="row">
 
@@ -60,19 +58,21 @@
 
                                 <option value="">Select Employee</option>
 
-                                @foreach($employees as $employee)
+                                <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                                <option value="{{ $employee->n_employee_id }}"
-                                    data-email="{{ $employee->c_employee_email }}"
-                                    data-designation="{{ $employee->designation?->c_designation }}"
-                                    data-designation-identifier="{{ $employee->designation?->identifier }}"
-                                    {{ old('employee_id') == $employee->n_employee_id ? 'selected' : '' }}>
-                                    {{ $employee->c_employee_code }}
+                                <option value="<?php echo e($employee->n_employee_id); ?>"
+                                    data-email="<?php echo e($employee->c_employee_email); ?>"
+                                    data-designation="<?php echo e($employee->designation?->c_designation); ?>"
+                                    data-designation-identifier="<?php echo e($employee->designation?->identifier); ?>"
+                                    <?php echo e(old('employee_id') == $employee->n_employee_id ? 'selected' : ''); ?>>
+                                    <?php echo e($employee->c_employee_code); ?>
+
                                     -
-                                    {{ $employee->c_employee_name }}
+                                    <?php echo e($employee->c_employee_name); ?>
+
                                 </option>
 
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                             </select>
 
@@ -110,12 +110,13 @@
                     <select class="form-select" id="role" name="role" required>
                         <option value="">Select Role</option>
 
-                        @foreach($roles as $role)
-                        <option value="{{ $role->name }}" data-identifier="{{ $role->identifier }}"
-                            {{ old('role') == $role->name ? 'selected' : '' }}>
-                            {{ $role->name }}
+                        <?php $__currentLoopData = $roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($role->name); ?>" data-identifier="<?php echo e($role->identifier); ?>"
+                            <?php echo e(old('role') == $role->name ? 'selected' : ''); ?>>
+                            <?php echo e($role->name); ?>
+
                         </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
 
                     <small class="text-muted">
@@ -128,7 +129,7 @@
 
                 <div class="d-flex justify-content-end">
 
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-light me-2">
+                    <a href="<?php echo e(route('admin.users.index')); ?>" class="btn btn-light me-2">
                         Cancel
                     </a>
 
@@ -208,4 +209,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/users/create.blade.php ENDPATH**/ ?>

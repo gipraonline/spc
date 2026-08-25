@@ -1101,6 +1101,8 @@ class SalesController extends Controller
                         'Bank Deposit',
                     ]);
                 }),
+                Rule::unique('sales_orders', 'c_transaction_id'),
+
             ],
 
             'payment_image' => [

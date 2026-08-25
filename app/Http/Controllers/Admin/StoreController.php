@@ -107,7 +107,7 @@ class StoreController extends Controller
         $states = State::where('status', 1)
             ->orderBy('name')
             ->get();
-        
+
         return view('admin.stores.create', compact('states'));
     }
 
@@ -129,6 +129,11 @@ class StoreController extends Controller
 
             // NEW
             'c_panchayath' => 'required|string|max:150',
+
+            'latitude' => 'required|string|max:150',
+
+            'longitude' => 'required|string|max:150',
+
 
             'c_store_email' => 'required|email:rfc,dns|max:100',
 

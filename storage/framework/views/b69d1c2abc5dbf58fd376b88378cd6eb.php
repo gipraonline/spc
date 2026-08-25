@@ -15,6 +15,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
 
+    <link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/png" href="<?php echo e(asset('dist/images/logos/fav.png')); ?>" />

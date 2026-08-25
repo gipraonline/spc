@@ -434,6 +434,11 @@ use Illuminate\Support\Facades\Crypt;
                                     Approved
                                 </option>
 
+                                <option value="rejected"
+                                    <?php echo e(request('order_status') == 'rejected' ? 'selected' : ''); ?>>
+                                    Rejected
+                                </option>
+
                                 <option value="dispatched"
                                     <?php echo e(request('order_status') == 'dispatched' ? 'selected' : ''); ?>>
                                     Dispatched
@@ -548,7 +553,7 @@ use Illuminate\Support\Facades\Crypt;
                             <?php
                                 $status = strtolower($sale->payment_status ?? 'pending');
                             ?>
-                            <?php if($status == 'confirmed' ): ?>
+                            <?php if($status == 'paid' ): ?>
                                 <span class="badge-status confirmed">Paid</span>
                             <?php else: ?>
                                 <span class="badge-status pending">Pending</span>
@@ -561,6 +566,8 @@ use Illuminate\Support\Facades\Crypt;
                             ?>
                             <?php if($status == 'approved' ): ?>
                                 <span class="badge-status approved">Order Approved</span>
+                            <?php elseif($status == 'rejected'): ?>
+                                <span class="badge-status rejected">Rejected</span>
                             <?php elseif($status == 'dispatched'): ?>
                                 <span class="badge-status dispatched">Dispatched</span>
                             <?php elseif($status == 'shipped'): ?>
@@ -571,6 +578,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <span class="badge-status completed">Completed</span>
                             <?php elseif($status == 'returned'): ?>
                                 <span class="badge-status returned">Returned</span>
+
                             <?php elseif($status == 'pending'): ?>
                                 <span class="badge-status pending">Pending</span>
                             <?php endif; ?>
@@ -654,7 +662,7 @@ use Illuminate\Support\Facades\Crypt;
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-            
+
 
             <form action="<?php echo e(route('admin.salesorders.salesUpdateStore')); ?>" method="POST">
                 <?php echo csrf_field(); ?>

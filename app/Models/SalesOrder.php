@@ -93,6 +93,24 @@ class SalesOrder extends Model
         );
     }
 
+    public function paymentStatusLogs()
+    {
+        return $this->hasMany(
+            PaymentStatusLog::class,
+            'sales_order_n_sl_no',
+            'n_sl_no'
+        );
+    }
+
+    public function latestPaymentStatusLog()
+    {
+        return $this->hasOne(
+            PaymentStatusLog::class,
+            'sales_order_n_sl_no',
+            'n_sl_no'
+        )->latestOfMany();
+    }
+
     // public static function generateOrderNo()
     // {
     //     $lastOrder = self::orderByDesc('n_sl_no')->first();

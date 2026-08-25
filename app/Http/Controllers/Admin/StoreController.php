@@ -107,7 +107,7 @@ class StoreController extends Controller
         $states = State::where('status', 1)
             ->orderBy('name')
             ->get();
-
+        
         return view('admin.stores.create', compact('states'));
     }
 

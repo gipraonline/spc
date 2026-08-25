@@ -697,8 +697,6 @@
 
         <!-- Top Stat Cards (4 Columns) -->
         <div class="stats-grid">
-
-            <!-- Check In Time -->
             <!-- Check In Time -->
             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.check-in')): ?>
             <div class="dashboard-card stat-card">

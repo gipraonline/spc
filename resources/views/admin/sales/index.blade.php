@@ -435,6 +435,11 @@ use Illuminate\Support\Facades\Crypt;
                                     Approved
                                 </option>
 
+                                <option value="rejected"
+                                    {{ request('order_status') == 'rejected' ? 'selected' : '' }}>
+                                    Rejected
+                                </option>
+
                                 <option value="dispatched"
                                     {{ request('order_status') == 'dispatched' ? 'selected' : '' }}>
                                     Dispatched
@@ -562,6 +567,8 @@ use Illuminate\Support\Facades\Crypt;
                             @endphp
                             @if($status == 'approved' )
                                 <span class="badge-status approved">Order Approved</span>
+                            @elseif($status == 'rejected')
+                                <span class="badge-status rejected">Rejected</span>
                             @elseif($status == 'dispatched')
                                 <span class="badge-status dispatched">Dispatched</span>
                             @elseif($status == 'shipped')
@@ -572,6 +579,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <span class="badge-status completed">Completed</span>
                             @elseif($status == 'returned')
                                 <span class="badge-status returned">Returned</span>
+
                             @elseif($status == 'pending')
                                 <span class="badge-status pending">Pending</span>
                             @endif

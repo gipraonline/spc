@@ -1483,54 +1483,7 @@ class SalesController extends Controller
                                 'customer',
                             ])->findOrFail($id);
 
-                        if ($existingOrder) {
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Json encode existing order
-                            |--------------------------------------------------------------------------
-                            */
-
-                            $oldOrderData= json_encode($existingOrder);
-
-
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Get NEW data after update
-                            |--------------------------------------------------------------------------
-                            */
-
-                            $newOrderData = json_encode($validated);
-
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Save Audit Record
-                            |--------------------------------------------------------------------------
-                            */
-
-                            AuditRecord::create([
-
-                                'user_id' => auth()->user()->n_role_id,
-
-                                'module' => 'Sales Order',
-
-                                'action' => 'Updated',
-
-                                'record_id' => $existingOrder->n_sl_no,
-
-                                'old_values' =>$oldOrderData,
-
-                                'new_values' =>$newOrderData,
-
-                                'ip_address' => request()->ip(),
-
-                                'user_agent' => request()->userAgent(),
-                            ]);
-
-
-                        }
+                        $auditRecord=$this->auditRecord($existingOrder,'','SalesOrderUpdate');
 
                     $message = 'Sales Order updated successfully.';
 
@@ -1556,6 +1509,7 @@ class SalesController extends Controller
                             }
                         }
                     }
+                    $auditRecord=$this->auditRecord('',$orderData,'SalesOrdercreate');
                     $message = 'Sales Order created successfully.';
                 }
 
@@ -1577,32 +1531,37 @@ class SalesController extends Controller
         }
     }
 
-    public function auditRecord($existingOrder){
-          $existingOrder = SalesOrder::with([
+    public function auditRecord($oldRecord=Null,$newRecord=Null,$moduleName){
+                /* $existingOrder = SalesOrder::with([
                     'orderProducts',
                     'customer',
                 ])->findOrFail($id);
-
-                 if ($existingOrder) {
+ */
+                 if ($oldRecord) {
 
                     /*
                     |--------------------------------------------------------------------------
                     | Json encode existing order
                     |--------------------------------------------------------------------------
                     */
-
-                   $oldOrderData= json_encode($existingOrder);
-
-
+                if(isset($oldRecord)){
+                   $oldRecord= json_encode($oldRecord);
+                }
+                else{
+                    $oldRecord='';
+                }
 
                     /*
                     |--------------------------------------------------------------------------
                     | Get NEW data after update
                     |--------------------------------------------------------------------------
                     */
-
-                    $newOrderData = json_encode($validated);
-
+                if(isset($newRecord)){
+                    $newRecord = json_encode($newRecord);
+                }
+                else{
+                    $newRecord="";
+                }
 
                     /*
                     |--------------------------------------------------------------------------
@@ -1614,23 +1573,21 @@ class SalesController extends Controller
 
                         'user_id' => auth()->user()->n_role_id,
 
-                        'module' => 'Sales Order',
+                        'module' => $moduleName,
 
                         'action' => 'Updated',
 
                         'record_id' => $existingOrder->n_sl_no,
 
-                        'old_values' =>$oldOrderData,
+                        'old_values' =>$oldRecord,
 
-                        'new_values' =>$newOrderData,
+                        'new_values' =>$newRecord,
 
                         'ip_address' => request()->ip(),
 
                         'user_agent' => request()->userAgent(),
                     ]);
 
-
-                   return $message = 'Sales order updated successfully.';
                 }
     }
 
@@ -1988,6 +1945,48 @@ class SalesController extends Controller
 
         return response()->json([
             'panchayaths' => $panchayaths,
+        ]);
+    }
+
+    public function nearestFranchise(Request $request)
+    {
+        $latitude = $request->latitude;
+        $longitude = $request->longitude;
+
+        $franchise = StoreMaster::select('n_store_id', 'c_store_name', 'latitude', 'longitude')
+            ->selectRaw(
+                '(
+                    6371 * acos(
+                        cos(radians(?)) *
+                        cos(radians(9.0195400)) *
+                        cos(radians(76.9250100) - radians(?)) +
+                        sin(radians(?)) *
+                        sin(radians(latitude))
+                    )
+                ) AS distance',
+                [
+                    $latitude,
+                    $longitude,
+                    $latitude
+                ]
+            )
+            ->where('c_store_status', 'Y')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->orderBy('distance', 'asc')
+            ->first();
+
+        if (!$franchise) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No franchise found.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'franchises' => $franchise,
+            'distance' => round($franchise->distance, 2)
         ]);
     }
 }

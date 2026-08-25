@@ -174,6 +174,8 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('filter-panchayath', [StoreController::class, 'filterPanchayath'])
             ->name('admin.filterPanchayath');
+
+
         // *********************************************
 
         /*
@@ -384,6 +386,9 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('filter-franchise', [SalesController::class, 'franchiseFilter'])
             ->name('admin.filterFranchise');
+
+        Route::post('/franchise/nearest', [SalesController::class, 'nearestFranchise'])
+            ->name('franchise.nearest');
 
         /*
         |--------------------------------------------------------------------------

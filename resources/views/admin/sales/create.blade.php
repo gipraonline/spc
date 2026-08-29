@@ -1,6 +1,15 @@
 @extends('layouts.app')
 
 @push('styles')
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"
+/>
+
 <style>
 /* Creative Light Theme & Green Palette */
 :root {
@@ -1335,6 +1344,8 @@ $hasPaymentImage = isset($sale) && !empty($sale->payment_image);
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
 $(document).ready(function () {
@@ -2844,134 +2855,131 @@ $('#franchise_district').on('change', function() {
 
     }); */
 </script>
-<button type="button" id="find-nearest-franchise">
-    Find Nearest Franchise
-</button>
 
-<div id="location-result"></div>
 
 <script>
-    $('#franchise_panchayath').on('change', function() {
-       // document.getElementById('franchise_panchayath').addEventListener('click', function () {
+    $('#franchise_panchayath').on('change', function () {
 
-            if (!navigator.geolocation) {
-                alert('Geolocation is not supported by your browser.');
+        const panchayathId = $(this).val();
+
+        console.log('Selected Panchayath ID:', panchayathId);
+
+        // No Panchayath selected
+        if (!panchayathId) {
+
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+            return;
+        }
+
+        // Find franchises by Panchayath
+        findNearestFranchise(panchayathId);
+    });
+
+
+    function findNearestFranchise(panchayathId) {
+
+        console.log('Finding franchises for Panchayath:', panchayathId);
+
+        $('#franchise').html(
+            '<option value="">Finding franchise...</option>'
+        );
+
+        fetch("{{ route('admin.franchise.nearest') }}", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Accept": "application/json"
+            },
+
+            body: JSON.stringify({
+                panchayath_id: panchayathId
+            })
+
+        })
+
+        .then(function (response) {
+
+            if (!response.ok) {
+                throw new Error(
+                    'HTTP error: ' + response.status
+                );
+            }
+
+            return response.json();
+
+        })
+
+        .then(function (data) {
+
+            console.log('Franchise response:', data);
+
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+            if (!data.success) {
+
+                $('#franchise').html(
+                    '<option value="">No Franchise Found</option>'
+                );
+
                 return;
             }
 
-            navigator.geolocation.getCurrentPosition(
-                function (position) {
+            let franchises = Array.isArray(data.franchises)
+                ? data.franchises
+                : (data.franchises ? [data.franchises] : []);
 
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
+            if (franchises.length === 0) {
 
-                    console.log('Current Latitude:', latitude);
-                    console.log('Current Longitude:', longitude);
+                $('#franchise').html(
+                    '<option value="">No Franchise Found</option>'
+                );
 
-                    findNearestFranchise(latitude, longitude);
-                },
-                function (error) {
-
-                    switch (error.code) {
-                        case error.PERMISSION_DENIED:
-                            alert('Please allow location access.');
-                            break;
-
-                        case error.POSITION_UNAVAILABLE:
-                            alert('Location information is unavailable.');
-                            break;
-
-                        case error.TIMEOUT:
-                            alert('Location request timed out.');
-                            break;
-
-                        default:
-                            alert('Unable to get your location.');
-                    }
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
-            );
-       // });
-    });
-
-function findNearestFranchise(latitude, longitude) {
-
-    fetch("{{ route('admin.franchise.nearest') }}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-            "Accept": "application/json"
-        },
-        body: JSON.stringify({
-            latitude: latitude,
-            longitude: longitude
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-       
-    console.log(data.franchises);
-
-    if (data.success) {
-
-        const franchise = data.franchises;
-
-        console.log('Nearest Franchise:', franchise.c_store_name);
-        console.log('Distance:', franchise.distance);
-
-                if (data.success) {
-
-                    console.log('Franchises:', data.franchises);
-
-                    // Convert object to array if necessary
-                    let franchises = Array.isArray(data.franchises)
-                        ? data.franchises
-                        : [data.franchises];
-
-                    $('#nearest_franchise_id').empty();
-
-                    franchises.forEach(function(franchise) {
-
-                        console.log('Franchise:', franchise.c_store_name);
-
-                        $('#franchise').append(
-                            `<option value="${franchise.n_store_id}">
-                                ${franchise.c_store_name}
-                            </option>`
-                        );
-
-                    });
-
-                    // Select the first/nearest franchise
-                    if (franchises.length > 0) {
-                        $('#franchise')
-                            .val(franchises[0].n_store_id)
-                            .trigger('change');
-                    }
-                }
-
-            /*  document.getElementById('location-result').innerHTML =
-                    `
-                    <strong>Nearest Franchise:</strong>
-                    ${data.franchise.c_name}
-                    <br>
-                    <strong>Distance:</strong>
-                    ${data.distance} km
-                    `; */
-
-            } else {
-                alert(data.message);
+                return;
             }
+
+            franchises.forEach(function (franchise) {
+
+                $('#franchise').append(`
+                    <option value="${franchise.n_store_id}">
+                        ${franchise.c_store_name}
+                        ${
+                            franchise.c_store_code
+                                ? ' (' + franchise.c_store_code + ')'
+                                : ''
+                        }
+                    </option>
+                `);
+
+            });
+
+            // Automatically select first franchise
+            $('#franchise').val(
+                franchises[0].n_store_id
+            );
+
         })
-        .catch(error => {
-            console.error(error);
-            alert('Unable to find nearest franchise.');
+
+        .catch(function (error) {
+
+            console.error(
+                'Nearest franchise error:',
+                error
+            );
+
+            $('#franchise').html(
+                '<option value="">Unable to find franchise</option>'
+            );
+
         });
-}
+
+    }
 </script>
 @endpush

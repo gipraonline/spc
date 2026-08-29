@@ -1,5 +1,27 @@
 <?php $__env->startPush('styles'); ?>
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
 <style>
+      #map {
+        width: 100%;
+        height: 450px;
+        margin-top: 20px;
+        border-radius: 15px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+    }
+
+    .leaflet-control-geocoder {
+        width: 300px;
+    }
+
+    .leaflet-control-geocoder-form input {
+        width: 250px;
+    }
 /* Premium Design Tokens */
 :root {
     --primary-green: #1b3e86;
@@ -392,7 +414,7 @@ unset($__errorArgs, $__bag); ?>
                 </div>
 
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-primary"
+                        <button type="button" id="openMapBtn" class="btn btn-primary"
                                 onclick="openMap()">
                             Select Location
                         </button>
@@ -566,68 +588,341 @@ $(document).ready(function() {
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
-        let map;
-        let marker;
+<script>
+    let map = null;
+    let marker = null;
 
-        function openMap() {
+    const defaultLat = 10.8505;
+    const defaultLng = 76.2711;
 
-            document.getElementById('map').style.display = 'block';
 
-            // Kerala default location
-            const defaultLat = 10.8505;
-            const defaultLng = 76.2711;
+    /*
+    |--------------------------------------------------------------------------
+    | OPEN MAP
+    |--------------------------------------------------------------------------
+    */
 
-            // Create map
+    $('#openMapBtn').on('click', function () {
+
+        $('#map').show();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create map only once
+        |--------------------------------------------------------------------------
+        */
+
+        if (!map) {
+
             map = L.map('map').setView(
                 [defaultLat, defaultLng],
-                8
+                9
             );
 
-            // OpenStreetMap tiles
+            /*
+            |--------------------------------------------------------------------------
+            | OpenStreetMap
+            |--------------------------------------------------------------------------
+            */
+
             L.tileLayer(
                 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 {
-                    attribution: '&copy; OpenStreetMap contributors'
+                    maxZoom: 19,
+                    attribution:
+                        '&copy; OpenStreetMap contributors'
                 }
             ).addTo(map);
 
-            // Click map
-            map.on('click', function(e) {
 
-                const lat = e.latlng.lat;
-                const lng = e.latlng.lng;
+            /*
+            |--------------------------------------------------------------------------
+            | SEARCH BOX
+            |--------------------------------------------------------------------------
+            */
 
-                // Fill textboxes
-                document.getElementById('latitude').value =
-                    lat.toFixed(6);
+            L.Control.geocoder({
 
-                document.getElementById('longitude').value =
-                    lng.toFixed(6);
+                defaultMarkGeocode: false,
 
-                // Remove previous marker
-                if (marker) {
-                    map.removeLayer(marker);
-                }
+                placeholder: 'Search location...',
 
-                // Add marker
-                marker = L.marker([lat, lng])
-                    .addTo(map)
-                    .bindPopup(
-                        'Latitude: ' + lat.toFixed(6) +
-                        '<br>Longitude: ' + lng.toFixed(6)
-                    )
-                    .openPopup();
+                errorMessage: 'Location not found'
+
+            })
+            .on('markgeocode', function (e) {
+
+                const latlng = e.geocode.center;
+
+                console.log(
+                    'Selected Location:',
+                    e.geocode.name
+                );
+
+                console.log(
+                    'Latitude:',
+                    latlng.lat
+                );
+
+                console.log(
+                    'Longitude:',
+                    latlng.lng
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Move map
+                |--------------------------------------------------------------------------
+                */
+
+                map.setView(
+                    latlng,
+                    17
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Add / Move marker
+                |--------------------------------------------------------------------------
+                */
+
+                setLocation(
+                    latlng.lat,
+                    latlng.lng
+                );
+
+            })
+            .addTo(map);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CLICK MAP TO SELECT LOCATION
+            |--------------------------------------------------------------------------
+            */
+
+            map.on('click', function (e) {
+
+                setLocation(
+                    e.latlng.lat,
+                    e.latlng.lng
+                );
+
             });
 
-            // Important when map was initially hidden
-            setTimeout(function() {
-                map.invalidateSize();
-            }, 200);
         }
 
-    </script>
+
+        /*
+        |--------------------------------------------------------------------------
+        | Fix map rendering when inside hidden div
+        |--------------------------------------------------------------------------
+        */
+
+        setTimeout(function () {
+
+            map.invalidateSize();
+
+        }, 200);
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SET LOCATION
+    |--------------------------------------------------------------------------
+    */
+
+    function setLocation(latitude, longitude) {
+
+        latitude = parseFloat(latitude);
+        longitude = parseFloat(longitude);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Set input values
+        |--------------------------------------------------------------------------
+        */
+
+        $('#latitude').val(
+            latitude.toFixed(6)
+        );
+
+        $('#longitude').val(
+            longitude.toFixed(6)
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Remove old marker
+        |--------------------------------------------------------------------------
+        */
+
+        if (marker) {
+
+            map.removeLayer(marker);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Add new marker
+        |--------------------------------------------------------------------------
+        */
+
+        marker = L.marker(
+            [latitude, longitude],
+            {
+                draggable: true
+            }
+        )
+        .addTo(map);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Marker popup
+        |--------------------------------------------------------------------------
+        */
+
+        marker.bindPopup(
+            '<b>Selected Location</b><br>' +
+            'Latitude: ' + latitude.toFixed(6) +
+            '<br>' +
+            'Longitude: ' + longitude.toFixed(6)
+        ).openPopup();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Allow dragging marker
+        |--------------------------------------------------------------------------
+        */
+
+        marker.on('dragend', function (e) {
+
+            const position =
+                e.target.getLatLng();
+
+            setLocation(
+                position.lat,
+                position.lng
+            );
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | If old latitude / longitude exists
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).ready(function () {
+
+        const oldLat = $('#latitude').val();
+        const oldLng = $('#longitude').val();
+
+        if (oldLat && oldLng) {
+
+            $('#map').show();
+
+            map = L.map('map').setView(
+                [
+                    parseFloat(oldLat),
+                    parseFloat(oldLng)
+                ],
+                17
+            );
+
+
+            L.tileLayer(
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                {
+                    maxZoom: 19,
+                    attribution:
+                        '&copy; OpenStreetMap contributors'
+                }
+            ).addTo(map);
+
+
+            L.Control.geocoder({
+
+                defaultMarkGeocode: false,
+
+                placeholder: 'Search location...'
+
+            })
+            .on('markgeocode', function (e) {
+
+                const latlng =
+                    e.geocode.center;
+
+                map.setView(
+                    latlng,
+                    17
+                );
+
+                setLocation(
+                    latlng.lat,
+                    latlng.lng
+                );
+
+            })
+            .addTo(map);
+
+
+            marker = L.marker(
+                [
+                    parseFloat(oldLat),
+                    parseFloat(oldLng)
+                ],
+                {
+                    draggable: true
+                }
+            ).addTo(map);
+
+
+            marker.on('dragend', function (e) {
+
+                const position =
+                    e.target.getLatLng();
+
+                setLocation(
+                    position.lat,
+                    position.lng
+                );
+
+            });
+
+
+            setTimeout(function () {
+
+                map.invalidateSize();
+
+            }, 200);
+
+        }
+
+    });
+
+
+
+
+
+
+
+</script>
 <?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/stores/create.blade.php ENDPATH**/ ?>

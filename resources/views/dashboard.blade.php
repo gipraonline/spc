@@ -218,6 +218,108 @@
 
 
 /* =========================================================
+   ATTENDANCE OVERVIEW
+========================================================= */
+
+.attendance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.attendance-card {
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    min-height: 112px;
+    padding: 21px;
+}
+
+.attendance-icon {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+
+    border-radius: 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.attendance-icon svg {
+    width: 25px;
+    height: 25px;
+}
+
+.attendance-icon.green {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.attendance-icon.orange {
+    background: var(--orange-light);
+    color: var(--orange);
+}
+
+.attendance-icon.purple {
+    background: var(--purple-light);
+    color: var(--purple);
+}
+
+.attendance-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.attendance-label {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.attendance-value {
+    display: block;
+
+    font-size: 24px;
+    font-weight: 750;
+    line-height: 1.1;
+}
+
+.attendance-value.green {
+    color: var(--primary);
+}
+
+.attendance-value.orange {
+    color: var(--orange);
+}
+
+.attendance-value.purple {
+    color: var(--purple);
+}
+
+.attendance-value.gray {
+    color: var(--muted-light);
+}
+
+.attendance-subtext {
+    color: var(--muted-light);
+    font-size: 10px;
+}
+
+.attendance-subtext.orange {
+    color: var(--orange);
+}
+
+
+/* =========================================================
    SALES
 ========================================================= */
 
@@ -603,6 +705,10 @@
 
 @media(max-width:950px) {
 
+    .attendance-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .sales-grid,
     .admin-order-grid,
     .staff-order-grid {
@@ -628,6 +734,7 @@
         display: none;
     }
 
+    .attendance-grid,
     .sales-grid,
     .admin-order-grid,
     .staff-order-grid,
@@ -693,6 +800,147 @@
 
 
         {{-- =====================================================
+             ATTENDANCE OVERVIEW
+        ====================================================== --}}
+
+        <div class="attendance-grid">
+
+
+            {{-- =================================================
+                 CHECK IN TIME
+            ================================================== --}}
+
+            @can('dashboard.check-in')
+
+            <div class="dashboard-card attendance-card">
+
+                <div class="attendance-icon green">
+
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5v12a2 2 0 002 2z" />
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l2 2 4-4" />
+
+                    </svg>
+
+                </div>
+
+
+                <div class="attendance-details">
+
+                    <span class="attendance-label">
+                        Check In Time
+                    </span>
+
+                    <span class="attendance-value green">
+                        {{ $checkInTime?->format('h:i A') ?? '--:-- --' }}
+                    </span>
+
+                    <span class="attendance-subtext">
+                        {{ $todayLog?->work_date?->format('d M Y') ?? now()->format('d M Y') }}
+                    </span>
+
+                </div>
+
+            </div>
+
+            @endcan
+
+
+            {{-- =================================================
+                 CHECK OUT TIME
+            ================================================== --}}
+
+            @can('dashboard.check-out')
+
+            <div class="dashboard-card attendance-card">
+
+                <div class="attendance-icon orange">
+
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+
+                    </svg>
+
+                </div>
+
+
+                <div class="attendance-details">
+
+                    <span class="attendance-label">
+                        Check Out Time
+                    </span>
+
+                    <span class="attendance-value {{ $checkOutTime ? 'orange' : 'gray' }}">
+                        {{ $checkOutTime?->format('h:i A') ?? '--:-- --' }}
+                    </span>
+
+                    <span class="attendance-subtext orange">
+                        {{ $checkOutTime ? 'Checked Out' : 'Not Checked Out' }}
+                    </span>
+
+                </div>
+
+            </div>
+
+            @endcan
+
+
+            {{-- =================================================
+                 WORK STATUS
+            ================================================== --}}
+
+            @can('dashboard.work-status')
+
+            <div class="dashboard-card attendance-card">
+
+                <div class="attendance-icon purple">
+
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 3 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+
+                    </svg>
+
+                </div>
+
+
+                <div class="attendance-details">
+
+                    <span class="attendance-label">
+                        Work Status
+                    </span>
+
+                    <span class="attendance-value
+                        {{ $workStatus === 'Checked In'
+                            ? 'green'
+                            : ($workStatus === 'Checked Out'
+                                ? 'orange'
+                                : 'gray') }}">
+
+                        {{ $workStatus }}
+
+                    </span>
+
+                    <span class="attendance-subtext">
+                        {{ $workStatusSubtext }}
+                    </span>
+
+                </div>
+
+            </div>
+
+            @endcan
+
+        </div>
+
+
+        {{-- =====================================================
              SALES OVERVIEW
         ====================================================== --}}
 
@@ -733,10 +981,10 @@
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857
-                                           M17 20H7m10 0v-2
-                                           M7 20H2v-2a3 3 0 015.356-1.857
-                                           M15 7a3 3 0 11-6 0
-                                           3 3 0 016 0z" />
+                                       M17 20H7m10 0v-2
+                                       M7 20H2v-2a3 3 0 015.356-1.857
+                                       M15 7a3 3 0 11-6 0
+                                       3 3 0 016 0z" />
 
                             </svg>
 
@@ -770,8 +1018,8 @@
                 @can('sales-orders.view')
 
                 <a href="{{ route('admin.salesorders.index', [
-                            'date' => now()->toDateString()
-                        ]) }}" class="card-link">
+                    'date' => now()->toDateString()
+                ]) }}" class="card-link">
 
                     <div class="dashboard-card sales-card clickable-card">
 
@@ -780,10 +1028,10 @@
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2
-                                           3 .895 3 2-1.343 2-3 2
-                                           m0-10V6m0 12v-2
-                                           m9-4a9 9 0 11-18 0
-                                           9 9 0 0118 0z" />
+                                       3 .895 3 2-1.343 2-3 2
+                                       m0-10V6m0 12v-2
+                                       m9-4a9 9 0 11-18 0
+                                       9 9 0 0118 0z" />
 
                             </svg>
 
@@ -825,7 +1073,7 @@
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18
-                                           M7 16l4-4 3 3 5-6" />
+                                       M7 16l4-4 3 3 5-6" />
 
                             </svg>
 
@@ -894,9 +1142,7 @@
             }}">
 
 
-                {{-- =================================================
-                     TOTAL ORDERS
-                ================================================== --}}
+                {{-- TOTAL ORDERS --}}
 
                 @if($isAdminDashboard)
 
@@ -909,10 +1155,10 @@
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12
-                                           a2 2 0 002 2h10
-                                           a2 2 0 002-2V7
-                                           a2 2 0 00-2-2h-2
-                                           M9 5a3 3 0 016 0" />
+                                       a2 2 0 002 2h10
+                                       a2 2 0 002-2V7
+                                       a2 2 0 00-2-2h-2
+                                       M9 5a3 3 0 016 0" />
 
                             </svg>
 
@@ -937,13 +1183,11 @@
                 @endif
 
 
-                {{-- =================================================
-                     PENDING
-                ================================================== --}}
+                {{-- PENDING --}}
 
                 <a href="{{ route('admin.salesorders.index', [
-                        'status' => 'pending'
-                    ]) }}" class="card-link">
+                    'status' => 'pending'
+                ]) }}" class="card-link">
 
                     <div class="dashboard-card order-card pending clickable-card">
 
@@ -976,13 +1220,11 @@
                 </a>
 
 
-                {{-- =================================================
-                     APPROVED
-                ================================================== --}}
+                {{-- APPROVED --}}
 
                 <a href="{{ route('admin.salesorders.index', [
-                        'status' => 'approved'
-                    ]) }}" class="card-link">
+                    'status' => 'approved'
+                ]) }}" class="card-link">
 
                     <div class="dashboard-card order-card approved clickable-card">
 
@@ -1015,13 +1257,11 @@
                 </a>
 
 
-                {{-- =================================================
-                     DISPATCHED
-                ================================================== --}}
+                {{-- DISPATCHED --}}
 
                 <a href="{{ route('admin.salesorders.index', [
-                        'status' => 'dispatched'
-                    ]) }}" class="card-link">
+                    'status' => 'dispatched'
+                ]) }}" class="card-link">
 
                     <div class="dashboard-card order-card dispatched clickable-card">
 
@@ -1053,15 +1293,13 @@
                 </a>
 
 
-                {{-- =================================================
-                     SHIPPED - ADMIN
-                ================================================== --}}
+                {{-- SHIPPED - ADMIN --}}
 
                 @if($isAdminDashboard)
 
                 <a href="{{ route('admin.salesorders.index', [
-                            'status' => 'shipped'
-                        ]) }}" class="card-link">
+                    'status' => 'shipped'
+                ]) }}" class="card-link">
 
                     <div class="dashboard-card order-card shipped clickable-card">
 
@@ -1095,13 +1333,11 @@
                 @endif
 
 
-                {{-- =================================================
-                     DELIVERED
-                ================================================== --}}
+                {{-- DELIVERED --}}
 
                 <a href="{{ route('admin.salesorders.index', [
-                        'status' => 'delivered'
-                    ]) }}" class="card-link">
+                    'status' => 'delivered'
+                ]) }}" class="card-link">
 
                     <div class="dashboard-card order-card delivered clickable-card">
 
@@ -1133,15 +1369,13 @@
                 </a>
 
 
-                {{-- =================================================
-                     COMPLETED - ADMIN
-                ================================================== --}}
+                {{-- COMPLETED - ADMIN --}}
 
                 @if($isAdminDashboard)
 
                 <a href="{{ route('admin.salesorders.index', [
-                            'status' => 'completed'
-                        ]) }}" class="card-link">
+                    'status' => 'completed'
+                ]) }}" class="card-link">
 
                     <div class="dashboard-card order-card completed clickable-card">
 
@@ -1150,8 +1384,8 @@
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4
-                                           m6 2a9 9 0 11-18 0
-                                           9 9 0 0118 0z" />
+                                       m6 2a9 9 0 11-18 0
+                                       9 9 0 0118 0z" />
 
                             </svg>
 
@@ -1176,13 +1410,11 @@
                 @endif
 
 
-                {{-- =================================================
-                     RETURNED
-                ================================================== --}}
+                {{-- RETURNED --}}
 
                 <a href="{{ route('admin.salesorders.index', [
-                        'status' => 'returned'
-                    ]) }}" class="card-link">
+                    'status' => 'returned'
+                ]) }}" class="card-link">
 
                     <div class="dashboard-card order-card returned clickable-card">
 
@@ -1253,8 +1485,8 @@
                     {{-- PAYMENT MODE --}}
 
                     <a href="{{ route('admin.payment-management.index', [
-                                'payment_mode' => $mode
-                            ]) }}" class="card-link">
+                        'payment_mode' => $mode
+                    ]) }}" class="card-link">
 
                         <div class="payment-card-header clickable-card">
 
@@ -1263,12 +1495,12 @@
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 7h20
-                                               M5 11h2m-2 4h4
-                                               m9-4h1m-1 4h1
-                                               M4 5h16a2 2 0 012 2v10
-                                               a2 2 0 01-2 2H4
-                                               a2 2 0 01-2-2V7
-                                               a2 2 0 012-2z" />
+                                           M5 11h2m-2 4h4
+                                           m9-4h1m-1 4h1
+                                           M4 5h16a2 2 0 012 2v10
+                                           a2 2 0 01-2 2H4
+                                           a2 2 0 01-2-2V7
+                                           a2 2 0 012-2z" />
 
                                 </svg>
 
@@ -1285,9 +1517,9 @@
                                     {{ number_format($payment['total']) }}
 
                                     {{ $payment['total'] == 1
-                                            ? 'Order'
-                                            : 'Orders'
-                                        }}
+                                        ? 'Order'
+                                        : 'Orders'
+                                    }}
 
                                 </span>
 
@@ -1304,9 +1536,9 @@
                         {{-- PAYMENT PENDING --}}
 
                         <a href="{{ route('admin.payment-management.index', [
-                                    'payment_mode' => $mode,
-                                    'payment_status' => 'pending'
-                                ]) }}" class="payment-status-link">
+                            'payment_mode' => $mode,
+                            'payment_status' => 'pending'
+                        ]) }}" class="payment-status-link">
 
                             <div class="payment-status pending-status">
 
@@ -1326,9 +1558,9 @@
                         {{-- PAYMENT PAID --}}
 
                         <a href="{{ route('admin.payment-management.index', [
-                                    'payment_mode' => $mode,
-                                    'payment_status' => 'paid'
-                                ]) }}" class="payment-status-link">
+                            'payment_mode' => $mode,
+                            'payment_status' => 'paid'
+                        ]) }}" class="payment-status-link">
 
                             <div class="payment-status paid-status">
 

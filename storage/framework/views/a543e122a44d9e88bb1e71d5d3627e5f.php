@@ -1624,20 +1624,6 @@ $(document).ready(function() {
             selectedOption.attr('data-price')
         ) || 0;
 
-        <<
-        <<
-        <<
-        < HEAD
-        let hsnCode = selectedOption.attr('data-hsn-code');
-        let unit = selectedOption.attr('data-unit');
-
-        // GST percentage from product
-        ===
-        ===
-        = >>>
-        >>>
-        >
-        8 cdfa070bca68cb6f5644a9c5f72e7dc0cfdd791
         let gstPercentage = parseFloat(
             selectedOption.attr('data-gst')
         ) || 0;
@@ -1679,28 +1665,20 @@ $(document).ready(function() {
         }
 
 
-        <<
-        <<
-        <<
-        < HEAD
-            // Set values
-            ===
-            ===
-            =
-            /*
-            |--------------------------------------------------------------------------
-            | GST Calculation
-            |--------------------------------------------------------------------------
-            |
-            | MRP includes GST.
-            |
-            | Base Price:
-            | MRP / (1 + GST%)
-            |
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | GST Calculation
+        |--------------------------------------------------------------------------
+        |
+        | MRP includes GST.
+        |
+        | Base Price:
+        | MRP / (1 + GST%)
+        |
+        |--------------------------------------------------------------------------
+        */
 
-            let price = 0;
+        let price = 0;
         let grossAmount = 0;
         let taxableAmount = 0;
         let gstAmount = 0;
@@ -1771,10 +1749,6 @@ $(document).ready(function() {
         |--------------------------------------------------------------------------
         */
 
-        >>>
-        >>>
-        >
-        8 cdfa070bca68cb6f5644a9c5f72e7dc0cfdd791
         row.find('.c_hsn_code').val(hsnCode);
 
         row.find('.price').val(
@@ -2591,7 +2565,7 @@ function handlePaymentMode() {
 
 
         $('#c_transaction_id').addClass('mandatory');
-        // $('#payment_image').addClass('mandatory');
+        $('#payment_image').addClass('mandatory');
 
     }
 
@@ -3036,145 +3010,6 @@ function findNearestFranchise(panchayathId) {
         });
 
 }
-
-function toggleOrderType() {
-
-    const orderType = $('input[name="order_type"]:checked').val();
-
-    if (orderType === 'franchise') {
-
-        // Show franchise section
-        $('#franchise-location-details').show();
-
-        // Add mandatory validation
-        $('#franchise_state').addClass('mandatory');
-        $('#franchise_district').addClass('mandatory');
-        $('#franchise_panchayath').addClass('mandatory');
-        $('#franchise').addClass('mandatory');
-
-    } else if (orderType === 'company') {
-
-        // Hide franchise section
-        $('#franchise-location-details').hide();
-
-        // Remove mandatory validation
-        $('#franchise_state').removeClass('mandatory');
-        $('#franchise_district').removeClass('mandatory');
-        $('#franchise_panchayath').removeClass('mandatory');
-        $('#franchise').removeClass('mandatory');
-
-        // Optional: clear values
-        $('#franchise_state').val('');
-        $('#franchise_district').val('');
-        $('#franchise_panchayath').val('');
-        $('#franchise').val('');
-    }
-}
-
-// When Company / Franchise changes
-$('input[name="order_type"]').on('change', function() {
-    toggleOrderType();
-});
-
-// Run when page loads
-toggleOrderType();
-
-
-$(document).ready(function() {
-
-    function setupImageUpload(inputId, previewId, containerId, removeInputId, removeButtonId) {
-
-        // Preview selected image
-        $(document).on('change', '#' + inputId, function(event) {
-
-            const file = event.target.files[0];
-
-            if (!file) return;
-
-            // Allow images only
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file.');
-                $(this).val('');
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-
-                // Show selected image preview
-                $('#' + previewId)
-                    .attr('src', e.target.result)
-                    .show();
-
-                // New image selected, don't delete
-                $('#' + removeInputId).val('0');
-
-                // Create Remove button if it doesn't exist
-                if ($('#' + removeButtonId).length === 0) {
-
-                    $('#' + containerId).append(`
-                            <br>
-                            <button type="button"
-                                id="${removeButtonId}"
-                                class="btn btn-danger btn-sm mt-2">
-                                Remove Image
-                            </button>
-                        `);
-
-                } else {
-                    $('#' + removeButtonId).show();
-                }
-            };
-
-            reader.readAsDataURL(file);
-        });
-
-
-        // Remove image
-        $(document).on('click', '#' + removeButtonId, function() {
-
-            // Clear selected file
-            $('#' + inputId).val('');
-
-            // Hide image preview
-            $('#' + previewId)
-                .attr('src', '')
-                .hide();
-
-            // Tell Laravel to remove existing image
-            $('#' + removeInputId).val('1');
-
-            // Hide remove button
-            $(this).hide();
-        });
-    }
-
-
-    // ===============================
-    // Payment Image
-    // ===============================
-    setupImageUpload(
-        'payment_image',
-        'payment_image_preview',
-        'payment_preview_container',
-        'remove_payment_image',
-        'remove_payment_image_btn'
-    );
-
-
-    // ===============================
-    // Booklet Image
-    // ===============================
-    setupImageUpload(
-        'booklet_image',
-        'booklet_image_preview',
-        'booklet_image_preview_container',
-        'remove_booklet_image',
-        'remove_booklet_image_btn'
-    );
-
-});
 </script>
 <?php $__env->stopPush(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/sales/create.blade.php ENDPATH**/ ?>

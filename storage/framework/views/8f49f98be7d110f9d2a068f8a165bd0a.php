@@ -444,4 +444,4 @@
 </body>
 
 </html>
-<?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/auth/login.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\SPC\resources\views/auth/login.blade.php ENDPATH**/ ?>

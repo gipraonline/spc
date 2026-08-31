@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
 :root {
     --brand: #0f5132;
@@ -636,45 +634,44 @@
     }
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <section class="content-wrapper">
 
     <div class="dashboard-container">
 
 
-        {{-- =====================================================
-             HEADER
-        ====================================================== --}}
+        
 
         <div class="dashboard-header">
 
             <div class="welcome-area">
 
                 <div class="welcome-avatar">
-                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                    <?php echo e(strtoupper(substr($user->name, 0, 1))); ?>
+
                 </div>
 
                 <div>
 
                     <h1>
-                        Welcome, {{ $user->name }}!
+                        Welcome, <?php echo e($user->name); ?>!
                     </h1>
 
                     <p>
 
-                        @if($isAdminDashboard)
+                        <?php if($isAdminDashboard): ?>
 
                         Complete sales, order and payment lifecycle overview.
 
-                        @else
+                        <?php else: ?>
 
                         Here's your sales, order and payment overview for today.
 
-                        @endif
+                        <?php endif; ?>
 
                     </p>
 
@@ -685,16 +682,15 @@
 
             <div class="dashboard-date">
 
-                {{ now()->format('D, d M Y') }}
+                <?php echo e(now()->format('D, d M Y')); ?>
+
 
             </div>
 
         </div>
 
 
-        {{-- =====================================================
-             SALES OVERVIEW
-        ====================================================== --}}
+        
 
         <div class="dashboard-section">
 
@@ -720,11 +716,11 @@
             <div class="sales-grid">
 
 
-                {{-- TOTAL CUSTOMERS --}}
+                
 
-                @can('customers.view')
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('customers.view')): ?>
 
-                <a href="{{ route('admin.customers.index') }}" class="card-link">
+                <a href="<?php echo e(route('admin.customers.index')); ?>" class="card-link">
 
                     <div class="dashboard-card sales-card clickable-card">
 
@@ -749,7 +745,8 @@
                             </span>
 
                             <span class="sales-value">
-                                {{ number_format($totalCustomers) }}
+                                <?php echo e(number_format($totalCustomers)); ?>
+
                             </span>
 
                             <div class="sales-caption">
@@ -762,16 +759,16 @@
 
                 </a>
 
-                @endcan
+                <?php endif; ?>
 
 
-                {{-- TODAY'S SALES --}}
+                
 
-                @can('sales-orders.view')
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.view')): ?>
 
-                <a href="{{ route('admin.salesorders.index', [
+                <a href="<?php echo e(route('admin.salesorders.index', [
                             'date' => now()->toDateString()
-                        ]) }}" class="card-link">
+                        ])); ?>" class="card-link">
 
                     <div class="dashboard-card sales-card clickable-card">
 
@@ -796,7 +793,8 @@
                             </span>
 
                             <span class="sales-value">
-                                ₹{{ number_format($todaysSalesValue, 2) }}
+                                ₹<?php echo e(number_format($todaysSalesValue, 2)); ?>
+
                             </span>
 
                             <div class="sales-caption">
@@ -809,14 +807,14 @@
 
                 </a>
 
-                @endcan
+                <?php endif; ?>
 
 
-                {{-- TOTAL SALES --}}
+                
 
-                @can('sales-orders.view')
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.view')): ?>
 
-                <a href="{{ route('admin.salesorders.index') }}" class="card-link">
+                <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="card-link">
 
                     <div class="dashboard-card sales-card clickable-card">
 
@@ -838,7 +836,8 @@
                             </span>
 
                             <span class="sales-value">
-                                ₹{{ number_format($totalSalesValue, 2) }}
+                                ₹<?php echo e(number_format($totalSalesValue, 2)); ?>
+
                             </span>
 
                             <div class="sales-caption">
@@ -851,16 +850,14 @@
 
                 </a>
 
-                @endcan
+                <?php endif; ?>
 
             </div>
 
         </div>
 
 
-        {{-- =====================================================
-             ORDER LIFECYCLE
-        ====================================================== --}}
+        
 
         <div class="dashboard-section">
 
@@ -872,10 +869,10 @@
 
                     <h2 class="section-title">
 
-                        {{ $isAdminDashboard
+                        <?php echo e($isAdminDashboard
                             ? 'Order Lifecycle'
-                            : 'Order Overview'
-                        }}
+                            : 'Order Overview'); ?>
+
 
                     </h2>
 
@@ -888,19 +885,16 @@
             </div>
 
 
-            <div class="{{ $isAdminDashboard
+            <div class="<?php echo e($isAdminDashboard
                 ? 'admin-order-grid'
-                : 'staff-order-grid'
-            }}">
+                : 'staff-order-grid'); ?>">
 
 
-                {{-- =================================================
-                     TOTAL ORDERS
-                ================================================== --}}
+                
 
-                @if($isAdminDashboard)
+                <?php if($isAdminDashboard): ?>
 
-                <a href="{{ route('admin.salesorders.index') }}" class="card-link">
+                <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="card-link">
 
                     <div class="dashboard-card order-card total-order-card clickable-card">
 
@@ -925,7 +919,8 @@
                             </span>
 
                             <span class="order-count">
-                                {{ number_format($totalOrders) }}
+                                <?php echo e(number_format($totalOrders)); ?>
+
                             </span>
 
                         </div>
@@ -934,16 +929,14 @@
 
                 </a>
 
-                @endif
+                <?php endif; ?>
 
 
-                {{-- =================================================
-                     PENDING
-                ================================================== --}}
+                
 
-                <a href="{{ route('admin.salesorders.index', [
+                <a href="<?php echo e(route('admin.salesorders.index', [
                         'status' => 'pending'
-                    ]) }}" class="card-link">
+                    ])); ?>" class="card-link">
 
                     <div class="dashboard-card order-card pending clickable-card">
 
@@ -966,7 +959,8 @@
                             </span>
 
                             <span class="order-count">
-                                {{ number_format($pendingOrders) }}
+                                <?php echo e(number_format($pendingOrders)); ?>
+
                             </span>
 
                         </div>
@@ -976,13 +970,11 @@
                 </a>
 
 
-                {{-- =================================================
-                     APPROVED
-                ================================================== --}}
+                
 
-                <a href="{{ route('admin.salesorders.index', [
+                <a href="<?php echo e(route('admin.salesorders.index', [
                         'status' => 'approved'
-                    ]) }}" class="card-link">
+                    ])); ?>" class="card-link">
 
                     <div class="dashboard-card order-card approved clickable-card">
 
@@ -1005,7 +997,8 @@
                             </span>
 
                             <span class="order-count">
-                                {{ number_format($approvedOrders) }}
+                                <?php echo e(number_format($approvedOrders)); ?>
+
                             </span>
 
                         </div>
@@ -1015,13 +1008,11 @@
                 </a>
 
 
-                {{-- =================================================
-                     DISPATCHED
-                ================================================== --}}
+                
 
-                <a href="{{ route('admin.salesorders.index', [
+                <a href="<?php echo e(route('admin.salesorders.index', [
                         'status' => 'dispatched'
-                    ]) }}" class="card-link">
+                    ])); ?>" class="card-link">
 
                     <div class="dashboard-card order-card dispatched clickable-card">
 
@@ -1043,7 +1034,8 @@
                             </span>
 
                             <span class="order-count">
-                                {{ number_format($dispatchedOrders) }}
+                                <?php echo e(number_format($dispatchedOrders)); ?>
+
                             </span>
 
                         </div>
@@ -1053,15 +1045,13 @@
                 </a>
 
 
-                {{-- =================================================
-                     SHIPPED - ADMIN
-                ================================================== --}}
+                
 
-                @if($isAdminDashboard)
+                <?php if($isAdminDashboard): ?>
 
-                <a href="{{ route('admin.salesorders.index', [
+                <a href="<?php echo e(route('admin.salesorders.index', [
                             'status' => 'shipped'
-                        ]) }}" class="card-link">
+                        ])); ?>" class="card-link">
 
                     <div class="dashboard-card order-card shipped clickable-card">
 
@@ -1083,7 +1073,8 @@
                             </span>
 
                             <span class="order-count">
-                                {{ number_format($shippedOrders) }}
+                                <?php echo e(number_format($shippedOrders)); ?>
+
                             </span>
 
                         </div>
@@ -1092,16 +1083,14 @@
 
                 </a>
 
-                @endif
+                <?php endif; ?>
 
 
-                {{-- =================================================
-                     DELIVERED
-                ================================================== --}}
+                
 
-                <a href="{{ route('admin.salesorders.index', [
+                <a href="<?php echo e(route('admin.salesorders.index', [
                         'status' => 'delivered'
-                    ]) }}" class="card-link">
+                    ])); ?>" class="card-link">
 
                     <div class="dashboard-card order-card delivered clickable-card">
 
@@ -1123,7 +1112,8 @@
                             </span>
 
                             <span class="order-count">
-                                {{ number_format($deliveredOrders) }}
+                                <?php echo e(number_format($deliveredOrders)); ?>
+
                             </span>
 
                         </div>
@@ -1133,15 +1123,13 @@
                 </a>
 
 
-                {{-- =================================================
-                     COMPLETED - ADMIN
-                ================================================== --}}
+                
 
-                @if($isAdminDashboard)
+                <?php if($isAdminDashboard): ?>
 
-                <a href="{{ route('admin.salesorders.index', [
+                <a href="<?php echo e(route('admin.salesorders.index', [
                             'status' => 'completed'
-                        ]) }}" class="card-link">
+                        ])); ?>" class="card-link">
 
                     <div class="dashboard-card order-card completed clickable-card">
 
@@ -1164,7 +1152,8 @@
                             </span>
 
                             <span class="order-count">
-                                {{ number_format($completedOrders) }}
+                                <?php echo e(number_format($completedOrders)); ?>
+
                             </span>
 
                         </div>
@@ -1173,16 +1162,14 @@
 
                 </a>
 
-                @endif
+                <?php endif; ?>
 
 
-                {{-- =================================================
-                     RETURNED
-                ================================================== --}}
+                
 
-                <a href="{{ route('admin.salesorders.index', [
+                <a href="<?php echo e(route('admin.salesorders.index', [
                         'status' => 'returned'
-                    ]) }}" class="card-link">
+                    ])); ?>" class="card-link">
 
                     <div class="dashboard-card order-card returned clickable-card">
 
@@ -1204,7 +1191,8 @@
                             </span>
 
                             <span class="order-count">
-                                {{ number_format($returnedOrders) }}
+                                <?php echo e(number_format($returnedOrders)); ?>
+
                             </span>
 
                         </div>
@@ -1218,9 +1206,7 @@
         </div>
 
 
-        {{-- =====================================================
-             PAYMENT OVERVIEW
-        ====================================================== --}}
+        
 
         <div class="dashboard-section">
 
@@ -1245,16 +1231,16 @@
 
             <div class="payment-grid">
 
-                @forelse($paymentOverview as $mode => $payment)
+                <?php $__empty_1 = true; $__currentLoopData = $paymentOverview; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mode => $payment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
 
                 <div class="dashboard-card payment-card">
 
 
-                    {{-- PAYMENT MODE --}}
+                    
 
-                    <a href="{{ route('admin.payment-management.index', [
+                    <a href="<?php echo e(route('admin.payment-management.index', [
                                 'payment_mode' => $mode
-                            ]) }}" class="card-link">
+                            ])); ?>" class="card-link">
 
                         <div class="payment-card-header clickable-card">
 
@@ -1277,17 +1263,19 @@
                             <div>
 
                                 <span class="payment-mode">
-                                    {{ $mode }}
+                                    <?php echo e($mode); ?>
+
                                 </span>
 
                                 <span class="payment-total">
 
-                                    {{ number_format($payment['total']) }}
+                                    <?php echo e(number_format($payment['total'])); ?>
 
-                                    {{ $payment['total'] == 1
+
+                                    <?php echo e($payment['total'] == 1
                                             ? 'Order'
-                                            : 'Orders'
-                                        }}
+                                            : 'Orders'); ?>
+
 
                                 </span>
 
@@ -1301,12 +1289,12 @@
                     <div class="payment-status-row">
 
 
-                        {{-- PAYMENT PENDING --}}
+                        
 
-                        <a href="{{ route('admin.payment-management.index', [
+                        <a href="<?php echo e(route('admin.payment-management.index', [
                                     'payment_mode' => $mode,
                                     'payment_status' => 'pending'
-                                ]) }}" class="payment-status-link">
+                                ])); ?>" class="payment-status-link">
 
                             <div class="payment-status pending-status">
 
@@ -1315,7 +1303,8 @@
                                 </span>
 
                                 <strong>
-                                    {{ number_format($payment['pending']) }}
+                                    <?php echo e(number_format($payment['pending'])); ?>
+
                                 </strong>
 
                             </div>
@@ -1323,12 +1312,12 @@
                         </a>
 
 
-                        {{-- PAYMENT PAID --}}
+                        
 
-                        <a href="{{ route('admin.payment-management.index', [
+                        <a href="<?php echo e(route('admin.payment-management.index', [
                                     'payment_mode' => $mode,
                                     'payment_status' => 'paid'
-                                ]) }}" class="payment-status-link">
+                                ])); ?>" class="payment-status-link">
 
                             <div class="payment-status paid-status">
 
@@ -1337,7 +1326,8 @@
                                 </span>
 
                                 <strong>
-                                    {{ number_format($payment['paid']) }}
+                                    <?php echo e(number_format($payment['paid'])); ?>
+
                                 </strong>
 
                             </div>
@@ -1348,13 +1338,13 @@
 
                 </div>
 
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 
                 <div class="dashboard-card payment-empty">
                     No payment data available.
                 </div>
 
-                @endforelse
+                <?php endif; ?>
 
             </div>
 
@@ -1364,4 +1354,5 @@
 
 </section>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/dashboard.blade.php ENDPATH**/ ?>

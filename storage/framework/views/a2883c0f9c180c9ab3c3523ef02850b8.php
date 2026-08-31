@@ -667,4 +667,4 @@
 </body>
 
 </html>
-<?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\SPC\resources\views/layouts/app.blade.php ENDPATH**/ ?>

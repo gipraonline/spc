@@ -1,12 +1,6 @@
 <?php $__env->startPush('styles'); ?>
-<link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
-<link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"
-/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 
 <style>
 /* Creative Light Theme & Green Palette */
@@ -490,408 +484,676 @@ unset($__errorArgs, $__bag); ?>
 
                     
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">
-                            Sales Order Booklet Proof
-                            <?php if(!isset($sale) || !$sale->booklet_image): ?>
-                                <span class="text-danger">*</span>
-                            <?php endif; ?>
-                        </label>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        Sales Order Booklet Proof
+                        <?php if(!isset($sale) || !$sale->booklet_image): ?>
+                        <span class="text-danger">*</span>
+                        <?php endif; ?>
+                    </label>
 
-                    <input type="file"
-                        name="booklet_image"
-                        id="booklet_image"
-                        class="form-control"
-                        accept="image/*"
+                    <input type="file" name="booklet_image" id="booklet_image" class="form-control" accept="image/*"
                         data-message="Please Enter Booklet Proof">
 
                     <!-- Tell Laravel to delete existing image -->
-                    <input type="hidden"
-                        name="remove_booklet_image"
-                        id="remove_booklet_image"
-                        value="0">
+                    <input type="hidden" name="remove_booklet_image" id="remove_booklet_image" value="0">
 
                     <div class="text-danger mt-1 fs-2"></div>
 
                     <!-- Image Preview -->
                     <div class="mt-3" id="booklet_image_preview_container">
 
-                        <img
-                            id="booklet_image_preview"
+                        <img id="booklet_image_preview"
                             src="<?php echo e(isset($sale) && $sale->booklet_image ?  asset('uploads/booklet_images/' . $sale->booklet_image)  : ''); ?>"
-                            alt="Booklet Proof Preview"
-                            class="img-thumbnail"
+                            alt="Booklet Proof Preview" class="img-thumbnail"
                             style="<?php echo e(isset($sale) && $sale->booklet_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
 
                         <?php if(isset($sale) && $sale->booklet_image): ?>
-                            <br>
+                        <br>
 
-                            <button type="button"
-                                id="remove_booklet_image_btn"
-                                class="btn btn-danger btn-sm mt-2">
-                                Remove Image
-                            </button>
+                        <button type="button" id="remove_booklet_image_btn" class="btn btn-danger btn-sm mt-2">
+                            Remove Image
+                        </button>
                         <?php endif; ?>
 
                     </div>
 
 
-                    </div>
-
-
                 </div>
 
-            </div>
 
-            <!-- Section 2: Product Details -->
-            <div class="form-section mb-4">
-
-                <div class="section-title d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <i class="ti ti-shopping-cart fs-5"></i>
-                        Product Details *
-                    </div>
-
-                    <?php if(!isset($viewmode) || $viewmode=='off'): ?>
-                    <button type="button" class="btn buttonSpc btn-sm" id="addRow">
-                        <i class="ti ti-plus"></i>
-                        Add New Product
-                    </button>
-                    <?php endif; ?>
-                </div>
-                <div class="tablescrolll">
-                    <table class="table table-bordered table-responsive align-middle" id="productTable">
-                        <thead class="table-light">
-                            <tr>
-                                <th width="25%">Product</th>
-                                <th width="12%">HSN Code</th>
-                                <th width="12%">Price</th>
-                                <th width="10%">Quantity</th>
-                                <th width="13%">Unit</th>
-                                <th width="12%">Discount</th>
-                                <th width="10%">GST %</th>
-                                <th width="13%">GST Amount</th>
-                                <th width="13%">Discounted Price</th>
-                                <th width="10%">MRP</th>
-                                <th width="8%">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if(isset($sale->orderProducts) && count($sale->orderProducts) > 0): ?>
-                            <?php $__currentLoopData = $sale->orderProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <tr>
-                                <td>
-                                    <select name="products[<?php echo e($key); ?>][product_id]"
-                                        class="form-control product mandatory" >
-
-                                        <option value="">Select Product</option>
-
-                                        <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                                        <option value="<?php echo e($product->n_product_id); ?>" data-price="<?php echo e($product->n_mrp); ?>"
-                                            data-gst="<?php echo e($product->n_gst_percentage ?? 0); ?>"
-                                            data-hsn-code="<?php echo e($product->c_hsn_code ?? ''); ?>"
-                                            data-unit="<?php echo e($product->c_unit ?? ''); ?>"
-                                            <?php echo e($val->product_id == $product->n_product_id ? 'selected' : ''); ?>>
-                                            <?php echo e($product->c_product_name); ?>
-
-                                        </option>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][c_hsn_code]"
-                                        class="form-control c_hsn_code" value="<?php echo e($val->product_price); ?>" >
-                                </td>
-
-
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][product_price]"
-                                        class="form-control price" value="<?php echo e($val->product_price); ?>" readonly>
-                                </td>
-
-                                <td>
-                                    <input type="number" name="products[<?php echo e($key); ?>][qty]" class="form-control qty"
-                                        value="<?php echo e($val->qty); ?>" min="1">
-                                </td>
-
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][c_unit]" class="form-control c_unit"
-                                        value="<?php echo e($val->c_unit); ?>" readonly>
-                                </td>
-
-                                <td>
-                                    <input type="number" name="products[<?php echo e($key); ?>][discount]"
-                                        class="form-control discount" value="<?php echo e($val->discount ?? '0.00'); ?>" step="">
-                                </td>
-
-                                <!-- Product GST % -->
-                                <td>
-                                    <input type="number" name="products[<?php echo e($key); ?>][n_gst_percentage]"
-                                        class="form-control gst_percentage" value="<?php echo e($val->n_gst_percentage ?? 0); ?>"
-                                        step="0.01" readonly>
-                                </td>
-
-                                <!-- Product GST Amount -->
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][gst_amount]"
-                                        class="form-control gst_amount" value="<?php echo e($val->gst_amount ?? '0.00'); ?>"
-                                        readonly>
-                                </td>
-
-                                <!-- Discounted Price -->
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][discounted_price]"
-                                        class="form-control discounted_price"
-                                        value="<?php echo e($val->discounted_price ?? '0.00'); ?>" readonly>
-                                </td>
-
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][product_total]"
-                                        class="form-control total" value="<?php echo e($val->product_total); ?>" readonly>
-                                </td>
-
-                                <td class="text-center">
-                                    <button type="button" class="btn btn-danger btn-sm removeRow">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Product Details Summary Box (Right Aligned as shown in shared image) -->
-
-                <div class="row justify-content-end mt-4">
-                    <div class="col-md-6 col-lg-5">
-                        <div class="product-summary-box">
-
-                            <!-- Total Sales Amount -->
-                            <div class="summary-line">
-                                <span class="summary-label">
-                                    Total Sales Amount
-                                </span>
-
-                                <input type="text" name="n_total_sales_amount"
-                                    class="form-control summary-input text-end" id="summaryTotalSales"
-                                    value="<?php echo e(old('n_total_sales_amount', $sale->n_total_sales_amount ?? '0.00')); ?>"
-                                    readonly>
-                            </div>
-
-                            
-
-                        <!-- Additional Discount -->
-                        <div class="summary-line">
-                            <span class="summary-label">
-                                Total GST
-
-                            </span>
-
-                            <input type="number" name="n_total_gst" class="form-control summary-input text-end"
-                                id="summaryGstAmount" value="<?php echo e(old('n_total_gst', $sale->n_total_gst ?? '0.00')); ?>"
-                                step="0.01" min="0">
-                        </div>
-                        <!-- Total Discount -->
-                        <div class="summary-line">
-                            <span class="summary-label">
-                                Total Discount
-                            </span>
-
-                            <input type="text" name="n_product_discount_total" class="form-control summary-input"
-                                id="summaryTotalDiscount"
-                                value="<?php echo e(old('n_total_discount', $sale->n_product_discount_total ?? '0.00')); ?>">
-                        </div>
-
-                        <!-- Net Sales Amount -->
-                        <div class="summary-line highlight-green">
-                            <span class="summary-label fw-bold">
-                                Net Sales Amount
-                            </span>
-
-                            <input type="text" name="n_net_sales_amount"
-                                class="form-control summary-input text-end fw-bold text-success" id="summaryNetSales"
-                                value="<?php echo e(old('n_net_sales_amount', $sale->n_net_sales_amount ?? '0.00')); ?>" readonly>
-                        </div>
-
-                    </div>
-                </div>
             </div>
 
     </div>
 
-    <!-- Section 3: Customer Information -->
-    <div class="border rounded p-4 mb-4">
+    <!-- Section 2: Product Details -->
+    <div class="form-section mb-4">
 
-        <div class="form-section-header mb-3">
-            <i class="ti ti-user fs-5"></i> Customer Information
+        <div class="section-title d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <i class="ti ti-shopping-cart fs-5"></i>
+                Product Details *
+            </div>
+
+            <?php if(!isset($viewmode) || $viewmode=='off'): ?>
+            <button type="button" class="btn buttonSpc btn-sm" id="addRow">
+                <i class="ti ti-plus"></i>
+                Add New Product
+            </button>
+            <?php endif; ?>
+        </div>
+        <div class="tablescrolll">
+            <table class="table table-bordered table-responsive align-middle" id="productTable">
+                <thead class="table-light">
+                    <tr>
+                        <th width="25%">Product</th>
+                        <th width="12%">HSN Code</th>
+                        <th width="12%">Price</th>
+                        <th width="10%">Quantity</th>
+                        <th width="13%">Unit</th>
+                        <th width="12%">Discount</th>
+                        <th width="10%">GST %</th>
+                        <th width="13%">GST Amount</th>
+                        <th width="13%">Discounted Price</th>
+                        <th width="10%">MRP</th>
+                        <th width="8%">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if(isset($sale->orderProducts) && count($sale->orderProducts) > 0): ?>
+                    <?php $__currentLoopData = $sale->orderProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <tr>
+                        <td>
+                            <select name="products[<?php echo e($key); ?>][product_id]" class="form-control product mandatory">
+
+                                <option value="">Select Product</option>
+
+                                <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                                <option value="<?php echo e($product->n_product_id); ?>" data-price="<?php echo e($product->n_mrp); ?>"
+                                    data-gst="<?php echo e($product->n_gst_percentage ?? 0); ?>"
+                                    data-hsn-code="<?php echo e($product->c_hsn_code ?? ''); ?>"
+                                    data-unit="<?php echo e($product->c_unit ?? ''); ?>"
+                                    <?php echo e($val->product_id == $product->n_product_id ? 'selected' : ''); ?>>
+                                    <?php echo e($product->c_product_name); ?>
+
+                                </option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                            </select>
+                        </td>
+
+                        <td>
+                            <input type="text" name="products[<?php echo e($key); ?>][c_hsn_code]" class="form-control c_hsn_code"
+                                value="<?php echo e($val->product_price); ?>">
+                        </td>
+
+
+                        <td>
+                            <input type="text" name="products[<?php echo e($key); ?>][product_price]" class="form-control price"
+                                value="<?php echo e($val->product_price); ?>" readonly>
+                        </td>
+
+                        <td>
+                            <input type="number" name="products[<?php echo e($key); ?>][qty]" class="form-control qty"
+                                value="<?php echo e($val->qty); ?>" min="1">
+                        </td>
+
+                        <td>
+                            <input type="text" name="products[<?php echo e($key); ?>][c_unit]" class="form-control c_unit"
+                                value="<?php echo e($val->c_unit); ?>" readonly>
+                        </td>
+
+                        <td>
+                            <input type="number" name="products[<?php echo e($key); ?>][discount]" class="form-control discount"
+                                value="<?php echo e($val->discount ?? '0.00'); ?>" step="">
+                        </td>
+
+                        <!-- Product GST % -->
+                        <td>
+                            <input type="number" name="products[<?php echo e($key); ?>][n_gst_percentage]"
+                                class="form-control gst_percentage" value="<?php echo e($val->n_gst_percentage ?? 0); ?>"
+                                step="0.01" readonly>
+                        </td>
+
+                        <!-- Product GST Amount -->
+                        <td>
+                            <input type="text" name="products[<?php echo e($key); ?>][gst_amount]" class="form-control gst_amount"
+                                value="<?php echo e($val->gst_amount ?? '0.00'); ?>" readonly>
+                        </td>
+
+                        <!-- Discounted Price -->
+                        <td>
+                            <input type="text" name="products[<?php echo e($key); ?>][discounted_price]"
+                                class="form-control discounted_price" value="<?php echo e($val->discounted_price ?? '0.00'); ?>"
+                                readonly>
+                        </td>
+
+                        <td>
+                            <input type="text" name="products[<?php echo e($key); ?>][product_total]" class="form-control total"
+                                value="<?php echo e($val->product_total); ?>" readonly>
+                        </td>
+
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-sm removeRow">
+                                <i class="ti ti-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
 
-        <input type="hidden" name="c_customer_name" id="c_customer_name"
-            value="<?php echo e(isset($sale) ? $sale->c_customer_name : ''); ?>">
+        <!-- Product Details Summary Box (Right Aligned as shown in shared image) -->
 
-        
-        <div class="row g-4 mb-4">
+        <div class="row justify-content-end mt-4">
+            <div class="col-md-6 col-lg-5">
+                <div class="product-summary-box">
 
-            <div class="col-md-6">
-                <label for="n_customer_id" class="form-label">
-                    Customer *
-                </label>
+                    <!-- Total Sales Amount -->
+                    <div class="summary-line">
+                        <span class="summary-label">
+                            Total Sales Amount
+                        </span>
 
-                <select name="n_customer_id" id="n_customer_id" class="form-select mandatory">
+                        <input type="text" name="n_total_sales_amount" class="form-control summary-input text-end"
+                            id="summaryTotalSales"
+                            value="<?php echo e(old('n_total_sales_amount', $sale->n_total_sales_amount ?? '0.00')); ?>" readonly>
+                    </div>
 
-                    <option value="">Select Customer</option>
+                    
 
-                    <?php if(isset($customers)): ?>
-                    <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <!-- Additional Discount -->
+                <div class="summary-line">
+                    <span class="summary-label">
+                        Total GST
 
-                    <option value="<?php echo e($customer->n_customer_id); ?>" data-name="<?php echo e($customer->c_customer_name); ?>"
-                        data-email="<?php echo e($customer->c_email); ?>" data-mobile="<?php echo e($customer->n_mobile); ?>"
-                        data-address="<?php echo e($customer->c_address); ?>" data-state="<?php echo e($customer->n_state_id); ?>"
-                        data-district="<?php echo e($customer->n_district_id); ?>" data-pincode="<?php echo e($customer->c_pincode); ?>" <?php echo e(isset($sale->n_customer_id) &&
+                    </span>
+
+                    <input type="number" name="n_total_gst" class="form-control summary-input text-end"
+                        id="summaryGstAmount" value="<?php echo e(old('n_total_gst', $sale->n_total_gst ?? '0.00')); ?>" step="0.01"
+                        min="0">
+                </div>
+                <!-- Total Discount -->
+                <div class="summary-line">
+                    <span class="summary-label">
+                        Total Discount
+                    </span>
+
+                    <input type="text" name="n_product_discount_total" class="form-control summary-input"
+                        id="summaryTotalDiscount"
+                        value="<?php echo e(old('n_total_discount', $sale->n_product_discount_total ?? '0.00')); ?>">
+                </div>
+
+                <!-- Net Sales Amount -->
+                <div class="summary-line highlight-green">
+                    <span class="summary-label fw-bold">
+                        Net Sales Amount
+                    </span>
+
+                    <input type="text" name="n_net_sales_amount"
+                        class="form-control summary-input text-end fw-bold text-success" id="summaryNetSales"
+                        value="<?php echo e(old('n_net_sales_amount', $sale->n_net_sales_amount ?? '0.00')); ?>" readonly>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Section 3: Customer Information -->
+<div class="border rounded p-4 mb-4">
+
+    <div class="form-section-header mb-3">
+        <i class="ti ti-user fs-5"></i> Customer Information
+    </div>
+
+    <input type="hidden" name="c_customer_name" id="c_customer_name"
+        value="<?php echo e(isset($sale) ? $sale->c_customer_name : ''); ?>">
+
+    
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <label for="n_customer_id" class="form-label">
+                Customer *
+            </label>
+
+            <select name="n_customer_id" id="n_customer_id" class="form-select mandatory">
+
+                <option value="">Select Customer</option>
+
+                <?php if(isset($customers)): ?>
+                <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                <option value="<?php echo e($customer->n_customer_id); ?>" data-name="<?php echo e($customer->c_customer_name); ?>"
+                    data-email="<?php echo e($customer->c_email); ?>" data-mobile="<?php echo e($customer->n_mobile); ?>"
+                    data-address="<?php echo e($customer->c_address); ?>" data-state="<?php echo e($customer->n_state_id); ?>"
+                    data-district="<?php echo e($customer->n_district_id); ?>" data-pincode="<?php echo e($customer->c_pincode); ?>" <?php echo e(isset($sale->n_customer_id) &&
                                $sale->n_customer_id == $customer->n_customer_id
                                ? 'selected'
                                : ''); ?>>
 
-                        <?php echo e($customer->c_customer_name); ?>
+                    <?php echo e($customer->c_customer_name); ?>
 
 
-                    </option>
+                </option>
 
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    <?php endif; ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endif; ?>
 
-                </select>
+            </select>
 
-                <div class="text-danger mt-1 fs-2"></div>
-            </div>
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
 
 
-            <div class="col-md-6">
-                <label for="c_customer_email" class="form-label">
-                    Customer Email *
+        <div class="col-md-6">
+            <label for="c_customer_email" class="form-label">
+                Customer Email *
+            </label>
+
+            <input type="text" id="c_customer_email" name="c_customer_email"
+                value="<?php echo e(old('c_customer_email', isset($sale) ? $sale->c_customer_email : '')); ?>"
+                <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?> data-message="Please enter Customer Email"
+                class="form-control mandatory" placeholder="Enter Customer Email">
+
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+
+    </div>
+
+
+    
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <label for="n_customer_mobile" class="form-label">
+                Customer Mobile *
+            </label>
+
+            <input type="text" id="n_customer_mobile" name="n_customer_mobile"
+                value="<?php echo e(old('n_customer_mobile', isset($sale) ? $sale->n_customer_mobile : '')); ?>"
+                <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?>
+
+                data-message="Please enter Customer Mobile" class="form-control mandatory"
+                placeholder="Enter Customer Mobile">
+
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+
+
+        <div class="col-md-6">
+            <label for="c_customer_pincode" class="form-label">
+                Pincode
+            </label>
+
+            <input type="text" id="c_customer_pincode" name="c_customer_pincode"
+                value="<?php echo e(old('c_customer_pincode', $sale->customer?->c_pincode ?? '')); ?>"
+                <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?> class="form-control"
+                placeholder="Enter Pincode" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
+
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+
+    </div>
+
+
+    
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-12">
+            <label for="c_customer_address" class="form-label">
+                Customer Address *
+            </label>
+
+            <input type="text" id="c_customer_address" name="c_customer_address"
+                value="<?php echo e(old('c_customer_address', isset($sale) ? $sale->c_customer_address : '')); ?>"
+                <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?> data-message="Please add Customer Address"
+                class="form-control mandatory" placeholder="Customer Address">
+
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+
+    </div>
+
+
+    
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <label for="customer_state" class="form-label">
+                State
+            </label>
+
+            <select class="form-select mandatory" data-message="Please enter State" id="customer_state"
+                name="n_state_id" <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'disabled' : ''); ?>>
+
+                <option value="">Select State</option>
+
+                <?php if(isset($states)): ?>
+                <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $State): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                <option value="<?php echo e($State->n_state_id); ?>" <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $State->n_state_id
+                               ? 'selected'
+                               : ''); ?>>
+
+                    <?php echo e($State->name); ?>
+
+
+                </option>
+
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endif; ?>
+
+            </select>
+
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+
+
+        <div class="col-md-6">
+            <label for="customer_district" class="form-label">
+                District
+            </label>
+
+            <select class="form-select mandatory" data-message="Please enter District" id="customer_district"
+                name="n_district_id" <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'disabled' : ''); ?>>
+
+                <option value="">Select District</option>
+
+                <?php if(isset($sale->n_district_id)): ?>
+
+                <?php
+                $districts = \App\Models\District::where(
+                'state_id',
+                $sale->n_state_id
+                )->get();
+                ?>
+
+                <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                <option value="<?php echo e($district->id); ?>" <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id
+                               ? 'selected'
+                               : ''); ?>>
+
+                    <?php echo e($district->district_name); ?>
+
+
+                </option>
+
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                <?php endif; ?>
+
+            </select>
+
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Section 4: Payment Details -->
+<div class="form-box mb-4">
+
+    <div class="form-section-header mb-3">
+        <i class="ti ti-credit-card fs-5"></i>
+        Payment Details
+    </div>
+
+    <div class="row mb-4 align-items-center">
+        <label class="col-md-3 col-form-label fw-semibold">
+            Mode of Payment *
+        </label>
+
+        <div class="col-md-9 d-flex flex-wrap">
+            <div class="payment-option">
+                <input class="form-check-input mandatory mode_of_payment " type="radio" name="c_mode_of_payment"
+                    id="cod" value="Cash on Delivery" data-message="Please Choose a Payment Mode"
+                    <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on Delivery" ? 'checked' : ''); ?>>
+
+                <label for="cod" class="mb-0">
+                    <i class="ti ti-truck"></i>
+                    Cash on Delivery
                 </label>
 
-                <input type="text" id="c_customer_email" name="c_customer_email"
-                    value="<?php echo e(old('c_customer_email', isset($sale) ? $sale->c_customer_email : '')); ?>"
-                    <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?>
-
-                    data-message="Please enter Customer Email" class="form-control mandatory"
-                    placeholder="Enter Customer Email">
-
-                <div class="text-danger mt-1 fs-2"></div>
             </div>
+
+            <div class="payment-option">
+                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
+                    value="UPI"
+                    <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : ''); ?>>
+
+                <label for="upi" class="mb-0">
+                    <i class="ti ti-brand-google-pay"></i>
+                    UPI
+                </label>
+            </div>
+
+            <div class="payment-option">
+                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
+                    value="Bank Deposit"
+                    <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : ''); ?>>
+
+                <label for="bkd" class="mb-0">
+                    <i class="ti ti-building-bank"></i>
+                    Bank Deposit
+                </label>
+            </div>
+
+            <div class="payment-option">
+                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
+                    value="Paid to Franchise"
+                    <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : ''); ?>>
+
+                <label for="pf" class="mb-0">
+                    <i class="ti ti-cash"></i>
+                    Paid to Franchise
+                </label>
+            </div>
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1" id="ps">
+        <div class="col-md-4">
+
+            <label class="form-label fw-semibold">
+                Payment Status
+            </label>
+
+            <select name="payment_status" id="payment_status" data-message="Please Select Payment Status"
+                class="form-select">
+
+                <option value="">Select Status</option>
+
+                <option value="pending"
+                    <?php echo e(old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending
+                </option>
+                <option value="paid"
+                    <?php echo e(old('payment_status', $sale->payment_status ?? '') == "paid" ? 'selected' : ''); ?>>Paid
+                </option>
+
+            </select>
+            <div class="text-danger mt-1 fs-2"></div>
+
+        </div>
+    </div>
+
+    <!-- Payment Details Extra Fields -->
+    <div class="row g-4 mt-1" id="paymet-proofs">
+        <div class="col-md-4">
+            <label class="form-label">
+                Amount to Pay *
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light text-success fw-bold">₹</span>
+                <input type="text" name="n_amount_to_pay" data-message="Please Enter Transaction id"
+                    id="n_amount_to_pay" class="form-control fw-bold text-success" value="" readonly>
+            </div>
+            <small class="text-muted fs-1 mt-1 d-block">Should match product total: ₹4,250.00</small>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">
+                Transaction ID *
+            </label>
+            <input type="text" id="c_transaction_id" name="c_transaction_id"
+                value="<?php echo e(old('c_transaction_id', $sale->c_transaction_id ?? '')); ?>"
+                data-message="Please Enter Transaction id" class="form-control"
+                placeholder="Enter Transaction / UTR / Reference No">
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+
+        
+
+    <div class="col-md-4">
+        <label class="form-label">
+            Transaction Proof
+            <?php if(!isset($sale) || !$sale->payment_image): ?>
+            <span class="text-danger">*</span>
+            <?php endif; ?>
+        </label>
+
+
+        <input type="file" id="payment_image" name="payment_image" data-message="Please Enter Transaction Proof"
+            class="form-control" accept="image/*">
+
+        <!-- Used to tell Laravel to delete the existing image -->
+        <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
+
+        <div class="text-danger mt-1 fs-2"></div>
+
+
+        <!-- Image Preview -->
+        <div class="mt-3" id="payment_preview_container">
+
+            <img id="payment_image_preview"
+                src="<?php echo e(isset($sale) && $sale->payment_image ? asset('uploads/payment_images/' . $sale->payment_image) : ''); ?>"
+                alt="Transaction Proof Preview" class="img-thumbnail"
+                style="<?php echo e(isset($sale) && $sale->payment_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
+
+            <?php if(isset($sale) && $sale->payment_image): ?>
+            <br>
+
+            <button type="button" id="remove_payment_image_btn" class="btn btn-danger btn-sm mt-2">
+                Remove Image
+            </button>
+            <?php endif; ?>
 
         </div>
 
 
-        
-        <div class="row g-4 mb-4">
+    </div>
 
-            <div class="col-md-6">
-                <label for="n_customer_mobile" class="form-label">
-                    Customer Mobile *
-                </label>
 
-                <input type="text" id="n_customer_mobile" name="n_customer_mobile"
-                    value="<?php echo e(old('n_customer_mobile', isset($sale) ? $sale->n_customer_mobile : '')); ?>"
-                    <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?>
+</div>
 
-                    data-message="Please enter Customer Mobile" class="form-control mandatory"
-                    placeholder="Enter Customer Mobile">
+</div>
 
-                <div class="text-danger mt-1 fs-2"></div>
+
+<!-- Section 6: Franchise / Company Details Section -->
+<div class="form-box mb-4" id="franchise-details">
+
+    <?php if(isset($isAdmin) && $isAdmin==true): ?>
+
+    <!-- Company / Franchise Selection -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <label class="form-label fw-bold">
+                Order Type <span class="text-danger">*</span>
+            </label>
+
+            <div class="d-flex gap-4">
+
+                <!-- Company -->
+                <div class="form-check">
+                    <input class="form-check-input mandatory" type="radio" name="order_type" id="company"
+                        value="company" <?php echo e(old('order_type', $sale->order_type ?? '') == 'company' ? 'checked' : ''); ?>>
+
+                    <label class="form-check-label" for="company">
+                        Company
+                    </label>
+                </div>
+
+                <!-- Franchise -->
+                <div class="form-check">
+                    <input class="form-check-input mandatory" type="radio" name="order_type" id="franchise_type"
+                        value="franchise"
+                        <?php echo e(old('order_type', $sale->order_type ?? '') == 'franchise' ? 'checked' : ''); ?>>
+
+                    <label class="form-check-label" for="franchise_type">
+                        Franchise
+                    </label>
+                </div>
+
             </div>
-
-
-            <div class="col-md-6">
-                <label for="c_customer_pincode" class="form-label">
-                    Pincode
-                </label>
-
-                <input type="text" id="c_customer_pincode" name="c_customer_pincode"
-                    value="<?php echo e(old('c_customer_pincode', $sale->customer?->c_pincode ?? '')); ?>"
-                    <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?> class="form-control"
-                    placeholder="Enter Pincode" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
-
-                <div class="text-danger mt-1 fs-2"></div>
-            </div>
-
         </div>
+    </div>
+    <?php endif; ?>
 
+    <!-- Franchise Location Details -->
+    <div id="franchise-location-details">
 
-        
         <div class="row g-4 mb-4">
 
-            <div class="col-md-12">
-                <label for="c_customer_address" class="form-label">
-                    Customer Address *
-                </label>
-
-                <input type="text" id="c_customer_address" name="c_customer_address"
-                    value="<?php echo e(old('c_customer_address', isset($sale) ? $sale->c_customer_address : '')); ?>"
-                    <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'readonly' : ''); ?>
-
-                    data-message="Please add Customer Address" class="form-control mandatory"
-                    placeholder="Customer Address">
-
-                <div class="text-danger mt-1 fs-2"></div>
-            </div>
-
-        </div>
-
-
-        
-        <div class="row g-4 mb-4">
-
+            <!-- State -->
             <div class="col-md-6">
-                <label for="customer_state" class="form-label">
-                    State
+                <label class="form-label">
+                    State <span class="text-danger">*</span>
                 </label>
 
-                <select class="form-select mandatory" data-message="Please enter State" id="customer_state"
-                    name="n_state_id" <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'disabled' : ''); ?>>
+                <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                    data-message="Please Select State">
 
                     <option value="">Select State</option>
 
                     <?php if(isset($states)): ?>
-                    <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $State): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                    <option value="<?php echo e($State->n_state_id); ?>" <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $State->n_state_id
-                               ? 'selected'
-                               : ''); ?>>
-
-                        <?php echo e($State->name); ?>
-
+                    <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($state->n_state_id); ?>"
+                        <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : ''); ?>>
+                        <?php echo e($state->name); ?>
 
                     </option>
-
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     <?php endif; ?>
 
                 </select>
 
-                <div class="text-danger mt-1 fs-2"></div>
+                <?php $__errorArgs = ['n_state_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                <div class="text-danger mt-1 fs-2">
+                    <?php echo e($message); ?>
+
+                </div>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
 
 
+            <!-- District -->
             <div class="col-md-6">
-                <label for="customer_district" class="form-label">
-                    District
+                <label class="form-label">
+                    District <span class="text-danger">*</span>
                 </label>
 
-                <select class="form-select mandatory" data-message="Please enter District" id="customer_district"
-                    name="n_district_id" <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'disabled' : ''); ?>>
+                <select class="form-select " id="franchise_district" name="n_district_id"
+                    data-message="Please Select District" <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'disabled' : ''); ?>>
 
                     <option value="">Select District</option>
 
                     <?php if(isset($sale->n_district_id)): ?>
-
                     <?php
                     $districts = \App\Models\District::where(
                     'state_id',
@@ -900,392 +1162,80 @@ unset($__errorArgs, $__bag); ?>
                     ?>
 
                     <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                    <option value="<?php echo e($district->id); ?>" <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id
-                               ? 'selected'
-                               : ''); ?>>
-
+                    <option value="<?php echo e($district->id); ?>"
+                        <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>>
                         <?php echo e($district->district_name); ?>
 
+                    </option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endif; ?>
+
+                </select>
+            </div>
+
+
+            <!-- Panchayath -->
+            <div class="col-md-6">
+                <label class="form-label">
+                    Panchayath
+                </label>
+
+                <select class="form-select" id="franchise_panchayath" name="n_panchayath_id">
+
+                    <option value="">Select Panchayath</option>
+
+                    <?php if(isset($sale->n_district_id)): ?>
+
+                    <?php
+                    $panchayaths = \App\Models\Panchayath::where(
+                    'district_id',
+                    $sale->n_district_id
+                    )->get();
+                    ?>
+
+                    <?php $__currentLoopData = $panchayaths; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $panchayath): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($panchayath->id); ?>"
+                        <?php echo e(old('n_panchayath_id', $franchisePanchayathId ?? '') == $panchayath->id ? 'selected' : ''); ?>>
+                        <?php echo e($panchayath->panchayath_name); ?>
 
                     </option>
-
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     <?php endif; ?>
 
                 </select>
-
-                <div class="text-danger mt-1 fs-2"></div>
             </div>
 
-        </div>
 
-    </div>
-
-    <!-- Section 4: Payment Details -->
-    <div class="form-box mb-4">
-
-        <div class="form-section-header mb-3">
-            <i class="ti ti-credit-card fs-5"></i>
-            Payment Details
-        </div>
-
-        <div class="row mb-4 align-items-center">
-            <label class="col-md-3 col-form-label fw-semibold">
-                Mode of Payment *
-            </label>
-
-            <div class="col-md-9 d-flex flex-wrap">
-                <div class="payment-option">
-                    <input class="form-check-input mandatory mode_of_payment " type="radio" name="c_mode_of_payment"
-                        id="cod" value="Cash on Delivery" data-message="Please Choose a Payment Mode"
-                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on Delivery" ? 'checked' : ''); ?>>
-
-                    <label for="cod" class="mb-0">
-                        <i class="ti ti-truck"></i>
-                        Cash on Delivery
-                    </label>
-
-                </div>
-
-                <div class="payment-option">
-                    <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
-                        value="UPI"
-                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : ''); ?>>
-
-                    <label for="upi" class="mb-0">
-                        <i class="ti ti-brand-google-pay"></i>
-                        UPI
-                    </label>
-                </div>
-
-                <div class="payment-option">
-                    <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
-                        value="Bank Deposit"
-                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : ''); ?>>
-
-                    <label for="bkd" class="mb-0">
-                        <i class="ti ti-building-bank"></i>
-                        Bank Deposit
-                    </label>
-                </div>
-
-                <div class="payment-option">
-                    <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
-                        value="Paid to Franchise"
-                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : ''); ?>>
-
-                    <label for="pf" class="mb-0">
-                        <i class="ti ti-cash"></i>
-                        Paid to Franchise
-                    </label>
-                </div>
-                <div class="text-danger mt-1 fs-2"></div>
-            </div>
-        </div>
-
-        <div class="row g-4 mt-1" id="ps">
-            <div class="col-md-4">
-
-                <label class="form-label fw-semibold">
-                    Payment Status
-                </label>
-
-                <select name="payment_status" id="payment_status" data-message="Please Select Payment Status"
-                    class="form-select">
-
-                    <option value="">Select Status</option>
-
-                    <option value="pending"
-                        <?php echo e(old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending
-                    </option>
-                    <option value="paid"
-                        <?php echo e(old('payment_status', $sale->payment_status ?? '') == "paid" ? 'selected' : ''); ?>>Paid
-                    </option>
-
-                </select>
-                <div class="text-danger mt-1 fs-2"></div>
-
-            </div>
-        </div>
-
-        <!-- Payment Details Extra Fields -->
-        <div class="row g-4 mt-1" id="paymet-proofs" >
-            <div class="col-md-4">
+            <!-- Nearest Franchise -->
+            <div class="col-md-6">
                 <label class="form-label">
-                    Amount to Pay *
+                    Nearest Franchise <span class="text-danger">*</span>
                 </label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-success fw-bold">₹</span>
-                    <input type="text" name="n_amount_to_pay" data-message="Please Enter Transaction id"
-                        id="n_amount_to_pay" class="form-control fw-bold text-success" value="" readonly>
-                </div>
-                <small class="text-muted fs-1 mt-1 d-block">Should match product total: ₹4,250.00</small>
-            </div>
 
-            <div class="col-md-4">
-                <label class="form-label">
-                    Transaction ID *
-                </label>
-                <input type="text" id="c_transaction_id" name="c_transaction_id" value="<?php echo e(old('c_transaction_id', $sale->c_transaction_id ?? '')); ?>"
-                    data-message="Please Enter Transaction id" class="form-control"
-                    placeholder="Enter Transaction / UTR / Reference No">
-                <div class="text-danger mt-1 fs-2"></div>
-            </div>
+                <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                    data-message="Please Select Nearest Franchise">
 
-           
+                    <option value="">Select Franchise</option>
 
-            <div class="col-md-4">
-                    <label class="form-label">
-                        Transaction Proof
-                        <?php if(!isset($sale) || !$sale->payment_image): ?>
-                            <span class="text-danger">*</span>
-                        <?php endif; ?>
-                    </label>
+                    <?php if(isset($franchises)): ?>
+                    <?php $__currentLoopData = $franchises; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $franchise): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($franchise->n_store_id); ?>"
+                        <?php echo e(old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : ''); ?>>
+                        <?php echo e($franchise->c_store_name); ?>
 
-
-                <input type="file"
-                    id="payment_image"
-                    name="payment_image"
-                    data-message="Please Enter Transaction Proof"
-                    class="form-control"
-                    accept="image/*">
-
-                <!-- Used to tell Laravel to delete the existing image -->
-                <input type="hidden"
-                    name="remove_payment_image"
-                    id="remove_payment_image"
-                    value="0">
-
-                <div class="text-danger mt-1 fs-2"></div>
-
-
-                <!-- Image Preview -->
-                <div class="mt-3" id="payment_preview_container">
-
-                    <img
-                        id="payment_image_preview"
-                        src="<?php echo e(isset($sale) && $sale->payment_image ? asset('uploads/payment_images/' . $sale->payment_image) : ''); ?>"
-                        alt="Transaction Proof Preview"
-                        class="img-thumbnail"
-                        style="<?php echo e(isset($sale) && $sale->payment_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
-
-                    <?php if(isset($sale) && $sale->payment_image): ?>
-                        <br>
-
-                        <button type="button"
-                            id="remove_payment_image_btn"
-                            class="btn btn-danger btn-sm mt-2">
-                            Remove Image
-                        </button>
+                        (<?php echo e($franchise->c_store_code); ?>)
+                    </option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     <?php endif; ?>
 
-                </div>
-
-
-                </div>
-
+                </select>
+            </div>
 
         </div>
 
     </div>
-    
-
-<!-- Section 6: Franchise / Company Details Section -->
-    <div class="form-box mb-4" id="franchise-details">
-
-       <?php if(isset($isAdmin) && $isAdmin==true): ?>
-
-            <!-- Company / Franchise Selection -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <label class="form-label fw-bold">
-                        Order Type <span class="text-danger">*</span>
-                    </label>
-
-                    <div class="d-flex gap-4">
-
-                        <!-- Company -->
-                        <div class="form-check">
-                            <input class="form-check-input mandatory"
-                                type="radio"
-                                name="order_type"
-                                id="company"
-                                value="company"
-                                <?php echo e(old('order_type', $sale->order_type ?? '') == 'company' ? 'checked' : ''); ?>>
-
-                            <label class="form-check-label" for="company">
-                                Company
-                            </label>
-                        </div>
-
-                        <!-- Franchise -->
-                        <div class="form-check">
-                            <input class="form-check-input mandatory"
-                                type="radio"
-                                name="order_type"
-                                id="franchise_type"
-                                value="franchise"
-                                <?php echo e(old('order_type', $sale->order_type ?? '') == 'franchise' ? 'checked' : ''); ?>>
-
-                            <label class="form-check-label" for="franchise_type">
-                                Franchise
-                            </label>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-       <?php endif; ?>
-
-        <!-- Franchise Location Details -->
-        <div id="franchise-location-details">
-
-            <div class="row g-4 mb-4">
-
-                <!-- State -->
-                <div class="col-md-6">
-                    <label class="form-label">
-                        State <span class="text-danger">*</span>
-                    </label>
-
-                    <select class="form-select mandatory"
-                        id="franchise_state"
-                        name="n_state_id"
-                        data-message="Please Select State">
-
-                        <option value="">Select State</option>
-
-                        <?php if(isset($states)): ?>
-                            <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($state->n_state_id); ?>"
-                                    <?php echo e(old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : ''); ?>>
-                                    <?php echo e($state->name); ?>
-
-                                </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        <?php endif; ?>
-
-                    </select>
-
-                    <?php $__errorArgs = ['n_state_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                        <div class="text-danger mt-1 fs-2">
-                            <?php echo e($message); ?>
-
-                        </div>
-                    <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                </div>
-
-
-                <!-- District -->
-                <div class="col-md-6">
-                    <label class="form-label">
-                        District <span class="text-danger">*</span>
-                    </label>
-
-                    <select class="form-select "
-                        id="franchise_district"
-                        name="n_district_id"
-                        data-message="Please Select District"
-                        <?php echo e(isset($viewmode) && $viewmode == 'on' ? 'disabled' : ''); ?>>
-
-                        <option value="">Select District</option>
-
-                        <?php if(isset($sale->n_district_id)): ?>
-                            <?php
-                                $districts = \App\Models\District::where(
-                                    'state_id',
-                                    $sale->n_state_id
-                                )->get();
-                            ?>
-
-                            <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($district->id); ?>"
-                                    <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>>
-                                    <?php echo e($district->district_name); ?>
-
-                                </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        <?php endif; ?>
-
-                    </select>
-                </div>
-
-
-                <!-- Panchayath -->
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Panchayath
-                    </label>
-
-                    <select class="form-select"
-                        id="franchise_panchayath"
-                        name="n_panchayath_id">
-
-                        <option value="">Select Panchayath</option>
-
-                        <?php if(isset($sale->n_district_id)): ?>
-
-                            <?php
-                                $panchayaths = \App\Models\Panchayath::where(
-                                    'district_id',
-                                    $sale->n_district_id
-                                )->get();
-                            ?>
-
-                            <?php $__currentLoopData = $panchayaths; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $panchayath): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($panchayath->id); ?>"
-                                    <?php echo e(old('n_panchayath_id', $franchisePanchayathId ?? '') == $panchayath->id ? 'selected' : ''); ?>>
-                                    <?php echo e($panchayath->panchayath_name); ?>
-
-                                </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                        <?php endif; ?>
-
-                    </select>
-                </div>
-
-
-                <!-- Nearest Franchise -->
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Nearest Franchise <span class="text-danger">*</span>
-                    </label>
-
-                    <select class="form-select mandatory"
-                        id="franchise"
-                        name="nearest_franchise_id"
-                        data-message="Please Select Nearest Franchise">
-
-                        <option value="">Select Franchise</option>
-
-                        <?php if(isset($franchises)): ?>
-                            <?php $__currentLoopData = $franchises; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $franchise): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($franchise->n_store_id); ?>"
-                                    <?php echo e(old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : ''); ?>>
-                                    <?php echo e($franchise->c_store_name); ?>
-
-                                    (<?php echo e($franchise->c_store_code); ?>)
-                                </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        <?php endif; ?>
-
-                    </select>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
+</div>
 <!-- Action Buttons -->
 <div class="mt-4 d-flex gap-2 flex-wrap">
     <?php if(isset($viewmode) && $viewmode=="on"): ?>
@@ -1427,7 +1377,7 @@ $hasPaymentImage = isset($sale) && !empty($sale->payment_image);
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
-$(document).ready(function () {
+$(document).ready(function() {
 
     console.log("Sales Order JS loaded");
 
@@ -1446,7 +1396,7 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    $('#addRow').on('click', function () {
+    $('#addRow').on('click', function() {
 
         let row = `
             <tr>
@@ -1460,15 +1410,6 @@ $(document).ready(function () {
 
                         <option value="">Select Product</option>
 
-<<<<<<< HEAD:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
-                            <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option
-                                    value="<?php echo e($product->n_product_id); ?>"
-                                    data-price="<?php echo e($product->n_mrp); ?>"
-                                    data-gst="<?php echo e($product->n_gst_percentage); ?>"
-                                    data-hsn-code="<?php echo e($product->c_hsn_code); ?>"
-                                    data-unit="<?php echo e($product->c_unit); ?>">
-=======
                         <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <option
                                 value="<?php echo e($product->n_product_id); ?>"
@@ -1476,7 +1417,6 @@ $(document).ready(function () {
                                 data-gst="<?php echo e($product->n_gst_percentage); ?>"
                                 data-hsn-code="<?php echo e($product->c_hsn_code); ?>"
                                 data-unit="<?php echo e($product->c_unit); ?>">
->>>>>>> 8cdfa070bca68cb6f5644a9c5f72e7dc0cfdd791:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
 
                                 <?php echo e($product->c_product_name); ?>
 
@@ -1621,7 +1561,7 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    $(document).on('change', '.product', function () {
+    $(document).on('change', '.product', function() {
 
         productTotal($(this));
 
@@ -1634,7 +1574,7 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    $(document).on('input change', '.qty, .discount', function () {
+    $(document).on('input change', '.qty, .discount', function() {
 
         let row = $(this).closest('tr');
         let product = row.find('.product');
@@ -1684,13 +1624,20 @@ $(document).ready(function () {
             selectedOption.attr('data-price')
         ) || 0;
 
-<<<<<<< HEAD:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
+        <<
+        <<
+        <<
+        < HEAD
         let hsnCode = selectedOption.attr('data-hsn-code');
         let unit = selectedOption.attr('data-unit');
 
         // GST percentage from product
-=======
->>>>>>> 8cdfa070bca68cb6f5644a9c5f72e7dc0cfdd791:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
+        ===
+        ===
+        = >>>
+        >>>
+        >
+        8 cdfa070bca68cb6f5644a9c5f72e7dc0cfdd791
         let gstPercentage = parseFloat(
             selectedOption.attr('data-gst')
         ) || 0;
@@ -1732,23 +1679,28 @@ $(document).ready(function () {
         }
 
 
-<<<<<<< HEAD:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
-        // Set values
-=======
-        /*
-        |--------------------------------------------------------------------------
-        | GST Calculation
-        |--------------------------------------------------------------------------
-        |
-        | MRP includes GST.
-        |
-        | Base Price:
-        | MRP / (1 + GST%)
-        |
-        |--------------------------------------------------------------------------
-        */
+        <<
+        <<
+        <<
+        < HEAD
+            // Set values
+            ===
+            ===
+            =
+            /*
+            |--------------------------------------------------------------------------
+            | GST Calculation
+            |--------------------------------------------------------------------------
+            |
+            | MRP includes GST.
+            |
+            | Base Price:
+            | MRP / (1 + GST%)
+            |
+            |--------------------------------------------------------------------------
+            */
 
-        let price = 0;
+            let price = 0;
         let grossAmount = 0;
         let taxableAmount = 0;
         let gstAmount = 0;
@@ -1819,7 +1771,10 @@ $(document).ready(function () {
         |--------------------------------------------------------------------------
         */
 
->>>>>>> 8cdfa070bca68cb6f5644a9c5f72e7dc0cfdd791:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
+        >>>
+        >>>
+        >
+        8 cdfa070bca68cb6f5644a9c5f72e7dc0cfdd791
         row.find('.c_hsn_code').val(hsnCode);
 
         row.find('.price').val(
@@ -1868,7 +1823,7 @@ $(document).ready(function () {
         let totalGst = 0;
 
 
-        $('#productTable tbody tr').each(function () {
+        $('#productTable tbody tr').each(function() {
 
             let row = $(this);
 
@@ -2069,7 +2024,7 @@ $(document).ready(function () {
     $(document).on(
         'input change',
         '#summaryAdditionalDiscount',
-        function () {
+        function() {
 
             calculateSummary();
 
@@ -2083,7 +2038,7 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    $(document).on('click', '.removeRow', function () {
+    $(document).on('click', '.removeRow', function() {
 
         $(this).closest('tr').remove();
 
@@ -2128,7 +2083,7 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    $('#n_customer_id').on('change', function () {
+    $('#n_customer_id').on('change', function() {
 
         let option =
             $(this).find(':selected');
@@ -2198,7 +2153,7 @@ $(document).ready(function () {
 
             dataType: 'json',
 
-            beforeSend: function () {
+            beforeSend: function() {
 
                 $('#customer_district').html(
                     '<option value="">Loading...</option>'
@@ -2206,7 +2161,7 @@ $(document).ready(function () {
 
             },
 
-            success: function (data) {
+            success: function(data) {
 
                 $('#customer_district').html(
                     '<option value="">Select District</option>'
@@ -2217,7 +2172,7 @@ $(document).ready(function () {
 
                     $.each(
                         data.districts,
-                        function (index, district) {
+                        function(index, district) {
 
                             $('#customer_district').append(
                                 '<option value="' +
@@ -2237,7 +2192,7 @@ $(document).ready(function () {
 
             },
 
-            error: function (xhr) {
+            error: function(xhr) {
 
                 console.error(
                     'Customer district loading failed:',
@@ -2261,7 +2216,7 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    $('#franchise_state').on('change', function () {
+    $('#franchise_state').on('change', function() {
 
         let stateId =
             $(this).val();
@@ -2298,7 +2253,7 @@ $(document).ready(function () {
 
             dataType: 'json',
 
-            success: function (response) {
+            success: function(response) {
 
                 $('#franchise_district').html(
                     '<option value="">Select District</option>'
@@ -2309,7 +2264,7 @@ $(document).ready(function () {
 
                     $.each(
                         response.districts,
-                        function (index, district) {
+                        function(index, district) {
 
                             $('#franchise_district').append(
                                 '<option value="' +
@@ -2326,7 +2281,7 @@ $(document).ready(function () {
 
             },
 
-            error: function (xhr) {
+            error: function(xhr) {
 
                 console.error(
                     'Franchise district loading failed:',
@@ -2350,7 +2305,7 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    $('#franchise_district').on('change', function () {
+    $('#franchise_district').on('change', function() {
 
         let stateId =
             $('#franchise_state').val();
@@ -2387,7 +2342,7 @@ $(document).ready(function () {
 
             dataType: 'json',
 
-            success: function (response) {
+            success: function(response) {
 
                 $('#franchise').html(
                     '<option value="">Select Franchise</option>'
@@ -2398,7 +2353,7 @@ $(document).ready(function () {
 
                     $.each(
                         response.franchises,
-                        function (index, franchise) {
+                        function(index, franchise) {
 
                             $('#franchise').append(
                                 '<option value="' +
@@ -2418,7 +2373,7 @@ $(document).ready(function () {
 
             },
 
-            error: function (xhr) {
+            error: function(xhr) {
 
                 console.error(
                     'Franchise loading failed:',
@@ -2450,7 +2405,7 @@ $(document).ready(function () {
 
         approveModalEl.addEventListener(
             'show.bs.modal',
-            function (event) {
+            function(event) {
 
                 const button =
                     event.relatedTarget;
@@ -2500,7 +2455,7 @@ $(document).ready(function () {
     $(document).on(
         'click',
         '.approvalSubmit',
-        function () {
+        function() {
 
             const id =
                 $(this).attr('data-id');
@@ -2535,7 +2490,7 @@ $(document).ready(function () {
     |--------------------------------------------------------------------------
     */
 
-    $('#productTable tbody .product').each(function () {
+    $('#productTable tbody .product').each(function() {
 
         if ($(this).val()) {
 
@@ -2550,121 +2505,120 @@ $(document).ready(function () {
 
 function handlePaymentMode() {
 
-        let paymentMode =
-            $('.mode_of_payment:checked').val();
+    let paymentMode =
+        $('.mode_of_payment:checked').val();
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | No Payment Mode Selected
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | No Payment Mode Selected
+    |--------------------------------------------------------------------------
+    */
 
-        if (!paymentMode) {
+    if (!paymentMode) {
 
-            $('#paymet-proofs').hide();
+        $('#paymet-proofs').hide();
 
-            $('#ps').show();
+        $('#ps').show();
 
-            $('#franchise-details').show();
-
-
-            $('#franchise_state').addClass('mandatory');
-            $('#franchise_district').addClass('mandatory');
-            $('#franchise_panchayath').addClass('mandatory');
-            $('#franchise').addClass('mandatory');
-            $('#payment_status').addClass('mandatory');
+        $('#franchise-details').show();
 
 
-            $('#c_transaction_id').removeClass('mandatory');
-            $('#payment_image').removeClass('mandatory');
-
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Paid to Franchise / Cash on Delivery
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            paymentMode === 'Paid to Franchise' ||
-            paymentMode === 'Cash on Delivery'
-        ) {
-
-            $('#paymet-proofs').hide();
-
-            $('#ps').show();
-
-            $('#franchise-details').show();
+        $('#franchise_state').addClass('mandatory');
+        $('#franchise_district').addClass('mandatory');
+        $('#franchise_panchayath').addClass('mandatory');
+        $('#franchise').addClass('mandatory');
+        $('#payment_status').addClass('mandatory');
 
 
-            $('#franchise_state').addClass('mandatory');
-            $('#franchise_district').addClass('mandatory');
-            $('#franchise_panchayath').addClass('mandatory');
-            $('#franchise').addClass('mandatory');
-            $('#payment_status').addClass('mandatory');
+        $('#c_transaction_id').removeClass('mandatory');
+        $('#payment_image').removeClass('mandatory');
+
+        return;
+    }
 
 
-            $('#c_transaction_id').removeClass('mandatory');
-            $('#payment_image').removeClass('mandatory');
+    /*
+    |--------------------------------------------------------------------------
+    | Paid to Franchise / Cash on Delivery
+    |--------------------------------------------------------------------------
+    */
 
-        }
+    if (
+        paymentMode === 'Paid to Franchise' ||
+        paymentMode === 'Cash on Delivery'
+    ) {
 
+        $('#paymet-proofs').hide();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Other Payment Modes
-        |--------------------------------------------------------------------------
-        */
+        $('#ps').show();
 
-        else {
-
-            $('#paymet-proofs').show();
-
-            $('#ps').show();
-
-            $('#franchise-details').show();
+        $('#franchise-details').show();
 
 
-            $('#franchise_state').addClass('mandatory');
-            $('#franchise_district').addClass('mandatory');
-            $('#franchise_panchayath').addClass('mandatory');
-            $('#franchise').addClass('mandatory');
-            $('#payment_status').addClass('mandatory');
+        $('#franchise_state').addClass('mandatory');
+        $('#franchise_district').addClass('mandatory');
+        $('#franchise_panchayath').addClass('mandatory');
+        $('#franchise').addClass('mandatory');
+        $('#payment_status').addClass('mandatory');
 
 
-            $('#c_transaction_id').addClass('mandatory');
-           // $('#payment_image').addClass('mandatory');
-
-        }
+        $('#c_transaction_id').removeClass('mandatory');
+        $('#payment_image').removeClass('mandatory');
 
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Other Payment Modes
+    |--------------------------------------------------------------------------
+    */
+    else {
+
+        $('#paymet-proofs').show();
+
+        $('#ps').show();
+
+        $('#franchise-details').show();
+
+
+        $('#franchise_state').addClass('mandatory');
+        $('#franchise_district').addClass('mandatory');
+        $('#franchise_panchayath').addClass('mandatory');
+        $('#franchise').addClass('mandatory');
+        $('#payment_status').addClass('mandatory');
+
+
+        $('#c_transaction_id').addClass('mandatory');
+        // $('#payment_image').addClass('mandatory');
+
+    }
+
+}
 </script>
 <script>
-    $(document).ready(function() {
+$(document).ready(function() {
 
-        <?php if(isset($viewmode) && $viewmode == 'on'): ?>
+    <?php if(isset($viewmode) && $viewmode == 'on'): ?>
 
-        // Make all text/number/date/email inputs readonly
-        $('#frm_create input:not([type="hidden"]):not([type="button"]):not([type="submit"])')
-            .prop('readonly', true);
+    // Make all text/number/date/email inputs readonly
+    $('#frm_create input:not([type="hidden"]):not([type="button"]):not([type="submit"])')
+        .prop('readonly', true);
 
-        // Make all textareas readonly
-        $('#frm_create textarea').prop('readonly', true);
+    // Make all textareas readonly
+    $('#frm_create textarea').prop('readonly', true);
 
-        // Select, radio, checkbox and file inputs do not support readonly
-        // so disable them
-        $('#frm_create select').prop('disabled', true);
-        $('#frm_create input[type="radio"]').prop('disabled', true);
-        $('#frm_create input[type="checkbox"]').prop('disabled', true);
-        $('#frm_create input[type="file"]').prop('disabled', true);
+    // Select, radio, checkbox and file inputs do not support readonly
+    // so disable them
+    $('#frm_create select').prop('disabled', true);
+    $('#frm_create input[type="radio"]').prop('disabled', true);
+    $('#frm_create input[type="checkbox"]').prop('disabled', true);
+    $('#frm_create input[type="file"]').prop('disabled', true);
 
-        // Disable product add/remove controls
-        $('#addRow').prop('disabled', true);
-        $('.removeRow').prop('disabled', true);
+    // Disable product add/remove controls
+    $('#addRow').prop('disabled', true);
+    $('.removeRow').prop('disabled', true);
 
     <?php endif; ?>
 
@@ -2865,130 +2819,130 @@ $('#franchise_district').on('change', function() {
 |--------------------------------------------------------------------------
 */
 
- /*    $('#franchise_panchayath').on('change', function() {
+/*    $('#franchise_panchayath').on('change', function() {
 
-        let stateId = $('#franchise_state').val();
-        let districtId = $('#franchise_district').val();
-        let panchayathId = $(this).val();
+       let stateId = $('#franchise_state').val();
+       let districtId = $('#franchise_district').val();
+       let panchayathId = $(this).val();
 
-        console.log('Loading franchises:', {
-            state: stateId,
-            district: districtId,
-            panchayath: panchayathId
-        });
+       console.log('Loading franchises:', {
+           state: stateId,
+           district: districtId,
+           panchayath: panchayathId
+       });
 
-        $('#franchise').html(
-            '<option value="">Loading franchises...</option>'
-        );
+       $('#franchise').html(
+           '<option value="">Loading franchises...</option>'
+       );
 
-        if (!stateId || !districtId || !panchayathId) {
+       if (!stateId || !districtId || !panchayathId) {
 
-            $('#franchise').html(
-                '<option value="">Select Franchise</option>'
-            );
+           $('#franchise').html(
+               '<option value="">Select Franchise</option>'
+           );
 
-            return;
-        }
+           return;
+       }
 
-        $.ajax({
-            type: 'GET',
+       $.ajax({
+           type: 'GET',
 
-            url: "<?php echo e(url('admin/filter-franchise')); ?>",
+           url: "<?php echo e(url('admin/filter-franchise')); ?>",
 
-            data: {
-                state: stateId,
-                district: districtId,
-                panchayath: panchayathId
-            },
+           data: {
+               state: stateId,
+               district: districtId,
+               panchayath: panchayathId
+           },
 
-            dataType: 'json',
+           dataType: 'json',
 
-            success: function(response) {
+           success: function(response) {
 
-                console.log('Franchise response:', response);
+               console.log('Franchise response:', response);
 
-                $('#franchise').html(
-                    '<option value="">Select Franchise</option>'
-                );
+               $('#franchise').html(
+                   '<option value="">Select Franchise</option>'
+               );
 
-                if (
-                    response.franchises &&
-                    response.franchises.length > 0
-                ) {
+               if (
+                   response.franchises &&
+                   response.franchises.length > 0
+               ) {
 
-                    $.each(response.franchises, function(index, franchise) {
+                   $.each(response.franchises, function(index, franchise) {
 
-                        $('#franchise').append(
-                            '<option value="' +
-                            franchise.n_store_id +
-                            '">' +
-                            franchise.c_store_name +
-                            ' (' +
-                            franchise.c_store_code +
-                            ')' +
-                            '</option>'
-                        );
+                       $('#franchise').append(
+                           '<option value="' +
+                           franchise.n_store_id +
+                           '">' +
+                           franchise.c_store_name +
+                           ' (' +
+                           franchise.c_store_code +
+                           ')' +
+                           '</option>'
+                       );
 
-                    });
+                   });
 
-                } else {
+               } else {
 
-                    $('#franchise').html(
-                        '<option value="">No Franchises Found</option>'
-                    );
+                   $('#franchise').html(
+                       '<option value="">No Franchises Found</option>'
+                   );
 
-                    console.log('No franchises found');
-                }
-            },
+                   console.log('No franchises found');
+               }
+           },
 
-            error: function(xhr, status, error) {
+           error: function(xhr, status, error) {
 
-                console.error('Franchise AJAX failed');
-                console.error('Status:', status);
-                console.error('Error:', error);
-                console.error('Response:', xhr.responseText);
+               console.error('Franchise AJAX failed');
+               console.error('Status:', status);
+               console.error('Error:', error);
+               console.error('Response:', xhr.responseText);
 
-                $('#franchise').html(
-                    '<option value="">Unable to load franchises</option>'
-                );
-            }
-        });
+               $('#franchise').html(
+                   '<option value="">Unable to load franchises</option>'
+               );
+           }
+       });
 
-    }); */
+   }); */
 </script>
 
 
 <script>
-    $('#franchise_panchayath').on('change', function () {
+$('#franchise_panchayath').on('change', function() {
 
-        const panchayathId = $(this).val();
+    const panchayathId = $(this).val();
 
-        console.log('Selected Panchayath ID:', panchayathId);
+    console.log('Selected Panchayath ID:', panchayathId);
 
-        // No Panchayath selected
-        if (!panchayathId) {
-
-            $('#franchise').html(
-                '<option value="">Select Franchise</option>'
-            );
-
-            return;
-        }
-
-        // Find franchises by Panchayath
-        findNearestFranchise(panchayathId);
-    });
-
-
-    function findNearestFranchise(panchayathId) {
-
-        console.log('Finding franchises for Panchayath:', panchayathId);
+    // No Panchayath selected
+    if (!panchayathId) {
 
         $('#franchise').html(
-            '<option value="">Finding franchise...</option>'
+            '<option value="">Select Franchise</option>'
         );
 
-        fetch("<?php echo e(route('admin.franchise.nearest')); ?>", {
+        return;
+    }
+
+    // Find franchises by Panchayath
+    findNearestFranchise(panchayathId);
+});
+
+
+function findNearestFranchise(panchayathId) {
+
+    console.log('Finding franchises for Panchayath:', panchayathId);
+
+    $('#franchise').html(
+        '<option value="">Finding franchise...</option>'
+    );
+
+    fetch("<?php echo e(route('admin.franchise.nearest')); ?>", {
 
             method: "POST",
 
@@ -3004,7 +2958,7 @@ $('#franchise_district').on('change', function() {
 
         })
 
-        .then(function (response) {
+        .then(function(response) {
 
             if (!response.ok) {
                 throw new Error(
@@ -3016,7 +2970,7 @@ $('#franchise_district').on('change', function() {
 
         })
 
-        .then(function (data) {
+        .then(function(data) {
 
             console.log('Franchise response:', data);
 
@@ -3033,9 +2987,9 @@ $('#franchise_district').on('change', function() {
                 return;
             }
 
-            let franchises = Array.isArray(data.franchises)
-                ? data.franchises
-                : (data.franchises ? [data.franchises] : []);
+            let franchises = Array.isArray(data.franchises) ?
+                data.franchises :
+                (data.franchises ? [data.franchises] : []);
 
             if (franchises.length === 0) {
 
@@ -3046,7 +3000,7 @@ $('#franchise_district').on('change', function() {
                 return;
             }
 
-            franchises.forEach(function (franchise) {
+            franchises.forEach(function(franchise) {
 
                 $('#franchise').append(`
                     <option value="${franchise.n_store_id}">
@@ -3068,7 +3022,7 @@ $('#franchise_district').on('change', function() {
 
         })
 
-        .catch(function (error) {
+        .catch(function(error) {
 
             console.error(
                 'Nearest franchise error:',
@@ -3081,85 +3035,85 @@ $('#franchise_district').on('change', function() {
 
         });
 
+}
+
+function toggleOrderType() {
+
+    const orderType = $('input[name="order_type"]:checked').val();
+
+    if (orderType === 'franchise') {
+
+        // Show franchise section
+        $('#franchise-location-details').show();
+
+        // Add mandatory validation
+        $('#franchise_state').addClass('mandatory');
+        $('#franchise_district').addClass('mandatory');
+        $('#franchise_panchayath').addClass('mandatory');
+        $('#franchise').addClass('mandatory');
+
+    } else if (orderType === 'company') {
+
+        // Hide franchise section
+        $('#franchise-location-details').hide();
+
+        // Remove mandatory validation
+        $('#franchise_state').removeClass('mandatory');
+        $('#franchise_district').removeClass('mandatory');
+        $('#franchise_panchayath').removeClass('mandatory');
+        $('#franchise').removeClass('mandatory');
+
+        // Optional: clear values
+        $('#franchise_state').val('');
+        $('#franchise_district').val('');
+        $('#franchise_panchayath').val('');
+        $('#franchise').val('');
     }
+}
 
-    function toggleOrderType() {
-
-        const orderType = $('input[name="order_type"]:checked').val();
-
-        if (orderType === 'franchise') {
-
-            // Show franchise section
-            $('#franchise-location-details').show();
-
-            // Add mandatory validation
-            $('#franchise_state').addClass('mandatory');
-            $('#franchise_district').addClass('mandatory');
-            $('#franchise_panchayath').addClass('mandatory');
-            $('#franchise').addClass('mandatory');
-
-        } else if (orderType === 'company') {
-
-            // Hide franchise section
-            $('#franchise-location-details').hide();
-
-            // Remove mandatory validation
-            $('#franchise_state').removeClass('mandatory');
-            $('#franchise_district').removeClass('mandatory');
-            $('#franchise_panchayath').removeClass('mandatory');
-            $('#franchise').removeClass('mandatory');
-
-            // Optional: clear values
-            $('#franchise_state').val('');
-            $('#franchise_district').val('');
-            $('#franchise_panchayath').val('');
-            $('#franchise').val('');
-        }
-    }
-
-    // When Company / Franchise changes
-    $('input[name="order_type"]').on('change', function () {
-        toggleOrderType();
-    });
-
-    // Run when page loads
+// When Company / Franchise changes
+$('input[name="order_type"]').on('change', function() {
     toggleOrderType();
+});
+
+// Run when page loads
+toggleOrderType();
 
 
-    $(document).ready(function () {
+$(document).ready(function() {
 
-        function setupImageUpload(inputId, previewId, containerId, removeInputId, removeButtonId) {
+    function setupImageUpload(inputId, previewId, containerId, removeInputId, removeButtonId) {
 
-            // Preview selected image
-            $(document).on('change', '#' + inputId, function (event) {
+        // Preview selected image
+        $(document).on('change', '#' + inputId, function(event) {
 
-                const file = event.target.files[0];
+            const file = event.target.files[0];
 
-                if (!file) return;
+            if (!file) return;
 
-                // Allow images only
-                if (!file.type.startsWith('image/')) {
-                    alert('Please select an image file.');
-                    $(this).val('');
-                    return;
-                }
+            // Allow images only
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                $(this).val('');
+                return;
+            }
 
-                const reader = new FileReader();
+            const reader = new FileReader();
 
-                reader.onload = function (e) {
+            reader.onload = function(e) {
 
-                    // Show selected image preview
-                    $('#' + previewId)
-                        .attr('src', e.target.result)
-                        .show();
+                // Show selected image preview
+                $('#' + previewId)
+                    .attr('src', e.target.result)
+                    .show();
 
-                    // New image selected, don't delete
-                    $('#' + removeInputId).val('0');
+                // New image selected, don't delete
+                $('#' + removeInputId).val('0');
 
-                    // Create Remove button if it doesn't exist
-                    if ($('#' + removeButtonId).length === 0) {
+                // Create Remove button if it doesn't exist
+                if ($('#' + removeButtonId).length === 0) {
 
-                        $('#' + containerId).append(`
+                    $('#' + containerId).append(`
                             <br>
                             <button type="button"
                                 id="${removeButtonId}"
@@ -3168,61 +3122,59 @@ $('#franchise_district').on('change', function() {
                             </button>
                         `);
 
-                    } else {
-                        $('#' + removeButtonId).show();
-                    }
-                };
+                } else {
+                    $('#' + removeButtonId).show();
+                }
+            };
 
-                reader.readAsDataURL(file);
-            });
-
-
-            // Remove image
-            $(document).on('click', '#' + removeButtonId, function () {
-
-                // Clear selected file
-                $('#' + inputId).val('');
-
-                // Hide image preview
-                $('#' + previewId)
-                    .attr('src', '')
-                    .hide();
-
-                // Tell Laravel to remove existing image
-                $('#' + removeInputId).val('1');
-
-                // Hide remove button
-                $(this).hide();
-            });
-        }
+            reader.readAsDataURL(file);
+        });
 
 
-        // ===============================
-        // Payment Image
-        // ===============================
-        setupImageUpload(
-            'payment_image',
-            'payment_image_preview',
-            'payment_preview_container',
-            'remove_payment_image',
-            'remove_payment_image_btn'
-        );
+        // Remove image
+        $(document).on('click', '#' + removeButtonId, function() {
+
+            // Clear selected file
+            $('#' + inputId).val('');
+
+            // Hide image preview
+            $('#' + previewId)
+                .attr('src', '')
+                .hide();
+
+            // Tell Laravel to remove existing image
+            $('#' + removeInputId).val('1');
+
+            // Hide remove button
+            $(this).hide();
+        });
+    }
 
 
-        // ===============================
-        // Booklet Image
-        // ===============================
-        setupImageUpload(
-            'booklet_image',
-            'booklet_image_preview',
-            'booklet_image_preview_container',
-            'remove_booklet_image',
-            'remove_booklet_image_btn'
-        );
+    // ===============================
+    // Payment Image
+    // ===============================
+    setupImageUpload(
+        'payment_image',
+        'payment_image_preview',
+        'payment_preview_container',
+        'remove_payment_image',
+        'remove_payment_image_btn'
+    );
 
-    });
 
+    // ===============================
+    // Booklet Image
+    // ===============================
+    setupImageUpload(
+        'booklet_image',
+        'booklet_image_preview',
+        'booklet_image_preview_container',
+        'remove_booklet_image',
+        'remove_booklet_image_btn'
+    );
+
+});
 </script>
 <?php $__env->stopPush(); ?>
-
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/sales/create.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/sales/create.blade.php ENDPATH**/ ?>

@@ -20,30 +20,50 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         | Dashboard type
         |--------------------------------------------------------------------------
-        | Super Admin / Gipra Admin see the complete order lifecycle.
-        | FCO sees own orders + orders belonging to directly reporting FCAs.
-        | FCA sees only their own orders.
-        |--------------------------------------------------------------------------
         */
+
         $isAdminDashboard = $user->hasAnyRole([
             'Super Admin',
             'Gipra Admin',
         ]) || $user->can('dashboard.view-all-orders');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Attendance
+        |--------------------------------------------------------------------------
+        */
+
         $attendance = $dashboardService->getAttendance($user);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Today's summary
+        |--------------------------------------------------------------------------
+        */
+
         $summary = $dashboardService->getSummary($user);
 
         /*
         |--------------------------------------------------------------------------
         | Employee scope
         |--------------------------------------------------------------------------
+        |
+        | Admin:
+        |   All employees/orders.
+        |
+        | Staff/FCO/FCA:
+        |   Logged-in employee + directly reporting employees.
+        |
         */
+
         $scopedEmployeeIds = null;
 
         if (! $isAdminDashboard) {
-            $scopedEmployeeIds = [(int) $user->n_employee_id];
 
-            // FCO -> include directly reporting FCA employees.
+            $scopedEmployeeIds = [
+                (int) $user->n_employee_id,
+            ];
+
             $subordinateIds = EmployeeMaster::query()
                 ->where('reporting_to', $user->n_employee_id)
                 ->whereNull('deleted_at')
@@ -51,17 +71,20 @@ class DashboardController extends Controller
                 ->map(fn ($id) => (int) $id)
                 ->toArray();
 
-            $scopedEmployeeIds = array_values(array_unique([
-                ...$scopedEmployeeIds,
-                ...$subordinateIds,
-            ]));
+            $scopedEmployeeIds = array_values(
+                array_unique([
+                    ...$scopedEmployeeIds,
+                    ...$subordinateIds,
+                ])
+            );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Get every non-deleted order in the user's scope.
+        | Orders
         |--------------------------------------------------------------------------
         */
+
         $orderQuery = SalesOrder::query()
             ->whereNull('sales_orders.deleted_at');
 
@@ -72,25 +95,53 @@ class DashboardController extends Controller
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | CURRENT ORDER STATUS
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        |
+        | Latest approval status is checked first.
+        | If no approval status exists, sales_orders.c_order_status
+        | is used.
+        |
+        */
+
         $currentStatusSql = "
-            COALESCE(
-                (
-                    SELECT NULLIF(TRIM(sof.c_order_status), '')
-                    FROM sales_orderstatus_updations AS sof
-                    WHERE sof.n_sale_id = sales_orders.n_sl_no
-                    ORDER BY sof.created_at DESC, sof.n_statusupdate_id DESC
-                    LIMIT 1
-                ),
-                (
-                    SELECT NULLIF(TRIM(sa.status), '')
-                    FROM sales_approvals AS sa
-                    WHERE sa.sales_order_id = sales_orders.n_sl_no
-                    ORDER BY sa.created_at DESC, sa.id DESC
-                    LIMIT 1
-                ),
-                sales_orders.c_order_status
-            )
-        ";
+    CASE
+        WHEN LOWER(TRIM(COALESCE(sales_orders.c_order_status, ''))) IN (
+            '',
+            'pending',
+            'pending approval',
+            'awaiting approval',
+            'waiting for approval',
+            'waiting approval',
+            'under approval',
+            'approval pending',
+            'new',
+            'open'
+        )
+        THEN COALESCE(
+            (
+                SELECT NULLIF(TRIM(sa.status), '')
+                FROM sales_approvals AS sa
+                WHERE sa.sales_order_id = sales_orders.n_sl_no
+                ORDER BY sa.created_at DESC, sa.id DESC
+                LIMIT 1
+            ),
+            NULLIF(TRIM(sales_orders.c_order_status), ''),
+            'pending'
+        )
+
+        ELSE sales_orders.c_order_status
+    END
+";
+        /*
+        |--------------------------------------------------------------------------
+        | Get orders
+        |--------------------------------------------------------------------------
+        */
 
         $orders = $orderQuery
             ->select([
@@ -103,37 +154,60 @@ class DashboardController extends Controller
                 'sales_orders.payment_status',
                 'sales_orders.c_mode_of_payment',
             ])
-            ->addSelect(DB::raw("$currentStatusSql AS current_order_status"))
+            ->addSelect(
+                DB::raw("$currentStatusSql AS current_order_status")
+            )
             ->get();
 
         /*
         |--------------------------------------------------------------------------
-        | Determine the current status.
-        |--------------------------------------------------------------------------
-        | The status source matches the Sales Order listing:
-        | 1. latest status update
-        | 2. latest approval status
-        | 3. sales_orders.c_order_status
-        | 4. pending
+        | Normalize order status
         |--------------------------------------------------------------------------
         */
-        foreach ($orders as $order) {
-            $status = $order->current_order_status ?: 'pending';
 
-            $normalizedStatus = strtolower(trim(
-                preg_replace('/\s+/', ' ', str_replace(
-                    ['_', '-'],
-                    ' ',
-                    (string) $status
-                ))
-            ));
+        foreach ($orders as $order) {
+
+            $status = strtolower(
+                trim(
+                    (string) $order->current_order_status
+                )
+            );
 
             /*
-             * Keep the seven admin lifecycle states distinct.
-             * For FCO/FCA, the requested five cards use the same
-             * lifecycle with shipped treated as dispatched.
-             */
-            $order->dashboard_status = match ($normalizedStatus) {
+            |--------------------------------------------------------------------------
+            | Normalize separators and whitespace
+            |--------------------------------------------------------------------------
+            */
+
+            $status = str_replace(
+                ['_', '-'],
+                ' ',
+                $status
+            );
+
+            $status = preg_replace(
+                '/\s+/',
+                ' ',
+                $status
+            );
+
+            $status = trim($status);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Map database statuses to dashboard statuses
+            |--------------------------------------------------------------------------
+            */
+
+            $order->dashboard_status = match ($status) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | PENDING
+                |--------------------------------------------------------------------------
+                */
+
+                '',
                 'pending',
                 'pending approval',
                 'awaiting approval',
@@ -142,28 +216,65 @@ class DashboardController extends Controller
                 'under approval',
                 'approval pending',
                 'new',
-                'open',
-                '' => 'pending',
+                'open' => 'pending',
+
+                /*
+                |--------------------------------------------------------------------------
+                | APPROVED
+                |--------------------------------------------------------------------------
+                */
 
                 'approved',
-                'approval',
                 'approval approved',
-                'order approved' => 'approved',
+                'order approved',
+                'approval accepted',
+                'accepted' => 'approved',
+
+                /*
+                |--------------------------------------------------------------------------
+                | DISPATCHED
+                |--------------------------------------------------------------------------
+                */
 
                 'dispatched',
                 'dispatch' => 'dispatched',
+
+                /*
+                |--------------------------------------------------------------------------
+                | SHIPPED
+                |--------------------------------------------------------------------------
+                */
 
                 'shipped',
                 'shipping',
                 'in transit',
                 'out for delivery' => 'shipped',
 
+                /*
+                |--------------------------------------------------------------------------
+                | DELIVERED
+                |--------------------------------------------------------------------------
+                */
+
                 'delivered',
-                'delivery completed' => 'delivered',
+                'delivery completed',
+                'delivery complete' => 'delivered',
+
+                /*
+                |--------------------------------------------------------------------------
+                | COMPLETED
+                |--------------------------------------------------------------------------
+                */
 
                 'completed',
                 'complete',
                 'order completed' => 'completed',
+
+                /*
+                |--------------------------------------------------------------------------
+                | RETURNED
+                |--------------------------------------------------------------------------
+                */
 
                 'returned',
                 'return',
@@ -174,34 +285,66 @@ class DashboardController extends Controller
                 'rejected',
                 'declined' => 'returned',
 
+                /*
+                |--------------------------------------------------------------------------
+                | Unknown
+                |--------------------------------------------------------------------------
+                */
+
                 default => 'pending',
             };
         }
 
         /*
         |--------------------------------------------------------------------------
-        | FCO / FCA five-card counts
+        | ORDER COUNTS
         |--------------------------------------------------------------------------
         */
-        $pendingOrders = $orders->where('dashboard_status', 'pending')->count();
-        $approvedOrders = $orders->where('dashboard_status', 'approved')->count();
 
-        // Shipped is part of the dispatched bucket for FCO/FCA.
-        $dispatchedOrders = $orders->whereIn(
-            'dashboard_status',
-            ['dispatched', 'shipped']
-        )->count();
+        $pendingOrders = $orders
+            ->where('dashboard_status', 'pending')
+            ->count();
 
-        $deliveredOrders = $orders->where('dashboard_status', 'delivered')->count();
-        $returnedOrders = $orders->where('dashboard_status', 'returned')->count();
+        $approvedOrders = $orders
+            ->where('dashboard_status', 'approved')
+            ->count();
 
         /*
         |--------------------------------------------------------------------------
-        | Admin seven-state counts + total
+        | Dispatched
         |--------------------------------------------------------------------------
+        |
+        | Staff dashboard combines:
+        | dispatched + shipped
+        |
         */
-        $shippedOrders = $orders->where('dashboard_status', 'shipped')->count();
-        $completedOrders = $orders->where('dashboard_status', 'completed')->count();
+
+        $dispatchedOrders = $orders
+            ->whereIn(
+                'dashboard_status',
+                [
+                    'dispatched',
+                    'shipped',
+                ]
+            )
+            ->count();
+
+        $shippedOrders = $orders
+            ->where('dashboard_status', 'shipped')
+            ->count();
+
+        $deliveredOrders = $orders
+            ->where('dashboard_status', 'delivered')
+            ->count();
+
+        $completedOrders = $orders
+            ->where('dashboard_status', 'completed')
+            ->count();
+
+        $returnedOrders = $orders
+            ->where('dashboard_status', 'returned')
+            ->count();
+
         $totalOrders = $orders->count();
 
         /*
@@ -209,20 +352,28 @@ class DashboardController extends Controller
         | Sales values
         |--------------------------------------------------------------------------
         */
+
         $totalSalesValue = $orders->sum(
-            fn ($order) => (float) ($order->n_net_sales_amount ?? 0)
+            fn ($order) => (float) (
+                $order->n_net_sales_amount ?? 0
+            )
         );
 
         $todaysSalesValue = $orders
             ->filter(function ($order) {
+
                 if (! $order->d_date) {
                     return false;
                 }
 
-                return Carbon::parse($order->d_date)->isToday();
+                return Carbon::parse(
+                    $order->d_date
+                )->isToday();
             })
             ->sum(
-                fn ($order) => (float) ($order->n_net_sales_amount ?? 0)
+                fn ($order) => (float) (
+                    $order->n_net_sales_amount ?? 0
+                )
             );
 
         /*
@@ -230,62 +381,93 @@ class DashboardController extends Controller
         | Customer count
         |--------------------------------------------------------------------------
         */
+
         $totalCustomersQuery = CustomerMaster::query()
             ->whereNull('deleted_at')
             ->where('c_status', 'Y');
 
         if (! $isAdminDashboard) {
-            $customerEmployeeIds = [(int) $user->n_employee_id];
+
+            $customerEmployeeIds = [
+                (int) $user->n_employee_id,
+            ];
 
             $customerSubordinateIds = EmployeeMaster::query()
-                ->where('reporting_to', $user->n_employee_id)
+                ->where(
+                    'reporting_to',
+                    $user->n_employee_id
+                )
                 ->whereNull('deleted_at')
                 ->pluck('n_employee_id')
                 ->map(fn ($id) => (int) $id)
                 ->toArray();
 
-            $customerEmployeeIds = array_values(array_unique([
-                ...$customerEmployeeIds,
-                ...$customerSubordinateIds,
-            ]));
+            $customerEmployeeIds = array_values(
+                array_unique([
+                    ...$customerEmployeeIds,
+                    ...$customerSubordinateIds,
+                ])
+            );
 
-            $totalCustomersQuery->whereIn('created_by', $customerEmployeeIds);
+            /*
+            |--------------------------------------------------------------------------
+            | Staff sees today's customers only
+            |--------------------------------------------------------------------------
+            */
+
+            $totalCustomersQuery
+                ->whereIn(
+                    'created_by',
+                    $customerEmployeeIds
+                )
+                ->whereDate(
+                    'created_at',
+                    Carbon::today()
+                );
         }
 
         $totalCustomers = $totalCustomersQuery->count();
 
         /*
-|--------------------------------------------------------------------------
-| Payment status counts
-|--------------------------------------------------------------------------
-| Payment status comes directly from sales_orders.payment_status.
-|
-| Admin:
-|   - All orders / customers
-|
-| FCO / ACO:
-|   - Own orders + directly reporting FCA orders
-|
-| FCA:
-|   - Own orders only
-|--------------------------------------------------------------------------
-*/
+        |--------------------------------------------------------------------------
+        | Payment overview
+        |--------------------------------------------------------------------------
+        */
 
         $paymentOverview = $orders
             ->groupBy(function ($order) {
-                $mode = trim((string) $order->c_mode_of_payment);
 
-                return $mode !== '' ? $mode : 'Unknown';
+                $mode = trim(
+                    (string) $order->c_mode_of_payment
+                );
+
+                return $mode !== ''
+                    ? $mode
+                    : 'Unknown';
             })
             ->map(function ($modeOrders) {
 
-                $pending = $modeOrders->filter(function ($order) {
-                    return strtolower(trim((string) $order->payment_status)) === 'pending';
-                })->count();
+                $pending = $modeOrders
+                    ->filter(function ($order) {
 
-                $paid = $modeOrders->filter(function ($order) {
-                    return strtolower(trim((string) $order->payment_status)) === 'paid';
-                })->count();
+                        return strtolower(
+                            trim(
+                                (string) $order->payment_status
+                            )
+                        ) === 'pending';
+                    })
+                    ->count();
+
+                $paid = $modeOrders
+                    ->filter(function ($order) {
+
+                        return strtolower(
+                            trim(
+                                (string) $order->payment_status
+                            )
+                        ) === 'paid';
+                    })
+                    ->count();
 
                 return [
                     'pending' => $pending,
@@ -295,10 +477,28 @@ class DashboardController extends Controller
             })
             ->sortKeys();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Return dashboard
+        |--------------------------------------------------------------------------
+        */
+
         return view('dashboard', [
+
+            /*
+            |--------------------------------------------------------------------------
+            | User
+            |--------------------------------------------------------------------------
+            */
+
             'user' => $user,
 
-            // Attendance
+            /*
+            |--------------------------------------------------------------------------
+            | Attendance
+            |--------------------------------------------------------------------------
+            */
+
             'todayLog' => $attendance['todayLog'],
             'checkInTime' => $attendance['checkInTime'],
             'checkOutTime' => $attendance['checkOutTime'],
@@ -306,30 +506,53 @@ class DashboardController extends Controller
             'workStatus' => $attendance['workStatus'],
             'workStatusSubtext' => $attendance['workStatusSubtext'],
 
-            // Existing summary
+            /*
+            |--------------------------------------------------------------------------
+            | Summary
+            |--------------------------------------------------------------------------
+            */
+
             'summary' => $summary,
 
-            // FCO / FCA five cards
+            /*
+            |--------------------------------------------------------------------------
+            | Order counts
+            |--------------------------------------------------------------------------
+            */
+
             'pendingOrders' => $pendingOrders,
             'approvedOrders' => $approvedOrders,
             'dispatchedOrders' => $dispatchedOrders,
-            'deliveredOrders' => $deliveredOrders,
-            'returnedOrders' => $returnedOrders,
-
-            // Admin lifecycle cards
             'shippedOrders' => $shippedOrders,
+            'deliveredOrders' => $deliveredOrders,
             'completedOrders' => $completedOrders,
+            'returnedOrders' => $returnedOrders,
             'totalOrders' => $totalOrders,
 
-            // Payment status
+            /*
+            |--------------------------------------------------------------------------
+            | Payment
+            |--------------------------------------------------------------------------
+            */
+
             'paymentOverview' => $paymentOverview,
 
-            // FCO / FCA sales/customer cards
+            /*
+            |--------------------------------------------------------------------------
+            | Sales / Customers
+            |--------------------------------------------------------------------------
+            */
+
             'totalCustomers' => $totalCustomers,
             'todaysSalesValue' => $todaysSalesValue,
             'totalSalesValue' => $totalSalesValue,
 
-            // Used by the Blade to choose the correct card set.
+            /*
+            |--------------------------------------------------------------------------
+            | Dashboard type
+            |--------------------------------------------------------------------------
+            */
+
             'isAdminDashboard' => $isAdminDashboard,
         ]);
     }

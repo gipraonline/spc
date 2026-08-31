@@ -354,7 +354,7 @@
 
     <div class="page">
 
-        {{-- ================= HEADER ================= --}}
+        
 
         <div class="header">
 
@@ -388,7 +388,8 @@
                                 </td>
 
                                 <td class="value">
-                                    {{ $order->invoice_no}}
+                                    <?php echo e($order->invoice_no); ?>
+
                                 </td>
                             </tr>
 
@@ -398,7 +399,8 @@
                                 </td>
 
                                 <td class="value">
-                                    {{ $order->d_date?->format('d M Y') }}
+                                    <?php echo e($order->d_date?->format('d M Y')); ?>
+
                                 </td>
                             </tr>
 
@@ -408,7 +410,8 @@
                                 </td>
 
                                 <td class="value">
-                                    {{ $order->d_date?->format('d M Y') }}
+                                    <?php echo e($order->d_date?->format('d M Y')); ?>
+
                                 </td>
                             </tr>
 
@@ -423,7 +426,7 @@
         </div>
 
 
-        {{-- ================= BILLING + DETAILS ================= --}}
+        
 
         <table class="info-table">
 
@@ -440,26 +443,28 @@
                         <div class="box-content">
 
                             <div class="company-name">
-                                {{ $company->company_name }}
+                                <?php echo e($company->company_name); ?>
+
                             </div>
 
                             <div class="small-line">
 
-                                GSTIN: {{ $company->gst_number }}<br>
+                                GSTIN: <?php echo e($company->gst_number); ?><br>
 
-                                {{ $company->address }}<br>
+                                <?php echo e($company->address); ?><br>
 
-                                @if($company->phone)
-                                Phone: {{ $company->phone }}<br>
-                                @endif
+                                <?php if($company->phone): ?>
+                                Phone: <?php echo e($company->phone); ?><br>
+                                <?php endif; ?>
 
-                                @if($company->email)
-                                Email: {{ $company->email }}<br>
-                                @endif
+                                <?php if($company->email): ?>
+                                Email: <?php echo e($company->email); ?><br>
+                                <?php endif; ?>
 
-                                @if($company->website)
-                                Website: {{ $company->website }}
-                                @endif
+                                <?php if($company->website): ?>
+                                Website: <?php echo e($company->website); ?>
+
+                                <?php endif; ?>
 
                             </div>
 
@@ -468,21 +473,24 @@
                             </div>
 
                             <div class="buyer-name">
-                                {{ $order->c_customer_name }}
+                                <?php echo e($order->c_customer_name); ?>
+
                             </div>
 
                             <div class="small-line">
 
-                                {{ $order->c_customer_address }}<br>
+                                <?php echo e($order->c_customer_address); ?><br>
 
-                                Pin Code: {{ $order->customer?->c_pincode }}<br>
+                                Pin Code: <?php echo e($order->customer?->c_pincode); ?><br>
 
-                                Ph: {{ $order->n_customer_mobile }}
+                                Ph: <?php echo e($order->n_customer_mobile); ?>
 
-                                @if($order->c_customer_email)
+
+                                <?php if($order->c_customer_email): ?>
                                 <br>
-                                Email: {{ $order->c_customer_email }}
-                                @endif
+                                Email: <?php echo e($order->c_customer_email); ?>
+
+                                <?php endif; ?>
 
                             </div>
 
@@ -515,7 +523,8 @@
                                     </td>
 
                                     <td class="d-value">
-                                        {{ $order->invoice_no }}
+                                        <?php echo e($order->invoice_no); ?>
+
                                     </td>
                                 </tr>
 
@@ -529,7 +538,8 @@
                                     </td>
 
                                     <td class="d-value">
-                                        {{ $order->d_date?->format('d-M-y') }}
+                                        <?php echo e($order->d_date?->format('d-M-y')); ?>
+
                                     </td>
                                 </tr>
 
@@ -543,7 +553,8 @@
                                     </td>
 
                                     <td class="d-value">
-                                        {{ $order->c_order_no ?? '-' }}
+                                        <?php echo e($order->c_order_no ?? '-'); ?>
+
                                     </td>
                                 </tr>
 
@@ -573,7 +584,8 @@
                                     </td>
 
                                     <td class="d-value">
-                                        {{ ucwords(str_replace('_', ' ', $paymentMode ?? '-')) }}
+                                        <?php echo e(ucwords(str_replace('_', ' ', $paymentMode ?? '-'))); ?>
+
                                     </td>
                                 </tr>
 
@@ -591,7 +603,7 @@
         </table>
 
 
-        {{-- ================= PRODUCTS ================= --}}
+        
 
         <table class="items">
 
@@ -646,9 +658,9 @@
 
             <tbody>
 
-                @foreach($calculation['items'] as $index => $item)
+                <?php $__currentLoopData = $calculation['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                @php
+                <?php
 
                 $price = $item['rate']
                 ?? $item['rate_inclusive']
@@ -666,79 +678,89 @@
                 $amount = $item['amount_inclusive']
                 ?? ($discountedPrice + $gstAmount);
 
-                @endphp
+                ?>
 
                 <tr>
 
-                    {{-- SL NO --}}
+                    
                     <td>
-                        {{ $index + 1 }}
+                        <?php echo e($index + 1); ?>
+
                     </td>
 
 
-                    {{-- DESCRIPTION --}}
+                    
                     <td class="description">
-                        {{ $item['product_name'] }}
+                        <?php echo e($item['product_name']); ?>
+
                     </td>
 
 
-                    {{-- HSN CODE --}}
+                    
                     <td>
-                        {{ $item['hsn'] }}
+                        <?php echo e($item['hsn']); ?>
+
                     </td>
 
 
-                    {{-- QUANTITY --}}
+                    
                     <td>
-                        {{ number_format($item['qty'], 0) }}
+                        <?php echo e(number_format($item['qty'], 0)); ?>
+
                     </td>
 
 
-                    {{-- UNIT --}}
+                    
                     <td>
-                        {{ $item['unit'] }}
+                        <?php echo e($item['unit']); ?>
+
                     </td>
 
 
-                    {{-- PRICE --}}
+                    
                     <td class="right">
-                        ₹ {{ number_format($price, 2) }}
+                        ₹ <?php echo e(number_format($price, 2)); ?>
+
                     </td>
 
 
-                    {{-- DISCOUNT --}}
+                    
                     <td class="right">
-                        ₹ {{ number_format($discount, 2) }}
+                        ₹ <?php echo e(number_format($discount, 2)); ?>
+
                     </td>
 
 
-                    {{-- DISCOUNTED PRICE --}}
+                    
                     <td class="right">
-                        ₹ {{ number_format($discountedPrice, 2) }}
+                        ₹ <?php echo e(number_format($discountedPrice, 2)); ?>
+
                     </td>
 
 
-                    {{-- GST --}}
+                    
                     <td class="right">
-                        ₹ {{ number_format($gstAmount, 2) }}
+                        ₹ <?php echo e(number_format($gstAmount, 2)); ?>
+
                     </td>
 
 
-                    {{-- FINAL AMOUNT --}}
+                    
                     <td class="right">
-                        ₹ {{ number_format($amount, 2) }}
+                        ₹ <?php echo e(number_format($amount, 2)); ?>
+
                     </td>
 
                 </tr>
 
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
             </tbody>
 
 
             <tfoot>
 
-                {{-- TAXABLE AMOUNT --}}
+                
                 <tr>
 
                     <td colspan="8"></td>
@@ -748,13 +770,14 @@
                     </td>
 
                     <td class="summary-value">
-                        ₹ {{ number_format($calculation['subtotal'] ?? 0, 2) }}
+                        ₹ <?php echo e(number_format($calculation['subtotal'] ?? 0, 2)); ?>
+
                     </td>
 
                 </tr>
 
 
-                {{-- CGST --}}
+                
                 <tr>
 
                     <td colspan="8"></td>
@@ -764,13 +787,14 @@
                     </td>
 
                     <td class="summary-value">
-                        ₹ {{ number_format($calculation['cgst_total'] ?? 0, 2) }}
+                        ₹ <?php echo e(number_format($calculation['cgst_total'] ?? 0, 2)); ?>
+
                     </td>
 
                 </tr>
 
 
-                {{-- SGST --}}
+                
                 <tr>
 
                     <td colspan="8"></td>
@@ -780,13 +804,14 @@
                     </td>
 
                     <td class="summary-value">
-                        ₹ {{ number_format($calculation['sgst_total'] ?? 0, 2) }}
+                        ₹ <?php echo e(number_format($calculation['sgst_total'] ?? 0, 2)); ?>
+
                     </td>
 
                 </tr>
 
 
-                {{-- IGST --}}
+                
                 <tr>
 
                     <td colspan="8"></td>
@@ -796,13 +821,14 @@
                     </td>
 
                     <td class="summary-value">
-                        ₹ {{ number_format($calculation['igst_total'] ?? 0, 2) }}
+                        ₹ <?php echo e(number_format($calculation['igst_total'] ?? 0, 2)); ?>
+
                     </td>
 
                 </tr>
 
 
-                {{-- TOTAL GST --}}
+                
                 <tr>
 
                     <td colspan="8"></td>
@@ -812,13 +838,14 @@
                     </td>
 
                     <td class="summary-value">
-                        ₹ {{ number_format($calculation['gst_total'] ?? 0, 2) }}
+                        ₹ <?php echo e(number_format($calculation['gst_total'] ?? 0, 2)); ?>
+
                     </td>
 
                 </tr>
 
 
-                {{-- AMOUNT PAYABLE --}}
+                
                 <tr>
 
                     <td colspan="8"></td>
@@ -828,7 +855,8 @@
                     </td>
 
                     <td class="total-value">
-                        ₹ {{ number_format($calculation['grand_total'] ?? 0, 2) }}
+                        ₹ <?php echo e(number_format($calculation['grand_total'] ?? 0, 2)); ?>
+
                     </td>
 
                 </tr>
@@ -838,7 +866,7 @@
         </table>
 
 
-        {{-- ================= AMOUNT WORDS ================= --}}
+        
 
         <div class="amount-words">
 
@@ -847,7 +875,8 @@
             </div>
 
             <div class="words">
-                {{ $calculation['grand_total_words'] ?? '-' }}
+                <?php echo e($calculation['grand_total_words'] ?? '-'); ?>
+
             </div>
 
             <div class="currency">
@@ -857,7 +886,7 @@
         </div>
 
 
-        {{-- ================= PAYMENT + DECLARATION ================= --}}
+        
 
         <table class="footer-table">
 
@@ -872,7 +901,8 @@
                         </div>
 
                         <div class="payment-line">
-                            {{ ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-')) }}
+                            <?php echo e(ucwords(str_replace('_', ' ', $order->c_mode_of_payment ?? '-'))); ?>
+
                         </div>
 
                         <br>
@@ -882,28 +912,33 @@
                         </div>
 
                         <div class="payment-line">
-                            {{ $company->account_name }}
+                            <?php echo e($company->account_name); ?>
+
                         </div>
 
                         <div class="payment-line">
-                            A/c No: {{ $company->account_number }}
+                            A/c No: <?php echo e($company->account_number); ?>
+
                         </div>
 
                         <div class="payment-line">
-                            IFSC: {{ $company->ifsc_code }}
+                            IFSC: <?php echo e($company->ifsc_code); ?>
+
                         </div>
 
                         <div class="payment-line">
-                            Bank: {{ $company->bank_name }}
+                            Bank: <?php echo e($company->bank_name); ?>
+
                         </div>
 
-                        @if($company->branch)
+                        <?php if($company->branch): ?>
 
                         <div class="payment-line">
-                            Branch: {{ $company->branch }}
+                            Branch: <?php echo e($company->branch); ?>
+
                         </div>
 
-                        @endif
+                        <?php endif; ?>
 
                     </div>
 
@@ -941,7 +976,7 @@
         </table>
 
 
-        {{-- ================= FOOTER ================= --}}
+        
 
         <div class="bottom">
 
@@ -955,4 +990,4 @@
 
 </body>
 
-</html>
+</html><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/pdf/invoice.blade.php ENDPATH**/ ?>

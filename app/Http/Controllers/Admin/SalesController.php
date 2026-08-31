@@ -1045,7 +1045,7 @@ class SalesController extends Controller
         ) {
 
             $lastInvoice = SalesOrder::whereNotNull('invoice_no')
-                ->where('invoice_no', 'like', 'FCA%')
+                ->where('invoice_no', 'like', 'INV%')
                 ->orderByRaw(
                     'CAST(SUBSTRING(invoice_no, 4) AS UNSIGNED) DESC'
                 )
@@ -1064,7 +1064,7 @@ class SalesController extends Controller
                 $nextNumber = 1;
             }
 
-            $salesOrder->invoice_no = 'FCA'.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            $salesOrder->invoice_no = 'INV'.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
             $salesOrder->save();
         }

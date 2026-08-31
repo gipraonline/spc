@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
 /* Premium Design Tokens */
 :root {
@@ -287,6 +288,65 @@
 
             </div>
 
+            {{-- GPS Location --}}
+            <div class="field-group-title mt-5">
+                <i class="ti ti-map-pin fs-5"></i>
+                Franchise GPS Location
+            </div>
+
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-6">
+                    <label for="latitude" class="form-label">
+                        Latitude
+                    </label>
+
+                    <input type="text" id="latitude" name="latitude" value="{{ old('latitude') }}" class="form-control"
+                        placeholder="Latitude" readonly>
+
+                    @error('latitude')
+                    <div class="text-danger mt-1 fs-2">
+                        {{ $message }}
+                    </div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6">
+                    <label for="longitude" class="form-label">
+                        Longitude
+                    </label>
+
+                    <input type="text" id="longitude" name="longitude" value="{{ old('longitude') }}"
+                        class="form-control" placeholder="Longitude" readonly>
+
+                    @error('longitude')
+                    <div class="text-danger mt-1 fs-2">
+                        {{ $message }}
+                    </div>
+                    @enderror
+                </div>
+
+            </div>
+
+            <div class="mb-4 d-flex align-items-center gap-2 flex-wrap">
+
+                <button type="button" id="getLocationBtn" class="btn btn-outline-success">
+                    <i class="ti ti-map-pin-search"></i>
+                    Get Location from Address
+                </button>
+
+                <button type="button" id="selectLocationBtn" class="btn btn-outline-primary">
+                    <i class="ti ti-map-pin"></i>
+                    Select Location on Map
+                </button>
+
+                <span id="locationStatus" class="ms-2 text-muted"></span>
+
+            </div>
+
+            <div id="franchiseMap" style="display:none;width:100%;height:450px;border-radius:12px;margin-bottom:25px;">
+            </div>
+
             <!-- Section 2: Communication -->
             <div class="field-group-title mt-5">
                 <i class="ti ti-mail-forward fs-5"></i> Contact & Availability
@@ -338,8 +398,21 @@
 </div>
 @endsection
 @push('scripts')
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 $(document).ready(function() {
+
+    /*
+    |--------------------------------------------------------------------------
+    | VARIABLES
+    |--------------------------------------------------------------------------
+    */
+
+    let franchiseMap = null;
+    let franchiseMarker = null;
+
 
     /*
     |--------------------------------------------------------------------------
@@ -351,7 +424,6 @@ $(document).ready(function() {
 
         let stateId = $(this).val();
 
-        // Clear district
         $('#n_district_id').html(
             '<option value="">Loading...</option>'
         );
@@ -366,6 +438,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
+
             type: 'GET',
 
             url: "{{ route('admin.filterDistrict') }}",
@@ -378,7 +451,10 @@ $(document).ready(function() {
 
             success: function(response) {
 
-                console.log('District response:', response);
+                console.log(
+                    'District response:',
+                    response
+                );
 
                 $('#n_district_id').html(
                     '<option value="">Select District</option>'
@@ -389,23 +465,29 @@ $(document).ready(function() {
                     response.districts.length > 0
                 ) {
 
-                    $.each(response.districts, function(index, district) {
+                    $.each(
+                        response.districts,
+                        function(index, district) {
 
-                        $('#n_district_id').append(
-                            '<option value="' +
-                            district.id +
-                            '">' +
-                            district.district_name +
-                            '</option>'
-                        );
+                            $('#n_district_id').append(
 
-                    });
+                                '<option value="' +
+                                district.id +
+                                '">' +
+                                district.district_name +
+                                '</option>'
+
+                            );
+
+                        }
+                    );
 
                 } else {
 
                     $('#n_district_id').html(
                         '<option value="">No Districts Found</option>'
                     );
+
                 }
 
             },
@@ -420,11 +502,887 @@ $(document).ready(function() {
                 $('#n_district_id').html(
                     '<option value="">Unable to load districts</option>'
                 );
+
             }
+
         });
 
     });
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | INITIALIZE LEAFLET MAP
+    |--------------------------------------------------------------------------
+    */
+
+    function initializeMap(
+        latitude = 10.8505,
+        longitude = 76.2711,
+        zoom = 8
+    ) {
+
+        $('#franchiseMap').show();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create map only once
+        |--------------------------------------------------------------------------
+        */
+
+        if (!franchiseMap) {
+
+            franchiseMap = L.map(
+                'franchiseMap'
+            ).setView(
+                [
+                    latitude,
+                    longitude
+                ],
+                zoom
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | OpenStreetMap Tiles
+            |--------------------------------------------------------------------------
+            */
+
+            L.tileLayer(
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+
+                    attribution: '&copy; OpenStreetMap contributors'
+                }
+            ).addTo(franchiseMap);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Manual map click
+            |--------------------------------------------------------------------------
+            */
+
+            franchiseMap.on(
+                'click',
+                function(e) {
+
+                    setLocation(
+                        e.latlng.lat,
+                        e.latlng.lng,
+                        true
+                    );
+
+                }
+            );
+
+        } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Map already exists
+            |--------------------------------------------------------------------------
+            */
+
+            franchiseMap.setView(
+                [
+                    latitude,
+                    longitude
+                ],
+                zoom
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Fix Leaflet map size
+        |--------------------------------------------------------------------------
+        */
+
+        setTimeout(
+            function() {
+
+                franchiseMap.invalidateSize();
+
+            },
+            300
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SET LOCATION
+    |--------------------------------------------------------------------------
+    */
+
+    function setLocation(
+        latitude,
+        longitude,
+        manual = false
+    ) {
+
+        latitude = parseFloat(
+            latitude
+        ).toFixed(7);
+
+        longitude = parseFloat(
+            longitude
+        ).toFixed(7);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Set input values
+        |--------------------------------------------------------------------------
+        */
+
+        $('#latitude').val(
+            latitude
+        );
+
+        $('#longitude').val(
+            longitude
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Marker position
+        |--------------------------------------------------------------------------
+        */
+
+        const latLng = [
+
+            parseFloat(latitude),
+
+            parseFloat(longitude)
+
+        ];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create marker
+        |--------------------------------------------------------------------------
+        */
+
+        if (franchiseMarker) {
+
+            franchiseMarker.setLatLng(
+                latLng
+            );
+
+        } else {
+
+            franchiseMarker =
+                L.marker(latLng)
+                .addTo(franchiseMap);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Move map
+        |--------------------------------------------------------------------------
+        */
+
+        franchiseMap.setView(
+            latLng,
+            16
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Status
+        |--------------------------------------------------------------------------
+        */
+
+        if (manual) {
+
+            $('#locationStatus')
+                .removeClass(
+                    'text-muted text-danger'
+                )
+                .addClass(
+                    'text-success'
+                )
+                .html(
+                    '✓ Location manually selected'
+                );
+
+        } else {
+
+            $('#locationStatus')
+                .removeClass(
+                    'text-muted text-danger'
+                )
+                .addClass(
+                    'text-success'
+                )
+                .html(
+                    '✓ Location found. Please verify the marker.'
+                );
+
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SELECT LOCATION ON MAP
+    |--------------------------------------------------------------------------
+    */
+
+    $('#selectLocationBtn').on(
+        'click',
+        function() {
+
+            initializeMap();
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GEOCODING FUNCTION
+    |--------------------------------------------------------------------------
+    */
+
+    function searchLocation(
+        query,
+        callback
+    ) {
+
+        console.log(
+            'Searching:',
+            query
+        );
+
+
+        $.ajax({
+
+            url: 'https://nominatim.openstreetmap.org/search',
+
+            type: 'GET',
+
+            data: {
+
+                q: query,
+
+                format: 'json',
+
+                limit: 5,
+
+                countrycodes: 'in'
+
+            },
+
+            dataType: 'json',
+
+            success: function(
+                response
+            ) {
+
+                console.log(
+                    'Search result:',
+                    response
+                );
+
+                callback(
+                    response
+                );
+
+            },
+
+            error: function(
+                xhr
+            ) {
+
+                console.error(
+                    'Geocoding error:',
+                    xhr.responseText
+                );
+
+                callback(
+                    []
+                );
+
+            }
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET LOCATION FROM ADDRESS
+    |--------------------------------------------------------------------------
+    */
+
+    $('#getLocationBtn').on(
+        'click',
+        function() {
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get Address
+            |--------------------------------------------------------------------------
+            */
+
+            const address =
+                $('#c_store_address')
+                .val()
+                .trim();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get State
+            |--------------------------------------------------------------------------
+            */
+
+            const state =
+                $('#n_state_id option:selected')
+                .text()
+                .trim();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get District
+            |--------------------------------------------------------------------------
+            */
+
+            const district =
+                $('#n_district_id option:selected')
+                .text()
+                .trim();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get Panchayath
+            |--------------------------------------------------------------------------
+            */
+
+            const panchayath =
+                $('#c_panchayath')
+                .val()
+                .trim();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDATION
+            |--------------------------------------------------------------------------
+            */
+
+            if (!address) {
+
+                $('#locationStatus')
+                    .removeClass(
+                        'text-muted text-success'
+                    )
+                    .addClass(
+                        'text-danger'
+                    )
+                    .text(
+                        'Please enter the address first.'
+                    );
+
+                $('#c_store_address')
+                    .focus();
+
+                return;
+
+            }
+
+
+            if (
+                !state ||
+                state === 'Select State'
+            ) {
+
+                $('#locationStatus')
+                    .removeClass(
+                        'text-muted text-success'
+                    )
+                    .addClass(
+                        'text-danger'
+                    )
+                    .text(
+                        'Please select a state.'
+                    );
+
+                $('#n_state_id')
+                    .focus();
+
+                return;
+
+            }
+
+
+            if (
+                !district ||
+                district === 'Select District'
+            ) {
+
+                $('#locationStatus')
+                    .removeClass(
+                        'text-muted text-success'
+                    )
+                    .addClass(
+                        'text-danger'
+                    )
+                    .text(
+                        'Please select a district.'
+                    );
+
+                $('#n_district_id')
+                    .focus();
+
+                return;
+
+            }
+
+
+            if (!panchayath) {
+
+                $('#locationStatus')
+                    .removeClass(
+                        'text-muted text-success'
+                    )
+                    .addClass(
+                        'text-danger'
+                    )
+                    .text(
+                        'Please enter the Panchayath.'
+                    );
+
+                $('#c_panchayath')
+                    .focus();
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Button
+            |--------------------------------------------------------------------------
+            */
+
+            const button =
+                $('#getLocationBtn');
+
+
+            button.prop(
+                'disabled',
+                true
+            );
+
+
+            button.html(
+                '<i class="ti ti-loader-2"></i> Searching...'
+            );
+
+
+            $('#locationStatus')
+                .removeClass(
+                    'text-success text-danger'
+                )
+                .addClass(
+                    'text-muted'
+                )
+                .text(
+                    'Finding location...'
+                );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SEARCH QUERIES
+            |--------------------------------------------------------------------------
+            |
+            | Search from most specific → least specific.
+            |
+            */
+
+            const searches = [
+
+                /*
+                |--------------------------------------------------------------
+                | 1. Full Address
+                |--------------------------------------------------------------
+                */
+
+                address +
+                ', ' +
+                panchayath +
+                ', ' +
+                district +
+                ', ' +
+                state +
+                ', India',
+
+
+                /*
+                |--------------------------------------------------------------
+                | 2. Address + District + State
+                |--------------------------------------------------------------
+                */
+
+                address +
+                ', ' +
+                district +
+                ', ' +
+                state +
+                ', India',
+
+
+                /*
+                |--------------------------------------------------------------
+                | 3. Panchayath + District + State
+                |--------------------------------------------------------------
+                */
+
+                panchayath +
+                ', ' +
+                district +
+                ', ' +
+                state +
+                ', India',
+
+
+                /*
+                |--------------------------------------------------------------
+                | 4. District + State
+                |--------------------------------------------------------------
+                */
+
+                district +
+                ', ' +
+                state +
+                ', India'
+
+            ];
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TRY SEARCH
+            |--------------------------------------------------------------------------
+            */
+
+            function trySearch(
+                index
+            ) {
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | No more searches
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    index >=
+                    searches.length
+                ) {
+
+                    button.prop(
+                        'disabled',
+                        false
+                    );
+
+                    button.html(
+                        '<i class="ti ti-map-pin-search"></i> Get Location from Address'
+                    );
+
+
+                    $('#locationStatus')
+                        .removeClass(
+                            'text-muted text-success'
+                        )
+                        .addClass(
+                            'text-danger'
+                        )
+                        .html(
+                            'Location not found. Please select the location manually on the map.'
+                        );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Open map automatically
+                    |--------------------------------------------------------------------------
+                    */
+
+                    initializeMap();
+
+
+                    return;
+
+                }
+
+
+                const query =
+                    searches[index];
+
+
+                console.log(
+                    'Trying search #' +
+                    (index + 1) +
+                    ':',
+                    query
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Search
+                |--------------------------------------------------------------------------
+                */
+
+                searchLocation(
+                    query,
+                    function(results) {
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Result found
+                        |--------------------------------------------------------------------------
+                        */
+
+                        if (
+                            results &&
+                            results.length > 0
+                        ) {
+
+
+                            const result =
+                                results[0];
+
+
+                            const latitude =
+                                parseFloat(
+                                    result.lat
+                                );
+
+
+                            const longitude =
+                                parseFloat(
+                                    result.lon
+                                );
+
+
+                            console.log(
+                                'Location found:',
+                                result
+                            );
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | Open map
+                            |--------------------------------------------------------------------------
+                            */
+
+                            initializeMap(
+                                latitude,
+                                longitude,
+                                16
+                            );
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | Set marker
+                            |--------------------------------------------------------------------------
+                            */
+
+                            setLocation(
+                                latitude,
+                                longitude,
+                                false
+                            );
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | Display found address
+                            |--------------------------------------------------------------------------
+                            */
+
+                            let displayName =
+                                result.display_name ||
+                                'Location found';
+
+
+                            $('#locationStatus')
+                                .removeClass(
+                                    'text-muted text-danger'
+                                )
+                                .addClass(
+                                    'text-success'
+                                )
+                                .html(
+                                    '✓ Location found. Please verify the marker on the map.'
+                                );
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | Restore button
+                            |--------------------------------------------------------------------------
+                            */
+
+                            button.prop(
+                                'disabled',
+                                false
+                            );
+
+
+                            button.html(
+                                '<i class="ti ti-map-pin-search"></i> Get Location from Address'
+                            );
+
+
+                            return;
+
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Try next query
+                        |--------------------------------------------------------------------------
+                        */
+
+                        console.log(
+                            'No result for:',
+                            query
+                        );
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Wait before next request
+                        |--------------------------------------------------------------------------
+                        |
+                        | Important for Nominatim.
+                        |
+                        */
+
+                        setTimeout(
+                            function() {
+
+                                trySearch(
+                                    index + 1
+                                );
+
+                            },
+                            1200
+                        );
+
+                    }
+                );
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | START SEARCH
+            |--------------------------------------------------------------------------
+            */
+
+            trySearch(0);
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM SUBMIT VALIDATION
+    |--------------------------------------------------------------------------
+    */
+
+    $('#frm_create').on(
+        'submit',
+        function(e) {
+
+
+            const latitude =
+                $('#latitude')
+                .val()
+                .trim();
+
+
+            const longitude =
+                $('#longitude')
+                .val()
+                .trim();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Location required
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                !latitude ||
+                !longitude
+            ) {
+
+                e.preventDefault();
+
+
+                $('#locationStatus')
+                    .removeClass(
+                        'text-muted text-success'
+                    )
+                    .addClass(
+                        'text-danger'
+                    )
+                    .text(
+                        'Please select the franchise location on the map.'
+                    );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Open map
+                |--------------------------------------------------------------------------
+                */
+
+                initializeMap();
+
+
+                return false;
+
+            }
+
+        }
+    );
+
 });
 </script>
+
 @endpush

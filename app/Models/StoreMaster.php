@@ -22,9 +22,18 @@ class StoreMaster extends Model
         'n_state_id',
         'n_district_id',
         'n_panchayath_id',
+
+        'latitude',
+        'longitude',
+
         'c_store_email',
         'n_store_phone',
         'c_store_status',
+    ];
+
+    protected $casts = [
+        'latitude' => 'decimal:7',
+        'longitude' => 'decimal:7',
     ];
 
     public function state()

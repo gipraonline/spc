@@ -539,6 +539,8 @@ unset($__errorArgs, $__bag); ?>
 
                                         <option value="<?php echo e($product->n_product_id); ?>" data-price="<?php echo e($product->n_mrp); ?>"
                                             data-gst="<?php echo e($product->n_gst_percentage ?? 0); ?>"
+                                            data-hsn-code="<?php echo e($product->c_hsn_code ?? ''); ?>"
+                                            data-unit="<?php echo e($product->c_unit ?? ''); ?>"
                                             <?php echo e($val->product_id == $product->n_product_id ? 'selected' : ''); ?>>
                                             <?php echo e($product->c_product_name); ?>
 
@@ -1374,7 +1376,7 @@ $(document).ready(function() {
                                     value="<?php echo e($product->n_product_id); ?>"
                                     data-price="<?php echo e($product->n_mrp); ?>"
                                     data-gst="<?php echo e($product->n_gst_percentage); ?>"
-                                    data-hsnCode="<?php echo e($product->c_hsn_code); ?>"
+                                    data-hsn-code="<?php echo e($product->c_hsn_code); ?>"
                                     data-unit="<?php echo e($product->c_unit); ?>">
 
                                     <?php echo e($product->c_product_name); ?>
@@ -1553,7 +1555,7 @@ $(document).ready(function() {
             selectedOption.attr('data-price')
         ) || parseFloat(row.find('.price').val()) || 0;
 
-        let hsnCode = selectedOption.attr('data-hsnCode');
+        let hsnCode = selectedOption.attr('data-hsn-code');
         let unit = selectedOption.attr('data-unit');
 
         // GST percentage from product
@@ -1588,9 +1590,7 @@ $(document).ready(function() {
 
 
         // Set values
-        row.find('.c_hsn_code').val(
-            hsnCode
-        );
+        row.find('.c_hsn_code').val(hsnCode);
 
         row.find('.price').val(
             price.toFixed(2)

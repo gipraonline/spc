@@ -531,6 +531,8 @@ use Illuminate\Support\Facades\Crypt;
 
                                         <option value="{{ $product->n_product_id }}" data-price="{{ $product->n_mrp }}"
                                             data-gst="{{ $product->n_gst_percentage ?? 0 }}"
+                                            data-hsn-code="{{ $product->c_hsn_code ?? '' }}"
+                                            data-unit="{{ $product->c_unit ?? '' }}"
                                             {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
                                             {{ $product->c_product_name }}
                                         </option>
@@ -1464,7 +1466,7 @@ $(document).ready(function() {
                                     value="{{ $product->n_product_id }}"
                                     data-price="{{ $product->n_mrp }}"
                                     data-gst="{{ $product->n_gst_percentage }}"
-                                    data-hsnCode="{{ $product->c_hsn_code }}"
+                                    data-hsn-code="{{ $product->c_hsn_code }}"
                                     data-unit="{{ $product->c_unit }}">
 
                                     {{ $product->c_product_name }}
@@ -1642,7 +1644,7 @@ $(document).ready(function() {
             selectedOption.attr('data-price')
         ) || parseFloat(row.find('.price').val()) || 0;
 
-        let hsnCode = selectedOption.attr('data-hsnCode');
+        let hsnCode = selectedOption.attr('data-hsn-code');
         let unit = selectedOption.attr('data-unit');
 
         // GST percentage from product
@@ -1677,9 +1679,7 @@ $(document).ready(function() {
 
 
         // Set values
-        row.find('.c_hsn_code').val(
-            hsnCode
-        );
+        row.find('.c_hsn_code').val(hsnCode);
 
         row.find('.price').val(
             price.toFixed(2)

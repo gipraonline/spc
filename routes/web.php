@@ -169,7 +169,7 @@ Route::middleware(['auth', 'admin'])
             ->name('franchises.clearSearch');
 
         Route::get('districts/{stateId}', [StoreController::class, 'getDistricts'])
-            ->middleware('permission:franchises.view')
+            ->middleware('permission:franchises.create')
             ->name('districts');
 
         Route::get('filter-panchayath', [StoreController::class, 'filterPanchayath'])

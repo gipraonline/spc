@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     .customer-toggle{
         display:flex;
@@ -34,12 +32,12 @@
         background: linear-gradient(135deg, #5A8D3A, #074E30);
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
-@php
+<?php $__env->startSection('content'); ?>
+<?php
 use Illuminate\Support\Facades\Crypt;
-@endphp
+?>
 <div class="card w-100 position-relative overflow-hidden mb-4">
 
     <!-- Header -->
@@ -48,7 +46,7 @@ use Illuminate\Support\Facades\Crypt;
             Lead Entry
         </h5>
 
-        <a href="{{ route('admin.leads.index') }}" class="btn buttonSpc">
+        <a href="<?php echo e(route('admin.leads.index')); ?>" class="btn buttonSpc">
             <i class="ti ti-list-details me-1"></i>
             View Leads
         </a>
@@ -56,50 +54,51 @@ use Illuminate\Support\Facades\Crypt;
 
     <div class="card-body p-4">
 
-        @if ($errors->any())
+        <?php if($errors->any()): ?>
         <div class="alert alert-danger">
             <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
+                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <li><?php echo e($error); ?></li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
         </div>
-        @endif
+        <?php endif; ?>
 
-        <form action="{{ route('admin.leads.store') }}"
+        <form action="<?php echo e(route('admin.leads.store')); ?>"
               method="POST" id="frm_create">
 
-            @csrf
+            <?php echo csrf_field(); ?>
 
-            <input type="hidden" name="n_lead_id" value="{{$lead->n_lead_id}}">
+            <input type="hidden" name="n_lead_id" value="<?php echo e($lead->n_lead_id); ?>">
 
 
 
-            @if(isset($user) && $user->identifier != "FCA")
+            <?php if(isset($user) && $user->identifier != "FCA"): ?>
                 <div class="customer-toggle mb-4">
                     <select name="n_fca_id" class="form-control mandatory">
                                     <option value="">Select Farm Care Adviser</option>
 
-                                    @foreach($employees as $employee)
-                                    <option value="{{ $employee->n_employee_id }}" {{isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''}}>
-                                        {{ $employee->c_employee_name }}
+                                    <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($employee->n_employee_id); ?>" <?php echo e(isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''); ?>>
+                                        <?php echo e($employee->c_employee_name); ?>
+
                                     </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
-            @endif
+            <?php endif; ?>
             <!-- Customer Type -->
             <div class="customer-toggle mb-4">
 
                 <input type="radio" class="btn-check " name="c_customer_type"
-                    id="newCustomer" value="new" {{isset($lead) && $lead->c_customer_type=="new" ? "checked" : ''}}>
+                    id="newCustomer" value="new" <?php echo e(isset($lead) && $lead->c_customer_type=="new" ? "checked" : ''); ?>>
 
                 <label class="toggle-btn" for="newCustomer">
                     New Customer
                 </label>
 
                 <input type="radio" class="btn-check" name="c_customer_type"
-                    id="existingCustomer" value="existing" {{isset($lead) && $lead->c_customer_type=="existing" ? "checked" : ''}}>
+                    id="existingCustomer" value="existing" <?php echo e(isset($lead) && $lead->c_customer_type=="existing" ? "checked" : ''); ?>>
 
                 <label class="toggle-btn" for="existingCustomer">
                     Existing Customer
@@ -108,7 +107,7 @@ use Illuminate\Support\Facades\Crypt;
             </div>
 
 
-            @if(!isset($lead->n_lead_id))
+            <?php if(!isset($lead->n_lead_id)): ?>
             <!-- Existing Customer Lookup -->
             <div class="card border rounded-4 mb-4 d-none" id="lookupCard">
 
@@ -153,7 +152,7 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
             </div>
-            @endif
+            <?php endif; ?>
             <!-- Customer Details -->
 
             <div class="card border rounded-4 mb-4">
@@ -179,15 +178,30 @@ use Illuminate\Support\Facades\Crypt;
 
                             <input type="text"
                                    name="c_customer_name"
-                                   class="form-control @error('customer_name') is-invalid @enderror"
-                                   value="{{ old('c_customer_name',$lead->c_customer_name ?? '') }}"
+                                   class="form-control <?php $__errorArgs = ['customer_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                   value="<?php echo e(old('c_customer_name',$lead->c_customer_name ?? '')); ?>"
                                    placeholder="Enter Customer Name">
 
-                            @error('customer_name')
+                            <?php $__errorArgs = ['customer_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                             <div class="invalid-feedback">
-                                {{ $message }}
+                                <?php echo e($message); ?>
+
                             </div>
-                            @enderror
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                         </div>
 
@@ -202,16 +216,31 @@ use Illuminate\Support\Facades\Crypt;
 
                             <input type="text"
                                    name="n_mobile"
-                                   class="form-control @error('n_mobile') is-invalid @enderror"
-                                   value="{{ old('n_mobile',$lead->n_mobile ?? '') }}"
+                                   class="form-control <?php $__errorArgs = ['n_mobile'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                   value="<?php echo e(old('n_mobile',$lead->n_mobile ?? '')); ?>"
                                    maxlength="10"
                                    placeholder="Enter Mobile Number">
 
-                            @error('mobile')
+                            <?php $__errorArgs = ['mobile'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                             <div class="invalid-feedback">
-                                {{ $message }}
+                                <?php echo e($message); ?>
+
                             </div>
-                            @enderror
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                         </div>
 
@@ -219,7 +248,7 @@ use Illuminate\Support\Facades\Crypt;
 
                        <div class="col-md-4">
                             <label for="c_email" class="form-label">Email</label>
-                            <input type="text" id="c_email" name="c_email" value="{{ old('c_email',$lead->c_email ?? '') }}"
+                            <input type="text" id="c_email" name="c_email" value="<?php echo e(old('c_email',$lead->c_email ?? '')); ?>"
                                 data-message="Please enter Customer Email" class="form-control "
                                 placeholder="Enter Customer Email">
                             <div class="text-danger mt-1 fs-2"></div>
@@ -229,7 +258,7 @@ use Illuminate\Support\Facades\Crypt;
 
                          <div class="col-md-12">
                             <label for="c_customer_address" class="form-label">Customer Address *</label>
-                            <input type="text" id="c_address" name="c_address" value="{{ old('c_address',isset($lead) ? $lead->c_address : '') }}"
+                            <input type="text" id="c_address" name="c_address" value="<?php echo e(old('c_address',isset($lead) ? $lead->c_address : '')); ?>"
                                data-message="Please add Customer Address" class="form-control mandatory" placeholder="Customer Address">
                             <div class="text-danger mt-1 fs-2"></div>
                         </div>
@@ -238,13 +267,13 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="col-md-6">
                             <label for="state" class="form-label">State</label>
-                            <select class="form-select mandatory" data-message="Please enter State" id="state" name="n_state_id" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}>
+                            <select class="form-select mandatory" data-message="Please enter State" id="state" name="n_state_id" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>>
                                 <option value="" selected>Select State</option>
-                                @if(isset($states))
-                                    @foreach($states as $State)
-                                        <option value="{{$State->n_state_id}}" {{ old('n_state_id', $lead->n_state_id ?? '') == $State->n_state_id ? 'selected' : '' }}>{{$State->name}}</option>
-                                    @endforeach
-                                @endif
+                                <?php if(isset($states)): ?>
+                                    <?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $State): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($State->n_state_id); ?>" <?php echo e(old('n_state_id', $lead->n_state_id ?? '') == $State->n_state_id ? 'selected' : ''); ?>><?php echo e($State->name); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </select>
                             <div class="text-danger mt-1 fs-2"></div>
                         </div>
@@ -254,16 +283,16 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="col-md-6">
                             <label for="state" class="form-label">District</label>
-                            <select class="form-select mandatory" data-message="Please enter District" {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }}  id="district" name="n_district_id">
+                            <select class="form-select mandatory" data-message="Please enter District" <?php echo e(isset($viewmode) && $viewmode=='on' ? 'disabled' : ''); ?>  id="district" name="n_district_id">
                                 <option value="" selected>Select District</option>
-                                @if(isset($lead->n_district_id))
-                                    @php $districts = \App\Models\District::where('state_id', $lead->n_state_id)->get(); @endphp
-                                    @if(isset($districts))
-                                        @foreach($districts as $district)
-                                            <option value="{{$district->id}}" {{ old('n_district_id', $lead->n_district_id ?? '') == $district->id ? 'selected' : '' }}>{{$district->district_name}}</option>
-                                        @endforeach
-                                    @endif
-                                @endif
+                                <?php if(isset($lead->n_district_id)): ?>
+                                    <?php $districts = \App\Models\District::where('state_id', $lead->n_state_id)->get(); ?>
+                                    <?php if(isset($districts)): ?>
+                                        <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($district->id); ?>" <?php echo e(old('n_district_id', $lead->n_district_id ?? '') == $district->id ? 'selected' : ''); ?>><?php echo e($district->district_name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endif; ?>
+                                <?php endif; ?>
 
                             </select>
                             <div class="text-danger mt-1 fs-2"></div>
@@ -301,13 +330,27 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date"
                                 name="d_visit_date"
                                 id="d_visit_date"
-                                class="form-control @error('d_visit_date') is-invalid @enderror"
-                                value="{{ old('d_visit_date', $lead->d_visit_date ? \Carbon\Carbon::parse($lead->d_visit_date)->format('Y-m-d') : '') }}">
+                                class="form-control <?php $__errorArgs = ['d_visit_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                value="<?php echo e(old('d_visit_date', $lead->d_visit_date ? \Carbon\Carbon::parse($lead->d_visit_date)->format('Y-m-d') : '')); ?>">
 
 
-                            @error('d_visit_date')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <?php $__errorArgs = ['d_visit_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
 
 
@@ -348,14 +391,14 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select Status</option>
 
-                                <option value="new" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "new" ? 'selected' : '' }}>New</option>
-                                <option value="contacted"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "contacted" ? 'selected' : '' }}>Contacted</option>
-                                <option value="interested"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "interested" ? 'selected' : '' }}>Interested</option>
-                                <option value="follow-up"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "follow-up" ? 'selected' : '' }}>Follow-up Required</option>
-                                <option value="negotiation"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "negotiation" ? 'selected' : '' }}>Negotiation</option>
-                                <option value="won" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "won" ? 'selected' : '' }}>Won</option>
-                                <option value="lost" {{ old('c_lead_status', $lead->c_lead_status ?? '') == "lost" ? 'selected' : '' }}>Lost</option>
-                                <option value="not-nterested"  {{ old('c_lead_status', $lead->c_lead_status ?? '') == "not-nterested" ? 'selected' : '' }}>Not Interested</option>
+                                <option value="new" <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "new" ? 'selected' : ''); ?>>New</option>
+                                <option value="contacted"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "contacted" ? 'selected' : ''); ?>>Contacted</option>
+                                <option value="interested"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "interested" ? 'selected' : ''); ?>>Interested</option>
+                                <option value="follow-up"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "follow-up" ? 'selected' : ''); ?>>Follow-up Required</option>
+                                <option value="negotiation"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "negotiation" ? 'selected' : ''); ?>>Negotiation</option>
+                                <option value="won" <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "won" ? 'selected' : ''); ?>>Won</option>
+                                <option value="lost" <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "lost" ? 'selected' : ''); ?>>Lost</option>
+                                <option value="not-nterested"  <?php echo e(old('c_lead_status', $lead->c_lead_status ?? '') == "not-nterested" ? 'selected' : ''); ?>>Not Interested</option>
 
                             </select>
 
@@ -370,7 +413,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date"
                                    name="d_expected_availability_date"
                                    class="form-control"
-                                   value="{{ old('d_expected_availability_date', $lead->d_expected_availability_date ? \Carbon\Carbon::parse($lead->d_expected_availability_date)->format('Y-m-d') : '') }}">
+                                   value="<?php echo e(old('d_expected_availability_date', $lead->d_expected_availability_date ? \Carbon\Carbon::parse($lead->d_expected_availability_date)->format('Y-m-d') : '')); ?>">
 
                         </div>
 
@@ -384,7 +427,7 @@ use Illuminate\Support\Facades\Crypt;
             <!-- ============================= -->
             <!-- Follow-up -->
             <!-- ============================= -->
-            @if(isset($lead->n_lead_id))
+            <?php if(isset($lead->n_lead_id)): ?>
             <div class="card border rounded-4 mb-4"
                  id="followupCard">
 
@@ -407,7 +450,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date"
                                    name="next_followup_date"
                                    class="form-control"
-                                   value="{{ old('next_followup_date', $lead->next_followup_date ? \Carbon\Carbon::parse($lead->next_followup_date)->format('Y-m-d') : '') }}">
+                                   value="<?php echo e(old('next_followup_date', $lead->next_followup_date ? \Carbon\Carbon::parse($lead->next_followup_date)->format('Y-m-d') : '')); ?>">
 
                         </div>
 
@@ -420,7 +463,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="time"
                             name="next_followup_time"
                             class="form-control"
-                            value="{{ old('next_followup_time', $lead->next_followup_time ? \Carbon\Carbon::parse($lead->next_followup_time)->format('H:i') : '') }}">
+                            value="<?php echo e(old('next_followup_time', $lead->next_followup_time ? \Carbon\Carbon::parse($lead->next_followup_time)->format('H:i') : '')); ?>">
 
                         </div>
 
@@ -435,11 +478,11 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select</option>
 
-                                <option value="phone_call" {{ old('followup_type', $lead->followup_type ?? '') == "phone_call" ? 'selected' : '' }}>Phone Call</option>
-                                <option value="whats_app" {{ old('followup_type', $lead->followup_type ?? '') == "whats_app" ? 'selected' : '' }}>WhatsApp</option>
-                                <option value="farm_visit" {{ old('followup_type', $lead->followup_type ?? '') == "farm_visit" ? 'selected' : '' }}>Farm Visit</option>
-                                <option value="office_visit" {{ old('followup_type', $lead->followup_type ?? '') == "office_visit" ? 'selected' : '' }}>Office Visit</option>
-                                <option value="video_call" {{ old('followup_type', $lead->followup_type ?? '') == "video_call" ? 'selected' : '' }}>Video Call</option>
+                                <option value="phone_call" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "phone_call" ? 'selected' : ''); ?>>Phone Call</option>
+                                <option value="whats_app" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "whats_app" ? 'selected' : ''); ?>>WhatsApp</option>
+                                <option value="farm_visit" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "farm_visit" ? 'selected' : ''); ?>>Farm Visit</option>
+                                <option value="office_visit" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "office_visit" ? 'selected' : ''); ?>>Office Visit</option>
+                                <option value="video_call" <?php echo e(old('followup_type', $lead->followup_type ?? '') == "video_call" ? 'selected' : ''); ?>>Video Call</option>
 
                             </select>
 
@@ -450,7 +493,7 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
             </div>
-            @endif
+            <?php endif; ?>
 
             <!-- ============================= -->
             <!-- Priority -->
@@ -477,7 +520,7 @@ use Illuminate\Support\Facades\Crypt;
                                        name="priority"
                                        value="Low"
                                        id="priorityLow"
-                                       {{ old('priority', $lead->priority ?? '') == "Low" ? 'checked' : '' }}>
+                                       <?php echo e(old('priority', $lead->priority ?? '') == "Low" ? 'checked' : ''); ?>>
 
                                 <label class="form-check-label"
                                        for="priorityLow">
@@ -499,7 +542,7 @@ use Illuminate\Support\Facades\Crypt;
                                        name="priority"
                                        value="Medium"
                                        id="priorityMedium"
-                                        {{ old('priority', $lead->priority ?? '') == "Medium" ? 'checked' : '' }}>
+                                        <?php echo e(old('priority', $lead->priority ?? '') == "Medium" ? 'checked' : ''); ?>>
 
                                 <label class="form-check-label"
                                        for="priorityMedium">
@@ -521,7 +564,7 @@ use Illuminate\Support\Facades\Crypt;
                                        name="priority"
                                        value="High"
                                        id="priorityHigh"
-                                       {{ old('priority', $lead->priority ?? '') == "High" ? 'checked' : '' }}>
+                                       <?php echo e(old('priority', $lead->priority ?? '') == "High" ? 'checked' : ''); ?>>
 
                                 <label class="form-check-label"
                                        for="priorityHigh">
@@ -543,7 +586,7 @@ use Illuminate\Support\Facades\Crypt;
                                        name="priority"
                                        value="Urgent"
                                        id="priorityUrgent"
-                                       {{ old('priority', $lead->priority ?? '') == "Urgent" ? 'checked' : '' }}>
+                                       <?php echo e(old('priority', $lead->priority ?? '') == "Urgent" ? 'checked' : ''); ?>>
 
                                 <label class="form-check-label"
                                        for="priorityUrgent">
@@ -586,14 +629,29 @@ use Illuminate\Support\Facades\Crypt;
 
                             <textarea name="remarks"
                                       rows="5"
-                                      class="form-control @error('remarks') is-invalid @enderror"
-                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc.">{{ old('remarks',$lead->remarks ?? '') }}</textarea>
+                                      class="form-control <?php $__errorArgs = ['remarks'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                      placeholder="Enter discussion details, objections, customer requirements, quantity interested, etc."><?php echo e(old('remarks',$lead->remarks ?? '')); ?></textarea>
 
-                            @error('remarks')
+                            <?php $__errorArgs = ['remarks'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                 <div class="invalid-feedback">
-                                    {{ $message }}
+                                    <?php echo e($message); ?>
+
                                 </div>
-                            @enderror
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                         </div>
 
@@ -608,9 +666,9 @@ use Illuminate\Support\Facades\Crypt;
             <!-- ========================================= -->
 
             <div class="d-flex justify-content-end gap-2">
-                @if(isset($viewMode) && $viewMode=="Off")
+                <?php if(isset($viewMode) && $viewMode=="Off"): ?>
 
-                        <a href="{{ route('admin.leads.index') }}"
+                        <a href="<?php echo e(route('admin.leads.index')); ?>"
                         class="btn btn-outline-secondary">
 
                             <i class="ti ti-arrow-left me-1"></i>
@@ -625,7 +683,7 @@ use Illuminate\Support\Facades\Crypt;
                             Save Lead
 
                         </button>
-                 @endif
+                 <?php endif; ?>
             </div>
 
         </form>
@@ -642,8 +700,8 @@ use Illuminate\Support\Facades\Crypt;
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-            <form action="{{ route('admin.salesorders.salesUpdateStore') }}" method="POST">
-                @csrf
+            <form action="<?php echo e(route('admin.salesorders.salesUpdateStore')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
 
                 <div class="modal-header">
                     <h5 class="modal-title text-white" id="followUpModalLabel">
@@ -654,7 +712,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 <div class="modal-body">
 
-                    <input type="hidden" name="lead_id" value="{{ $lead->id ?? '' }}">
+                    <input type="hidden" name="lead_id" value="<?php echo e($lead->id ?? ''); ?>">
 
                     <div class="row">
 
@@ -668,7 +726,7 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="date" name="next_followup_date" class="form-control">
                         </div>
 
-                        @if(isset($user) && $user->identifier != "FCA")
+                        <?php if(isset($user) && $user->identifier != "FCA"): ?>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Type</label>
                             <select name="followup_type" class="form-select" required>
@@ -691,7 +749,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <option value="Lost">Lost</option>
                             </select>
                         </div>
-                        @endif
+                        <?php endif; ?>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Priority</label>
                             <select name="priority" class="form-select">
@@ -736,10 +794,10 @@ use Illuminate\Support\Facades\Crypt;
 </div>
 
 
-@endsection
+<?php $__env->stopSection(); ?>
 
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 
 
     <script>
@@ -852,13 +910,13 @@ use Illuminate\Support\Facades\Crypt;
                     return;
                 }
 
-                fetch("{{ route('admin.leads.existingCustomer') }}", {
+                fetch("<?php echo e(route('admin.leads.existingCustomer')); ?>", {
                     method: "POST",
 
                     headers: {
                         "Content-Type": "application/json",
                         "Accept": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        "X-CSRF-TOKEN": "<?php echo e(csrf_token()); ?>"
                     },
 
                     body: JSON.stringify({
@@ -998,7 +1056,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 type: 'GET',
 
-                url: "{{ route('admin.filterDistrict') }}",
+                url: "<?php echo e(route('admin.filterDistrict')); ?>",
 
                 data: {
                     state: state
@@ -1056,5 +1114,7 @@ use Illuminate\Support\Facades\Crypt;
     </script>
 
 
-@endpush
+<?php $__env->stopPush(); ?>
 
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/leads/create.blade.php ENDPATH**/ ?>

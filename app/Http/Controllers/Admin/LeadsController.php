@@ -38,8 +38,8 @@ class LeadsController extends Controller
 
         // FCA: only own leads created/assigned for today
         if ($this->isFca()) {
-            $query->where('n_fca_id', Auth::user()->n_employee_id)
-                ->whereDate('d_visit_date', Carbon::today());
+            $query->where('n_fca_id', Auth::user()->n_employee_id);
+                //->whereDate('d_visit_date', Carbon::today());
         }
 
         // Search: Customer / Mobile

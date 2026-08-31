@@ -480,14 +480,69 @@ use Illuminate\Support\Facades\Crypt;
 
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    {{-- <div class="col-md-6 mb-3">
                         <label class="form-label">
                             Sales Order Booklet Proof *
                         </label>
-                        <input type="file" name="f_booklet_proof" class="form-control mandatory"
+                        <input type="file" name="booklet_image" value="{{ old('booklet_image', isset($sale->booklet_image) ? $sale->booklet_image : '') }}" class="form-control mandatory"
                             data-message="Please Enter Booklet Proof">
                         <div class="text-danger mt-1 fs-2"></div>
+                        @if(isset($sale) && $sale->booklet_image)
+                         <div class="mt-2">
+                             <strong>Existing File:</strong>
+                             <a href="{{ asset('uploads/booklet_images/' . $sale->booklet_image) }}" target="_blank" class="btn btn-sm btn-primary ms-2"> View Booklet Proof </a>
+                         </div>
+                        @endif
+                    </div> --}}
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            Sales Order Booklet Proof
+                            @if(!isset($sale) || !$sale->booklet_image)
+                                <span class="text-danger">*</span>
+                            @endif
+                        </label>
+
+                    <input type="file"
+                        name="booklet_image"
+                        id="booklet_image"
+                        class="form-control"
+                        accept="image/*"
+                        data-message="Please Enter Booklet Proof">
+
+                    <!-- Tell Laravel to delete existing image -->
+                    <input type="hidden"
+                        name="remove_booklet_image"
+                        id="remove_booklet_image"
+                        value="0">
+
+                    <div class="text-danger mt-1 fs-2"></div>
+
+                    <!-- Image Preview -->
+                    <div class="mt-3" id="booklet_image_preview_container">
+
+                        <img
+                            id="booklet_image_preview"
+                            src="{{ isset($sale) && $sale->booklet_image ?  asset('uploads/booklet_images/' . $sale->booklet_image)  : '' }}"
+                            alt="Booklet Proof Preview"
+                            class="img-thumbnail"
+                            style="{{ isset($sale) && $sale->booklet_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
+
+                        @if(isset($sale) && $sale->booklet_image)
+                            <br>
+
+                            <button type="button"
+                                id="remove_booklet_image_btn"
+                                class="btn btn-danger btn-sm mt-2">
+                                Remove Image
+                            </button>
+                        @endif
+
                     </div>
+
+
+                    </div>
+
 
                 </div>
 
@@ -532,7 +587,7 @@ use Illuminate\Support\Facades\Crypt;
                             <tr>
                                 <td>
                                     <select name="products[{{ $key }}][product_id]"
-                                        class="form-control product mandatory">
+                                        class="form-control product mandatory" >
 
                                         <option value="">Select Product</option>
 
@@ -550,7 +605,7 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <td>
                                     <input type="text" name="products[{{ $key }}][c_hsn_code]"
-                                        class="form-control c_hsn_code" value="{{ $val->c_hsn_code }}" readonly>
+                                        class="form-control c_hsn_code" value="{{ $val->product_price}}" >
                                 </td>
 
 
@@ -979,20 +1034,77 @@ use Illuminate\Support\Facades\Crypt;
                 <label class="form-label">
                     Transaction ID *
                 </label>
-                <input type="text" id="c_transaction_id" name="c_transaction_id"
+                <input type="text" id="c_transaction_id" name="c_transaction_id" value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
                     data-message="Please Enter Transaction id" class="form-control"
                     placeholder="Enter Transaction / UTR / Reference No">
                 <div class="text-danger mt-1 fs-2"></div>
             </div>
 
-            <div class="col-md-4">
+           {{--  <div class="col-md-4">
                 <label class="form-label">
                     Transaction Proof *
                 </label>
                 <input type="file" id="payment_image" name="payment_image" data-message="Please Enter Transaction Proof"
-                    class="form-control ">
+                    class="form-control " value="{{ old('payment_image', $sale->payment_image ?? '')}}">
                 <div class="text-danger mt-1 fs-2"></div>
-            </div>
+
+                @if(isset($sale) && $sale->payment_image)
+                    <div class="mt-2"> <strong>Existing File:</strong>
+                        <a href="{{ asset('storage/' . $sale->payment_image) }}" target="_blank" class="btn btn-sm btn-primary ms-2"> View Booklet Proof </a>
+                    </div>
+                @endif
+            </div> --}}
+
+            <div class="col-md-4">
+                    <label class="form-label">
+                        Transaction Proof
+                        @if(!isset($sale) || !$sale->payment_image)
+                            <span class="text-danger">*</span>
+                        @endif
+                    </label>
+
+
+                <input type="file"
+                    id="payment_image"
+                    name="payment_image"
+                    data-message="Please Enter Transaction Proof"
+                    class="form-control"
+                    accept="image/*">
+
+                <!-- Used to tell Laravel to delete the existing image -->
+                <input type="hidden"
+                    name="remove_payment_image"
+                    id="remove_payment_image"
+                    value="0">
+
+                <div class="text-danger mt-1 fs-2"></div>
+
+
+                <!-- Image Preview -->
+                <div class="mt-3" id="payment_preview_container">
+
+                    <img
+                        id="payment_image_preview"
+                        src="{{ isset($sale) && $sale->payment_image ? asset('uploads/payment_images/' . $sale->payment_image) : '' }}"
+                        alt="Transaction Proof Preview"
+                        class="img-thumbnail"
+                        style="{{ isset($sale) && $sale->payment_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
+
+                    @if(isset($sale) && $sale->payment_image)
+                        <br>
+
+                        <button type="button"
+                            id="remove_payment_image_btn"
+                            class="btn btn-danger btn-sm mt-2">
+                            Remove Image
+                        </button>
+                    @endif
+
+                </div>
+
+
+                </div>
+
 
         </div>
 
@@ -1064,117 +1176,188 @@ use Illuminate\Support\Facades\Crypt;
 
 </div> --}}
 
-<!-- Section 6: Franchise Details Section -->
-<div class="form-box mb-4 " id="franchise-details" style="dislplay:none;">
+<!-- Section 6: Franchise / Company Details Section -->
+    <div class="form-box mb-4" id="franchise-details">
 
-    <div class="row g-4 mb-4">
+       @if(isset($isAdmin) && $isAdmin==true)
 
-        <div class="col-md-6">
-            <label class="form-label">
-                State <span class="text-danger">*</span>
-            </label>
+            <!-- Company / Franchise Selection -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">
+                        Order Type <span class="text-danger">*</span>
+                    </label>
 
-            <select class="form-select mandatory" id="franchise_state" name="n_state_id"
-                data-message="Please Select State">
+                    <div class="d-flex gap-4">
 
-                <option value="">Select State</option>
+                        <!-- Company -->
+                        <div class="form-check">
+                            <input class="form-check-input mandatory"
+                                type="radio"
+                                name="order_type"
+                                id="company"
+                                value="company"
+                                {{ old('order_type', $sale->order_type ?? '') == 'company' ? 'checked' : '' }}>
 
-                @if(isset($states))
-                @foreach($states as $state)
-                <option value="{{ $state->n_state_id }}"
-                    {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
-                    {{ $state->name }}
-                </option>
-                @endforeach
-                @endif
+                            <label class="form-check-label" for="company">
+                                Company
+                            </label>
+                        </div>
 
-            </select>
+                        <!-- Franchise -->
+                        <div class="form-check">
+                            <input class="form-check-input mandatory"
+                                type="radio"
+                                name="order_type"
+                                id="franchise_type"
+                                value="franchise"
+                                {{ old('order_type', $sale->order_type ?? '') == 'franchise' ? 'checked' : '' }}>
 
-            @error('n_state_id')
-            <div class="text-danger mt-1 fs-2">
-                {{ $message }}
+                            <label class="form-check-label" for="franchise_type">
+                                Franchise
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-            @enderror
+       @endif
+
+        <!-- Franchise Location Details -->
+        <div id="franchise-location-details">
+
+            <div class="row g-4 mb-4">
+
+                <!-- State -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        State <span class="text-danger">*</span>
+                    </label>
+
+                    <select class="form-select mandatory"
+                        id="franchise_state"
+                        name="n_state_id"
+                        data-message="Please Select State">
+
+                        <option value="">Select State</option>
+
+                        @if(isset($states))
+                            @foreach($states as $state)
+                                <option value="{{ $state->n_state_id }}"
+                                    {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
+                                    {{ $state->name }}
+                                </option>
+                            @endforeach
+                        @endif
+
+                    </select>
+
+                    @error('n_state_id')
+                        <div class="text-danger mt-1 fs-2">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+
+                <!-- District -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        District <span class="text-danger">*</span>
+                    </label>
+
+                    <select class="form-select "
+                        id="franchise_district"
+                        name="n_district_id"
+                        data-message="Please Select District"
+                        {{ isset($viewmode) && $viewmode == 'on' ? 'disabled' : '' }}>
+
+                        <option value="">Select District</option>
+
+                        @if(isset($sale->n_district_id))
+                            @php
+                                $districts = \App\Models\District::where(
+                                    'state_id',
+                                    $sale->n_state_id
+                                )->get();
+                            @endphp
+
+                            @foreach($districts as $district)
+                                <option value="{{ $district->id }}"
+                                    {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
+                                    {{ $district->district_name }}
+                                </option>
+                            @endforeach
+                        @endif
+
+                    </select>
+                </div>
+
+
+                <!-- Panchayath -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Panchayath
+                    </label>
+
+                    <select class="form-select"
+                        id="franchise_panchayath"
+                        name="n_panchayath_id">
+
+                        <option value="">Select Panchayath</option>
+
+                        @if(isset($sale->n_district_id))
+
+                            @php
+                                $panchayaths = \App\Models\Panchayath::where(
+                                    'district_id',
+                                    $sale->n_district_id
+                                )->get();
+                            @endphp
+
+                            @foreach($panchayaths as $panchayath)
+                                <option value="{{ $panchayath->id }}"
+                                    {{ old('n_panchayath_id', $franchisePanchayathId ?? '') == $panchayath->id ? 'selected' : '' }}>
+                                    {{ $panchayath->panchayath_name }}
+                                </option>
+                            @endforeach
+
+                        @endif
+
+                    </select>
+                </div>
+
+
+                <!-- Nearest Franchise -->
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Nearest Franchise <span class="text-danger">*</span>
+                    </label>
+
+                    <select class="form-select mandatory"
+                        id="franchise"
+                        name="nearest_franchise_id"
+                        data-message="Please Select Nearest Franchise">
+
+                        <option value="">Select Franchise</option>
+
+                        @if(isset($franchises))
+                            @foreach($franchises as $franchise)
+                                <option value="{{ $franchise->n_store_id }}"
+                                    {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
+                                    {{ $franchise->c_store_name }}
+                                    ({{ $franchise->c_store_code }})
+                                </option>
+                            @endforeach
+                        @endif
+
+                    </select>
+                </div>
+
+            </div>
+
         </div>
-
-        <div class="col-md-6">
-            <label for="state" class="form-label">District</label>
-            <select class="form-select mandatory" data-message="Please enter District"
-                {{isset($viewmode) && $viewmode=='on' ? 'disabled' : '' }} id="franchise_district" name="n_district_id">
-                <option value="" selected>Select District</option>
-                @if(isset($sale->n_district_id))
-                @php $districts = \App\Models\District::where('state_id', $sale->n_state_id)->get(); @endphp
-
-                @if(isset($districts))
-                @foreach($districts as $district)
-                <option value="{{$district->id}}"
-                    {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
-                    {{$district->district_name}}</option>
-                @endforeach
-                @endif
-                @endif
-
-            </select>
-            <div class="text-danger mt-1 fs-2"></div>
-        </div>
-
-        {{-- Panchayath --}}
-        <div class="col-md-6">
-            <label class="form-label">
-                Panchayath
-            </label>
-
-            <select class="form-select" id="franchise_panchayath" name="n_panchayath_id" mandatory>
-                <option value="">Select Panchayath</option>
-
-                @if(isset($sale->n_district_id))
-
-                @php
-                $panchayaths = \App\Models\Panchayath::where(
-                'district_id',
-                $sale->n_district_id
-                )->get();
-                @endphp
-
-                @foreach($panchayaths as $panchayath)
-                <option value="{{ $panchayath->id }}"
-                    {{ old('n_panchayath_id', $franchisePanchayathId ?? '') == $panchayath->id ? 'selected' : '' }} mandatory>
-                    {{ $panchayath->panchayath_name }}
-                </option>
-                @endforeach
-
-                @endif
-            </select>
-        </div>
-
-
-        <div class="col-md-6">
-            <label class="form-label">
-                Nearest Franchise
-            </label>
-
-            <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
-                data-message="Please enter Nearest Franchise" mandatory>
-
-                <option value="">
-                    Select Franchise
-                </option>
-
-                @if(isset($franchises))
-                @foreach($franchises as $franchise)
-                <option value="{{ $franchise->n_store_id }}"
-                    {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
-                    {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
-                </option>
-                @endforeach
-                @endif
-
-            </select>
-        </div>
-
     </div>
-</div>
-
 <!-- Action Buttons -->
 <div class="mt-4 d-flex gap-2 flex-wrap">
     @if(isset($viewmode) && $viewmode=="on")
@@ -2536,7 +2719,7 @@ function handlePaymentMode() {
 
 
             $('#c_transaction_id').addClass('mandatory');
-            $('#payment_image').addClass('mandatory');
+           // $('#payment_image').addClass('mandatory');
 
         }
 
@@ -2981,5 +3164,145 @@ $('#franchise_district').on('change', function() {
         });
 
     }
+
+    function toggleOrderType() {
+
+        const orderType = $('input[name="order_type"]:checked').val();
+
+        if (orderType === 'franchise') {
+
+            // Show franchise section
+            $('#franchise-location-details').show();
+
+            // Add mandatory validation
+            $('#franchise_state').addClass('mandatory');
+            $('#franchise_district').addClass('mandatory');
+            $('#franchise_panchayath').addClass('mandatory');
+            $('#franchise').addClass('mandatory');
+
+        } else if (orderType === 'company') {
+
+            // Hide franchise section
+            $('#franchise-location-details').hide();
+
+            // Remove mandatory validation
+            $('#franchise_state').removeClass('mandatory');
+            $('#franchise_district').removeClass('mandatory');
+            $('#franchise_panchayath').removeClass('mandatory');
+            $('#franchise').removeClass('mandatory');
+
+            // Optional: clear values
+            $('#franchise_state').val('');
+            $('#franchise_district').val('');
+            $('#franchise_panchayath').val('');
+            $('#franchise').val('');
+        }
+    }
+
+    // When Company / Franchise changes
+    $('input[name="order_type"]').on('change', function () {
+        toggleOrderType();
+    });
+
+    // Run when page loads
+    toggleOrderType();
+
+
+    $(document).ready(function () {
+
+        function setupImageUpload(inputId, previewId, containerId, removeInputId, removeButtonId) {
+
+            // Preview selected image
+            $(document).on('change', '#' + inputId, function (event) {
+
+                const file = event.target.files[0];
+
+                if (!file) return;
+
+                // Allow images only
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file.');
+                    $(this).val('');
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+
+                    // Show selected image preview
+                    $('#' + previewId)
+                        .attr('src', e.target.result)
+                        .show();
+
+                    // New image selected, don't delete
+                    $('#' + removeInputId).val('0');
+
+                    // Create Remove button if it doesn't exist
+                    if ($('#' + removeButtonId).length === 0) {
+
+                        $('#' + containerId).append(`
+                            <br>
+                            <button type="button"
+                                id="${removeButtonId}"
+                                class="btn btn-danger btn-sm mt-2">
+                                Remove Image
+                            </button>
+                        `);
+
+                    } else {
+                        $('#' + removeButtonId).show();
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            });
+
+
+            // Remove image
+            $(document).on('click', '#' + removeButtonId, function () {
+
+                // Clear selected file
+                $('#' + inputId).val('');
+
+                // Hide image preview
+                $('#' + previewId)
+                    .attr('src', '')
+                    .hide();
+
+                // Tell Laravel to remove existing image
+                $('#' + removeInputId).val('1');
+
+                // Hide remove button
+                $(this).hide();
+            });
+        }
+
+
+        // ===============================
+        // Payment Image
+        // ===============================
+        setupImageUpload(
+            'payment_image',
+            'payment_image_preview',
+            'payment_preview_container',
+            'remove_payment_image',
+            'remove_payment_image_btn'
+        );
+
+
+        // ===============================
+        // Booklet Image
+        // ===============================
+        setupImageUpload(
+            'booklet_image',
+            'booklet_image_preview',
+            'booklet_image_preview_container',
+            'remove_booklet_image',
+            'remove_booklet_image_btn'
+        );
+
+    });
+
 </script>
 @endpush

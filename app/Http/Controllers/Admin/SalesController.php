@@ -14,8 +14,9 @@ use App\Models\Panchayath;
 use App\Models\ProductMaster;
 use App\Models\SalesApproval;
 use App\Models\SalesOrder;
-use App\Models\SalesOrderFollowup;
+use App\Models\SalesOrderstatusUpdation;
 use App\Models\State;
+use App\Models\AuditRecord;
 use App\Models\StoreMaster;
 use Carbon\Carbon;
 use DB;
@@ -36,347 +37,860 @@ class SalesController extends Controller
                 ->exists();
     }
 
+     private function isFco(): bool
+    {
+        return Auth::check()
+            && Auth::user()->roles()
+                ->where('identifier', 'FCO')
+                ->exists();
+    }
+
     // private function isFcaToday(SalesOrder $sale): bool
     // {
     //     return ! $this->isFca()
     //         || Carbon::parse($sale->d_date)->isToday();
     // }
 
+    // public function index(Request $request)
+    // {
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Base Sales Order Query
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $query = SalesOrder::with(
+    //         'employee',
+    //         'franchise',
+    //         'customer'
+    //     )
+    //         ->whereNull('sales_orders.deleted_at');
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Logged-in User
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $user = Auth::user();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Farm Care Advisor Access
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $isFarmCareAdvisor = $this->isFca();
+
+    //     // if ($isFarmCareAdvisor) {
+
+    //     //     $employeeId = $user->n_employee_id;
+
+    //     //     $query->where(
+    //     //         'sales_orders.farm_care_advisor_id',
+    //     //         $employeeId
+    //     //     );
+
+    //     //     /*   $query->whereDate(
+    //     //           'sales_orders.d_date',
+    //     //           today()
+    //     //       ); */
+    //     // }
+
+    //     if ($isFarmCareAdvisor) {
+
+    //         $employeeIds = $this->getSubordinateEmployeeIds(
+    //             (int) $user->n_employee_id
+    //         );
+
+    //         $query->whereIn(
+    //             'sales_orders.farm_care_advisor_id',
+    //             $employeeIds
+    //         );
+    //     }
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Employee Search
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     if ($request->filled('search')) {
+
+    //         $search = trim($request->search);
+
+    //         $query->whereHas('employee', function ($q) use ($search) {
+
+    //             $q->where(function ($sub) use ($search) {
+
+    //                 $sub->where(
+    //                     'c_employee_name',
+    //                     'like',
+    //                     "%{$search}%"
+    //                 )
+    //                     ->orWhere(
+    //                         'c_employee_code',
+    //                         'like',
+    //                         "%{$search}%"
+    //                     );
+
+    //             });
+
+    //         });
+    //     }
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | From Date
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     if ($request->filled('start_date')) {
+
+    //         $query->whereDate(
+    //             'sales_orders.d_date',
+    //             '>=',
+    //             $request->start_date
+    //         );
+    //     }
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | To Date
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     if ($request->filled('end_date')) {
+
+    //         $query->whereDate(
+    //             'sales_orders.d_date',
+    //             '<=',
+    //             $request->end_date
+    //         );
+    //     }
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Payment Status
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     if ($request->filled('payment_status')) {
+
+    //         $query->where(
+    //             'sales_orders.payment_status',
+    //             $request->payment_status
+    //         );
+    //     }
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | CURRENT ORDER STATUS
+    //     |--------------------------------------------------------------------------
+    //     |
+    //     | Priority:
+    //     |
+    //     | 1. Latest follow-up status
+    //     | 2. Latest approval status
+    //     | 3. sales_orders.c_order_status
+    //     |
+    //     */
+
+    //     $currentStatusSql = "
+    //                 COALESCE(
+
+    //                     (
+    //                         SELECT NULLIF(TRIM(sof.c_order_status), '')
+    //                         FROM  sales_orderstatus_updations AS sof
+    //                         WHERE sof.n_sale_id = sales_orders.n_sl_no
+    //                         ORDER BY sof.created_at DESC, sof.n_statusupdate_id DESC
+    //                         LIMIT 1
+    //                     ),
+
+    //                     (
+    //                         SELECT NULLIF(TRIM(sa.status), '')
+    //                         FROM sales_approvals AS sa
+    //                         WHERE sa.sales_order_id = sales_orders.n_sl_no
+    //                         ORDER BY sa.created_at DESC, sa.id DESC
+    //                         LIMIT 1
+    //                     ),
+
+    //                     sales_orders.c_order_status
+
+    //                 )
+    //             ";
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Add Current Status to Result
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $query->select('sales_orders.*');
+
+    //     $query->addSelect(
+    //         DB::raw("$currentStatusSql AS current_order_status")
+    //     );
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Order Status Filter
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     if ($request->filled('order_status')) {
+
+    //         $orderStatus = trim($request->order_status);
+
+    //         $query->whereRaw(
+    //             "LOWER(TRIM($currentStatusSql)) = LOWER(TRIM(?))",
+    //             [$orderStatus]
+    //         );
+    //     }
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Export Excel
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     if ($request->export === 'excel') {
+
+    //         $sales = $query
+    //             ->orderBy(
+    //                 'sales_orders.d_date',
+    //                 'desc'
+    //             )
+    //             ->get();
+
+    //         return Excel::download(
+    //             new IncentiveSalesReportExport($sales),
+    //             'sales-report.xlsx'
+    //         );
+    //     }
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Total Counts by Current Order Status
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $countQuery = SalesOrder::query()
+    //         ->whereNull('sales_orders.deleted_at');
+
+    //     /* | Farm Care Advisor Access
+    //      |--------------------------------------------------------------------------
+    //      | FCA can see only their own sales .
+    //      | Other roles can see sales according to their existing permissions.
+    //      |--------------------------------------------------------------------------
+    //      */
+
+    //     $isFarmCareAdvisor = $this->isFca();
+
+
+
+    //     if ($isFarmCareAdvisor) {
+
+    //         $employeeIds = $this->getSubordinateEmployeeIds(
+    //             (int) $user->n_employee_id
+    //         );
+
+    //         $countQuery->whereIn(
+    //             'sales_orders.farm_care_advisor_id',
+    //             $employeeIds
+    //         );
+    //     }
+
+    //     /*
+    //     | Get current status for each order
+    //     */
+    //     $statusCounts = $countQuery
+    //         ->select(
+    //             'sales_orders.n_sl_no',
+    //             DB::raw("
+    //                 COALESCE(
+
+    //                     (
+    //                         SELECT NULLIF(TRIM(sof.c_order_status), '')
+    //                         FROM sales_orderstatus_updations AS sof
+    //                         WHERE sof.n_sale_id = sales_orders.n_sl_no
+    //                         ORDER BY sof.created_at DESC, sof.n_statusupdate_id DESC
+    //                         LIMIT 1
+    //                     ),
+
+    //                     (
+    //                         SELECT NULLIF(TRIM(sa.status), '')
+    //                         FROM sales_approvals AS sa
+    //                         WHERE sa.sales_order_id = sales_orders.n_sl_no
+    //                         ORDER BY sa.created_at DESC, sa.id DESC
+    //                         LIMIT 1
+    //                     ),
+
+    //                     sales_orders.c_order_status
+
+    //                 ) AS current_status
+    //             ")
+    //         )
+    //         ->get()
+    //         ->groupBy(function ($orderData) {
+    //             return strtolower(trim($order->current_status ?? 'pending'));
+    //         });
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Status Counts
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $totalSalesOrders = $statusCounts->flatten()->count();
+
+    //     $pendingOrders = $statusCounts->get('pending', collect())->count();
+
+    //     $completedOrders = $statusCounts->get('completed', collect())->count();
+    //      $returned = $statusCounts->get('returned', collect())->count();
+
+    //     $approvedOrders = $statusCounts->get('approved', collect())->count();
+
+    //     $dispatchedOrders = $statusCounts->get('dispatched', collect())->count();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Pagination
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $sales = $query
+    //         ->orderBy(
+    //             'sales_orders.created_at',
+    //             'desc'
+    //         )
+    //         ->orderBy(
+    //             'sales_orders.n_sl_no',
+    //             'desc'
+    //         )
+    //         ->paginate(20)
+    //         ->withQueryString();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Return View
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     return view(
+    //         'admin.sales.index',
+    //         compact(
+    //             'sales',
+    //             'isFarmCareAdvisor',
+    //             // 'totalSalesOrders',
+    //             'pendingOrders',
+    //             'completedOrders',
+    //             'approvedOrders',
+    //             'dispatchedOrders'
+    //         )
+    //     );
+    // }
+
     public function index(Request $request)
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Base Sales Order Query
-        |--------------------------------------------------------------------------
-        */
+{
+    /*
+    |--------------------------------------------------------------------------
+    | Logged-in User
+    |--------------------------------------------------------------------------
+    */
 
-        $query = SalesOrder::with(
-            'employee',
-            'franchise',
-            'customer'
-        )
-            ->whereNull('sales_orders.deleted_at');
+    $user = Auth::user();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Logged-in User
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Role Checks
+    |--------------------------------------------------------------------------
+    */
 
-        $user = Auth::user();
+    $isFarmCareAdvisor = $this->isFca();
+    $isFarmCareOfficer  = $this->isFco();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Farm Care Advisor Access
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Employee IDs allowed to see sales
+    |--------------------------------------------------------------------------
+    |
+    | FCO:
+    |   - Own sales
+    |   - Direct FCAs reporting to FCO
+    |
+    | FCA:
+    |   - Own sales only
+    |
+    */
 
-        $isFarmCareAdvisor = $this->isFca();
+    $allowedEmployeeIds = null;
 
-        if ($isFarmCareAdvisor) {
+    if ($isFarmCareOfficer) {
 
-            $employeeId = $user->n_employee_id;
+        $allowedEmployeeIds = EmployeeMaster::where(function ($q) use ($user) {
 
-            $query->where(
-                'sales_orders.farm_care_advisor_id',
-                $employeeId
-            );
-
-            /*   $query->whereDate(
-                  'sales_orders.d_date',
-                  today()
-              ); */
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Employee Search
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('search')) {
-
-            $search = trim($request->search);
-
-            $query->whereHas('employee', function ($q) use ($search) {
-
-                $q->where(function ($sub) use ($search) {
-
-                    $sub->where(
-                        'c_employee_name',
-                        'like',
-                        "%{$search}%"
-                    )
-                        ->orWhere(
-                            'c_employee_code',
-                            'like',
-                            "%{$search}%"
-                        );
-
-                });
-
-            });
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | From Date
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('start_date')) {
-
-            $query->whereDate(
-                'sales_orders.d_date',
-                '>=',
-                $request->start_date
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | To Date
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('end_date')) {
-
-            $query->whereDate(
-                'sales_orders.d_date',
-                '<=',
-                $request->end_date
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Payment Status
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('payment_status')) {
-
-            $query->where(
-                'sales_orders.payment_status',
-                $request->payment_status
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | CURRENT ORDER STATUS
-        |--------------------------------------------------------------------------
-        |
-        | Priority:
-        |
-        | 1. Latest follow-up status
-        | 2. Latest approval status
-        | 3. sales_orders.c_order_status
-        |
-        */
-
-        $currentStatusSql = "
-                    COALESCE(
-
-                        (
-                            SELECT NULLIF(TRIM(sof.c_order_status), '')
-                            FROM sales_order_followups AS sof
-                            WHERE sof.n_sale_id = sales_orders.n_sl_no
-                            ORDER BY sof.created_at DESC, sof.n_followup_id DESC
-                            LIMIT 1
-                        ),
-
-                        (
-                            SELECT NULLIF(TRIM(sa.status), '')
-                            FROM sales_approvals AS sa
-                            WHERE sa.sales_order_id = sales_orders.n_sl_no
-                            ORDER BY sa.created_at DESC, sa.id DESC
-                            LIMIT 1
-                        ),
-
-                        sales_orders.c_order_status
-
-                    )
-                ";
-
-        /*
-        |--------------------------------------------------------------------------
-        | Add Current Status to Result
-        |--------------------------------------------------------------------------
-        */
-
-        $query->select('sales_orders.*');
-
-        $query->addSelect(
-            DB::raw("$currentStatusSql AS current_order_status")
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Order Status Filter
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('order_status')) {
-
-            $orderStatus = trim($request->order_status);
-
-            $query->whereRaw(
-                "LOWER(TRIM($currentStatusSql)) = LOWER(TRIM(?))",
-                [$orderStatus]
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Export Excel
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->export === 'excel') {
-
-            $sales = $query
-                ->orderBy(
-                    'sales_orders.d_date',
-                    'desc'
-                )
-                ->get();
-
-            return Excel::download(
-                new IncentiveSalesReportExport($sales),
-                'sales-report.xlsx'
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Total Counts by Current Order Status
-        |--------------------------------------------------------------------------
-        */
-
-        $countQuery = SalesOrder::query()
-            ->whereNull('sales_orders.deleted_at');
-
-        /* | Farm Care Advisor Access
-         |--------------------------------------------------------------------------
-         | FCA can see only their own sales .
-         | Other roles can see sales according to their existing permissions.
-         |--------------------------------------------------------------------------
-         */
-
-        $isFarmCareAdvisor = $this->isFca();
-
-        if ($this->isFca()) {
-
-            // Logged-in FCA's employee ID
-            $employeeId = $user->n_employee_id;
-
-            $query->where('farm_care_advisor_id', $employeeId);
-        }
-
-        /*
-        | FCA restriction
-        */
-        if ($isFarmCareAdvisor) {
-
-            $countQuery->where(
-                'sales_orders.farm_care_advisor_id',
+            $q->where(
+                'n_employee_id',
+                $user->n_employee_id
+            )
+            ->orWhere(
+                'reporting_to',
                 $user->n_employee_id
             );
 
-            /*  $countQuery->whereDate(
-                 'sales_orders.d_date',
-                 today()
-             ); */
-        }
+        })
+            ->whereNull('deleted_at')
+            ->pluck('n_employee_id')
+            ->unique()
+            ->values()
+            ->toArray();
 
-        /*
-        | Get current status for each order
-        */
-        $statusCounts = $countQuery
-            ->select(
-                'sales_orders.n_sl_no',
-                DB::raw("
-                    COALESCE(
+    } elseif ($isFarmCareAdvisor) {
 
-                        (
-                            SELECT NULLIF(TRIM(sof.c_order_status), '')
-                            FROM sales_order_followups AS sof
-                            WHERE sof.n_sale_id = sales_orders.n_sl_no
-                            ORDER BY sof.created_at DESC, sof.n_followup_id DESC
-                            LIMIT 1
-                        ),
+        $allowedEmployeeIds = [
+            $user->n_employee_id
+        ];
+    }
 
-                        (
-                            SELECT NULLIF(TRIM(sa.status), '')
-                            FROM sales_approvals AS sa
-                            WHERE sa.sales_order_id = sales_orders.n_sl_no
-                            ORDER BY sa.created_at DESC, sa.id DESC
-                            LIMIT 1
-                        ),
+    /*
+    |--------------------------------------------------------------------------
+    | Current Order Status SQL
+    |--------------------------------------------------------------------------
+    |
+    | Priority:
+    |
+    | 1. Latest follow-up status
+    | 2. Latest approval status
+    | 3. sales_orders.c_order_status
+    |
+    */
 
-                        sales_orders.c_order_status
+    $currentStatusSql = "
+        COALESCE(
 
-                    ) AS current_status
-                ")
-            )
-            ->get()
-            ->groupBy(function ($order) {
-                return strtolower(trim($order->current_status ?? 'pending'));
+            (
+                SELECT NULLIF(TRIM(sof.c_order_status), '')
+                FROM sales_orderstatus_updations AS sof
+                WHERE sof.n_sale_id = sales_orders.n_sl_no
+                ORDER BY sof.created_at DESC,
+                         sof.n_statusupdate_id DESC
+                LIMIT 1
+            ),
+
+            (
+                SELECT NULLIF(TRIM(sa.status), '')
+                FROM sales_approvals AS sa
+                WHERE sa.sales_order_id = sales_orders.n_sl_no
+                ORDER BY sa.created_at DESC,
+                         sa.id DESC
+                LIMIT 1
+            ),
+
+            sales_orders.c_order_status
+
+        )
+    ";
+
+    /*
+    |--------------------------------------------------------------------------
+    | Main Sales Query
+    |--------------------------------------------------------------------------
+    */
+
+    $query = SalesOrder::with(
+        'employee',
+        'franchise',
+        'customer'
+    )
+        ->whereNull('sales_orders.deleted_at');
+
+    /*
+    |--------------------------------------------------------------------------
+    | FCO / FCA Access Restriction
+    |--------------------------------------------------------------------------
+    */
+
+    if ($allowedEmployeeIds !== null) {
+
+        $query->whereIn(
+            'sales_orders.farm_care_advisor_id',
+            $allowedEmployeeIds
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Employee Search
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('search')) {
+
+        $search = trim($request->search);
+
+        $query->whereHas('employee', function ($q) use ($search) {
+
+            $q->where(function ($sub) use ($search) {
+
+                $sub->where(
+                    'c_employee_name',
+                    'like',
+                    "%{$search}%"
+                )
+                ->orWhere(
+                    'c_employee_code',
+                    'like',
+                    "%{$search}%"
+                );
             });
+        });
+    }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Status Counts
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | From Date
+    |--------------------------------------------------------------------------
+    */
 
-        $totalSalesOrders = $statusCounts->flatten()->count();
+    if ($request->filled('start_date')) {
 
-        $pendingOrders = $statusCounts->get('pending', collect())->count();
+        $query->whereDate(
+            'sales_orders.d_date',
+            '>=',
+            $request->start_date
+        );
+    }
 
-        $completedOrders = $statusCounts->get('completed', collect())->count();
+    /*
+    |--------------------------------------------------------------------------
+    | To Date
+    |--------------------------------------------------------------------------
+    */
 
-        $approvedOrders = $statusCounts->get('approved', collect())->count();
+    if ($request->filled('end_date')) {
 
-        $dispatchedOrders = $statusCounts->get('dispatched', collect())->count();
+        $query->whereDate(
+            'sales_orders.d_date',
+            '<=',
+            $request->end_date
+        );
+    }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Pagination
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Status
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('payment_status')) {
+
+        $query->where(
+            'sales_orders.payment_status',
+            $request->payment_status
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Add Current Status
+    |--------------------------------------------------------------------------
+    */
+
+    $query->select('sales_orders.*');
+
+    $query->addSelect(
+        DB::raw("$currentStatusSql AS current_order_status")
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Order Status Filter
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('order_status')) {
+
+        $orderStatus = trim($request->order_status);
+
+        $query->whereRaw(
+            "LOWER(TRIM($currentStatusSql)) = LOWER(TRIM(?))",
+            [$orderStatus]
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Excel Export
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->export === 'excel') {
 
         $sales = $query
             ->orderBy(
-                'sales_orders.created_at',
+                'sales_orders.d_date',
                 'desc'
             )
             ->orderBy(
                 'sales_orders.n_sl_no',
                 'desc'
             )
-            ->paginate(20)
-            ->withQueryString();
+            ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Return View
-        |--------------------------------------------------------------------------
-        */
-
-        return view(
-            'admin.sales.index',
-            compact(
-                'sales',
-                'isFarmCareAdvisor',
-                // 'totalSalesOrders',
-                'pendingOrders',
-                'completedOrders',
-                'approvedOrders',
-                'dispatchedOrders'
-            )
+        return Excel::download(
+            new IncentiveSalesReportExport($sales),
+            'sales-report.xlsx'
         );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Count Query
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    | This query uses the SAME filters as the main query.
+    |
+    */
+
+    $countQuery = SalesOrder::query()
+        ->whereNull('sales_orders.deleted_at');
+
+    /*
+    |--------------------------------------------------------------------------
+    | FCO / FCA Access Restriction
+    |--------------------------------------------------------------------------
+    */
+
+    if ($allowedEmployeeIds !== null) {
+
+        $countQuery->whereIn(
+            'sales_orders.farm_care_advisor_id',
+            $allowedEmployeeIds
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Employee Search For Counts
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('search')) {
+
+        $search = trim($request->search);
+
+        $countQuery->whereHas('employee', function ($q) use ($search) {
+
+            $q->where(function ($sub) use ($search) {
+
+                $sub->where(
+                    'c_employee_name',
+                    'like',
+                    "%{$search}%"
+                )
+                ->orWhere(
+                    'c_employee_code',
+                    'like',
+                    "%{$search}%"
+                );
+            });
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | From Date For Counts
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('start_date')) {
+
+        $countQuery->whereDate(
+            'sales_orders.d_date',
+            '>=',
+            $request->start_date
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | To Date For Counts
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('end_date')) {
+
+        $countQuery->whereDate(
+            'sales_orders.d_date',
+            '<=',
+            $request->end_date
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Status For Counts
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('payment_status')) {
+
+        $countQuery->where(
+            'sales_orders.payment_status',
+            $request->payment_status
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Order Status Filter For Counts
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('order_status')) {
+
+        $orderStatus = trim($request->order_status);
+
+        $countQuery->whereRaw(
+            "LOWER(TRIM($currentStatusSql)) = LOWER(TRIM(?))",
+            [$orderStatus]
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Current Status For Each Order
+    |--------------------------------------------------------------------------
+    */
+
+    $statusOrders = $countQuery
+        ->select(
+            'sales_orders.n_sl_no',
+            DB::raw("
+                $currentStatusSql AS current_status
+            ")
+        )
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status Counts
+    |--------------------------------------------------------------------------
+    */
+
+    $totalSalesOrders = $statusOrders->count();
+
+    $pendingOrders = $statusOrders
+        ->filter(function ($order) {
+            return strtolower(
+                trim($order->current_status ?? '')
+            ) === 'pending';
+        })
+        ->count();
+
+    $completedOrders = $statusOrders
+        ->filter(function ($order) {
+            return strtolower(
+                trim($order->current_status ?? '')
+            ) === 'completed';
+        })
+        ->count();
+
+    $approvedOrders = $statusOrders
+        ->filter(function ($order) {
+            return strtolower(
+                trim($order->current_status ?? '')
+            ) === 'approved';
+        })
+        ->count();
+
+    $dispatchedOrders = $statusOrders
+        ->filter(function ($order) {
+            return strtolower(
+                trim($order->current_status ?? '')
+            ) === 'dispatched';
+        })
+        ->count();
+
+    $deliveredOrders = $statusOrders
+        ->filter(function ($order) {
+            return strtolower(
+                trim($order->current_status ?? '')
+            ) === 'delivered';
+        })
+        ->count();
+
+    $returnedOrders = $statusOrders
+        ->filter(function ($order) {
+            return strtolower(
+                trim($order->current_status ?? '')
+            ) === 'returned';
+        })
+        ->count();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    $sales = $query
+        ->orderBy(
+            'sales_orders.created_at',
+            'desc'
+        )
+        ->orderBy(
+            'sales_orders.n_sl_no',
+            'desc'
+        )
+        ->paginate(20)
+        ->withQueryString();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Return View
+    |--------------------------------------------------------------------------
+    */
+
+    return view(
+        'admin.sales.index',
+        compact(
+            'sales',
+            'isFarmCareAdvisor',
+            'isFarmCareOfficer',
+            'totalSalesOrders',
+            'pendingOrders',
+            'completedOrders',
+            'approvedOrders',
+            'dispatchedOrders',
+            'deliveredOrders',
+            'returnedOrders'
+        )
+    );
+}
+
+    private function getSubordinateEmployeeIds(int $employeeId): array
+    {
+        $employeeIds = [$employeeId];
+
+        $children = EmployeeMaster::where(
+            'reporting_to',
+            $employeeId
+        )
+            ->whereNull('deleted_at')
+            ->pluck('n_employee_id');
+
+        foreach ($children as $childId) {
+
+            $employeeIds = array_merge(
+                $employeeIds,
+                $this->getSubordinateEmployeeIds((int) $childId)
+            );
+        }
+
+        return array_unique($employeeIds);
     }
 
     public function create()
@@ -419,6 +933,22 @@ class SalesController extends Controller
             }
         }
 
+         $isAdmin = false;
+         $isAdminId = null;
+
+        if ($user && $user->roles()->where('identifier', 'SUPER_ADMIN')->exists()) {
+
+            $isAdmin = true;
+
+            // Fetch the corresponding employee
+            $employee = EmployeeMaster::where('c_employee_email', $user->c_username)->first();
+            // Or use another matching field if applicable
+
+            if ($employee) {
+                $isAdminId = $employee->n_employee_id;
+            }
+        }
+
         return view('admin.sales.create', compact(
             'employees',
             'products',
@@ -427,7 +957,8 @@ class SalesController extends Controller
             'viewmode',
             'customers',
             'farmCareAdvisorId',
-            'isFarmCareAdvisor'
+            'isFarmCareAdvisor',
+            'isAdmin'
         ));
     }
 
@@ -438,159 +969,790 @@ class SalesController extends Controller
         return response()->json(['districts' => $districts]);
     }
 
+
+
+    // public function store1(Request $request)
+    // {
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Validation
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $validator = Validator::make($request->all(), [
+
+    //         'd_date' => 'required|date',
+
+    //         'c_order_no' => [
+    //             'required',
+    //             'string',
+    //             'max:100',
+    //             Rule::unique('sales_orders', 'c_order_no')
+    //                 ->ignore($request->id, 'n_sl_no'),
+    //         ],
+    //         'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
+
+    //         'n_customer_id' => 'required|integer|exists:customer_masters,n_customer_id',
+
+    //         'c_customer_name' => 'required|string|max:255',
+
+    //         'c_customer_email' => 'nullable|email|max:255',
+
+    //         'c_customer_address' => 'nullable|string|max:1000',
+
+    //         'n_customer_mobile' => 'required|digits_between:10,15',
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Payment Mode
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         'c_mode_of_payment' => 'required|string',
+
+    //         /*
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Franchise Details
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         'n_state_id' => [
+    //             'nullable',
+    //             'integer',
+    //             'exists:states,n_state_id',
+    //             'required',
+    //         ],
+
+    //         'n_district_id' => [
+    //             'nullable',
+    //             'integer',
+    //             'exists:districts,id',
+    //             'required',
+    //         ],
+
+    //         'n_panchayath_id' => [
+    //             'nullable',
+    //             'integer',
+    //             'exists:panchayaths,id',
+    //             'required',
+    //         ],
+
+    //         'nearest_franchise_id' => [
+    //             'nullable',
+    //             'required',
+    //         ],
+
+    //         // Totals//
+    //         'n_total_sales_amount' => 'nullable|numeric|min:0',
+    //         'n_product_discount_total' => 'nullable|numeric|min:0',
+    //         'n_total_gst' => 'nullable|numeric|min:0',
+    //         'n_total_discount' => 'nullable|numeric|min:0',
+    //         'n_net_sales_amount' => 'nullable|numeric|min:0',
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Payment
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         'payment_status' => 'required_unless:c_mode_of_payment,Paid to Franchise',
+
+    //         'c_transaction_id' => [
+    //             'nullable',
+    //             'string',
+    //             'max:255',
+    //             Rule::requiredIf(function () use ($request) {
+    //                 return ! in_array($request->c_mode_of_payment, [
+    //                     'UPI',
+    //                     'Bank Deposit',
+    //                 ]);
+    //             }),
+    //         ],
+
+    //         'payment_image' => [
+    //             'nullable',
+    //             'image',
+    //             'mimes:jpg,jpeg,png,webp',
+    //             'max:5120',
+    //             Rule::requiredIf(function () use ($request) {
+    //                 return ! in_array($request->c_mode_of_payment, [
+    //                   'UPI',
+    //                   'Bank Deposit',
+    //                 ]);
+    //             }),
+    //         ],
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Booklet Proof
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         'f_booklet_proof' => [
+    //             'nullable',
+    //             'image',
+    //             'mimes:jpg,jpeg,png,webp',
+    //             'max:5120',
+    //         ],
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Products
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         'products' => 'required|array|min:1',
+
+    //         'products.*.product_id' => 'required|integer',
+
+    //         'products.*.product_price' => 'required|numeric|min:0',
+
+    //         'products.*.qty' => 'required|integer|min:1',
+
+    //         'products.*.product_total' => 'required|numeric|min:0',
+
+    //         'products.*.discount' => 'nullable|numeric|min:0',
+
+    //         'products.*.n_gst_percentage' => 'nullable|numeric|min:0',
+
+    //         'products.*.gst_amount' => 'nullable|numeric|min:0',
+    //         'messages' => [
+    //             'payment_image.max' => 'Payment proof image must not exceed 5 MB.',
+    //             'f_booklet_proof.max' => 'Booklet proof image must not exceed 5 MB.',
+    //         ],
+    //     ]);
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Validation Failed
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     if ($validator->fails()) {
+    //         return back()
+    //             ->withErrors($validator)
+    //             ->withInput();
+    //     }
+
+    //     $validated = $validator->validated();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | User
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $user = Auth::user();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Customer
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $customer = CustomerMaster::findOrFail(
+    //         $validated['n_customer_id']
+    //     );
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Farm Care Advisor
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     if ($user->roles()->where('identifier', 'FCA')->exists()) {
+
+    //         $employee = EmployeeMaster::where(
+    //             'c_employee_email',
+    //             $user->c_username
+    //         )->first();
+
+    //         if ($employee) {
+    //             $validated['farm_care_advisor_id'] =
+    //                 $employee->n_employee_id;
+    //         }
+    //     }
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Check Existing Order
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $existingOrder = null;
+
+    //     if ($request->filled('id')) {
+
+    //         $existingOrder = SalesOrder::where(
+    //             'n_sl_no',
+    //             $request->id
+    //         )->first();
+
+    //         if (! $existingOrder) {
+    //             return back()
+    //                 ->withInput()
+    //                 ->with('error', 'Sales order not found.');
+    //         }
+    //     }
+
+    //     try {
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Existing Images
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         $paymentImageName = $existingOrder
+    //             ? $existingOrder->payment_image
+    //             : null;
+
+    //         $bookletImageName = $existingOrder
+    //             ? $existingOrder->booklet_image
+    //             : null;
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Payment Image Upload
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         if ($request->hasFile('payment_image')) {
+
+    //             $image = $request->file('payment_image');
+
+    //             $uploadPath = public_path(
+    //                 'uploads/payment_images'
+    //             );
+
+    //             if (! is_dir($uploadPath)) {
+    //                 mkdir($uploadPath, 0755, true);
+    //             }
+
+    //             $paymentImageName =
+    //                 uniqid('payment_').'.'.
+    //                 $image->getClientOriginalExtension();
+
+    //             $image->move(
+    //                 $uploadPath,
+    //                 $paymentImageName
+    //             );
+
+    //             /*
+    //             | Delete old image on update
+    //             */
+
+    //             if (
+    //                 $existingOrder &&
+    //                 $existingOrder->payment_image
+    //             ) {
+
+    //                 $oldFile = public_path(
+    //                     'uploads/payment_images/'.
+    //                     $existingOrder->payment_image
+    //                 );
+
+    //                 if (file_exists($oldFile)) {
+    //                     @unlink($oldFile);
+    //                 }
+    //             }
+    //         }
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Booklet Proof Upload
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         if ($request->hasFile('f_booklet_proof')) {
+
+    //             $image = $request->file('f_booklet_proof');
+
+    //             $uploadPath = public_path(
+    //                 'uploads/booklet_images'
+    //             );
+
+    //             if (! is_dir($uploadPath)) {
+    //                 mkdir($uploadPath, 0755, true);
+    //             }
+
+    //             $bookletImageName =
+    //                 uniqid('booklet_').'.'.
+    //                 $image->getClientOriginalExtension();
+
+    //             $image->move(
+    //                 $uploadPath,
+    //                 $bookletImageName
+    //             );
+
+    //             /*
+    //             | Delete old booklet image on update
+    //             */
+
+    //             if (
+    //                 $existingOrder &&
+    //                 $existingOrder->booklet_image
+    //             ) {
+
+    //                 $oldFile = public_path(
+    //                     'uploads/booklet_images/'.
+    //                     $existingOrder->booklet_image
+    //                 );
+
+    //                 if (file_exists($oldFile)) {
+    //                     @unlink($oldFile);
+    //                 }
+    //             }
+    //         }
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Payment Status
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         if (isset($validated['c_mode_of_payment']) && $validated['c_mode_of_payment'] === 'Paid to Franchise') {
+
+    //             $transactionId = null;
+
+    //             $paymentStatus = null;
+
+    //             if (! $existingOrder) {
+    //                 $paymentImageName = null;
+    //             }
+
+    //         } else {
+    //             $transactionId = $validated['c_transaction_id'];
+    //             $paymentStatus = $validated['payment_status'];
+    //         }
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Order Data
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         $orderData = [
+
+    //             'c_order_no' => $validated['c_order_no'],
+
+    //             'd_date' => $validated['d_date'],
+
+    //             'farm_care_advisor_id' => $validated['farm_care_advisor_id'] ?? null,
+
+    //             'n_customer_id' => $customer->n_customer_id,
+
+    //             'c_customer_name' => $validated['c_customer_name'],
+
+    //             'c_customer_email' => $validated['c_customer_email'] ?? null,
+
+    //             'c_customer_address' => $validated['c_customer_address'] ?? null,
+
+    //             'n_customer_mobile' => $validated['n_customer_mobile'],
+
+    //             'n_state_id' => $validated['n_state_id'],
+
+    //             'n_district_id' => $validated['n_district_id'],
+
+    //             'n_panchayath_id' => $validated['n_panchayath_id'],
+
+    //             'c_mode_of_payment' => $validated['c_mode_of_payment'],
+
+    //             // IMPORTANT
+    //             'c_order_status' => $validated['c_order_status'] ?? 'Pending',
+
+    //             'nearest_franchise_id' => $validated['nearest_franchise_id'],
+
+    //             /*
+    //             | Payment
+    //             */
+
+    //             'payment_status' => $paymentStatus,
+
+    //             'c_transaction_id' => $transactionId,
+
+    //             'payment_image' => $paymentImageName,
+
+    //             /*
+    //             | Booklet
+    //             */
+
+    //             'booklet_image' => $bookletImageName,
+
+    //             /*
+    //             | Order Summary
+    //             */
+
+    //             'n_total_sales_amount' => $validated['n_total_sales_amount'] ?? 0,
+
+    //             'n_product_discount_total' => $validated['n_product_discount_total'] ?? 0,
+
+    //             'n_total_gst' => $validated['n_total_gst'] ?? 0,
+
+    //             'n_total_discount' => $validated['n_total_discount'] ?? 0,
+
+    //             'n_net_sales_amount' => $validated['n_net_sales_amount'] ?? 0,
+    //         ];
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Update Existing Order
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         if ($existingOrder) {
+
+    //             /*
+    //             |--------------------------------------------------------------------------
+    //             | UPDATE EXISTING ORDER
+    //             |--------------------------------------------------------------------------
+    //             */
+
+    //             $existingOrder->update($orderData);
+
+    //             /*
+    //             | Delete old products
+    //             */
+
+    //             OrderProduct::where(
+    //                 'n_order_id',
+    //                 $existingOrder->n_sl_no
+    //             )->delete();
+
+    //             /*
+    //             | Insert products again
+    //             */
+
+    //             foreach ($validated['products'] as $product) {
+
+    //                 OrderProduct::create([
+
+    //                     'n_order_id' => $existingOrder->n_sl_no,
+
+    //                     'product_id' => $product['product_id'],
+
+    //                     'product_price' => $product['product_price'],
+
+    //                     'qty' => $product['qty'],
+
+    //                     'discount' => $product['discount'] ?? 0,
+
+    //                     'n_gst_percentage' => $product['n_gst_percentage'] ?? 0,
+
+    //                     'gst_amount' => $product['gst_amount'] ?? 0,
+
+    //                     'product_total' => $product['product_total'] ?? 0,
+    //                 ]);
+    //             }
+
+    //             $message = 'Sales order updated successfully.';
+
+    //         } else {
+
+    //             /*
+    //             |--------------------------------------------------------------------------
+    //             | CREATE NEW ORDER
+    //             |--------------------------------------------------------------------------
+    //             */
+
+    //             $salesOrder = SalesOrder::create($orderData);
+
+    //             /*
+    //             | Insert products
+    //             */
+
+    //             foreach ($validated['products'] as $product) {
+
+    //                 OrderProduct::create([
+
+    //                     // IMPORTANT: use new order ID
+    //                     'n_order_id' => $salesOrder->n_sl_no,
+
+    //                     'product_id' => $product['product_id'],
+
+    //                     'product_price' => $product['product_price'],
+
+    //                     'qty' => $product['qty'],
+
+    //                     'discount' => $product['discount'] ?? 0,
+
+    //                     'n_gst_percentage' => $product['n_gst_percentage'] ?? 0,
+
+    //                     'gst_amount' => $product['gst_amount'] ?? 0,
+
+    //                     'product_total' => $product['product_total'] ?? 0,
+    //                 ]);
+    //             }
+
+    //             $message = 'Sales order created successfully.';
+    //         }
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Redirect
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         return redirect()
+    //             ->route('admin.salesorders.index')
+    //             ->with('success', $message);
+
+    //     } catch (\Throwable $e) {
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Error
+    //         |--------------------------------------------------------------------------
+    //         */
+
+    //         return back()
+    //             ->withInput()
+    //             ->with(
+    //                 'error',
+    //                 'Unable to save sales order: '.
+    //                 $e->getMessage()
+    //             );
+    //     }
+    // }
+
+
     public function store(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Validation
-        |--------------------------------------------------------------------------
-        */
+        $user = Auth::user();
+        $existingOrder = null;
 
-        $validator = Validator::make($request->all(), [
+        if ($request->filled('id')) {
 
-            'd_date' => 'required|date',
+            $existingOrder = SalesOrder::where(
+                'n_sl_no',
+                $request->id
+            )->first();
 
-            'c_order_no' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('sales_orders', 'c_order_no')
-                    ->ignore($request->id, 'n_sl_no'),
-            ],
-            'farm_care_advisor_id' => 'nullable|integer|exists:employee_masters,n_employee_id',
+            if (! $existingOrder) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Sales order not found.');
+            }
+        }
 
-            'n_customer_id' => 'required|integer|exists:customer_masters,n_customer_id',
+        $paymentImageRequired = false;
 
-            'c_customer_name' => 'required|string|max:255',
+        if (in_array($request->c_mode_of_payment, [
+            'UPI',
+            'Bank Deposit',
+        ])) {
 
-            'c_customer_email' => 'nullable|email|max:255',
+            // CREATE
+            if ($existingOrder === null) {
+                $paymentImageRequired = true;
+            }
 
-            'c_customer_address' => 'nullable|string|max:1000',
+            // UPDATE
+            elseif (
+                empty($existingOrder->payment_image) ||
+                $request->input('remove_payment_image') == '1'
+            ) {
+                $paymentImageRequired = true;
+            }
+        }
 
-            'n_customer_mobile' => 'required|digits_between:10,15',
+       $validator = Validator::make(
+            $request->all(),
+            [
 
-            /*
-            |--------------------------------------------------------------------------
-            | Payment Mode
-            |--------------------------------------------------------------------------
-            */
+                'd_date' => 'required|date',
 
-            'c_mode_of_payment' => 'required|string',
+                'c_order_no' => [
+                    'required',
+                    'string',
+                    'max:100',
+                    Rule::unique('sales_orders', 'c_order_no')
+                        ->ignore($request->id, 'n_sl_no'),
+                ],
 
-            /*
+                'farm_care_advisor_id' =>
+                    'nullable|integer|exists:employee_masters,n_employee_id',
 
-            /*
-            |--------------------------------------------------------------------------
-            | Franchise Details
-            |--------------------------------------------------------------------------
-            */
+                'n_customer_id' =>
+                    'required|integer|exists:customer_masters,n_customer_id',
 
-            'n_state_id' => [
-                'nullable',
-                'integer',
-                'exists:states,n_state_id',
-                'required_if:c_mode_of_payment,Paid to Franchise',
-            ],
+                'c_customer_name' => 'required|string|max:255',
 
-            'n_district_id' => [
-                'nullable',
-                'integer',
-                'exists:districts,id',
-                'required_if:c_mode_of_payment,Paid to Franchise',
-            ],
+                'c_customer_email' => 'nullable|email|max:255',
 
-            'nearest_franchise_id' => [
-                'nullable',
-                'required_if:c_mode_of_payment,Paid to Franchise',
-            ],
+                'c_customer_address' => 'nullable|string|max:1000',
 
-            // Totals//
-            'n_total_sales_amount' => 'nullable|numeric|min:0',
-            'n_product_discount_total' => 'nullable|numeric|min:0',
-            'n_total_gst' => 'nullable|numeric|min:0',
-            'n_total_discount' => 'nullable|numeric|min:0',
-            'n_net_sales_amount' => 'nullable|numeric|min:0',
+                'n_customer_mobile' => 'required|digits_between:10,15',
 
-            /*
-            |--------------------------------------------------------------------------
-            | Payment
-            |--------------------------------------------------------------------------
-            */
+                /*
+                |--------------------------------------------------------------------------
+                | Payment Mode
+                |--------------------------------------------------------------------------
+                */
 
-            'payment_status' => 'required_unless:c_mode_of_payment,Paid to Franchise',
+                'c_mode_of_payment' => 'required|string',
 
-            'c_transaction_id' => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::requiredIf(function () use ($request) {
-                    return ! in_array($request->c_mode_of_payment, [
-                        'Paid to Franchise',
-                        'Cash on Delivery',
-                    ]);
-                }),
-                Rule::unique('sales_orders', 'c_transaction_id'),
+                'order_type' => [
+                    'nullable',
+                    'string',
+                    Rule::requiredIf(
+                        $user && $user->roles()
+                        ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN'])
+                        ->exists()
+                    ),
+                ],
 
-            ],
 
-            'payment_image' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:5120',
-                Rule::requiredIf(function () use ($request) {
-                    return ! in_array($request->c_mode_of_payment, [
-                        'Paid to Franchise',
-                        'Cash on Delivery',
-                    ]);
-                }),
-            ],
+                /*
+                |--------------------------------------------------------------------------
+                | Franchise Details
+                |--------------------------------------------------------------------------
+                */
 
-            /*
-            |--------------------------------------------------------------------------
-            | Booklet Proof
-            |--------------------------------------------------------------------------
-            */
+                'n_state_id' => [
+                    'integer',
+                    'nullable',
+                    'exists:states,n_state_id',
 
-            'f_booklet_proof' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:5120',
-            ],
+                ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Products
-            |--------------------------------------------------------------------------
-            */
+                'n_district_id' => [
+                    'nullable',
+                    'integer',
+                    'exists:districts,id',
 
-            'products' => 'required|array|min:1',
+                ],
 
-            'products.*.product_id' => 'required|integer',
+                'n_panchayath_id' => [
+                    'nullable',
+                    'integer',
+                    'exists:panchayaths,id',
 
-            'products.*.product_price' => 'required|numeric|min:0',
+                ],
 
-            'products.*.qty' => 'required|integer|min:1',
+                'nearest_franchise_id' => [
+                   'nullable',
+                ],
 
-            'products.*.product_total' => 'required|numeric|min:0',
 
-            'products.*.discount' => 'nullable|numeric|min:0',
+                /*
+                |--------------------------------------------------------------------------
+                | Totals
+                |--------------------------------------------------------------------------
+                */
 
-            'products.*.n_gst_percentage' => 'nullable|numeric|min:0',
+                'n_total_sales_amount' => 'nullable|numeric|min:0',
+                'n_product_discount_total' => 'nullable|numeric|min:0',
+                'n_total_gst' => 'nullable|numeric|min:0',
+                'n_total_discount' => 'nullable|numeric|min:0',
+                'n_net_sales_amount' => 'nullable|numeric|min:0',
 
-            'products.*.gst_amount' => 'nullable|numeric|min:0',
-            'messages' => [
-                'payment_image.max' => 'Payment proof image must not exceed 5 MB.',
-                'f_booklet_proof.max' => 'Booklet proof image must not exceed 5 MB.',
-            ],
-        ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validation Failed
-        |--------------------------------------------------------------------------
-        */
+                /*
+                |--------------------------------------------------------------------------
+                | Payment
+                |--------------------------------------------------------------------------
+                */
+
+                'payment_status' =>
+                    'required_unless:c_mode_of_payment,Paid to Franchise',
+
+                'c_transaction_id' => [
+                    'nullable',
+                    'string',
+                    'max:255',
+
+                    Rule::requiredIf(function () use ($request) {
+                        return in_array($request->c_mode_of_payment, [
+                            'UPI',
+                            'Bank Deposit',
+                        ]);
+                    }),
+
+                    Rule::unique('sales_orders', 'c_transaction_id')
+                        ->ignore(
+                            $request->filled('id') ? $request->id : null,
+                            'n_sl_no'
+                        ),
+                ],
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Payment Image
+                |--------------------------------------------------------------------------
+                */
+
+               'payment_image' => [
+                    'nullable',
+                    'image',
+                    'mimes:jpg,jpeg,png,webp',
+                    'max:5120',
+                    Rule::requiredIf($paymentImageRequired),
+                ],
+                // ← payment_image closes HERE
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Remove Payment Image
+                |--------------------------------------------------------------------------
+                */
+
+                'remove_payment_image' => [
+                    'nullable',
+                    'in:0,1',
+                ],
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Booklet Proof
+                |--------------------------------------------------------------------------
+                */
+
+                'booklet_image' => [
+                    'nullable',
+                    'image',
+                    'mimes:jpg,jpeg,png,webp',
+                    'max:5120',
+                ],
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Products
+                |--------------------------------------------------------------------------
+                */
+
+                'products' => 'required|array|min:1',
+                'products.*.product_id' => 'required|integer|distinct',
+                'products.*.product_price' => 'required|numeric|min:0',
+                'products.*.c_hsn_code' => 'required|numeric|min:0',
+                'products.*.qty' => 'required|integer|min:1',
+                'products.*.c_unit' => 'required|string',
+                'products.*.product_total' => 'required|numeric|min:0',
+                'products.*.discount' => 'nullable|numeric|min:0',
+                'products.*.n_gst_percentage' => 'nullable|numeric|min:0',
+                'products.*.gst_amount' => 'nullable|numeric|min:0',
+
+            ], // ← validation rules close HERE
+
+            [
+                // ← validation messages are the THIRD argument
+
+                'payment_image.required' =>
+                    'Payment proof image is required for UPI or Bank Deposit.',
+
+                'payment_image.max' =>
+                    'Payment proof image must not exceed 5 MB.',
+
+                'booklet_image.max' =>
+                    'Booklet proof image must not exceed 5 MB.',
+            ]
+        );
 
         if ($validator->fails()) {
             return back()
@@ -598,7 +1760,10 @@ class SalesController extends Controller
                 ->withInput();
         }
 
+
+
         $validated = $validator->validated();
+//dd($validated);
 
         /*
         |--------------------------------------------------------------------------
@@ -637,31 +1802,8 @@ class SalesController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Check Existing Order
-        |--------------------------------------------------------------------------
-        */
 
-        $existingOrder = null;
-
-        if ($request->filled('id')) {
-
-            $existingOrder = SalesOrder::where(
-                'n_sl_no',
-                $request->id
-            )->first();
-
-            if (! $existingOrder) {
-                return back()
-                    ->withInput()
-                    ->with('error', 'Sales order not found.');
-            }
-        }
-
-        try {
-
-            /*
+         /*
             |--------------------------------------------------------------------------
             | Existing Images
             |--------------------------------------------------------------------------
@@ -681,20 +1823,79 @@ class SalesController extends Controller
             |--------------------------------------------------------------------------
             */
 
+            // if ($request->hasFile('payment_image')) {
+
+            //     $image = $request->file('payment_image');
+
+            //     $uploadPath = public_path(
+            //         'uploads/payment_images'
+            //     );
+
+            //     if (! is_dir($uploadPath)) {
+            //         mkdir($uploadPath, 0755, true);
+            //     }
+
+            //     $paymentImageName =
+            //         uniqid('payment_').'.'.
+            //         $image->getClientOriginalExtension();
+
+            //     $image->move(
+            //         $uploadPath,
+            //         $paymentImageName
+            //     );
+
+            //     /*
+            //     | Delete old image on update
+            //     */
+
+            //     if (
+            //         $existingOrder &&
+            //         $existingOrder->payment_image
+            //     ) {
+
+            //         $oldFile = public_path(
+            //             'uploads/payment_images/'.
+            //             $existingOrder->payment_image
+            //         );
+
+            //         if (file_exists($oldFile)) {
+            //             @unlink($oldFile);
+            //         }
+            //     }
+            // }
+
+           /*
+            |--------------------------------------------------------------------------
+            | Payment Image Upload / Remove
+            |--------------------------------------------------------------------------
+            */
+
+            // User selected a new image
             if ($request->hasFile('payment_image')) {
 
                 $image = $request->file('payment_image');
 
-                $uploadPath = public_path(
-                    'uploads/payment_images'
-                );
+                $uploadPath = public_path('uploads/payment_images');
 
-                if (! is_dir($uploadPath)) {
+                if (!is_dir($uploadPath)) {
                     mkdir($uploadPath, 0755, true);
                 }
 
+                // Delete old image first
+                if (isset($existingOrder->payment_image) && $existingOrder->payment_image) {
+
+                    $oldFile = public_path(
+                        'uploads/payment_images/' . $existingOrder->payment_image
+                    );
+
+                    if (file_exists($oldFile)) {
+                        @unlink($oldFile);
+                    }
+                }
+
+                // Create and save new image
                 $paymentImageName =
-                    uniqid('payment_').'.'.
+                    uniqid('payment_') . '.' .
                     $image->getClientOriginalExtension();
 
                 $image->move(
@@ -702,25 +1903,26 @@ class SalesController extends Controller
                     $paymentImageName
                 );
 
-                /*
-                | Delete old image on update
-                */
+            // User clicked Remove Image
+            } elseif (
+                $request->input('remove_payment_image') == '1'
+                && isset($existingOrder)
+                && $existingOrder->payment_image
+            ) {
 
-                if (
-                    $existingOrder &&
-                    $existingOrder->payment_image
-                ) {
+                $oldFile = public_path(
+                    'uploads/payment_images/' . $existingOrder->payment_image
+                );
 
-                    $oldFile = public_path(
-                        'uploads/payment_images/'.
-                        $existingOrder->payment_image
-                    );
-
-                    if (file_exists($oldFile)) {
-                        @unlink($oldFile);
-                    }
+                if (file_exists($oldFile)) {
+                    @unlink($oldFile);
                 }
+
+                $paymentImageName = null;
             }
+
+            // Otherwise:
+            // $paymentImageName keeps the existing image value
 
             /*
             |--------------------------------------------------------------------------
@@ -728,9 +1930,9 @@ class SalesController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            if ($request->hasFile('f_booklet_proof')) {
+            if ($request->hasFile('booklet_image')) {
 
-                $image = $request->file('f_booklet_proof');
+                $image = $request->file('booklet_image');
 
                 $uploadPath = public_path(
                     'uploads/booklet_images'
@@ -754,7 +1956,7 @@ class SalesController extends Controller
                 */
 
                 if (
-                    $existingOrder &&
+                    isset($existingOrder) &&
                     $existingOrder->booklet_image
                 ) {
 
@@ -768,8 +1970,7 @@ class SalesController extends Controller
                     }
                 }
             }
-
-            /*
+             /*
             |--------------------------------------------------------------------------
             | Payment Status
             |--------------------------------------------------------------------------
@@ -790,13 +1991,28 @@ class SalesController extends Controller
                 $paymentStatus = $validated['payment_status'];
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Order Data
-            |--------------------------------------------------------------------------
-            */
 
-            $orderData = [
+        try {
+
+/*
+            $order = [
+                //'c_bill_no' => $validated['c_bill_no'],
+                'd_date' => $validated['d_date'],
+                'farm_care_advisor_id' => $validated['farm_care_advisor_id'],
+                'c_customer_name' => $validated['c_customer_name'],
+                'c_customer_email' => $validated['c_customer_email'],
+                'c_customer_address' => $validated['c_customer_address'],
+                'n_customer_mobile' => $validated['n_customer_mobile'],
+                'n_state_id' => $validated['n_state_id'],
+                'n_district_id' => $validated['n_district_id'],
+                'n_panchayath_id' => $validated['n_panchayath_id'],
+                'nearest_franchise_id' => $validated['nearest_franchise_id'],
+                'c_mode_of_payment' => $validated['c_mode_of_payment'],
+
+
+            ]; */
+
+             $orderData = [
 
                 'c_order_no' => $validated['c_order_no'],
 
@@ -814,9 +2030,13 @@ class SalesController extends Controller
 
                 'n_customer_mobile' => $validated['n_customer_mobile'],
 
+                'order_type' => $request->order_type ?? 'null',
+
                 'n_state_id' => $validated['n_state_id'],
 
                 'n_district_id' => $validated['n_district_id'],
+
+                'n_panchayath_id' => $validated['n_panchayath_id'],
 
                 'c_mode_of_payment' => $validated['c_mode_of_payment'],
 
@@ -829,7 +2049,7 @@ class SalesController extends Controller
                 | Payment
                 */
 
-                'payment_status' => $paymentStatus,
+                'payment_status' => $validated['payment_status'],
 
                 'c_transaction_id' => $transactionId,
 
@@ -855,146 +2075,188 @@ class SalesController extends Controller
 
                 'n_net_sales_amount' => $validated['n_net_sales_amount'] ?? 0,
             ];
+            //print_r($order);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Update Existing Order
-            |--------------------------------------------------------------------------
-            */
+               if ($request->filled('id')) {
 
-            if ($existingOrder) {
+                    $id = $request->id;
 
-                /*
-                |--------------------------------------------------------------------------
-                | UPDATE EXISTING ORDER
-                |--------------------------------------------------------------------------
-                */
+                    // UPDATE
+                    SalesOrder::where('n_sl_no', $id)->update($orderData);
 
-                $existingOrder->update($orderData);
+                    // Delete old products
+                    OrderProduct::where('n_order_id', $id)->delete();
 
-                /*
-                | Delete old products
-                */
+                    // Insert updated products
+                    foreach ($validated['products'] as $product) {
 
-                OrderProduct::where(
-                    'n_order_id',
-                    $existingOrder->n_sl_no
-                )->delete();
+                        OrderProduct::create([
+                            'n_order_id'     => $id,
+                            'product_id'     => $product['product_id'],
+                            'product_price'  => $product['product_price'],
+                            'c_hsn_code'  => $product['c_hsn_code'],
+                            'qty'            => $product['qty'],
+                            'c_unit'  => $product['c_unit'],
+                            'product_total'  => $product['product_total'],
+                        ]);
+                    }
 
-                /*
-                | Insert products again
-                */
+                    // Get the UPDATED order
+                    $existingOrder = SalesOrder::with([
+                        'orderProducts',
+                        'customer',
+                    ])->findOrFail($id);
 
-                foreach ($validated['products'] as $product) {
+                    // Debug here
+                    //dd($existingOrder);
 
-                    OrderProduct::create([
+                    // Audit
+                    $auditRecord = $this->auditRecord(
+                        $existingOrder,
+                        '',
+                        'SalesOrderUpdate'
+                    );
 
-                        'n_order_id' => $existingOrder->n_sl_no,
+                    $message = 'Sales Order updated successfully.';
 
-                        'product_id' => $product['product_id'],
 
-                        'product_price' => $product['product_price'],
+                } else {
 
-                        'qty' => $product['qty'],
+                    // INSERT
 
-                        'discount' => $product['discount'] ?? 0,
+                    $salesOrder=SalesOrder::create($orderData);
 
-                        'n_gst_percentage' => $product['n_gst_percentage'] ?? 0,
 
-                        'gst_amount' => $product['gst_amount'] ?? 0,
+                    if(isset($validated['products'])){
+                        foreach($validated['products'] as $product) {
+                            try {
 
-                        'product_total' => $product['product_total'] ?? 0,
-                    ]);
+                                $productData=OrderProduct::create([
+                                    'n_order_id' => $salesOrder->n_sl_no,
+                                    'product_id' => $product['product_id'],
+                                    'product_price' => $product['product_price'],
+                                    'c_hsn_code'  => $product['c_hsn_code'],
+                                    'qty'            => $product['qty'],
+                                    'c_unit'  => $product['c_unit'],
+                                    'product_total' => $product['product_total'],
+                                ]);
+                            } catch (\Exception $e) {
+                                    dd($e->getMessage());
+                            }
+                        }
+                    }
+                    $auditRecord=$this->auditRecord('',$orderData,'SalesOrdercreate');
+                    $message = 'Sales Order created successfully.';
                 }
 
-                $message = 'Sales order updated successfully.';
 
-            } else {
-
-                /*
-                |--------------------------------------------------------------------------
-                | CREATE NEW ORDER
-                |--------------------------------------------------------------------------
-                */
-
-                $salesOrder = SalesOrder::create($orderData);
-
-                /*
-                | Insert products
-                */
-
-                foreach ($validated['products'] as $product) {
-
-                    OrderProduct::create([
-
-                        // IMPORTANT: use new order ID
-                        'n_order_id' => $salesOrder->n_sl_no,
-
-                        'product_id' => $product['product_id'],
-
-                        'product_price' => $product['product_price'],
-
-                        'qty' => $product['qty'],
-
-                        'discount' => $product['discount'] ?? 0,
-
-                        'n_gst_percentage' => $product['n_gst_percentage'] ?? 0,
-
-                        'gst_amount' => $product['gst_amount'] ?? 0,
-
-                        'product_total' => $product['product_total'] ?? 0,
-                    ]);
-                }
-
-                $message = 'Sales order created successfully.';
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Redirect
-            |--------------------------------------------------------------------------
-            */
+           //DB::commit();
 
             return redirect()
                 ->route('admin.salesorders.index')
-                ->with('success', $message);
+                ->with('success', $message );
 
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Error
-            |--------------------------------------------------------------------------
-            */
+           // DB::rollBack();
+         dd($e->getMessage());
 
             return back()
                 ->withInput()
-                ->with(
-                    'error',
-                    'Unable to save sales order: '.
-                    $e->getMessage()
-                );
+                ->with('error', $e->getMessage());
         }
     }
 
-    public function storeFollowup(Request $request)
+    public function auditRecord($oldRecord=Null,$newRecord=Null,$moduleName){
+                /* $existingOrder = SalesOrder::with([
+                    'orderProducts',
+                    'customer',
+                ])->findOrFail($id);
+ */
+                 if ($oldRecord) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Json encode existing order
+                    |--------------------------------------------------------------------------
+                    */
+                if(isset($oldRecord)){
+                   $oldRecordjson= json_encode($oldRecord);
+                }
+                else{
+                    $oldRecord=null;
+
+                }
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Get NEW data after update
+                    |--------------------------------------------------------------------------
+                    */
+                if(isset($newRecord)){
+                    $newRecord = json_encode($newRecord);
+                }
+                else{
+                    $newRecord=null;
+
+                }
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Save Audit Record
+                    |--------------------------------------------------------------------------
+                    */
+
+                    AuditRecord::create([
+
+                        'user_id' => auth()->user()->n_role_id,
+
+                        'module' => $moduleName,
+
+                        'action' => 'Updated',
+
+                        'record_id' => $oldRecord->n_sl_no,
+
+                        'old_values' =>$oldRecordjson,
+
+                        'new_values' =>$newRecord,
+
+                        'ip_address' => request()->ip(),
+
+                        'user_agent' => request()->userAgent(),
+                    ]);
+
+                }
+    }
+
+
+    public function salesUpdateStore(Request $request)
     {
-        $request->validate([
-            'n_sale_id' => 'required|exists:sales_orders,n_sl_no',
+
+        $validator=Validator::make($request->all(), [
+            'n_sale_id' => 'required',
             'd_followup_date' => 'required|date',
             'c_order_status' => 'nullable|string|max:100',
             'remarks' => 'required|string',
         ]);
 
-        $sale = SalesOrder::findOrFail($request->n_sale_id);
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
-        SalesOrderFollowup::create([
-            'n_sale_id' => $sale->n_sl_no,
-            'd_followup_date' => $request->d_followup_date,
-            'c_order_status' => $request->c_order_status,
-            'remarks' => $request->remarks,
-            'n_created_by' => Auth::id(),
-        ]);
+        $n_sale_id = Crypt::decryptString($request->n_sale_id);
+
+        $sale = SalesOrder::findOrFail($n_sale_id);
+
+        $salesOrderUpdate=SalesOrderstatusUpdation::create([
+                                'n_sale_id' => $sale->n_sl_no,
+                                'd_followup_date' => $request->d_followup_date,
+                                'c_order_status' => $request->c_order_status,
+                                'remarks' => $request->remarks,
+                                'n_created_by' => auth()->user()->n_role_id,
+                            ]);
 
         // Optional: update current order status
         if ($request->filled('c_order_status')) {
@@ -1006,7 +2268,7 @@ class SalesController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', 'Follow-up saved successfully.');
+            ->with('success', 'Orer Status Updation saved successfully.');
     }
 
     public function approve(Request $request)
@@ -1016,7 +2278,7 @@ class SalesController extends Controller
             'remarks' => 'required',
         ]);
 
-        $id = Crypt::decryptString($request->id);
+        $id = Crypt::decryptString($request->approval_id);
 
         SalesApproval::updateOrCreate(
             ['sales_order_id' => $id],
@@ -1134,6 +2396,19 @@ class SalesController extends Controller
             $farmCareAdvisorId = Auth::user()->n_employee_id;
         }
 
+
+        $AdminId = null;
+        $isAdmin = false;
+
+
+        if (isset($designation) && $designation->identifier == 'SUPER_ADMIN') {
+
+            $isAdmin = true;
+            $AdminId = $user->n_employee_id;
+        }
+
+
+
         return view(
             'admin.sales.create',
             compact(
@@ -1147,7 +2422,8 @@ class SalesController extends Controller
                 'user',
                 'farmCareAdvisorId',
                 'customers',
-                'isFarmCareAdvisor'
+                'isFarmCareAdvisor',
+                'isAdmin'
             )
         );
     }
@@ -1201,7 +2477,7 @@ class SalesController extends Controller
             'orderProducts',
             'customer',
         ])->findOrFail($id);
-
+//dd($sale );
         // --------------------------------------------------
         // FCA midnight restriction
         // --------------------------------------------------
@@ -1235,19 +2511,38 @@ class SalesController extends Controller
             $farmCareAdvisorId = $user->n_employee_id;
         }
 
+        $AdminId = null;
+        $isAdmin = false;
+
+
+        if (isset($designation) && $designation->identifier == 'SUPER_ADMIN') {
+
+            $isAdmin = true;
+            $AdminId = $user->n_employee_id;
+        }
+
+        $franchise = StoreMaster::where(
+            'n_store_id',
+            $sale->nearest_franchise_id
+        )->first();
+
+        $franchisePanchayathId = $franchise->n_panchayath_id ?? null;
+
         return view(
             'admin.sales.create',
-            compact(
-                'sale',
-                'employees',
-                'products',
-                'states',
-                'franchises',
-                'viewmode',
-                'farmCareAdvisorId',
-                'isFarmCareAdvisor',
-                'customers'
-            )
+                compact(
+                    'sale',
+                    'employees',
+                    'products',
+                    'states',
+                    'franchises',
+                    'viewmode',
+                    'farmCareAdvisorId',
+                    'isFarmCareAdvisor',
+                    'customers',
+                    'franchisePanchayathId',
+                    'isAdmin'
+                )
         );
     }
 
@@ -1310,6 +2605,48 @@ class SalesController extends Controller
 
         return response()->json([
             'panchayaths' => $panchayaths,
+        ]);
+    }
+
+    public function nearestFranchise(Request $request)
+    {
+        $latitude = $request->latitude;
+        $longitude = $request->longitude;
+
+        $franchise = StoreMaster::select('n_store_id', 'c_store_name', 'latitude', 'longitude')
+            ->selectRaw(
+                '(
+                    6371 * acos(
+                        cos(radians(?)) *
+                        cos(radians(9.0195400)) *
+                        cos(radians(76.9250100) - radians(?)) +
+                        sin(radians(?)) *
+                        sin(radians(latitude))
+                    )
+                ) AS distance',
+                [
+                    $latitude,
+                    $longitude,
+                    $latitude
+                ]
+            )
+            ->where('c_store_status', 'Y')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->orderBy('distance', 'asc')
+            ->first();
+
+        if (!$franchise) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No franchise found.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'franchises' => $franchise,
+            'distance' => round($franchise->distance, 2)
         ]);
     }
 }

@@ -129,10 +129,9 @@ class StoreController extends Controller
 
             'c_panchayath' => 'required|string|max:150',
 
-            // GPS
-            'latitude' => 'nullable|numeric|between:-90,90',
+            'latitude' => 'required|string|max:150',
 
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'longitude' => 'required|string|max:150',
 
             'c_store_email' => 'required|email:rfc,dns|max:100',
 
@@ -207,6 +206,8 @@ class StoreController extends Controller
 
                 // Existing ID OR newly created ID
                 'n_panchayath_id' => $panchayath->id,
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
 
                 // GPS coordinates
                 'latitude' => $validated['latitude'],
@@ -298,6 +299,9 @@ class StoreController extends Controller
             'n_district_id.required' => 'Please select a district',
 
             'c_panchayath.required' => 'Please enter Panchayath',
+            'latitude' => 'required|string|max:150',
+
+            'longitude' => 'required|string|max:150',
 
             'c_store_email.email' => 'Enter a valid Email id',
 
@@ -364,11 +368,8 @@ class StoreController extends Controller
 
                 // Existing or newly-created Panchayath ID
                 'n_panchayath_id' => $panchayath->id,
-
-                // GPS coordinates
                 'latitude' => $validated['latitude'],
                 'longitude' => $validated['longitude'],
-
                 'c_store_email' => $validated['c_store_email'],
                 'n_store_phone' => $validated['n_store_phone'],
                 'c_store_status' => $validated['c_store_status'],

@@ -277,6 +277,16 @@ use Illuminate\Support\Facades\Crypt;
 <!-- Top 5 Stat Widget Cards (As shown in reference image) -->
 <div class="widgets-grid">
 
+    @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+    @endif
+
     <!-- 1. Total Sales Orders -->
     <div class="widget-card">
         <div class="widget-icon green-dark">
@@ -425,6 +435,11 @@ use Illuminate\Support\Facades\Crypt;
                                     Approved
                                 </option>
 
+                                <option value="rejected"
+                                    {{ request('order_status') == 'rejected' ? 'selected' : '' }}>
+                                    Rejected
+                                </option>
+
                                 <option value="dispatched"
                                     {{ request('order_status') == 'dispatched' ? 'selected' : '' }}>
                                     Dispatched
@@ -495,8 +510,9 @@ use Illuminate\Support\Facades\Crypt;
                 <tbody>
 
                     @forelse($sales as $key=>$sale)
+
                     <tr>
-                        <td class="text-center">
+                        <td class="text-center" id="salesnumber" data-orderId="{{$sale->n_sl_no}}">
                             <span class="fw-normal">{{ $sales->firstItem() + $key }}</span>
                         </td>
                         <td><strong>{{ $sale?->c_order_no ?? 'N/A' }}</strong></td>
@@ -538,7 +554,7 @@ use Illuminate\Support\Facades\Crypt;
                             @php
                                 $status = strtolower($sale->payment_status ?? 'pending');
                             @endphp
-                            @if($status == 'confirmed' )
+                            @if($status == 'paid' )
                                 <span class="badge-status confirmed">Paid</span>
                             @else
                                 <span class="badge-status pending">Pending</span>
@@ -551,6 +567,8 @@ use Illuminate\Support\Facades\Crypt;
                             @endphp
                             @if($status == 'approved' )
                                 <span class="badge-status approved">Order Approved</span>
+                            @elseif($status == 'rejected')
+                                <span class="badge-status rejected">Rejected</span>
                             @elseif($status == 'dispatched')
                                 <span class="badge-status dispatched">Dispatched</span>
                             @elseif($status == 'shipped')
@@ -561,6 +579,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <span class="badge-status completed">Completed</span>
                             @elseif($status == 'returned')
                                 <span class="badge-status returned">Returned</span>
+
                             @elseif($status == 'pending')
                                 <span class="badge-status pending">Pending</span>
                             @endif
@@ -601,6 +620,22 @@ use Illuminate\Support\Facades\Crypt;
                                         </form>
                                         @endcan
                                     </li>
+                                    <li>
+                                        @can('sales-orders.follow-up')
+                                            <!--Follow-up Button-->
+                                            <button type="button"
+                                                class="dropdown-item d-flex align-items-center gap-3 salesorder-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#salesUpdateModal"
+                                                data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
+
+                                                <i class="ti ti-pencil"></i>
+                                                Update Order Status
+                                            </button>
+
+                                        @endcan
+                                    </li>
+
                                 </ul>
                             </div>
                         </td>
@@ -608,7 +643,7 @@ use Illuminate\Support\Facades\Crypt;
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="text-center py-4 text-muted">No sales records found</td>
+                        <td colspan="11" class="text-center py-4 text-muted">No sales records found</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -621,4 +656,104 @@ use Illuminate\Support\Facades\Crypt;
 
     </div>
 </div>
+
+<!-- Follow-up Modal -->
+<div class="modal fade" id="salesUpdateModal" tabindex="-1" aria-labelledby="salesUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+
+
+            <form action="{{ route('admin.salesorders.salesUpdateStore') }}" method="POST">
+                @csrf
+
+                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
+                    <h5 class="modal-title text-white" id="salesUpdateModalLabel">
+                        Sales Order Update Form
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden" class="n_sale_id" name="n_sale_id" value="">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Order Update Date</label>
+                            <input type="date" name="d_followup_date" class="form-control" required>
+                        </div>
+
+                        @if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor != true)
+                        {{-- <div class="col-md-6 mb-3">
+                            <label class="form-label">Follow-up Type</label>
+                            <select name="followup_type" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Phone Call">Phone Call</option>
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Site Visit">Site Visit</option>
+                            </select>
+                        </div> --}}
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Order Status</label>
+                            <select name="c_order_status" class="form-select" required>
+                                <option value="">Select Status</option>
+
+                                @if(isset($sale) && $sale->c_mode_of_payment != "Paid to Franchise")
+                                    <option value="dispatched">Dispatched</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                @endif
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="returned">Returned</option>
+                            </select>
+                        </div>
+                        @endif
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Remarks</label>
+                            <textarea name="remarks" class="form-control" rows="4"
+                                placeholder="Enter follow-up remarks..." required></textarea>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn buttonSpc">
+                        Save Order Status
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+     $(document).ready(function(){
+
+        $('#salesUpdateModal').on('show.bs.modal', function (event) {
+
+            const button = event.relatedTarget;
+
+            const salesNumber = $(button).data('id');
+
+           var s= $('.n_sale_id').val(salesNumber);
+//alert(salesNumber);
+            console.log(salesNumber);
+        });
+    })
+</script>
+@endpush

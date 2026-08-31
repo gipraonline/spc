@@ -642,7 +642,7 @@ use Illuminate\Support\Facades\Crypt;
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-            <form action="{{ route('admin.salesorders.followup.store') }}" method="POST">
+            <form action="{{ route('admin.salesorders.salesUpdateStore') }}" method="POST">
                 @csrf
 
                 <div class="modal-header">

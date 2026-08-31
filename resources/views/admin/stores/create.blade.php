@@ -2,7 +2,27 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
 <style>
+#map {
+    width: 100%;
+    height: 450px;
+    margin-top: 20px;
+    border-radius: 15px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.leaflet-control-geocoder {
+    width: 300px;
+}
+
+.leaflet-control-geocoder-form input {
+    width: 250px;
+}
+
 /* Premium Design Tokens */
 :root {
     --primary-green: #1b3e86;
@@ -286,6 +306,41 @@
                     @enderror
                 </div>
 
+                <div class="col-md-4">
+                    <label for="n_district_id" class="form-label">
+                        Latitude
+                    </label>
+
+                    <input type="text" id="latitude" id="latitude" name="latitude" value="{{ old('latitude') }}"
+                        maxlength="255" class="form-control mandatory" placeholder="Enter Latitude">
+
+
+                    @error('latitude')
+                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-4">
+                    <label for="longitude" class="form-label">
+                        Longitude
+                    </label>
+
+                    <input type="text" id="longitude" id="longitude" name="longitude" value="{{ old('longitude') }}"
+                        maxlength="255" class="form-control mandatory" placeholder="Enter Longitude">
+
+
+                    @error('longitude')
+                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" id="openMapBtn" class="btn btn-primary" onclick="openMap()">
+                        Select Location
+                    </button>
+                </div>
+                <div id="map" style="height:400px; margin-top:20px; display:none;">
+                </div>
             </div>
 
             {{-- GPS Location --}}
@@ -1385,4 +1440,328 @@ $(document).ready(function() {
 });
 </script>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<script>
+let map = null;
+let marker = null;
+
+const defaultLat = 10.8505;
+const defaultLng = 76.2711;
+
+
+/*
+|--------------------------------------------------------------------------
+| OPEN MAP
+|--------------------------------------------------------------------------
+*/
+
+$('#openMapBtn').on('click', function() {
+
+    $('#map').show();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create map only once
+    |--------------------------------------------------------------------------
+    */
+
+    if (!map) {
+
+        map = L.map('map').setView(
+            [defaultLat, defaultLng],
+            9
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | OpenStreetMap
+        |--------------------------------------------------------------------------
+        */
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }
+        ).addTo(map);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SEARCH BOX
+        |--------------------------------------------------------------------------
+        */
+
+        L.Control.geocoder({
+
+                defaultMarkGeocode: false,
+
+                placeholder: 'Search location...',
+
+                errorMessage: 'Location not found'
+
+            })
+            .on('markgeocode', function(e) {
+
+                const latlng = e.geocode.center;
+
+                console.log(
+                    'Selected Location:',
+                    e.geocode.name
+                );
+
+                console.log(
+                    'Latitude:',
+                    latlng.lat
+                );
+
+                console.log(
+                    'Longitude:',
+                    latlng.lng
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Move map
+                |--------------------------------------------------------------------------
+                */
+
+                map.setView(
+                    latlng,
+                    17
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Add / Move marker
+                |--------------------------------------------------------------------------
+                */
+
+                setLocation(
+                    latlng.lat,
+                    latlng.lng
+                );
+
+            })
+            .addTo(map);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLICK MAP TO SELECT LOCATION
+        |--------------------------------------------------------------------------
+        */
+
+        map.on('click', function(e) {
+
+            setLocation(
+                e.latlng.lat,
+                e.latlng.lng
+            );
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fix map rendering when inside hidden div
+    |--------------------------------------------------------------------------
+    */
+
+    setTimeout(function() {
+
+        map.invalidateSize();
+
+    }, 200);
+
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| SET LOCATION
+|--------------------------------------------------------------------------
+*/
+
+function setLocation(latitude, longitude) {
+
+    latitude = parseFloat(latitude);
+    longitude = parseFloat(longitude);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Set input values
+    |--------------------------------------------------------------------------
+    */
+
+    $('#latitude').val(
+        latitude.toFixed(6)
+    );
+
+    $('#longitude').val(
+        longitude.toFixed(6)
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove old marker
+    |--------------------------------------------------------------------------
+    */
+
+    if (marker) {
+
+        map.removeLayer(marker);
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Add new marker
+    |--------------------------------------------------------------------------
+    */
+
+    marker = L.marker(
+            [latitude, longitude], {
+                draggable: true
+            }
+        )
+        .addTo(map);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Marker popup
+    |--------------------------------------------------------------------------
+    */
+
+    marker.bindPopup(
+        '<b>Selected Location</b><br>' +
+        'Latitude: ' + latitude.toFixed(6) +
+        '<br>' +
+        'Longitude: ' + longitude.toFixed(6)
+    ).openPopup();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Allow dragging marker
+    |--------------------------------------------------------------------------
+    */
+
+    marker.on('dragend', function(e) {
+
+        const position =
+            e.target.getLatLng();
+
+        setLocation(
+            position.lat,
+            position.lng
+        );
+
+    });
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| If old latitude / longitude exists
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+
+    const oldLat = $('#latitude').val();
+    const oldLng = $('#longitude').val();
+
+    if (oldLat && oldLng) {
+
+        $('#map').show();
+
+        map = L.map('map').setView(
+            [
+                parseFloat(oldLat),
+                parseFloat(oldLng)
+            ],
+            17
+        );
+
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }
+        ).addTo(map);
+
+
+        L.Control.geocoder({
+
+                defaultMarkGeocode: false,
+
+                placeholder: 'Search location...'
+
+            })
+            .on('markgeocode', function(e) {
+
+                const latlng =
+                    e.geocode.center;
+
+                map.setView(
+                    latlng,
+                    17
+                );
+
+                setLocation(
+                    latlng.lat,
+                    latlng.lng
+                );
+
+            })
+            .addTo(map);
+
+
+        marker = L.marker(
+            [
+                parseFloat(oldLat),
+                parseFloat(oldLng)
+            ], {
+                draggable: true
+            }
+        ).addTo(map);
+
+
+        marker.on('dragend', function(e) {
+
+            const position =
+                e.target.getLatLng();
+
+            setLocation(
+                position.lat,
+                position.lng
+            );
+
+        });
+
+
+        setTimeout(function() {
+
+            map.invalidateSize();
+
+        }, 200);
+
+    }
+
+});
+</script>
 @endpush

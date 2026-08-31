@@ -169,11 +169,13 @@ Route::middleware(['auth', 'admin'])
             ->name('franchises.clearSearch');
 
         Route::get('districts/{stateId}', [StoreController::class, 'getDistricts'])
-            ->middleware('permission:franchises.view')
+            ->middleware('permission:franchises.create')
             ->name('districts');
 
         Route::get('filter-panchayath', [StoreController::class, 'filterPanchayath'])
             ->name('admin.filterPanchayath');
+
+
         // *********************************************
 
         /*
@@ -363,9 +365,9 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:sales-orders.approval')
             ->name('salesorders.approval.save');
 
-        Route::put('salesorders/followup', [SalesController::class, 'followupSave'])
+        Route::put('salesorders/followup', [SalesController::class, 'salesUpdateSave'])
             ->middleware('permission:sales-orders.follow-up')
-            ->name('salesorders.followup.store');
+            ->name('salesorders.salesUpdateStore');
 
         Route::get('salesorders/edit/{id}', [SalesController::class, 'edit'])
             ->middleware('permission:sales-orders.edit')
@@ -385,6 +387,9 @@ Route::middleware(['auth', 'admin'])
         Route::get('filter-franchise', [SalesController::class, 'franchiseFilter'])
             ->name('admin.filterFranchise');
 
+        Route::post('/franchise/nearest', [SalesController::class, 'nearestFranchise'])
+            ->name('franchise.nearest');
+
         /*
         |--------------------------------------------------------------------------
         | Customers
@@ -395,9 +400,9 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:customers.view')
             ->name('customers.index');
 
-        Route::post('salesorders/followup', [SalesController::class, 'storeFollowup'])
+        Route::post('salesorders/followup', [SalesController::class, 'salesUpdateStore'])
             ->middleware('permission:sales-orders.follow-up')
-            ->name('salesorders.followup.store');
+            ->name('salesorders.salesUpdateStore');
         Route::get('customers/create', [CustomerController::class, 'create'])
             ->middleware('permission:customers.create')
             ->name('customers.create');

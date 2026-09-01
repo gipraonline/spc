@@ -114,8 +114,11 @@ class AdminUserController extends Controller
 
     public function showPassword(Admin $user)
     {
-        // Only Super Admin can view passwords
-        if (! auth('web')->check() || ! auth('web')->user()->hasRole('Super Admin')) {
+        // Only Super Admin and Gipra Admin can view passwords
+        if (
+            ! auth('web')->check() ||
+            ! auth('web')->user()->hasAnyRole(['Super Admin', 'Gipra Admin'])
+        ) {
             abort(403);
         }
 

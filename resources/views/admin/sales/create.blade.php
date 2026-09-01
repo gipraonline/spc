@@ -427,58 +427,82 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="text-danger mt-1 fs-2"></div>
                     </div>
+                    @if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor==true )
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Booklet Serial No *
+                            </label>
+                            <div class="position-relative">
+                                <input type="text" name="c_order_no" placeholder="BK-2026-0417"
+                                    class="form-control order-number fw-bold text-success mandatory"
+                                    data-message="Please Enter Booklet Serial No"
+                                    value="{{ old('c_order_no', isset($sale->c_order_no) ? $sale->c_order_no : '') }}"
+                                    {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
+                                <div class="text-danger mt-1 fs-2"></div>
+                            </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">
-                            Booklet Serial No *
-                        </label>
-                        <div class="position-relative">
-                            <input type="text" name="c_order_no" placeholder="BK-2026-0417"
-                                class="form-control order-number fw-bold text-success mandatory"
-                                data-message="Please Enter Booklet Serial No"
-                                value="{{ old('c_order_no', isset($sale->c_order_no) ? $sale->c_order_no : '') }}"
-                                {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
-                            <div class="text-danger mt-1 fs-2"></div>
+                            @error('c_order_no')
+                            <div class="text-danger mt-1 fs-2">
+                                {{ $message }}
+                            </div>
+
+                            @enderror
                         </div>
+                    @endif
+                    @if(isset($isTelecaller) && $isTelecaller==true)
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Tele Order No *
+                            </label>
+                            <div class="position-relative">
+                                <input type="text" name="c_order_no" placeholder="BK-2026-0417"
+                                    class="form-control order-number fw-bold text-success mandatory"
+                                    data-message="Please Enter Booklet Serial No"
+                                    value="{{$TeleorderNo}}">
+                                <div class="text-danger mt-1 fs-2"></div>
+                            </div>
 
-                        @error('c_order_no')
-                        <div class="text-danger mt-1 fs-2">
-                            {{ $message }}
+                            @error('c_order_no')
+                            <div class="text-danger mt-1 fs-2">
+                                {{ $message }}
+                            </div>
+
+                            @enderror
                         </div>
-
-                        @enderror
-                    </div>
-
+                    @endif
                 </div>
 
                 <!-- Row 2: Order No & Farm Care Advisor -->
                 <div class="row g-3">
 
+                    @if(
+                        (!isset($isTelecaller) || $isTelecaller == false) &&
+                        (!isset($isFarmCareOfficer) || $isFarmCareOfficer == false)
+                        )
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Farm Care Advisor *
+                            </label>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">
-                            Farm Care Advisor *
-                        </label>
+                            @if($isFarmCareAdvisor)
+                            <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}"
+                                readonly>
+                            @else
+                            <select name="farm_care_advisor_id" class="form-control "
+                                data-message="Please Enter Farm Care Advisor">
+                                <option value="">Select Farm Care Adviser</option>
+                                @foreach($employees as $employee)
+                                <option value="{{ $employee->n_employee_id }}"
+                                    {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
+                                    {{ $employee->c_employee_name }}
+                                </option>
+                                @endforeach
 
-                        @if($isFarmCareAdvisor)
-                        <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}"
-                            readonly>
-                        @else
-                        <select name="farm_care_advisor_id" class="form-control mandatory"
-                            data-message="Please Enter Farm Care Advisor">
-                            <option value="">Select Farm Care Adviser</option>
-                            @foreach($employees as $employee)
-                            <option value="{{ $employee->n_employee_id }}"
-                                {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
-                                {{ $employee->c_employee_name }}
-                            </option>
-                            @endforeach
+                            </select>
+                            <div class="text-danger mt-1 fs-2"></div>
+                            @endif
 
-                        </select>
-                        <div class="text-danger mt-1 fs-2"></div>
-                        @endif
-
-                    </div>
+                        </div>
 
                     {{-- <div class="col-md-6 mb-3">
                         <label class="form-label">
@@ -495,54 +519,56 @@ use Illuminate\Support\Facades\Crypt;
                         @endif
                     </div> --}}
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">
-                            Sales Order Booklet Proof
-                            @if(!isset($sale) || !$sale->booklet_image)
-                                <span class="text-danger">*</span>
-                            @endif
-                        </label>
-
-                    <input type="file"
-                        name="booklet_image"
-                        id="booklet_image"
-                        class="form-control"
-                        accept="image/*"
-                        data-message="Please Enter Booklet Proof">
-
-                    <!-- Tell Laravel to delete existing image -->
-                    <input type="hidden"
-                        name="remove_booklet_image"
-                        id="remove_booklet_image"
-                        value="0">
-
-                    <div class="text-danger mt-1 fs-2"></div>
-
-                    <!-- Image Preview -->
-                    <div class="mt-3" id="booklet_image_preview_container">
-
-                        <img
-                            id="booklet_image_preview"
-                            src="{{ isset($sale) && $sale->booklet_image ?  asset('uploads/booklet_images/' . $sale->booklet_image)  : '' }}"
-                            alt="Booklet Proof Preview"
-                            class="img-thumbnail"
-                            style="{{ isset($sale) && $sale->booklet_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
-
-                        @if(isset($sale) && $sale->booklet_image)
-                            <br>
-
-                            <button type="button"
-                                id="remove_booklet_image_btn"
-                                class="btn btn-danger btn-sm mt-2">
-                                Remove Image
-                            </button>
-                        @endif
-
-                    </div>
 
 
-                    </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Sales Order Booklet Proof
+                                @if(!isset($sale) || !$sale->booklet_image)
+                                    <span class="text-danger">*</span>
+                                @endif
+                            </label>
 
+                            <input type="file"
+                                name="booklet_image"
+                                id="booklet_image"
+                                class="form-control"
+                                accept="image/*"
+                                data-message="Please Enter Booklet Proof">
+
+                            <!-- Tell Laravel to delete existing image -->
+                            <input type="hidden"
+                                name="remove_booklet_image"
+                                id="remove_booklet_image"
+                                value="0">
+
+                            <div class="text-danger mt-1 fs-2"></div>
+
+                            <!-- Image Preview -->
+                            <div class="mt-3" id="booklet_image_preview_container">
+
+                                <img
+                                    id="booklet_image_preview"
+                                    src="{{ isset($sale) && $sale->booklet_image ?  asset('uploads/booklet_images/' . $sale->booklet_image)  : '' }}"
+                                    alt="Booklet Proof Preview"
+                                    class="img-thumbnail"
+                                    style="{{ isset($sale) && $sale->booklet_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
+
+                                @if(isset($sale) && $sale->booklet_image)
+                                    <br>
+
+                                    <button type="button"
+                                        id="remove_booklet_image_btn"
+                                        class="btn btn-danger btn-sm mt-2">
+                                        Remove Image
+                                    </button>
+                                @endif
+
+                            </div>
+
+
+                        </div>
+                    @endif
 
                 </div>
 
@@ -593,7 +619,10 @@ use Illuminate\Support\Facades\Crypt;
 
                                         @foreach($products as $product)
 
-                                        <option value="{{ $product->n_product_id }}" data-price="{{ $product->n_mrp }}"
+                                        <option value="{{ $product->n_product_id }}"
+                                            data-price="{{ $product->n_mrp }}"
+                                            data-hsn-code="{{ $product->c_hsn_code ?? '' }}"
+                                            data-unit="{{ $product->c_unit ?? '' }}"
                                             data-gst="{{ $product->n_gst_percentage ?? 0 }}"
                                             {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
                                             {{ $product->c_product_name }}
@@ -605,7 +634,7 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <td>
                                     <input type="text" name="products[{{ $key }}][c_hsn_code]"
-                                        class="form-control c_hsn_code" value="{{ $val->product_price}}" >
+                                        class="form-control c_hsn_code" value="{{ $val->c_hsn_code}}" >
                                 </td>
 
 
@@ -954,7 +983,7 @@ use Illuminate\Support\Facades\Crypt;
                     </label>
 
                 </div>
-
+                @if(isset($isTelecaller) && $isTelecaller==false)
                 <div class="payment-option">
                     <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
                         value="UPI"
@@ -976,7 +1005,7 @@ use Illuminate\Support\Facades\Crypt;
                         Bank Deposit
                     </label>
                 </div>
-
+                @endif
                 <div class="payment-option">
                     <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
                         value="Paid to Franchise"
@@ -1531,435 +1560,407 @@ $hasPaymentImage = isset($sale) && !empty($sale->payment_image);
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
-$(document).ready(function () {
+    $(document).ready(function () {
 
-    console.log("Sales Order JS loaded");
+        console.log("Sales Order JS loaded");
 
-    /*
-    |--------------------------------------------------------------------------
-    | Product Rows
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Product Row Index
+        |--------------------------------------------------------------------------
+        */
 
-    let rowIndex = $('#productTable tbody tr').length;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Add New Product
-    |--------------------------------------------------------------------------
-    */
-
-    $('#addRow').on('click', function () {
-
-        let row = `
-            <tr>
-
-                <!-- Product -->
-                <td>
-                    <select
-                        name="products[${rowIndex}][product_id]"
-                        class="form-control product mandatory"
-                        data-message="Please Select Product">
-
-                        <option value="">Select Product</option>
-
-                        @foreach($products as $product)
-                            <option
-                                value="{{ $product->n_product_id }}"
-                                data-price="{{ $product->n_mrp }}"
-                                data-gst="{{ $product->n_gst_percentage }}"
-                                data-hsn-code="{{ $product->c_hsn_code }}"
-                                data-unit="{{ $product->c_unit }}">
-
-                                {{ $product->c_product_name }}
-                                ({{ $product->c_product_code }})
-                                ({{ $product->c_unit }})
-
-                            </option>
-                        @endforeach
-
-                    </select>
-
-                    <div class="text-danger mt-1 fs-2"></div>
-                </td>
-
-
-                <!-- HSN Code -->
-                <td>
-                    <input
-                        type="text"
-                        name="products[${rowIndex}][c_hsn_code]"
-                        class="form-control c_hsn_code"
-                        value=""
-                        readonly>
-                </td>
-
-
-                <!-- Price -->
-                <td>
-                    <input
-                        type="text"
-                        name="products[${rowIndex}][product_price]"
-                        class="form-control price"
-                        value="0.00"
-                        readonly>
-                </td>
-
-
-                <!-- Quantity -->
-                <td>
-                    <input
-                        type="number"
-                        name="products[${rowIndex}][qty]"
-                        class="form-control qty"
-                        value="1"
-                        min="1">
-                </td>
-
-
-                <!-- Unit -->
-                <td>
-                    <input
-                        type="text"
-                        name="products[${rowIndex}][c_unit]"
-                        class="form-control c_unit"
-                        value=""
-                        readonly>
-                </td>
-
-
-                <!-- Discount -->
-                <td>
-                    <input
-                        type="number"
-                        name="products[${rowIndex}][discount]"
-                        class="form-control discount"
-                        value="0.00"
-                        step="0.01"
-                        min="0">
-                </td>
-
-
-                <!-- GST % -->
-                <td>
-                    <input
-                        type="number"
-                        name="products[${rowIndex}][n_gst_percentage]"
-                        class="form-control gst_percentage"
-                        value="0.00"
-                        step="0.01"
-                        readonly>
-                </td>
-
-
-                <!-- GST Amount -->
-                <td>
-                    <input
-                        type="text"
-                        name="products[${rowIndex}][gst_amount]"
-                        class="form-control gst_amount"
-                        value="0.00"
-                        readonly>
-                </td>
-
-
-                <!-- Discounted Price -->
-                <td>
-                    <input
-                        type="text"
-                        name="products[${rowIndex}][discounted_price]"
-                        class="form-control discounted_price"
-                        value="0.00"
-                        readonly>
-                </td>
-
-
-                <!-- Product Total -->
-                <td>
-                    <input
-                        type="text"
-                        name="products[${rowIndex}][product_total]"
-                        class="form-control total"
-                        value="0.00"
-                        readonly>
-                </td>
-
-
-                <!-- Remove -->
-                <td class="text-center">
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-sm removeRow">
-
-                        <i class="ti ti-trash"></i>
-
-                    </button>
-                </td>
-
-            </tr>
-        `;
-
-        $('#productTable tbody').append(row);
-
-        rowIndex++;
-
-        console.log("Product row added. Current rowIndex:", rowIndex);
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Product Selection
-    |--------------------------------------------------------------------------
-    */
-
-    $(document).on('change', '.product', function () {
-
-        productTotal($(this));
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Quantity / Discount Change
-    |--------------------------------------------------------------------------
-    */
-
-    $(document).on('input change', '.qty, .discount', function () {
-
-        let row = $(this).closest('tr');
-        let product = row.find('.product');
-
-        if (product.length) {
-            productTotal(product);
-        }
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Product Total
-    |--------------------------------------------------------------------------
-    |
-    | MRP is treated as GST-inclusive.
-    |
-    | Example:
-    | MRP = 118
-    | GST = 18%
-    |
-    | Base price = 100
-    | GST = 18
-    |
-    |--------------------------------------------------------------------------
-    */
-
-    function productTotal(productSelect) {
-
-        let row = productSelect.closest('tr');
-
-        if (!row.length) {
-            return;
-        }
-
-        let selectedOption = productSelect.find(':selected');
+        let rowIndex = $('#productTable tbody tr').length;
 
 
         /*
         |--------------------------------------------------------------------------
-        | Product Details
+        | Add New Product
         |--------------------------------------------------------------------------
         */
 
-        let mrp = parseFloat(
-            selectedOption.attr('data-price')
-        ) || 0;
+        $('#addRow').on('click', function () {
 
-        let gstPercentage = parseFloat(
-            selectedOption.attr('data-gst')
-        ) || 0;
+            let row = `
+                <tr class="new-product-row">
 
-        let hsnCode =
-            selectedOption.attr('data-hsn-code') || '';
+                    <!-- Product -->
 
-        let unit =
-            selectedOption.attr('data-unit') || '';
+                    <td>
+                        <select
+                            name="products[${rowIndex}][product_id]"
+                            class="form-control product mandatory"
+                            data-message="Please Select Product">
+
+                            <option value="">Select Product</option>
+
+                            @foreach($products as $product)
+                                <option
+                                    value="{{ $product->n_product_id }}"
+                                    data-price="{{ $product->n_mrp }}"
+                                    data-gst="{{ $product->n_gst_percentage }}"
+                                    data-hsn-code="{{ $product->c_hsn_code }}"
+                                    data-unit="{{ $product->c_unit }}">
+
+                                    {{ $product->c_product_name }}
+                                    ({{ $product->c_product_code }})
+                                    ({{ $product->c_unit }})
+
+                                </option>
+                            @endforeach
+
+                        </select>
+
+                        <div class="text-danger mt-1 fs-2"></div>
+                    </td>
+
+
+                    <!-- HSN Code -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][c_hsn_code]"
+                            class="form-control c_hsn_code"
+                            value=""
+                            readonly>
+                    </td>
+
+
+                    <!-- Price -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][product_price]"
+                            class="form-control price"
+                            value="0.00"
+                            readonly>
+                    </td>
+
+
+                    <!-- Quantity -->
+                    <td>
+                        <input
+                            type="number"
+                            name="products[${rowIndex}][qty]"
+                            class="form-control qty"
+                            value="1"
+                            min="1">
+                    </td>
+
+
+                    <!-- Unit -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][c_unit]"
+                            class="form-control c_unit"
+                            value=""
+                            readonly>
+                    </td>
+
+
+                    <!-- Discount -->
+                    <td>
+                        <input
+                            type="number"
+                            name="products[${rowIndex}][discount]"
+                            class="form-control discount"
+                            value="0.00"
+                            step="0.01"
+                            min="0">
+                    </td>
+
+
+                    <!-- GST % -->
+                    <td>
+                        <input
+                            type="number"
+                            name="products[${rowIndex}][n_gst_percentage]"
+                            class="form-control gst_percentage"
+                            value="0.00"
+                            step="0.01"
+                            readonly>
+                    </td>
+
+
+                    <!-- GST Amount -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][gst_amount]"
+                            class="form-control gst_amount"
+                            value="0.00"
+                            readonly>
+                    </td>
+
+
+                    <!-- Discounted Price -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][discounted_price]"
+                            class="form-control discounted_price"
+                            value="0.00"
+                            readonly>
+                    </td>
+
+
+                    <!-- Product Total -->
+                    <td>
+                        <input
+                            type="text"
+                            name="products[${rowIndex}][product_total]"
+                            class="form-control total"
+                            value="0.00"
+                            readonly>
+                    </td>
+
+
+                    <!-- Remove -->
+                    <td class="text-center">
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-sm removeRow">
+
+                            <i class="ti ti-trash"></i>
+
+                        </button>
+                    </td>
+
+                </tr>
+            `;
+
+            $('#productTable tbody').append(row);
+
+            rowIndex++;
+
+            console.log("New product row added");
+        });
+
+
+     /*    $(document).on('change', '.product', function () {
+
+            let row = $(this).closest('tr');
+
+            let selectedOption = $(this).find('option:selected');
+
+            // Product values
+            let price = parseFloat(selectedOption.data('price')) || 0;
+            let gstPercentage = parseFloat(selectedOption.data('gst')) || 0;
+            let hsnCode = selectedOption.data('hsn-code') || '';
+            let unit = selectedOption.data('unit') || '';
+
+            // Set values
+            row.find('.price').val(price.toFixed(2));
+            row.find('.gst_percentage').val(gstPercentage);
+            row.find('.c_hsn_code').val(hsnCode);
+            row.find('.c_unit').val(unit);
+
+            // Reset values
+            row.find('.qty').val(1);
+            row.find('.discount').val('0.00');
+
+            // Calculate
+            productTotal(row);
+        }); */
 
 
         /*
         |--------------------------------------------------------------------------
-        | Quantity
+        | Product Selection
+        |--------------------------------------------------------------------------
+        | This will only affect NEW rows because existing product selects
+        | should be disabled in the edit Blade.
         |--------------------------------------------------------------------------
         */
 
-        let qty = parseFloat(
-            row.find('.qty').val()
-        ) || 0;
+        $(document).on('change', '.new-product-row .product', function () {
 
-        if (qty < 0) {
-            qty = 0;
-        }
+            productTotal($(this));
+
+        });
 
 
         /*
         |--------------------------------------------------------------------------
-        | Discount
+        | Quantity / Discount Change
+        |--------------------------------------------------------------------------
+        | This works for both existing and new rows.
         |--------------------------------------------------------------------------
         */
 
-        let discount = parseFloat(
-            row.find('.discount').val()
-        ) || 0;
+        $(document).on(
+            'input change',
+            '.qty, .discount',
+            function () {
 
-        if (discount < 0) {
-            discount = 0;
-        }
+                let row = $(this).closest('tr');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Existing Row
+                |--------------------------------------------------------------------------
+                | Do calculations without reading product dropdown data.
+                | Therefore saved HSN and Unit will never change.
+                |--------------------------------------------------------------------------
+                */
+
+                if (!row.hasClass('new-product-row')) {
+
+                    calculateExistingRow(row);
+                    calculateSummary();
+
+                    return;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | New Row
+                |--------------------------------------------------------------------------
+                */
+
+                let product = row.find('.product');
+
+                if (product.length && product.val()) {
+                    productTotal(product);
+                }
+
+            }
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | GST Calculation
-        |--------------------------------------------------------------------------
-        |
-        | MRP includes GST.
-        |
-        | Base Price:
-        | MRP / (1 + GST%)
-        |
+        | New Product Calculation
         |--------------------------------------------------------------------------
         */
 
-        let price = 0;
-        let grossAmount = 0;
-        let taxableAmount = 0;
-        let gstAmount = 0;
-        let lineTotal = 0;
+        function productTotal(productSelect) {
+
+            let row = productSelect.closest('tr');
+
+            if (!row.length) {
+                return;
+            }
+
+            let selectedOption = productSelect.find(':selected');
+
+            let mrp = parseFloat(
+                selectedOption.attr('data-price')
+            ) || 0;
+
+            let gstPercentage = parseFloat(
+                selectedOption.attr('data-gst')
+            ) || 0;
+
+            let hsnCode =
+                selectedOption.attr('data-hsn-code') || '';
+
+            let unit =
+                selectedOption.attr('data-unit') || '';
+
+            let qty = parseFloat(
+                row.find('.qty').val()
+            ) || 0;
+
+            let discount = parseFloat(
+                row.find('.discount').val()
+            ) || 0;
 
 
-        if (mrp > 0) {
+            if (qty < 0) {
+                qty = 0;
+            }
 
-            price =
-                mrp / (1 + (gstPercentage / 100));
-
-            /*
-            |--------------------------------------------------------------------------
-            | Gross taxable amount before discount
-            |--------------------------------------------------------------------------
-            */
-
-            grossAmount =
-                price * qty;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Taxable amount after discount
-            |--------------------------------------------------------------------------
-            */
-
-            taxableAmount =
-                grossAmount - discount;
-
-
-            if (taxableAmount < 0) {
-                taxableAmount = 0;
+            if (discount < 0) {
+                discount = 0;
             }
 
 
             /*
             |--------------------------------------------------------------------------
-            | GST on taxable amount
-            |--------------------------------------------------------------------------
-            |
-            | Because price is GST-exclusive:
-            |
-            | GST = taxable amount × GST%
-            |
+            | MRP includes GST
             |--------------------------------------------------------------------------
             */
 
-            gstAmount =
-                taxableAmount * gstPercentage / 100;
+            let price = 0;
+            let grossAmount = 0;
+            let taxableAmount = 0;
+            let gstAmount = 0;
+            let lineTotal = 0;
+
+
+            if (mrp > 0) {
+
+                // GST exclusive price
+                price = mrp / (1 + (gstPercentage / 100));
+
+                // Price × Quantity
+                grossAmount = price * qty;
+
+                // After discount
+                taxableAmount = grossAmount - discount;
+
+                if (taxableAmount < 0) {
+                    taxableAmount = 0;
+                }
+
+                // GST
+                gstAmount =
+                    taxableAmount * gstPercentage / 100;
+
+                // Final Total
+                lineTotal =
+                    taxableAmount + gstAmount;
+            }
 
 
             /*
             |--------------------------------------------------------------------------
-            | Final product total
+            | Set Values - NEW ROW ONLY
             |--------------------------------------------------------------------------
             */
 
-            lineTotal =
-                taxableAmount + gstAmount;
+            row.find('.c_hsn_code').val(hsnCode);
 
+            row.find('.c_unit').val(unit);
+
+            row.find('.price').val(
+                price.toFixed(2)
+            );
+
+            row.find('.gst_percentage').val(
+                gstPercentage.toFixed(2)
+            );
+
+            row.find('.gst_amount').val(
+                gstAmount.toFixed(2)
+            );
+
+            row.find('.discounted_price').val(
+                taxableAmount.toFixed(2)
+            );
+
+            row.find('.total').val(
+                lineTotal.toFixed(2)
+            );
+
+
+            calculateSummary();
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Set Row Values
+        | Existing Product Row Calculation
+        |--------------------------------------------------------------------------
+        | Uses the values already saved in the database.
+        | Does NOT touch HSN code or Unit.
         |--------------------------------------------------------------------------
         */
 
-        row.find('.c_hsn_code').val(hsnCode);
-
-        row.find('.price').val(
-            price.toFixed(2)
-        );
-
-        row.find('.c_unit').val(unit);
-
-        row.find('.gst_percentage').val(
-            gstPercentage.toFixed(2)
-        );
-
-        row.find('.gst_amount').val(
-            gstAmount.toFixed(2)
-        );
-
-        row.find('.discounted_price').val(
-            taxableAmount.toFixed(2)
-        );
-
-        row.find('.total').val(
-            lineTotal.toFixed(2)
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Update Summary
-        |--------------------------------------------------------------------------
-        */
-
-        calculateSummary();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Calculate Summary
-    |--------------------------------------------------------------------------
-    */
-
-    function calculateSummary() {
-
-        let totalSales = 0;
-        let productDiscount = 0;
-        let totalGst = 0;
-
-
-        $('#productTable tbody tr').each(function () {
-
-            let row = $(this);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Values
-            |--------------------------------------------------------------------------
-            */
+        function calculateExistingRow(row) {
 
             let price =
                 parseFloat(row.find('.price').val()) || 0;
@@ -1974,55 +1975,36 @@ $(document).ready(function () {
                 parseFloat(row.find('.gst_percentage').val()) || 0;
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Gross Amount
-            |--------------------------------------------------------------------------
-            */
+            if (qty < 0) {
+                qty = 0;
+            }
+
+            if (discount < 0) {
+                discount = 0;
+            }
+
 
             let grossAmount =
                 price * qty;
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Taxable Amount
-            |--------------------------------------------------------------------------
-            */
-
-            let productTaxableAmount =
+            let taxableAmount =
                 grossAmount - discount;
 
-
-            if (productTaxableAmount < 0) {
-                productTaxableAmount = 0;
+            if (taxableAmount < 0) {
+                taxableAmount = 0;
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | GST
-            |--------------------------------------------------------------------------
-            */
-
             let gstAmount =
-                productTaxableAmount *
-                gstPercentage / 100;
+                taxableAmount * gstPercentage / 100;
+
+            let total =
+                taxableAmount + gstAmount;
 
 
             /*
             |--------------------------------------------------------------------------
-            | Product Total
-            |--------------------------------------------------------------------------
-            */
-
-            let productTotal =
-                productTaxableAmount + gstAmount;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Update Row
+            | Update calculated values only
             |--------------------------------------------------------------------------
             */
 
@@ -2031,606 +2013,233 @@ $(document).ready(function () {
             );
 
             row.find('.discounted_price').val(
-                productTaxableAmount.toFixed(2)
+                taxableAmount.toFixed(2)
             );
 
             row.find('.total').val(
-                productTotal.toFixed(2)
+                total.toFixed(2)
             );
+
+            // HSN and Unit are intentionally NOT changed
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Calculate Summary
+        |--------------------------------------------------------------------------
+        */
+
+        function calculateSummary() {
+
+            let totalSales = 0;
+            let productDiscount = 0;
+            let totalGst = 0;
+
+
+            $('#productTable tbody tr').each(function () {
+
+                let row = $(this);
+
+                let price =
+                    parseFloat(row.find('.price').val()) || 0;
+
+                let qty =
+                    parseFloat(row.find('.qty').val()) || 0;
+
+                let discount =
+                    parseFloat(row.find('.discount').val()) || 0;
+
+                let gstPercentage =
+                    parseFloat(
+                        row.find('.gst_percentage').val()
+                    ) || 0;
+
+
+                let grossAmount =
+                    price * qty;
+
+                let taxableAmount =
+                    grossAmount - discount;
+
+
+                if (taxableAmount < 0) {
+                    taxableAmount = 0;
+                }
+
+
+                let gstAmount =
+                    taxableAmount *
+                    gstPercentage / 100;
+
+                let productTotal =
+                    taxableAmount + gstAmount;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Update calculations
+                |--------------------------------------------------------------------------
+                */
+
+                row.find('.gst_amount').val(
+                    gstAmount.toFixed(2)
+                );
+
+                row.find('.discounted_price').val(
+                    taxableAmount.toFixed(2)
+                );
+
+                row.find('.total').val(
+                    productTotal.toFixed(2)
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Summary
+                |--------------------------------------------------------------------------
+                */
+
+                totalSales += grossAmount;
+                productDiscount += discount;
+                totalGst += gstAmount;
+
+            });
 
 
             /*
             |--------------------------------------------------------------------------
-            | Summary
+            | Additional Discount
             |--------------------------------------------------------------------------
             */
 
-            totalSales += grossAmount;
-
-            productDiscount += discount;
-
-            totalGst += gstAmount;
-
-        });
+            let additionalDiscount =
+                parseFloat(
+                    $('#summaryAdditionalDiscount').val()
+                ) || 0;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Additional Discount
-        |--------------------------------------------------------------------------
-        */
+            if (additionalDiscount < 0) {
+                additionalDiscount = 0;
+            }
 
-        let additionalDiscount =
-            parseFloat(
-                $('#summaryAdditionalDiscount').val()
-            ) || 0;
 
-        if (additionalDiscount < 0) {
-            additionalDiscount = 0;
+            let totalDiscount =
+                productDiscount + additionalDiscount;
+
+            let taxableAmount =
+                totalSales - totalDiscount;
+
+
+            if (taxableAmount < 0) {
+                taxableAmount = 0;
+            }
+
+
+            let netSalesAmount =
+                taxableAmount + totalGst;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Display Summary
+            |--------------------------------------------------------------------------
+            */
+
+            $('#summaryTotalSales').val(
+                totalSales.toFixed(2)
+            );
+
+            $('#summaryProductDiscount').val(
+                productDiscount.toFixed(2)
+            );
+
+            $('#summaryTotalDiscount').val(
+                totalDiscount.toFixed(2)
+            );
+
+            $('#summaryTaxableAmount').val(
+                taxableAmount.toFixed(2)
+            );
+
+            $('#summaryGstAmount').val(
+                totalGst.toFixed(2)
+            );
+
+            $('#summaryNetSales').val(
+                netSalesAmount.toFixed(2)
+            );
+
+            $('#n_amount_to_pay').val(
+                netSalesAmount.toFixed(2)
+            );
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Total Discount
+        | Additional Discount Change
         |--------------------------------------------------------------------------
         */
 
-        let totalDiscount =
-            productDiscount + additionalDiscount;
+        $(document).on(
+            'input change',
+            '#summaryAdditionalDiscount',
+            function () {
+
+                calculateSummary();
+
+            }
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | Taxable Amount
+        | Remove Product Row
         |--------------------------------------------------------------------------
         */
 
-        let taxableAmount =
-            totalSales - totalDiscount;
+        $(document).on(
+            'click',
+            '.removeRow',
+            function () {
 
+                $(this).closest('tr').remove();
 
-        if (taxableAmount < 0) {
-            taxableAmount = 0;
-        }
+                calculateSummary();
+
+            }
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | Net Sales Amount
+        | IMPORTANT
+        |--------------------------------------------------------------------------
+        | Do NOT run productTotal() for all products on page load.
+        |
+        | REMOVE this old code:
+        |
+        | $('#productTable tbody .product').each(function () {
+        |     if ($(this).val()) {
+        |         productTotal($(this));
+        |     }
+        | });
         |--------------------------------------------------------------------------
         */
-
-        let netSalesAmount =
-            taxableAmount + totalGst;
 
 
         /*
         |--------------------------------------------------------------------------
-        | Display Summary
+        | Calculate summary on page load
         |--------------------------------------------------------------------------
         */
-
-        $('#summaryTotalSales').val(
-            totalSales.toFixed(2)
-        );
-
-        $('#summaryProductDiscount').val(
-            productDiscount.toFixed(2)
-        );
-
-        $('#summaryTotalDiscount').val(
-            totalDiscount.toFixed(2)
-        );
-
-        $('#summaryTaxableAmount').val(
-            taxableAmount.toFixed(2)
-        );
-
-        $('#summaryGstAmount').val(
-            totalGst.toFixed(2)
-        );
-
-        $('#summaryNetSales').val(
-            netSalesAmount.toFixed(2)
-        );
-
-        $('#n_amount_to_pay').val(
-            netSalesAmount.toFixed(2)
-        );
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Additional Discount Change
-    |--------------------------------------------------------------------------
-    */
-
-    $(document).on(
-        'input change',
-        '#summaryAdditionalDiscount',
-        function () {
-
-            calculateSummary();
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Remove Product Row
-    |--------------------------------------------------------------------------
-    */
-
-    $(document).on('click', '.removeRow', function () {
-
-        $(this).closest('tr').remove();
 
         calculateSummary();
 
     });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Payment Mode
-    |--------------------------------------------------------------------------
-    */
-
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Payment Mode Change
-    |--------------------------------------------------------------------------
-    */
-
-    $('.mode_of_payment').on(
-        'change',
-        handlePaymentMode
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Run Payment Mode on Page Load
-    |--------------------------------------------------------------------------
-    */
-
-    handlePaymentMode();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Customer Selection
-    |--------------------------------------------------------------------------
-    */
-
-    $('#n_customer_id').on('change', function () {
-
-        let option =
-            $(this).find(':selected');
-
-
-        let email =
-            option.data('email') || '';
-
-        let mobile =
-            option.data('mobile') || '';
-
-        let address =
-            option.data('address') || '';
-
-        let stateId =
-            option.data('state') || '';
-
-        let districtId =
-            option.data('district') || '';
-
-        let customerName =
-            option.data('name') || '';
-
-
-        $('#c_customer_email').val(email);
-
-        $('#n_customer_mobile').val(mobile);
-
-        $('#c_customer_address').val(address);
-
-        $('#customer_state').val(stateId);
-
-        $('#c_customer_name').val(customerName);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | No State
-        |--------------------------------------------------------------------------
-        */
-
-        if (!stateId) {
-
-            $('#customer_district').html(
-                '<option value="">Select District</option>'
-            );
-
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Load Customer Districts
-        |--------------------------------------------------------------------------
-        */
-
-        $.ajax({
-
-            type: 'GET',
-
-            url: "{{ route('admin.filterDistrict') }}",
-
-            data: {
-                state: stateId
-            },
-
-            dataType: 'json',
-
-            beforeSend: function () {
-
-                $('#customer_district').html(
-                    '<option value="">Loading...</option>'
-                );
-
-            },
-
-            success: function (data) {
-
-                $('#customer_district').html(
-                    '<option value="">Select District</option>'
-                );
-
-
-                if (data.districts) {
-
-                    $.each(
-                        data.districts,
-                        function (index, district) {
-
-                            $('#customer_district').append(
-                                '<option value="' +
-                                district.id +
-                                '">' +
-                                district.district_name +
-                                '</option>'
-                            );
-
-                        }
-                    );
-
-                }
-
-
-                $('#customer_district').val(districtId);
-
-            },
-
-            error: function (xhr) {
-
-                console.error(
-                    'Customer district loading failed:',
-                    xhr.responseText
-                );
-
-                $('#customer_district').html(
-                    '<option value="">Unable to load districts</option>'
-                );
-
-            }
-
-        });
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Franchise State Selection
-    |--------------------------------------------------------------------------
-    */
-
-    $('#franchise_state').on('change', function () {
-
-        let stateId =
-            $(this).val();
-
-
-        $('#franchise_district').html(
-            '<option value="">Loading...</option>'
-        );
-
-        $('#franchise').html(
-            '<option value="">Select Franchise</option>'
-        );
-
-
-        if (!stateId) {
-
-            $('#franchise_district').html(
-                '<option value="">Select District</option>'
-            );
-
-            return;
-        }
-
-
-        $.ajax({
-
-            url: "{{ route('admin.filterDistrict') }}",
-
-            type: 'GET',
-
-            data: {
-                state: stateId
-            },
-
-            dataType: 'json',
-
-            success: function (response) {
-
-                $('#franchise_district').html(
-                    '<option value="">Select District</option>'
-                );
-
-
-                if (response.districts) {
-
-                    $.each(
-                        response.districts,
-                        function (index, district) {
-
-                            $('#franchise_district').append(
-                                '<option value="' +
-                                district.id +
-                                '">' +
-                                district.district_name +
-                                '</option>'
-                            );
-
-                        }
-                    );
-
-                }
-
-            },
-
-            error: function (xhr) {
-
-                console.error(
-                    'Franchise district loading failed:',
-                    xhr.responseText
-                );
-
-                $('#franchise_district').html(
-                    '<option value="">Unable to load districts</option>'
-                );
-
-            }
-
-        });
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Franchise District Selection
-    |--------------------------------------------------------------------------
-    */
-
-    $('#franchise_district').on('change', function () {
-
-        let stateId =
-            $('#franchise_state').val();
-
-        let districtId =
-            $(this).val();
-
-
-        $('#franchise').html(
-            '<option value="">Loading...</option>'
-        );
-
-
-        if (!stateId || !districtId) {
-
-            $('#franchise').html(
-                '<option value="">Select Franchise</option>'
-            );
-
-            return;
-        }
-
-
-        $.ajax({
-
-            url: "{{ url('admin/filter-franchise') }}",
-
-            type: 'GET',
-
-            data: {
-                state: stateId,
-                district: districtId
-            },
-
-            dataType: 'json',
-
-            success: function (response) {
-
-                $('#franchise').html(
-                    '<option value="">Select Franchise</option>'
-                );
-
-
-                if (response.franchises) {
-
-                    $.each(
-                        response.franchises,
-                        function (index, franchise) {
-
-                            $('#franchise').append(
-                                '<option value="' +
-                                franchise.n_store_id +
-                                '">' +
-                                franchise.c_store_name +
-                                ' (' +
-                                franchise.c_store_code +
-                                ')' +
-                                '</option>'
-                            );
-
-                        }
-                    );
-
-                }
-
-            },
-
-            error: function (xhr) {
-
-                console.error(
-                    'Franchise loading failed:',
-                    xhr.responseText
-                );
-
-                $('#franchise').html(
-                    '<option value="">Unable to load franchise</option>'
-                );
-
-            }
-
-        });
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Approval Modal
-    |--------------------------------------------------------------------------
-    */
-
-    const approveModalEl =
-        document.getElementById('approveModal');
-
-
-    if (approveModalEl) {
-
-        approveModalEl.addEventListener(
-            'show.bs.modal',
-            function (event) {
-
-                const button =
-                    event.relatedTarget;
-
-
-                if (!button) {
-                    return;
-                }
-
-
-                const id =
-                    button.getAttribute('data-id');
-
-
-                console.log(
-                    'Approval ID:',
-                    id
-                );
-
-
-                document.getElementById(
-                    'approval_id'
-                ).value = id;
-
-
-                document.getElementById(
-                    'approval_remarks'
-                ).value = '';
-
-
-                document.getElementById(
-                    'approval_status'
-                ).value = '';
-
-            }
-        );
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Approval Submit
-    |--------------------------------------------------------------------------
-    */
-
-    $(document).on(
-        'click',
-        '.approvalSubmit',
-        function () {
-
-            const id =
-                $(this).attr('data-id');
-
-
-            console.log(
-                'Encrypted ID:',
-                id
-            );
-
-
-            $('#approval_id').val(id);
-
-
-            $('#approvalForm').attr(
-                'action',
-                "{{ route('admin.salesorders.approval.save') }}"
-            );
-
-
-            $('#approval_remarks').val('');
-
-            $('#approval_status').val('');
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Existing Product Rows
-    |--------------------------------------------------------------------------
-    */
-
-    $('#productTable tbody .product').each(function () {
-
-        if ($(this).val()) {
-
-            productTotal($(this));
-
-        }
-
-    });
-
-
-});
-
-function handlePaymentMode() {
+    function handlePaymentMode() {
 
         let paymentMode =
             $('.mode_of_payment:checked').val();
@@ -2757,6 +2366,7 @@ function handlePaymentMode() {
         let stateId = option.data("state");
         let districtId = option.data("district");
 
+        $("#c_customer_name").val(option.data("name") || '');
         $("#c_customer_email").val(option.data("email") || '');
         $("#n_customer_mobile").val(option.data("mobile") || '');
         $("#c_customer_address").val(option.data("address") || '');
@@ -3303,6 +2913,112 @@ $('#franchise_district').on('change', function() {
         );
 
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Mode Change
+    |--------------------------------------------------------------------------
+    */
+
+    $('.mode_of_payment').on('change', function () {
+        handlePaymentMode();
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Run Payment Mode on Page Load
+    |--------------------------------------------------------------------------
+    */
+
+    handlePaymentMode();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Handle Payment Mode
+    |--------------------------------------------------------------------------
+    */
+
+    function handlePaymentMode() {
+
+        let paymentMode =
+            $('.mode_of_payment:checked').val();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | No Payment Mode Selected
+        |--------------------------------------------------------------------------
+        */
+
+        if (!paymentMode) {
+
+            $('#paymet-proofs').hide();
+            $('#ps').show();
+            $('#franchise-details').show();
+
+            $('#franchise_state').addClass('mandatory');
+            $('#franchise_district').addClass('mandatory');
+            $('#franchise_panchayath').addClass('mandatory');
+            $('#franchise').addClass('mandatory');
+            $('#payment_status').addClass('mandatory');
+
+            $('#c_transaction_id').removeClass('mandatory');
+            $('#payment_image').removeClass('mandatory');
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Paid to Franchise / Cash on Delivery
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            paymentMode === 'Paid to Franchise' ||
+            paymentMode === 'Cash on Delivery'
+        ) {
+
+            $('#paymet-proofs').hide();
+            $('#ps').show();
+            $('#franchise-details').show();
+
+            $('#franchise_state').addClass('mandatory');
+            $('#franchise_district').addClass('mandatory');
+            $('#franchise_panchayath').addClass('mandatory');
+            $('#franchise').addClass('mandatory');
+            $('#payment_status').addClass('mandatory');
+
+            $('#c_transaction_id').removeClass('mandatory');
+            $('#payment_image').removeClass('mandatory');
+
+        } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Other Payment Modes
+            |--------------------------------------------------------------------------
+            */
+
+            $('#paymet-proofs').show();
+            $('#ps').show();
+            $('#franchise-details').show();
+
+            $('#franchise_state').addClass('mandatory');
+            $('#franchise_district').addClass('mandatory');
+            $('#franchise_panchayath').addClass('mandatory');
+            $('#franchise').addClass('mandatory');
+            $('#payment_status').addClass('mandatory');
+
+            $('#c_transaction_id').addClass('mandatory');
+
+            // Uncomment if payment image is mandatory
+            // $('#payment_image').addClass('mandatory');
+        }
+    }
 
 </script>
 @endpush

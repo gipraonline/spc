@@ -390,6 +390,50 @@ Route::middleware(['auth', 'admin'])
         Route::post('/franchise/nearest', [SalesController::class, 'nearestFranchise'])
             ->name('franchise.nearest');
 
+         /*
+          |--------------------------------------------------------------------------
+          | Tele Callers
+          |--------------------------------------------------------------------------
+          */
+
+        Route::get('telecallers', [SalesController::class, 'index'])
+            ->middleware('permission:tele-callers.view')
+            ->name('telecallers.index');
+
+        Route::get('telecallers/create', [SalesController::class, 'create'])
+            ->middleware('permission:tele-callers.create')
+            ->name('telecallers.create');
+
+        Route::post('telecallers', [SalesController::class, 'store'])
+            ->middleware('permission:tele-callers.create')
+            ->name('telecallers.store');
+
+        Route::get('telecallers/show/{id}', [SalesController::class, 'show'])
+            ->middleware('permission:tele-callers.view-details')
+            ->name('salesorders.show');
+
+        Route::put('telecallers/approval', [SalesController::class, 'approve'])
+            ->middleware('permission:tele-callers.approval')
+            ->name('telecallers.approval.save');
+
+        Route::put('telecallers/followup', [SalesController::class, 'salesUpdateSave'])
+            ->middleware('permission:tele-callers.follow-up')
+            ->name('telecallers.salesUpdateStore');
+
+        Route::get('telecallers/edit/{id}', [SalesController::class, 'edit'])
+            ->middleware('permission:tele-callers.edit')
+            ->name('telecallers.edit');
+
+        Route::put('telecallers/update', [SalesController::class, 'update'])
+            ->middleware('permission:tele-callers.edit')
+            ->name('telecallers.update');
+
+        Route::delete('telecallers/delete/{id}', [SalesController::class, 'destroy'])
+            ->middleware('permission:tele-callers.delete')
+            ->name('telecallers.destroy');
+
+       
+
         /*
         |--------------------------------------------------------------------------
         | Customers

@@ -16,6 +16,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+        $isSuperAdmin = $user->hasRole('Super Admin');
+        $isGipraAdmin = $user->hasRole('Gipra Admin');
+
         /*
         |--------------------------------------------------------------------------
         | Dashboard type
@@ -25,6 +28,9 @@ class DashboardController extends Controller
         $isAdminDashboard = $user->hasAnyRole([
             'Super Admin',
             'Gipra Admin',
+            'National Sales Head',
+            'Regional Sales Head',
+            'Team Lead',
         ]) || $user->can('dashboard.view-all-orders');
 
         /*
@@ -380,6 +386,16 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         | Customer count
         |--------------------------------------------------------------------------
+        |
+        | Admin:
+        |   All active customers.
+        |
+        | FCA:
+        |   Customers created by the logged-in FCA.
+        |
+        | FCO:
+        |   Customers created by employees reporting to the logged-in FCO.
+        |
         */
 
         $totalCustomersQuery = CustomerMaster::query()
@@ -388,42 +404,54 @@ class DashboardController extends Controller
 
         if (! $isAdminDashboard) {
 
-            $customerEmployeeIds = [
-                (int) $user->n_employee_id,
-            ];
-
-            $customerSubordinateIds = EmployeeMaster::query()
-                ->where(
-                    'reporting_to',
-                    $user->n_employee_id
-                )
-                ->whereNull('deleted_at')
-                ->pluck('n_employee_id')
-                ->map(fn ($id) => (int) $id)
-                ->toArray();
-
-            $customerEmployeeIds = array_values(
-                array_unique([
-                    ...$customerEmployeeIds,
-                    ...$customerSubordinateIds,
-                ])
-            );
+            $roleNames = $user->getRoleNames();
 
             /*
             |--------------------------------------------------------------------------
-            | Staff sees today's customers only
+            | FCA
             |--------------------------------------------------------------------------
             */
+            if ($roleNames->contains('Farm Care Advisor')) {
 
-            $totalCustomersQuery
-                ->whereIn(
-                    'created_by',
-                    $customerEmployeeIds
-                )
-                ->whereDate(
-                    'created_at',
-                    Carbon::today()
-                );
+                $customerEmployeeIds = [
+                    (int) $user->n_employee_id,
+                ];
+
+                /*
+                |--------------------------------------------------------------------------
+                | FCO
+                |--------------------------------------------------------------------------
+                */
+            } elseif ($roleNames->contains('Farm Care Officer')) {
+
+                $customerEmployeeIds = EmployeeMaster::query()
+                    ->where('reporting_to', $user->n_employee_id)
+                    ->whereNull('deleted_at')
+                    ->pluck('n_employee_id')
+                    ->map(fn ($id) => (int) $id)
+                    ->toArray();
+
+                /*
+                |--------------------------------------------------------------------------
+                | Other staff
+                |--------------------------------------------------------------------------
+                */
+            } else {
+
+                $customerEmployeeIds = [
+                    (int) $user->n_employee_id,
+                ];
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Apply customer restriction
+            |--------------------------------------------------------------------------
+            */
+            $totalCustomersQuery->whereIn(
+                'created_by',
+                $customerEmployeeIds
+            );
         }
 
         $totalCustomers = $totalCustomersQuery->count();
@@ -554,6 +582,8 @@ class DashboardController extends Controller
             */
 
             'isAdminDashboard' => $isAdminDashboard,
+            'isSuperAdmin' => $isSuperAdmin,
+            'isGipraAdmin' => $isGipraAdmin,
         ]);
     }
 }

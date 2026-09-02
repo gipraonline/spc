@@ -150,7 +150,7 @@ class AdminUserController extends Controller
     public function copyAllLoginDetails()
     {
 
-        if (! auth()->check() || ! auth()->user()->hasRole('Super Admin')) {
+        if (! auth()->check() || ! auth()->user()->hasAnyRole(['Super Admin', 'Gipra Admin'])) {
             abort(403, 'You are not authorized to view passwords.');
         }
 

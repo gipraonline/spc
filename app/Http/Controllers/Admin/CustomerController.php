@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerMaster;
 use App\Models\District;
+use App\Models\EmployeeMaster;
 use App\Models\Lead;
 use App\Models\State;
 use Carbon\Carbon;
@@ -60,86 +61,95 @@ class CustomerController extends Controller
                 ->exists();
     }
 
-//     public function index()
-//     {
-//         $isFarmCareAdvisor = $this->isFca();
+    private function isFco(): bool
+    {
+        return Auth::check()
+            && Auth::user()->roles()
+                ->where('identifier', 'FCO')
+                ->exists();
+    }
 
-//         $query = CustomerMaster::with(['state', 'district']);
+    //     public function index()
+    //     {
+    //         $isFarmCareAdvisor = $this->isFca();
 
-//         $search = session('customer_search');
-//         $status = session('customer_status');
+    //         $query = CustomerMaster::with(['state', 'district']);
 
-//         /*
-//         |--------------------------------------------------------------------------
-//         | FCA restriction
-//         |--------------------------------------------------------------------------
-//         | FCA can see only customers whose lead:
-//         | 1. Belongs to logged-in FCA
-//         | 2. Has today's visit date
-//         |--------------------------------------------------------------------------
-//         */
-//         if ($isFarmCareAdvisor) {
+    //         $search = session('customer_search');
+    //         $status = session('customer_status');
 
-//             $todayMobiles = Lead::where(
-//                 'n_fca_id',
-//                 Auth::user()->n_employee_id
-//             )
-//                 ->whereDate('d_visit_date', Carbon::today())
-//                 ->whereNotNull('n_mobile')
-//                 ->pluck('n_mobile');
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | FCA restriction
+    //         |--------------------------------------------------------------------------
+    //         | FCA can see only customers whose lead:
+    //         | 1. Belongs to logged-in FCA
+    //         | 2. Has today's visit date
+    //         |--------------------------------------------------------------------------
+    //         */
+    //         if ($isFarmCareAdvisor) {
 
-//             $query->whereIn('n_mobile', $todayMobiles);
-//         }
+    //             $todayMobiles = Lead::where(
+    //                 'n_fca_id',
+    //                 Auth::user()->n_employee_id
+    //             )
+    //                 ->whereDate('d_visit_date', Carbon::today())
+    //                 ->whereNotNull('n_mobile')
+    //                 ->pluck('n_mobile');
 
-//         /*
-//         |--------------------------------------------------------------------------
-//         | Search
-//         |--------------------------------------------------------------------------
-//         */
-//         if (! empty($search)) {
+    //             $query->whereIn('n_mobile', $todayMobiles);
+    //         }
 
-//             $query->where(function ($q) use ($search, $isFarmCareAdvisor) {
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Search
+    //         |--------------------------------------------------------------------------
+    //         */
+    //         if (! empty($search)) {
 
-//                 $q->where('c_customer_code', 'LIKE', "%{$search}%")
-//                     ->orWhere('c_customer_name', 'LIKE', "%{$search}%");
+    //             $query->where(function ($q) use ($search, $isFarmCareAdvisor) {
 
-//                 // Only non-FCA users can search by phone/WhatsApp
-//                 if (! $isFarmCareAdvisor) {
+    //                 $q->where('c_customer_code', 'LIKE', "%{$search}%")
+    //                     ->orWhere('c_customer_name', 'LIKE', "%{$search}%");
 
-//                     $q->orWhere('n_mobile', 'LIKE', "%{$search}%")
-//                         ->orWhere('n_whatsapp', 'LIKE', "%{$search}%");
-//                 }
-//             });
-//         }
+    //                 // Only non-FCA users can search by phone/WhatsApp
+    //                 if (! $isFarmCareAdvisor) {
 
-//         /*
-//         |--------------------------------------------------------------------------
-//         | Status
-//         |--------------------------------------------------------------------------
-//         */
-//         if (! empty($status)) {
-//             $query->where('c_status', $status);
-//         }
+    //                     $q->orWhere('n_mobile', 'LIKE', "%{$search}%")
+    //                         ->orWhere('n_whatsapp', 'LIKE', "%{$search}%");
+    //                 }
+    //             });
+    //         }
 
-//         /*
-//         |--------------------------------------------------------------------------
-//         | Customers
-//         |--------------------------------------------------------------------------
-//         */
-//         $customers = $query
-//             ->orderBy('n_customer_id', 'desc')
-//             ->paginate(10)
-//             ->withQueryString();
-// dd($customers);
-//         return view('admin.customers.index', compact(
-//             'customers',
-//             'isFarmCareAdvisor'
-//         ));
-//     }
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Status
+    //         |--------------------------------------------------------------------------
+    //         */
+    //         if (! empty($status)) {
+    //             $query->where('c_status', $status);
+    //         }
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | Customers
+    //         |--------------------------------------------------------------------------
+    //         */
+    //         $customers = $query
+    //             ->orderBy('n_customer_id', 'desc')
+    //             ->paginate(10)
+    //             ->withQueryString();
+    // dd($customers);
+    //         return view('admin.customers.index', compact(
+    //             'customers',
+    //             'isFarmCareAdvisor'
+    //         ));
+    //     }
 
     public function index()
     {
         $isFarmCareAdvisor = $this->isFca();
+        $isFarmCareOfficer = $this->isFco();
 
         $query = CustomerMaster::with(['state', 'district']);
 
@@ -147,25 +157,43 @@ class CustomerController extends Controller
         $status = session('customer_status');
 
         /*
-        |--------------------------------------------------------------------------
-        | FCA restriction
-        |--------------------------------------------------------------------------
-        | FCA can see only customers added by the logged-in FCA
-        */
+    |--------------------------------------------------------------------------
+    | FCA restriction
+    |--------------------------------------------------------------------------
+    | FCA can see only customers:
+    | 1. Created by the logged-in FCA
+    | 2. Created today
+    |
+    | After midnight, yesterday's customers are automatically hidden.
+    |--------------------------------------------------------------------------
+    */
         if ($isFarmCareAdvisor) {
-
-            $query->where(
-                'created_by',
-                Auth::user()->n_employee_id
-            );
+            $query->where('created_by', Auth::user()->n_employee_id)
+                ->whereDate('created_at', Carbon::today());
         }
 
+        /*
+    |--------------------------------------------------------------------------
+    | FCO restriction
+    |--------------------------------------------------------------------------
+    | FCO sees customers created by FCAs reporting to this FCO.
+    |--------------------------------------------------------------------------
+    */
+        elseif ($isFarmCareOfficer) {
+
+            $fcaEmployeeIds = EmployeeMaster::query()
+                ->where('reporting_to', Auth::user()->n_employee_id)
+                ->whereNull('deleted_at')
+                ->pluck('n_employee_id');
+
+            $query->whereIn('created_by', $fcaEmployeeIds);
+        }
         /*
         |--------------------------------------------------------------------------
         | Search
         |--------------------------------------------------------------------------
         */
-        if (!empty($search)) {
+        if (! empty($search)) {
 
             $query->where(function ($q) use ($search, $isFarmCareAdvisor) {
 
@@ -173,7 +201,7 @@ class CustomerController extends Controller
                     ->orWhere('c_customer_name', 'LIKE', "%{$search}%");
 
                 // Only non-FCA users can search by phone/WhatsApp
-                if (!$isFarmCareAdvisor) {
+                if (! $isFarmCareAdvisor) {
                     $q->orWhere('n_mobile', 'LIKE', "%{$search}%")
                         ->orWhere('n_whatsapp', 'LIKE', "%{$search}%");
                 }
@@ -185,7 +213,7 @@ class CustomerController extends Controller
         | Status
         |--------------------------------------------------------------------------
         */
-        if (!empty($status)) {
+        if (! empty($status)) {
             $query->where('c_status', $status);
         }
 
@@ -295,7 +323,7 @@ class CustomerController extends Controller
 
                 'c_status' => $validated['c_status'],
 
-                'created_by' => auth()->id(),
+                'created_by' => auth()->user()->n_employee_id,
 
             ]);
 

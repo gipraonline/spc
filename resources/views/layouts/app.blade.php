@@ -15,8 +15,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
 
-    <link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/png" href="{{asset('dist/images/logos/fav.png')}}" />
@@ -624,14 +623,16 @@
 
 
 
-<style>
-    @media screen and (max-width:767px){
-       .form-control, .form-select {
-        width: stretch;
-        min-width: 100%;
+    <style>
+    @media screen and (max-width:767px) {
+
+        .form-control,
+        .form-select {
+            width: stretch;
+            min-width: 100%;
+        }
     }
-    }
-</style>
+    </style>
 
 
 

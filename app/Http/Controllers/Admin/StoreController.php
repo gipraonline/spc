@@ -127,13 +127,11 @@ class StoreController extends Controller
 
             'n_district_id' => 'required|integer',
 
-            // NEW
             'c_panchayath' => 'required|string|max:150',
 
             'latitude' => 'required|string|max:150',
 
             'longitude' => 'required|string|max:150',
-
 
             'c_store_email' => 'required|email:rfc,dns|max:100',
 
@@ -157,8 +155,15 @@ class StoreController extends Controller
 
             'n_district_id.required' => 'Please select a district',
 
-            // NEW
             'c_panchayath.required' => 'Please enter Panchayath',
+
+            'latitude.required' => 'Please select a location on the map',
+            'latitude.numeric' => 'Invalid latitude',
+            'latitude.between' => 'Invalid latitude',
+
+            'longitude.required' => 'Please select a location on the map',
+            'longitude.numeric' => 'Invalid longitude',
+            'longitude.between' => 'Invalid longitude',
 
             'c_store_email.email' => 'Enter a valid Email id',
 
@@ -188,10 +193,6 @@ class StoreController extends Controller
                     'status' => 'Y',
                 ]);
             }
-            // dd([
-            //     'panchayath' => $panchayath,
-            //     'panchayath_id' => $panchayath->id,
-            // ]);
 
             // Create Store using Panchayath ID
             StoreMaster::create([
@@ -205,6 +206,10 @@ class StoreController extends Controller
 
                 // Existing ID OR newly created ID
                 'n_panchayath_id' => $panchayath->id,
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
+
+                // GPS coordinates
                 'latitude' => $validated['latitude'],
                 'longitude' => $validated['longitude'],
 
@@ -267,6 +272,9 @@ class StoreController extends Controller
             // Panchayath name from input
             'c_panchayath' => 'required|string|max:150',
 
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+
             'c_store_email' => 'nullable|email:rfc,dns|max:100',
 
             'n_store_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
@@ -294,7 +302,6 @@ class StoreController extends Controller
             'latitude' => 'required|string|max:150',
 
             'longitude' => 'required|string|max:150',
-
 
             'c_store_email.email' => 'Enter a valid Email id',
 

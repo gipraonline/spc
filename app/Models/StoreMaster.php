@@ -29,6 +29,11 @@ class StoreMaster extends Model
         'c_store_status',
     ];
 
+    protected $casts = [
+        'latitude' => 'decimal:7',
+        'longitude' => 'decimal:7',
+    ];
+
     public function state()
     {
         return $this->belongsTo(State::class, 'n_state_id', 'n_state_id');

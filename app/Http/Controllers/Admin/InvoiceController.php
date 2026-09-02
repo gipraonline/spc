@@ -62,7 +62,7 @@ class InvoiceController extends Controller
             'calculation' => $calculation,
             'paymentMode' => $paymentMode,
         ]);
-        $invoiceNo = 'FCA'.str_pad($order->invoice_no, 4, '0', STR_PAD_LEFT);
+        $invoiceNo = $order->invoice_no;
 
         return $pdf->download(
             'invoice-'.$invoiceNo.'.pdf'

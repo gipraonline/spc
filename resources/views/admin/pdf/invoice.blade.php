@@ -388,7 +388,7 @@
                                 </td>
 
                                 <td class="value">
-                                    FCA{{ str_pad($order->invoice_no, 4, '0', STR_PAD_LEFT) }}
+                                    {{ $order->invoice_no}}
                                 </td>
                             </tr>
 
@@ -515,7 +515,7 @@
                                     </td>
 
                                     <td class="d-value">
-                                        FCA{{ str_pad($order->invoice_no, 4, '0', STR_PAD_LEFT) }}
+                                        {{ $order->invoice_no }}
                                     </td>
                                 </tr>
 

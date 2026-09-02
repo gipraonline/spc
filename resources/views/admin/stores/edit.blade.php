@@ -1,6 +1,6 @@
 @extends('layouts.app')
-
-@section('content')
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
 :root {
     --primary-green: #1b3e86;
@@ -121,7 +121,23 @@
     color: #64748b;
     transition: all 0.2s ease;
 }
+
+#franchiseMap {
+    width: 100%;
+    height: 450px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.location-status {
+    font-weight: 600;
+}
 </style>
+@endpush
+
+@section('content')
+
 
 <div class="card premium-edit-card mb-4">
     <div class="card-header-premium">
@@ -238,6 +254,32 @@
                     </div>
 
 
+                    {{-- GPS Location --}}
+                    <div class="field-group-title mt-5">
+                        <i class="ti ti-map-pin fs-5"></i>
+                        Franchise GPS Location
+                    </div>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6"> <label for="latitude" class="form-label"> Latitude * </label> <input
+                                type="text" id="latitude" name="latitude"
+                                value="{{ old('latitude', $franchise->latitude) }}" class="form-control"
+                                placeholder="Latitude" readonly required> @error('latitude') <div
+                                class="text-danger mt-1 fs-2"> {{ $message }} </div> @enderror </div>
+                        <div class="col-md-6"> <label for="longitude" class="form-label"> Longitude * </label> <input
+                                type="text" id="longitude" name="longitude"
+                                value="{{ old('longitude', $franchise->longitude) }}" class="form-control"
+                                placeholder="Longitude" readonly required> @error('longitude') <div
+                                class="text-danger mt-1 fs-2"> {{ $message }} </div> @enderror </div>
+                    </div>
+                    <div class="mb-4 d-flex align-items-center gap-2 flex-wrap"> <button type="button"
+                            id="getLocationBtn" class="btn btn-outline-success"> <i class="ti ti-map-pin-search"></i>
+                            Get Location from Address </button> <button type="button" id="selectLocationBtn"
+                            class="btn btn-outline-primary"> <i class="ti ti-map-pin"></i> Select Location on Map
+                        </button> <span id="locationStatus" class="ms-2 text-muted location-status">
+                            @if($franchise->latitude && $franchise->longitude) ✓ Existing franchise location loaded
+                            @else Select or detect the franchise location @endif </span> </div>
+                    <div id="franchiseMap"
+                        style="{{ $franchise->latitude && $franchise->longitude ? '' : 'display:none;' }}"> </div>
                 </div>
 
                 <!-- Section 2: Contact & Operational Details -->
@@ -292,26 +334,250 @@
     </div>
 </div>
 
-@push('scripts')
+
+@endsection
+
+@push('scripts') <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-$('#n_state_id').change(function() {
-
-    let stateId = $(this).val();
-
-    $.get('/admin/districts/' + stateId, function(response) {
-
-        let options = '<option value="">Select District</option>';
-
-        $.each(response, function(i, district) {
-            options += `<option value="${district.id}">
-                            ${district.district_name}
-                        </option>`;
+$(document).ready(function() {
+    /* | VARIABLES | */
+    let franchiseMap = null;
+    let franchiseMarker = null;
+    /* | EXISTING FRANCHISE LOCATION |*/
+    const existingLatitude = parseFloat($('#latitude').val());
+    const existingLongitude = parseFloat($('#longitude').val());
+    /*  | STATE → DISTRICT | */
+    $('#n_state_id').on('change', function() {
+        let stateId = $(this).val();
+        $('#n_district_id').html('<option value="">Loading...</option>');
+        if (!stateId) {
+            $('#n_district_id').html('<option value="">Select District</option>');
+            return;
+        }
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('admin.filterDistrict') }}",
+            data: {
+                state: stateId
+            },
+            dataType: 'json',
+            success: function(response) {
+                $('#n_district_id').html('<option value="">Select District</option>');
+                if (response.districts && response.districts.length > 0) {
+                    $.each(response.districts, function(index, district) {
+                        $('#n_district_id').append('<option value="' + district.id +
+                            '">' + district.district_name + '</option>');
+                    });
+                } else {
+                    $('#n_district_id').html(
+                        '<option value="">No Districts Found</option>');
+                }
+            },
+            error: function(xhr) {
+                console.error('District loading failed:', xhr.responseText);
+                $('#n_district_id').html(
+                    '<option value="">Unable to load districts</option>');
+            }
         });
-
-        $('#n_district_id').html(options);
     });
-
+    /* | INITIALIZE LEAFLET MAP |*/
+    function initializeMap(latitude = 10.8505, longitude = 76.2711, zoom = 8) {
+        $('#franchiseMap')
+            .show();
+        /*  Create map only once */
+        if (!franchiseMap) {
+            franchiseMap = L.map('franchiseMap').setView([latitude, longitude],
+                zoom
+            );
+            /*  OpenStreetMap  */
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(
+                franchiseMap
+            );
+            /*  Manual map click  */
+            franchiseMap.on('click', function(e) {
+                setLocation(e.latlng.lat, e.latlng.lng, true);
+            });
+        } else {
+            franchiseMap.setView([latitude, longitude], zoom);
+        }
+        /*  Fix Leaflet Rendering  */
+        setTimeout(function() {
+            franchiseMap.invalidateSize();
+        }, 300);
+    }
+    /* SET LOCATION */
+    function setLocation(latitude, longitude, manual = false) {
+        latitude = parseFloat(latitude).toFixed(7);
+        longitude = parseFloat(longitude).toFixed(7);
+        /*  Hidden/readonly inputs */
+        $('#latitude').val(latitude);
+        $('#longitude').val(longitude);
+        const latLng = [parseFloat(latitude), parseFloat(
+            longitude)];
+        /*  Create / Move Marker*/
+        if (franchiseMarker) {
+            franchiseMarker.setLatLng(latLng);
+        } else {
+            franchiseMarker = L.marker(latLng, {
+                draggable: true
+            }).addTo(
+                franchiseMap);
+            /*  Drag marker */
+            franchiseMarker.on('dragend', function(e) {
+                const position = e.target.getLatLng();
+                setLocation(position.lat, position.lng, true);
+            });
+        }
+        /*  Move map */
+        franchiseMap.setView(latLng, 16);
+        /*  Status */
+        if (manual) {
+            $('#locationStatus').removeClass('text-muted text-danger').addClass('text-success').html(
+                '✓ Location manually selected');
+        } else {
+            $('#locationStatus').removeClass('text-muted text-danger').addClass('text-success').html(
+                '✓ Location found. Please verify the marker.');
+        }
+    }
+    /* SELECT LOCATION ON MAP */
+    $('#selectLocationBtn').on('click', function() {
+        /* | If existing coordinates exist, | open map at existing location. */
+        if (!isNaN(existingLatitude) && !isNaN(existingLongitude)) {
+            initializeMap(existingLatitude, existingLongitude, 16);
+            setLocation(existingLatitude, existingLongitude, false);
+        } else {
+            initializeMap();
+        }
+    });
+    /*  GEOCODING FUNCTION  */
+    function searchLocation(query, callback) {
+        $.ajax({
+            url: 'https://nominatim.openstreetmap.org/search',
+            type: 'GET',
+            data: {
+                q: query,
+                format: 'json',
+                limit: 5,
+                countrycodes: 'in'
+            },
+            dataType: 'json',
+            success: function(response) {
+                callback(response);
+            },
+            error: function(xhr) {
+                console.error('Geocoding error:', xhr.responseText);
+                callback([]);
+            }
+        });
+    }
+    /*  GET LOCATION FROM ADDRESS  */
+    $('#getLocationBtn').on('click', function() {
+        const address = $('#c_store_address').val().trim();
+        const state = $('#n_state_id option:selected').text().trim();
+        const district = $('#n_district_id option:selected').text().trim();
+        const panchayath = $('#c_panchayath').val()
+            .trim();
+        /*  VALIDATION  */
+        if (!address) {
+            $('#locationStatus').removeClass('text-muted text-success').addClass('text-danger').text(
+                'Please enter the address first.');
+            $('#c_store_address').focus();
+            return;
+        }
+        if (!state || state === 'Select State') {
+            $('#locationStatus').removeClass('text-muted text-success').addClass('text-danger').text(
+                'Please select a state.');
+            $('#n_state_id').focus();
+            return;
+        }
+        if (!district || district === 'Select District') {
+            $('#locationStatus').removeClass('text-muted text-success').addClass('text-danger').text(
+                'Please select a district.');
+            $('#n_district_id').focus();
+            return;
+        }
+        if (!panchayath) {
+            $('#locationStatus').removeClass('text-muted text-success').addClass('text-danger').text(
+                'Please enter the Panchayath.');
+            $('#c_panchayath').focus();
+            return;
+        }
+        /*  Button Loading  */
+        const button = $('#getLocationBtn');
+        button.prop('disabled', true);
+        button.html('<i class="ti ti-loader-2"></i> Searching...');
+        $('#locationStatus').removeClass('text-success text-danger').addClass('text-muted').text(
+            'Finding location...'
+        );
+        /*  Search Queries  */
+        const searches = [ /* | 1. Full Address */ address + ', ' + panchayath + ', ' + district +
+            ', ' + state + ', India', /* | 2. Address + District + State */ address + ', ' +
+            district + ', ' + state + ', India', /* | 3. Panchayath + District + State */
+            panchayath + ', ' + district + ', ' + state + ', India', /* | 4. District + State */
+            district + ', ' + state + ', India'
+        ];
+        /* TRY SEARCH  */
+        function trySearch(index) {
+            if (index >= searches.length) {
+                button.prop('disabled', false);
+                button.html('<i class="ti ti-map-pin-search"></i> Get Location from Address');
+                $('#locationStatus').removeClass('text-muted text-success').addClass('text-danger')
+                    .html('Location not found. Please select the location manually on the map.');
+                initializeMap();
+                return;
+            }
+            const query = searches[index];
+            searchLocation(query, function(results) {
+                if (results && results.length > 0) {
+                    const result = results[0];
+                    const latitude = parseFloat(result.lat);
+                    const longitude = parseFloat(result
+                        .lon
+                    );
+                    /*  Open map */
+                    initializeMap(latitude, longitude,
+                        16
+                    );
+                    /* Set marker */
+                    setLocation(latitude, longitude, false);
+                    $('#locationStatus').removeClass('text-muted text-danger').addClass(
+                        'text-success').html(
+                        '✓ Location found. Please verify the marker on the map.');
+                    button.prop('disabled', false);
+                    button.html(
+                        '<i class="ti ti-map-pin-search"></i> Get Location from Address');
+                    return;
+                }
+                /*  Try next query*/
+                setTimeout(function() {
+                    trySearch(index + 1);
+                }, 1200);
+            });
+        }
+        trySearch(0);
+    });
+    /* INITIALIZE EXISTING LOCATION */
+    if (!isNaN(existingLatitude) && !isNaN(existingLongitude)) {
+        initializeMap(existingLatitude, existingLongitude, 16);
+        setLocation(existingLatitude, existingLongitude, false);
+        $('#locationStatus').removeClass('text-muted text-danger').addClass('text-success').html(
+            '✓ Existing franchise location loaded. You can move the marker.');
+    }
+    /*  FORM SUBMIT VALIDATION */
+    $('#frm_create').on('submit', function(e) {
+        const latitude = $('#latitude').val().trim();
+        const longitude = $('#longitude').val().trim();
+        if (!latitude || !longitude) {
+            e.preventDefault();
+            $('#locationStatus').removeClass('text-muted text-success').addClass('text-danger').text(
+                'Please select the franchise location on the map.');
+            initializeMap();
+            return false;
+        }
+    });
 });
 </script>
 @endpush
-@endsection

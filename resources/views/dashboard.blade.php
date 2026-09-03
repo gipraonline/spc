@@ -120,11 +120,7 @@
         radial-gradient(circle at 72% 100%,
             rgba(255, 255, 255, .07),
             transparent 25%),
-        linear-gradient(135deg,
-            #0a4028 0%,
-            #0f5132 42%,
-            #087a4d 75%,
-            #059669 100%);
+        linear-gradient(135deg, #5A8D3A, #074E30);
 
     box-shadow:
         0 18px 42px rgba(15, 81, 50, .16);
@@ -1024,10 +1020,7 @@
         radial-gradient(circle at 90% 10%,
             rgba(255, 255, 255, .13),
             transparent 28%),
-        linear-gradient(135deg,
-            #0a4028,
-            #0f5132 50%,
-            #059669);
+        linear-gradient(135deg, #5A8D3A, #074E30);
 
     border: none;
 
@@ -1622,7 +1615,7 @@
                         {{ $checkOutTime?->format('h:i A') ?? '--:-- --' }}
                     </span>
 
-                    <span class="attendance-subtext orange">
+                    <span class="attendance-subtext orange  {{ $checkOutTime ? 'orange' : '' }}">
                         {{ $checkOutTime ? 'Checked Out' : 'Not Checked Out' }}
                     </span>
 

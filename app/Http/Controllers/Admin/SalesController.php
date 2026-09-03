@@ -766,8 +766,6 @@ class SalesController extends Controller
                     ) IN (
                         'dispatched',
                         'dispatch',
-                        'shipped',
-                        'shipping',
                         'in transit',
                         'out for delivery'
                     )

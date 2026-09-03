@@ -330,7 +330,7 @@ class DashboardController extends Controller
                 'dashboard_status',
                 [
                     'dispatched',
-                    'shipped',
+
                 ]
             )
             ->count();

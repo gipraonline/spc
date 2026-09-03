@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <style>
 /* =========================================================
@@ -307,9 +305,7 @@
 
 <div class="container-fluid edit-user-page py-2">
 
-    {{-- =========================================================
-         Page Header
-    ========================================================= --}}
+    
     <div class="card page-header-card shadow-sm mb-4">
 
         <div class="card-body px-4 py-3">
@@ -336,7 +332,7 @@
 
                 </div>
 
-                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary px-3">
+                <a href="<?php echo e(route('admin.users.index')); ?>" class="btn btn-outline-secondary px-3">
 
                     <i class="bi bi-arrow-left me-1"></i>
                     Back
@@ -350,10 +346,8 @@
     </div>
 
 
-    {{-- =========================================================
-         Validation Errors
-    ========================================================= --}}
-    @if ($errors->any())
+    
+    <?php if($errors->any()): ?>
 
     <div class="alert validation-alert shadow-sm mb-4">
 
@@ -364,28 +358,24 @@
 
         <ul>
 
-            @foreach($errors->all() as $error)
+            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-            <li>{{ $error }}</li>
+            <li><?php echo e($error); ?></li>
 
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
         </ul>
 
     </div>
 
-    @endif
+    <?php endif; ?>
 
 
-    {{-- =========================================================
-         Edit User Form
-    ========================================================= --}}
+    
     <div class="card form-card border-0 shadow-sm mb-4">
 
 
-        {{-- =====================================================
-             Form Header
-        ====================================================== --}}
+        
         <div class="form-card-header">
 
             <div class="d-flex align-items-center gap-3">
@@ -411,10 +401,10 @@
         </div>
 
 
-        <form action="{{ route('admin.users.update', $user->n_role_id) }}" method="POST">
+        <form action="<?php echo e(route('admin.users.update', $user->n_role_id)); ?>" method="POST">
 
-            @csrf
-            @method('PUT')
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
 
 
             <div class="form-section">
@@ -422,9 +412,7 @@
                 <div class="row g-4">
 
 
-                    {{-- =================================================
-                         Full Name
-                    ================================================== --}}
+                    
                     <div class="col-lg-6">
 
                         <label for="name" class="form-label">
@@ -441,7 +429,7 @@
                             </span>
 
                             <input type="text" id="name" name="name" class="form-control"
-                                value="{{ old('name', $user->c_name) }}" placeholder="Enter full name" required>
+                                value="<?php echo e(old('name', $user->c_name)); ?>" placeholder="Enter full name" required>
 
                         </div>
 
@@ -456,9 +444,7 @@
                     </div>
 
 
-                    {{-- =================================================
-                         Email Address
-                    ================================================== --}}
+                    
                     <div class="col-lg-6">
 
                         <label for="username" class="form-label">
@@ -475,7 +461,7 @@
                             </span>
 
                             <input type="email" id="username" name="username" class="form-control"
-                                value="{{ old('username', $user->c_username) }}" placeholder="example@company.com"
+                                value="<?php echo e(old('username', $user->c_username)); ?>" placeholder="example@company.com"
                                 required>
 
                         </div>
@@ -491,9 +477,7 @@
                     </div>
 
 
-                    {{-- =================================================
-                         Current User
-                    ================================================== --}}
+                    
                     <div class="col-12">
 
                         <div class="user-preview">
@@ -509,7 +493,8 @@
                                 </div>
 
                                 <div class="user-preview-value">
-                                    {{ $user->c_name }}
+                                    <?php echo e($user->c_name); ?>
+
                                 </div>
 
                             </div>
@@ -519,9 +504,7 @@
                     </div>
 
 
-                    {{-- =================================================
-                         Assign Role
-                    ================================================== --}}
+                    
                     <div class="col-12">
 
                         <label for="role" class="form-label">
@@ -533,15 +516,16 @@
 
                         <select class="form-select" id="role" name="role" required>
 
-                            @foreach($roles as $role)
+                            <?php $__currentLoopData = $roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                            <option value="{{ $role->name }}" {{ $user->hasRole($role->name) ? 'selected' : '' }}>
+                            <option value="<?php echo e($role->name); ?>" <?php echo e($user->hasRole($role->name) ? 'selected' : ''); ?>>
 
-                                {{ $role->name }}
+                                <?php echo e($role->name); ?>
+
 
                             </option>
 
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                         </select>
 
@@ -573,14 +557,12 @@
             </div>
 
 
-            {{-- =========================================================
-                 Form Footer
-            ========================================================= --}}
+            
             <div class="form-footer">
 
                 <div class="d-flex justify-content-end align-items-center gap-2">
 
-                    <!-- <a href="{{ route('admin.users.index') }}" class="btn btn-light border btn-cancel">
+                    <!-- <a href="<?php echo e(route('admin.users.index')); ?>" class="btn btn-light border btn-cancel">
 
                         <i class="bi bi-x-lg me-1"></i>
 
@@ -607,4 +589,5 @@
 
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/users/edit.blade.php ENDPATH**/ ?>

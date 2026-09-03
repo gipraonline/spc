@@ -113,16 +113,26 @@ class SalesOrder extends Model
         )->latestOfMany();
     }
 
-    // public static function generateOrderNo()
-    // {
-    //     $lastOrder = self::orderByDesc('n_sl_no')->first();
+    public static function generateTeleOrderNo()
+        {
+            $lastOrder = self::where('c_order_no', 'like', 'TL-%')
+            ->orderByDesc('n_sl_no')
+            ->first();
 
-    //     if (! $lastOrder || ! $lastOrder->c_order_no) {
-    //         return 'ORD1';
-    //     }
 
-    //     $lastNumber = (int) str_replace('ORD', '', $lastOrder->c_order_no);
+            if (! $lastOrder) {
+                return 'TL-1';
+            }
 
-    //     return 'ORD'.($lastNumber + 1);
-    // }
+            $lastNumber = (int) str_replace(
+                'TL-',
+                '',
+                $lastOrder->c_order_no
+            );
+
+            return 'TL-' . ($lastNumber + 1);
+
+
+        }
+
 }

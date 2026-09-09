@@ -406,8 +406,7 @@ textarea.form-control {
 
         <div>
 
-            <h5 class="field-log-title">
-                Field Log
+            <h5 class="card-title fw-semibold mb-0 lh-sm"> Field Log
             </h5>
 
             <div class="field-log-subtitle">

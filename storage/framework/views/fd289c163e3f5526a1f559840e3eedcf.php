@@ -1444,6 +1444,274 @@
     }
 }
 
+/* =========================================================
+   SALES TREND — CLEAN ALIGNED LAYOUT
+========================================================= */
+
+.sales-trend-section {
+    position: relative;
+    overflow: hidden;
+
+    margin-top: 14px;
+    margin-bottom: 16px;
+
+    padding: 20px 22px 18px;
+
+    background: linear-gradient(145deg,
+            #ffffff 0%,
+            #f9fcfa 100%);
+
+    border: 1px solid #dfe9e4;
+    border-radius: 18px;
+
+    box-shadow:
+        0 4px 14px rgba(15, 81, 50, .045),
+        0 1px 3px rgba(15, 81, 50, .025);
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.sales-trend-header {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    gap: 16px;
+
+    margin-bottom: 16px;
+}
+
+.sales-trend-header>div:first-child {
+    min-width: 0;
+    flex: 1;
+}
+
+.sales-trend-header h3 {
+    margin: 0;
+
+    color: #173c32;
+
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: 800;
+
+    letter-spacing: -.2px;
+}
+
+.sales-trend-header p {
+    margin: 5px 0 0;
+
+    color: #81908b;
+
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   TOTAL
+========================================================= */
+
+.sales-trend-summary {
+    flex: 0 0 auto;
+
+    min-width: 125px;
+
+    padding: 8px 12px;
+
+    background: #f6fbf8;
+
+    border: 1px solid #dfece6;
+    border-radius: 11px;
+
+    text-align: right;
+}
+
+.sales-trend-summary span {
+    display: block;
+
+    color: #81908b;
+
+    font-size: 8px;
+    line-height: 1.2;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: .6px;
+}
+
+.sales-trend-summary strong {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #087a4d;
+
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 800;
+
+    letter-spacing: -.2px;
+}
+
+
+/* =========================================================
+   CHART
+========================================================= */
+
+.sales-chart-wrapper {
+    position: relative;
+
+    width: 100%;
+    height: 225px;
+
+    margin: 0;
+    padding: 0;
+}
+
+.sales-chart-wrapper canvas {
+    display: block;
+
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .sales-trend-section {
+        margin-top: 12px;
+        margin-bottom: 16px;
+
+        padding: 17px 15px 15px;
+
+        border-radius: 16px;
+    }
+
+    .sales-trend-header {
+        align-items: center;
+
+        gap: 10px;
+
+        margin-bottom: 13px;
+    }
+
+    .sales-trend-header h3 {
+        font-size: 14px;
+    }
+
+    .sales-trend-header p {
+        margin-top: 4px;
+
+        max-width: 190px;
+
+        font-size: 9px;
+    }
+
+    .sales-trend-summary {
+        min-width: 105px;
+
+        padding: 7px 9px;
+    }
+
+    .sales-trend-summary strong {
+        font-size: 13px;
+    }
+
+    .sales-chart-wrapper {
+        height: 205px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL DEVICES
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .sales-trend-section {
+        padding: 15px 12px 13px;
+    }
+
+    .sales-trend-header {
+        gap: 8px;
+
+        margin-bottom: 11px;
+    }
+
+    .sales-trend-header p {
+        max-width: 145px;
+    }
+
+    .sales-trend-summary {
+        min-width: 92px;
+
+        padding: 6px 8px;
+    }
+
+    .sales-trend-summary span {
+        font-size: 7px;
+    }
+
+    .sales-trend-summary strong {
+        font-size: 12px;
+    }
+
+    .sales-chart-wrapper {
+        height: 190px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL DEVICES
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .sales-trend-section {
+        padding: 15px 12px 12px;
+    }
+
+    .sales-trend-header {
+        gap: 9px;
+    }
+
+    .sales-trend-header p {
+        max-width: 155px;
+    }
+
+    .sales-trend-summary {
+        min-width: 92px;
+
+        padding: 6px 8px;
+    }
+
+    .sales-trend-summary span {
+        font-size: 7px;
+    }
+
+    .sales-trend-summary strong {
+        font-size: 12px;
+    }
+
+    .sales-chart-wrapper {
+        height: 175px;
+    }
+}
 
 /* =========================================================
    VERY SMALL DEVICES
@@ -1848,6 +2116,40 @@
             </div>
 
         </div>
+
+        
+        <!-- <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.view')): ?> -->
+        <!-- 
+        <div class="sales-trend-section">
+
+            <div class="sales-trend-header">
+
+                <div>
+                    <h3>Sales Trend</h3>
+
+                    <p>Daily sales performance for the last 7 days</p>
+                </div>
+
+                <div class="sales-trend-summary">
+
+                    <span>Total</span>
+
+                    <strong>
+                        ₹<?php echo e(number_format($totalSalesValue, 2)); ?>
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <div class="sales-chart-wrapper">
+                <canvas id="salesTrendChart"></canvas>
+            </div>
+
+        </div> -->
+
+        <!-- <?php endif; ?> -->
 
 
         
@@ -2411,4 +2713,585 @@
 </section>
 
 <?php $__env->stopSection(); ?>
+<?php $__env->startPush('scripts'); ?>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const labels = <?php echo json_encode($salesTrendLabels, 15, 512) ?>;
+    const values = <?php echo json_encode($salesTrendValues, 15, 512) ?>;
+
+    const canvas = document.getElementById('salesTrendChart');
+
+    if (!canvas) {
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    const numericValues = values.map(function(value) {
+        return Number(value) || 0;
+    });
+
+
+    /* =========================================================
+       EMPTY / NO DATA
+    ========================================================= */
+
+    const hasSales = numericValues.some(function(value) {
+        return value > 0;
+    });
+
+
+    /* =========================================================
+       GRADIENT
+    ========================================================= */
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 230);
+
+    gradient.addColorStop(
+        0,
+        'rgba(5, 150, 105, 0.24)'
+    );
+
+    gradient.addColorStop(
+        0.55,
+        'rgba(5, 150, 105, 0.08)'
+    );
+
+    gradient.addColorStop(
+        1,
+        'rgba(5, 150, 105, 0)'
+    );
+
+
+    /* =========================================================
+       BEST DAY
+    ========================================================= */
+
+    const maxValue = numericValues.length ?
+        Math.max(...numericValues) :
+        0;
+
+    const maxIndex = numericValues.length ?
+        numericValues.indexOf(maxValue) :
+        -1;
+
+
+    /* =========================================================
+       CROSSHAIR PLUGIN
+    ========================================================= */
+
+    const salesCrosshair = {
+
+        id: 'salesCrosshair',
+
+        afterDraw: function(chart) {
+
+            if (!chart.tooltip || !chart.tooltip.getActiveElements().length) {
+                return;
+            }
+
+            const activePoint =
+                chart.tooltip.getActiveElements()[0];
+
+            if (!activePoint) {
+                return;
+            }
+
+            const x = activePoint.element.x;
+
+            const chartArea = chart.chartArea;
+
+            const context = chart.ctx;
+
+            context.save();
+
+            context.beginPath();
+
+            context.moveTo(x, chartArea.top);
+
+            context.lineTo(x, chartArea.bottom);
+
+            context.lineWidth = 1;
+
+            context.setLineDash([4, 4]);
+
+            context.strokeStyle =
+                'rgba(5, 150, 105, 0.22)';
+
+            context.stroke();
+
+            context.restore();
+        }
+    };
+
+
+    /* =========================================================
+       BEST DAY LABEL + PEAK GLOW
+    ========================================================= */
+
+    const salesPeakPlugin = {
+
+        id: 'salesPeakPlugin',
+
+        afterDatasetsDraw: function(chart) {
+
+            if (
+                !hasSales ||
+                maxIndex < 0 ||
+                maxValue <= 0
+            ) {
+                return;
+            }
+
+            const meta = chart.getDatasetMeta(0);
+
+            const point = meta.data[maxIndex];
+
+            if (!point) {
+                return;
+            }
+
+            const context = chart.ctx;
+
+            context.save();
+
+
+            /* -------------------------------------------------
+               Peak glow
+            ------------------------------------------------- */
+
+            context.beginPath();
+
+            context.arc(
+                point.x,
+                point.y,
+                9,
+                0,
+                Math.PI * 2
+            );
+
+            context.fillStyle =
+                'rgba(5, 150, 105, 0.10)';
+
+            context.fill();
+
+
+            /* -------------------------------------------------
+               Best Day badge
+            ------------------------------------------------- */
+
+            const text = 'Best Day';
+
+            context.font = '700 9px Arial';
+
+            const textWidth =
+                context.measureText(text).width;
+
+            const paddingX = 8;
+
+            const boxWidth =
+                textWidth + (paddingX * 2);
+
+            const boxHeight = 19;
+
+            let x =
+                point.x - (boxWidth / 2);
+
+            let y =
+                point.y - 32;
+
+
+            /* Keep badge inside chart */
+
+            if (x < 5) {
+                x = 5;
+            }
+
+            if (x + boxWidth > chart.width - 5) {
+                x = chart.width - boxWidth - 5;
+            }
+
+            if (y < 5) {
+                y = point.y + 14;
+            }
+
+
+            /* Badge */
+
+            context.beginPath();
+
+            if (typeof context.roundRect === 'function') {
+
+                context.roundRect(
+                    x,
+                    y,
+                    boxWidth,
+                    boxHeight,
+                    6
+                );
+
+            } else {
+
+                context.rect(
+                    x,
+                    y,
+                    boxWidth,
+                    boxHeight
+                );
+            }
+
+            context.fillStyle = '#087a4d';
+
+            context.fill();
+
+
+            /* Badge text */
+
+            context.fillStyle = '#ffffff';
+
+            context.textAlign = 'center';
+
+            context.textBaseline = 'middle';
+
+            context.fillText(
+                text,
+                x + (boxWidth / 2),
+                y + (boxHeight / 2)
+            );
+
+            context.restore();
+        }
+    };
+
+
+    /* =========================================================
+       CREATE CHART
+    ========================================================= */
+
+    new Chart(ctx, {
+
+        type: 'line',
+
+        data: {
+
+            labels: labels,
+
+            datasets: [{
+
+                label: 'Sales',
+
+                data: numericValues,
+
+                borderColor: '#059669',
+
+                backgroundColor: gradient,
+
+                borderWidth: 3,
+
+                fill: true,
+
+                tension: 0.38,
+
+                cubicInterpolationMode: 'monotone',
+
+                pointRadius: function(context) {
+
+                    return context.dataIndex === maxIndex ?
+                        5 :
+                        3;
+                },
+
+                pointHoverRadius: 7,
+
+                pointBackgroundColor: '#ffffff',
+
+                pointBorderColor: '#059669',
+
+                pointBorderWidth: 2,
+
+                pointHoverBackgroundColor: '#059669',
+
+                pointHoverBorderColor: '#ffffff',
+
+                pointHoverBorderWidth: 3
+            }]
+        },
+
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+
+            /* -------------------------------------------------
+               Interaction
+            ------------------------------------------------- */
+
+            interaction: {
+
+                intersect: false,
+
+                mode: 'index'
+            },
+
+
+            /* -------------------------------------------------
+               Animation
+            ------------------------------------------------- */
+
+            animation: {
+
+                duration: 1000,
+
+                easing: 'easeOutQuart'
+            },
+
+
+            /* -------------------------------------------------
+               Plugins
+            ------------------------------------------------- */
+
+            plugins: {
+
+                legend: {
+
+                    display: false
+                },
+
+
+                tooltip: {
+
+                    displayColors: false,
+
+                    backgroundColor: '#173c32',
+
+                    titleColor: '#ffffff',
+
+                    bodyColor: '#dff7ec',
+
+                    titleFont: {
+
+                        size: 11,
+
+                        weight: '700'
+                    },
+
+                    bodyFont: {
+
+                        size: 12,
+
+                        weight: '700'
+                    },
+
+                    padding: 11,
+
+                    cornerRadius: 10,
+
+                    caretSize: 6,
+
+                    callbacks: {
+
+                        title: function(items) {
+
+                            if (!items.length) {
+                                return '';
+                            }
+
+                            return items[0].label;
+                        },
+
+
+                        label: function(context) {
+
+                            return '₹' +
+                                Number(context.raw)
+                                .toLocaleString(
+                                    'en-IN', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                );
+                        }
+                    }
+                }
+            },
+
+
+            /* -------------------------------------------------
+               X AXIS
+            ------------------------------------------------- */
+
+            scales: {
+
+                x: {
+
+                    border: {
+
+                        display: false
+                    },
+
+                    grid: {
+
+                        display: false
+                    },
+
+                    ticks: {
+
+                        color: '#81908b',
+
+                        font: {
+
+                            size: 9,
+
+                            weight: '600'
+                        },
+
+                        padding: 7,
+
+                        maxRotation: 0,
+
+                        minRotation: 0
+                    }
+                },
+
+
+                /* -------------------------------------------------
+                   Y AXIS
+                ------------------------------------------------- */
+
+                y: {
+
+                    beginAtZero: true,
+
+                    border: {
+
+                        display: false
+                    },
+
+                    grid: {
+
+                        color: 'rgba(15, 81, 50, 0.07)',
+
+                        drawTicks: false,
+
+                        lineWidth: 1
+                    },
+
+                    ticks: {
+
+                        color: '#81908b',
+
+                        padding: 8,
+
+                        maxTicksLimit: 5,
+
+                        font: {
+
+                            size: 9,
+
+                            weight: '500'
+                        },
+
+                        callback: function(value) {
+
+                            const number =
+                                Number(value);
+
+
+                            if (number >= 100000) {
+
+                                return '₹' +
+                                    (number / 100000)
+                                    .toFixed(1) +
+                                    'L';
+                            }
+
+
+                            if (number >= 1000) {
+
+                                return '₹' +
+                                    (number / 1000)
+                                    .toFixed(1) +
+                                    'K';
+                            }
+
+
+                            return '₹' +
+                                number.toLocaleString(
+                                    'en-IN'
+                                );
+                        }
+                    }
+                }
+            }
+        },
+
+
+        /* =====================================================
+           CUSTOM PLUGINS
+        ===================================================== */
+
+        plugins: [
+
+            salesCrosshair,
+
+            salesPeakPlugin
+        ]
+    });
+
+
+    /* =========================================================
+       NO DATA MESSAGE
+    ========================================================= */
+
+    if (!hasSales) {
+
+        const wrapper =
+            document.querySelector(
+                '.sales-chart-wrapper'
+            );
+
+        if (wrapper) {
+
+            const message =
+                document.createElement('div');
+
+            message.style.position = 'absolute';
+            message.style.left = '50%';
+            message.style.top = '50%';
+            message.style.transform =
+                'translate(-50%, -50%)';
+            message.style.padding =
+                '9px 14px';
+            message.style.border =
+                '1px solid #dfe9e4';
+            message.style.borderRadius =
+                '10px';
+            message.style.background =
+                '#f8fbf9';
+            message.style.color =
+                '#81908b';
+            message.style.fontSize =
+                '10px';
+            message.style.fontWeight =
+                '600';
+            message.style.pointerEvents =
+                'none';
+            message.textContent =
+                'No sales data available';
+
+            wrapper.appendChild(message);
+        }
+    }
+
+});
+</script>
+
+<?php $__env->stopPush(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/dashboard.blade.php ENDPATH**/ ?>

@@ -175,7 +175,6 @@ Route::middleware(['auth', 'admin'])
         Route::get('filter-panchayath', [StoreController::class, 'filterPanchayath'])
             ->name('admin.filterPanchayath');
 
-
         // *********************************************
 
         /*
@@ -390,11 +389,11 @@ Route::middleware(['auth', 'admin'])
         Route::post('/franchise/nearest', [SalesController::class, 'nearestFranchise'])
             ->name('franchise.nearest');
 
-         /*
-          |--------------------------------------------------------------------------
-          | Tele Callers
-          |--------------------------------------------------------------------------
-          */
+        /*
+         |--------------------------------------------------------------------------
+         | Tele Callers
+         |--------------------------------------------------------------------------
+         */
 
         Route::get('telecallers', [SalesController::class, 'index'])
             ->middleware('permission:tele-callers.view')
@@ -431,8 +430,6 @@ Route::middleware(['auth', 'admin'])
         Route::delete('telecallers/delete/{id}', [SalesController::class, 'destroy'])
             ->middleware('permission:tele-callers.delete')
             ->name('telecallers.destroy');
-
-       
 
         /*
         |--------------------------------------------------------------------------

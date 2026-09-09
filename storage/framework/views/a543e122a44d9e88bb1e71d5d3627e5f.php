@@ -484,9 +484,9 @@ unset($__errorArgs, $__bag); ?>
                 <!-- Row 2: Order No & Farm Care Advisor -->
                 <div class="row g-3">
 
-                    <?php if(
-                        (!isset($isTelecaller) || $isTelecaller == false) &&
-                        (!isset($isFarmCareOfficer) || $isFarmCareOfficer == false)
+                        <?php if(
+                            (!isset($isTelecaller) || $isTelecaller == false) &&
+                            (!isset($isFarmCareOfficer) || $isFarmCareOfficer == false)
                         ): ?>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">
@@ -514,282 +514,46 @@ unset($__errorArgs, $__bag); ?>
 
                         </div>
 
-                    
+                        
 
-<<<<<<< HEAD:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
-
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">
-                                Sales Order Booklet Proof
-                                <?php if(!isset($sale) || !$sale->booklet_image): ?>
-                                    <span class="text-danger">*</span>
-                                <?php endif; ?>
-                            </label>
-
-                            <input type="file"
-                                name="booklet_image"
-                                id="booklet_image"
-                                class="form-control"
-                                accept="image/*"
-                                data-message="Please Enter Booklet Proof">
-
-                            <!-- Tell Laravel to delete existing image -->
-                            <input type="hidden"
-                                name="remove_booklet_image"
-                                id="remove_booklet_image"
-                                value="0">
-
-                            <div class="text-danger mt-1 fs-2"></div>
-
-                            <!-- Image Preview -->
-                            <div class="mt-3" id="booklet_image_preview_container">
-
-                                <img
-                                    id="booklet_image_preview"
-                                    src="<?php echo e(isset($sale) && $sale->booklet_image ?  asset('uploads/booklet_images/' . $sale->booklet_image)  : ''); ?>"
-                                    alt="Booklet Proof Preview"
-                                    class="img-thumbnail"
-                                    style="<?php echo e(isset($sale) && $sale->booklet_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
-
-                                <?php if(isset($sale) && $sale->booklet_image): ?>
-                                    <br>
-
-                                    <button type="button"
-                                        id="remove_booklet_image_btn"
-                                        class="btn btn-danger btn-sm mt-2">
-                                        Remove Image
-                                    </button>
-                                <?php endif; ?>
-
-                            </div>
-
-
-                        </div>
-                    <?php endif; ?>
-
-=======
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">
-                        Sales Order Booklet Proof
-                        <?php if(!isset($sale) || !$sale->booklet_image): ?>
-                        <span class="text-danger">*</span>
-                        <?php endif; ?>
-                    </label>
-
-                    <input type="file" name="booklet_image" id="booklet_image" class="form-control" accept="image/*"
-                        data-message="Please Enter Booklet Proof">
-
-                    <!-- Tell Laravel to delete existing image -->
-                    <input type="hidden" name="remove_booklet_image" id="remove_booklet_image" value="0">
-
-                    <div class="text-danger mt-1 fs-2"></div>
-
-                    <!-- Image Preview -->
-                    <div class="mt-3" id="booklet_image_preview_container">
-
-                        <img id="booklet_image_preview"
-                            src="<?php echo e(isset($sale) && $sale->booklet_image ?  asset('uploads/booklet_images/' . $sale->booklet_image)  : ''); ?>"
-                            alt="Booklet Proof Preview" class="img-thumbnail"
-                            style="<?php echo e(isset($sale) && $sale->booklet_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
-
-                        <?php if(isset($sale) && $sale->booklet_image): ?>
-                        <br>
-
-                        <button type="button" id="remove_booklet_image_btn" class="btn btn-danger btn-sm mt-2">
-                            Remove Image
-                        </button>
-                        <?php endif; ?>
-
-                    </div>
-
-
->>>>>>> 43fb223a947f389b19e7edf4f9064331240e0ffa:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
-                </div>
-
-
-<<<<<<< HEAD:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
-            <!-- Section 2: Product Details -->
-            <div class="form-section mb-4">
-
-                <div class="section-title d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <i class="ti ti-shopping-cart fs-5"></i>
-                        Product Details *
-                    </div>
-
-                    <?php if(!isset($viewmode) || $viewmode=='off'): ?>
-                    <button type="button" class="btn buttonSpc btn-sm" id="addRow">
-                        <i class="ti ti-plus"></i>
-                        Add New Product
-                    </button>
-                    <?php endif; ?>
-                </div>
-                <div class="tablescrolll">
-                    <table class="table table-bordered table-responsive align-middle" id="productTable">
-                        <thead class="table-light">
-                            <tr>
-                                <th width="25%">Product</th>
-                                <th width="12%">HSN Code</th>
-                                <th width="12%">Price</th>
-                                <th width="10%">Quantity</th>
-                                <th width="13%">Unit</th>
-                                <th width="12%">Discount</th>
-                                <th width="10%">GST %</th>
-                                <th width="13%">GST Amount</th>
-                                <th width="13%">Discounted Price</th>
-                                <th width="10%">MRP</th>
-                                <th width="8%">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if(isset($sale->orderProducts) && count($sale->orderProducts) > 0): ?>
-                            <?php $__currentLoopData = $sale->orderProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <tr>
-                                <td>
-                                    <select name="products[<?php echo e($key); ?>][product_id]"
-                                        class="form-control product mandatory" >
-
-                                        <option value="">Select Product</option>
-
-                                        <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                                        <option value="<?php echo e($product->n_product_id); ?>"
-                                            data-price="<?php echo e($product->n_mrp); ?>"
-                                            data-hsn-code="<?php echo e($product->c_hsn_code ?? ''); ?>"
-                                            data-unit="<?php echo e($product->c_unit ?? ''); ?>"
-                                            data-gst="<?php echo e($product->n_gst_percentage ?? 0); ?>"
-                                            <?php echo e($val->product_id == $product->n_product_id ? 'selected' : ''); ?>>
-                                            <?php echo e($product->c_product_name); ?>
-
-                                        </option>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][c_hsn_code]"
-                                        class="form-control c_hsn_code" value="<?php echo e($val->c_hsn_code); ?>" >
-                                </td>
-
-
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][product_price]"
-                                        class="form-control price" value="<?php echo e($val->product_price); ?>" readonly>
-                                </td>
-
-                                <td>
-                                    <input type="number" name="products[<?php echo e($key); ?>][qty]" class="form-control qty"
-                                        value="<?php echo e($val->qty); ?>" min="1">
-                                </td>
-
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][c_unit]" class="form-control c_unit"
-                                        value="<?php echo e($val->c_unit); ?>" readonly>
-                                </td>
-
-                                <td>
-                                    <input type="number" name="products[<?php echo e($key); ?>][discount]"
-                                        class="form-control discount" value="<?php echo e($val->discount ?? '0.00'); ?>" step="">
-                                </td>
-
-                                <!-- Product GST % -->
-                                <td>
-                                    <input type="number" name="products[<?php echo e($key); ?>][n_gst_percentage]"
-                                        class="form-control gst_percentage" value="<?php echo e($val->n_gst_percentage ?? 0); ?>"
-                                        step="0.01" readonly>
-                                </td>
-
-                                <!-- Product GST Amount -->
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][gst_amount]"
-                                        class="form-control gst_amount" value="<?php echo e($val->gst_amount ?? '0.00'); ?>"
-                                        readonly>
-                                </td>
-
-                                <!-- Discounted Price -->
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][discounted_price]"
-                                        class="form-control discounted_price"
-                                        value="<?php echo e($val->discounted_price ?? '0.00'); ?>" readonly>
-                                </td>
-
-                                <td>
-                                    <input type="text" name="products[<?php echo e($key); ?>][product_total]"
-                                        class="form-control total" value="<?php echo e($val->product_total); ?>" readonly>
-                                </td>
-
-                                <td class="text-center">
-                                    <button type="button" class="btn btn-danger btn-sm removeRow">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            Sales Order Booklet Proof
+                            <?php if(!isset($sale) || !$sale->booklet_image): ?>
+                            <span class="text-danger">*</span>
                             <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                        </label>
 
-                <!-- Product Details Summary Box (Right Aligned as shown in shared image) -->
+                        <input type="file" name="booklet_image" id="booklet_image" class="form-control" accept="image/*"
+                            data-message="Please Enter Booklet Proof">
 
-                <div class="row justify-content-end mt-4">
-                    <div class="col-md-6 col-lg-5">
-                        <div class="product-summary-box">
+                        <!-- Tell Laravel to delete existing image -->
+                        <input type="hidden" name="remove_booklet_image" id="remove_booklet_image" value="0">
 
-                            <!-- Total Sales Amount -->
-                            <div class="summary-line">
-                                <span class="summary-label">
-                                    Total Sales Amount
-                                </span>
+                        <div class="text-danger mt-1 fs-2"></div>
 
-                                <input type="text" name="n_total_sales_amount"
-                                    class="form-control summary-input text-end" id="summaryTotalSales"
-                                    value="<?php echo e(old('n_total_sales_amount', $sale->n_total_sales_amount ?? '0.00')); ?>"
-                                    readonly>
-                            </div>
+                        <!-- Image Preview -->
+                        <div class="mt-3" id="booklet_image_preview_container">
 
-                            
+                            <img id="booklet_image_preview"
+                                src="<?php echo e(isset($sale) && $sale->booklet_image ?  asset('uploads/booklet_images/' . $sale->booklet_image)  : ''); ?>"
+                                alt="Booklet Proof Preview" class="img-thumbnail"
+                                style="<?php echo e(isset($sale) && $sale->booklet_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
 
-                        <!-- Additional Discount -->
-                        <div class="summary-line">
-                            <span class="summary-label">
-                                Total GST
+                            <?php if(isset($sale) && $sale->booklet_image): ?>
+                            <br>
 
-                            </span>
+                            <button type="button" id="remove_booklet_image_btn" class="btn btn-danger btn-sm mt-2">
+                                Remove Image
+                            </button>
+                            <?php endif; ?>
 
-                            <input type="number" name="n_total_gst" class="form-control summary-input text-end"
-                                id="summaryGstAmount" value="<?php echo e(old('n_total_gst', $sale->n_total_gst ?? '0.00')); ?>"
-                                step="0.01" min="0">
-                        </div>
-                        <!-- Total Discount -->
-                        <div class="summary-line">
-                            <span class="summary-label">
-                                Total Discount
-                            </span>
-
-                            <input type="text" name="n_product_discount_total" class="form-control summary-input"
-                                id="summaryTotalDiscount"
-                                value="<?php echo e(old('n_total_discount', $sale->n_product_discount_total ?? '0.00')); ?>">
                         </div>
 
-                        <!-- Net Sales Amount -->
-                        <div class="summary-line highlight-green">
-                            <span class="summary-label fw-bold">
-                                Net Sales Amount
-                            </span>
-
-                            <input type="text" name="n_net_sales_amount"
-                                class="form-control summary-input text-end fw-bold text-success" id="summaryNetSales"
-                                value="<?php echo e(old('n_net_sales_amount', $sale->n_net_sales_amount ?? '0.00')); ?>" readonly>
-                        </div>
 
                     </div>
-                </div>
-=======
->>>>>>> 43fb223a947f389b19e7edf4f9064331240e0ffa:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
+                <?php endif; ?>
+
             </div>
 
     </div>
@@ -1136,25 +900,25 @@ unset($__errorArgs, $__bag); ?>
 
                 <?php if(isset($sale->n_district_id)): ?>
 
-                <?php
-                $districts = \App\Models\District::where(
-                'state_id',
-                $sale->n_state_id
-                )->get();
-                ?>
+                    <?php
+                    $districts = \App\Models\District::where(
+                    'state_id',
+                    $sale->n_state_id
+                    )->get();
+                    ?>
 
-                <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                <option value="<?php echo e($district->id); ?>" <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id
-                               ? 'selected'
-                               : ''); ?>>
+                    <option value="<?php echo e($district->id); ?>" <?php echo e(old('n_district_id', $sale->n_district_id ?? '') == $district->id
+                                ? 'selected'
+                                : ''); ?>>
 
-                    <?php echo e($district->district_name); ?>
+                        <?php echo e($district->district_name); ?>
 
 
-                </option>
+                    </option>
 
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                 <?php endif; ?>
 
@@ -1192,7 +956,7 @@ unset($__errorArgs, $__bag); ?>
                 </label>
 
             </div>
-
+            <?php if(isset($isTelecaller) && $isTelecaller==false): ?>
             <div class="payment-option">
                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
                     value="UPI"
@@ -1214,7 +978,7 @@ unset($__errorArgs, $__bag); ?>
                     Bank Deposit
                 </label>
             </div>
-
+            <?php endif; ?>
             <div class="payment-option">
                 <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
                     value="Paid to Franchise"
@@ -1475,103 +1239,8 @@ unset($__errorArgs, $__bag); ?>
             </div>
 
 
-<<<<<<< HEAD:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
-    </div>
-
-    <!-- Section 4: Payment Details -->
-    <div class="form-box mb-4">
-
-        <div class="form-section-header mb-3">
-            <i class="ti ti-credit-card fs-5"></i>
-            Payment Details
-        </div>
-
-        <div class="row mb-4 align-items-center">
-            <label class="col-md-3 col-form-label fw-semibold">
-                Mode of Payment *
-            </label>
-
-            <div class="col-md-9 d-flex flex-wrap">
-                <div class="payment-option">
-                    <input class="form-check-input mandatory mode_of_payment " type="radio" name="c_mode_of_payment"
-                        id="cod" value="Cash on Delivery" data-message="Please Choose a Payment Mode"
-                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on Delivery" ? 'checked' : ''); ?>>
-
-                    <label for="cod" class="mb-0">
-                        <i class="ti ti-truck"></i>
-                        Cash on Delivery
-                    </label>
-
-                </div>
-                <?php if(isset($isTelecaller) && $isTelecaller==false): ?>
-                <div class="payment-option">
-                    <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
-                        value="UPI"
-                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : ''); ?>>
-
-                    <label for="upi" class="mb-0">
-                        <i class="ti ti-brand-google-pay"></i>
-                        UPI
-                    </label>
-                </div>
-
-                <div class="payment-option">
-                    <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
-                        value="Bank Deposit"
-                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : ''); ?>>
-
-                    <label for="bkd" class="mb-0">
-                        <i class="ti ti-building-bank"></i>
-                        Bank Deposit
-                    </label>
-                </div>
-                <?php endif; ?>
-                <div class="payment-option">
-                    <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
-                        value="Paid to Franchise"
-                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : ''); ?>>
-
-                    <label for="pf" class="mb-0">
-                        <i class="ti ti-cash"></i>
-                        Paid to Franchise
-                    </label>
-                </div>
-                <div class="text-danger mt-1 fs-2"></div>
-            </div>
-        </div>
-
-        <div class="row g-4 mt-1" id="ps">
-            <div class="col-md-4">
-
-                <label class="form-label fw-semibold">
-                    Payment Status
-                </label>
-
-                <select name="payment_status" id="payment_status" data-message="Please Select Payment Status"
-                    class="form-select">
-
-                    <option value="">Select Status</option>
-
-                    <option value="pending"
-                        <?php echo e(old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending
-                    </option>
-                    <option value="paid"
-                        <?php echo e(old('payment_status', $sale->payment_status ?? '') == "paid" ? 'selected' : ''); ?>>Paid
-                    </option>
-
-                </select>
-                <div class="text-danger mt-1 fs-2"></div>
-
-            </div>
-        </div>
-
-        <!-- Payment Details Extra Fields -->
-        <div class="row g-4 mt-1" id="paymet-proofs" >
-            <div class="col-md-4">
-=======
             <!-- Nearest Franchise -->
             <div class="col-md-6">
->>>>>>> 43fb223a947f389b19e7edf4f9064331240e0ffa:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
                 <label class="form-label">
                     Nearest Franchise <span class="text-danger">*</span>
                 </label>
@@ -1738,25 +1407,19 @@ $hasPaymentImage = isset($sale) && !empty($sale->payment_image);
 <?php $__env->startPush('scripts'); ?>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-
 <script>
-<<<<<<< HEAD:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
-    $(document).ready(function () {
-=======
-$(document).ready(function() {
->>>>>>> 43fb223a947f389b19e7edf4f9064331240e0ffa:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
 
-        console.log("Sales Order JS loaded");
+$(document).ready(function () {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Product Row Index
-        |--------------------------------------------------------------------------
-        */
+    console.log('Sales Order JS loaded');
 
-<<<<<<< HEAD:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
-        let rowIndex = $('#productTable tbody tr').length;
-=======
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product Row Index
+    |--------------------------------------------------------------------------
+    */
+
     let rowIndex = $('#productTable tbody tr').length;
 
 
@@ -1766,10 +1429,10 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    $('#addRow').on('click', function() {
+    $('#addRow').on('click', function () {
 
         let row = `
-            <tr>
+            <tr class="new-product-row">
 
                 <!-- Product -->
                 <td>
@@ -1921,21 +1584,25 @@ $(document).ready(function() {
 
         rowIndex++;
 
-        console.log("Product row added. Current rowIndex:", rowIndex);
+        console.log('New product row added');
     });
 
 
     /*
     |--------------------------------------------------------------------------
-    | Product Selection
+    | Product Selection - New Rows Only
     |--------------------------------------------------------------------------
     */
 
-    $(document).on('change', '.product', function() {
+    $(document).on(
+        'change',
+        '.new-product-row .product',
+        function () {
 
-        productTotal($(this));
+            productTotal($(this));
 
-    });
+        }
+    );
 
 
     /*
@@ -1944,32 +1611,40 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    $(document).on('input change', '.qty, .discount', function() {
+    $(document).on(
+        'input change',
+        '.qty, .discount',
+        function () {
 
-        let row = $(this).closest('tr');
-        let product = row.find('.product');
+            let row = $(this).closest('tr');
 
-        if (product.length) {
-            productTotal(product);
+
+            // Existing product row
+            if (!row.hasClass('new-product-row')) {
+
+                calculateExistingRow(row);
+                calculateSummary();
+
+                return;
+            }
+
+
+            // New product row
+            let product = row.find('.product');
+
+            if (product.length && product.val()) {
+                productTotal(product);
+            } else {
+                calculateSummary();
+            }
+
         }
-
-    });
+    );
 
 
     /*
     |--------------------------------------------------------------------------
-    | Product Total
-    |--------------------------------------------------------------------------
-    |
-    | MRP is treated as GST-inclusive.
-    |
-    | Example:
-    | MRP = 118
-    | GST = 18%
-    |
-    | Base price = 100
-    | GST = 18
-    |
+    | New Product Calculation
     |--------------------------------------------------------------------------
     */
 
@@ -1982,407 +1657,93 @@ $(document).ready(function() {
         }
 
         let selectedOption = productSelect.find(':selected');
->>>>>>> 43fb223a947f389b19e7edf4f9064331240e0ffa:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
 
+        let mrp = parseFloat(
+            selectedOption.attr('data-price')
+        ) || 0;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Add New Product
-        |--------------------------------------------------------------------------
-        */
+        let gstPercentage = parseFloat(
+            selectedOption.attr('data-gst')
+        ) || 0;
 
-        $('#addRow').on('click', function () {
+        let hsnCode =
+            selectedOption.attr('data-hsn-code') || '';
 
-            let row = `
-                <tr class="new-product-row">
+        let unit =
+            selectedOption.attr('data-unit') || '';
 
-                    <!-- Product -->
+        let qty = parseFloat(
+            row.find('.qty').val()
+        ) || 0;
 
-                    <td>
-                        <select
-                            name="products[${rowIndex}][product_id]"
-                            class="form-control product mandatory"
-                            data-message="Please Select Product">
+        let discount = parseFloat(
+            row.find('.discount').val()
+        ) || 0;
 
-                            <option value="">Select Product</option>
 
-                            <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option
-                                    value="<?php echo e($product->n_product_id); ?>"
-                                    data-price="<?php echo e($product->n_mrp); ?>"
-                                    data-gst="<?php echo e($product->n_gst_percentage); ?>"
-                                    data-hsn-code="<?php echo e($product->c_hsn_code); ?>"
-                                    data-unit="<?php echo e($product->c_unit); ?>">
+        if (qty < 0) {
+            qty = 0;
+        }
 
-                                    <?php echo e($product->c_product_name); ?>
-
-                                    (<?php echo e($product->c_product_code); ?>)
-                                    (<?php echo e($product->c_unit); ?>)
-
-                                </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                        </select>
-
-                        <div class="text-danger mt-1 fs-2"></div>
-                    </td>
-
-
-                    <!-- HSN Code -->
-                    <td>
-                        <input
-                            type="text"
-                            name="products[${rowIndex}][c_hsn_code]"
-                            class="form-control c_hsn_code"
-                            value=""
-                            readonly>
-                    </td>
-
-
-                    <!-- Price -->
-                    <td>
-                        <input
-                            type="text"
-                            name="products[${rowIndex}][product_price]"
-                            class="form-control price"
-                            value="0.00"
-                            readonly>
-                    </td>
-
-
-                    <!-- Quantity -->
-                    <td>
-                        <input
-                            type="number"
-                            name="products[${rowIndex}][qty]"
-                            class="form-control qty"
-                            value="1"
-                            min="1">
-                    </td>
-
-
-                    <!-- Unit -->
-                    <td>
-                        <input
-                            type="text"
-                            name="products[${rowIndex}][c_unit]"
-                            class="form-control c_unit"
-                            value=""
-                            readonly>
-                    </td>
-
-
-                    <!-- Discount -->
-                    <td>
-                        <input
-                            type="number"
-                            name="products[${rowIndex}][discount]"
-                            class="form-control discount"
-                            value="0.00"
-                            step="0.01"
-                            min="0">
-                    </td>
-
-
-                    <!-- GST % -->
-                    <td>
-                        <input
-                            type="number"
-                            name="products[${rowIndex}][n_gst_percentage]"
-                            class="form-control gst_percentage"
-                            value="0.00"
-                            step="0.01"
-                            readonly>
-                    </td>
-
-
-                    <!-- GST Amount -->
-                    <td>
-                        <input
-                            type="text"
-                            name="products[${rowIndex}][gst_amount]"
-                            class="form-control gst_amount"
-                            value="0.00"
-                            readonly>
-                    </td>
-
-
-                    <!-- Discounted Price -->
-                    <td>
-                        <input
-                            type="text"
-                            name="products[${rowIndex}][discounted_price]"
-                            class="form-control discounted_price"
-                            value="0.00"
-                            readonly>
-                    </td>
-
-
-                    <!-- Product Total -->
-                    <td>
-                        <input
-                            type="text"
-                            name="products[${rowIndex}][product_total]"
-                            class="form-control total"
-                            value="0.00"
-                            readonly>
-                    </td>
-
-
-                    <!-- Remove -->
-                    <td class="text-center">
-                        <button
-                            type="button"
-                            class="btn btn-danger btn-sm removeRow">
-
-                            <i class="ti ti-trash"></i>
-
-                        </button>
-                    </td>
-
-                </tr>
-            `;
-
-            $('#productTable tbody').append(row);
-
-            rowIndex++;
-
-            console.log("New product row added");
-        });
-
-
-     /*    $(document).on('change', '.product', function () {
-
-            let row = $(this).closest('tr');
-
-            let selectedOption = $(this).find('option:selected');
-
-            // Product values
-            let price = parseFloat(selectedOption.data('price')) || 0;
-            let gstPercentage = parseFloat(selectedOption.data('gst')) || 0;
-            let hsnCode = selectedOption.data('hsn-code') || '';
-            let unit = selectedOption.data('unit') || '';
-
-            // Set values
-            row.find('.price').val(price.toFixed(2));
-            row.find('.gst_percentage').val(gstPercentage);
-            row.find('.c_hsn_code').val(hsnCode);
-            row.find('.c_unit').val(unit);
-
-            // Reset values
-            row.find('.qty').val(1);
-            row.find('.discount').val('0.00');
-
-            // Calculate
-            productTotal(row);
-        }); */
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Product Selection
-        |--------------------------------------------------------------------------
-        | This will only affect NEW rows because existing product selects
-        | should be disabled in the edit Blade.
-        |--------------------------------------------------------------------------
-        */
-
-        $(document).on('change', '.new-product-row .product', function () {
-
-            productTotal($(this));
-
-        });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Quantity / Discount Change
-        |--------------------------------------------------------------------------
-        | This works for both existing and new rows.
-        |--------------------------------------------------------------------------
-        */
-
-        $(document).on(
-            'input change',
-            '.qty, .discount',
-            function () {
-
-                let row = $(this).closest('tr');
-
-                /*
-                |--------------------------------------------------------------------------
-                | Existing Row
-                |--------------------------------------------------------------------------
-                | Do calculations without reading product dropdown data.
-                | Therefore saved HSN and Unit will never change.
-                |--------------------------------------------------------------------------
-                */
-
-                if (!row.hasClass('new-product-row')) {
-
-                    calculateExistingRow(row);
-                    calculateSummary();
-
-                    return;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | New Row
-                |--------------------------------------------------------------------------
-                */
-
-                let product = row.find('.product');
-
-                if (product.length && product.val()) {
-                    productTotal(product);
-                }
-
-            }
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | New Product Calculation
-        |--------------------------------------------------------------------------
-        */
-
-        function productTotal(productSelect) {
-
-            let row = productSelect.closest('tr');
-
-            if (!row.length) {
-                return;
-            }
-
-            let selectedOption = productSelect.find(':selected');
-
-            let mrp = parseFloat(
-                selectedOption.attr('data-price')
-            ) || 0;
-
-            let gstPercentage = parseFloat(
-                selectedOption.attr('data-gst')
-            ) || 0;
-
-            let hsnCode =
-                selectedOption.attr('data-hsn-code') || '';
-
-            let unit =
-                selectedOption.attr('data-unit') || '';
-
-            let qty = parseFloat(
-                row.find('.qty').val()
-            ) || 0;
-
-            let discount = parseFloat(
-                row.find('.discount').val()
-            ) || 0;
-
-
-            if (qty < 0) {
-                qty = 0;
-            }
-
-            if (discount < 0) {
-                discount = 0;
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | MRP includes GST
-            |--------------------------------------------------------------------------
-            */
-
-            let price = 0;
-            let grossAmount = 0;
-            let taxableAmount = 0;
-            let gstAmount = 0;
-            let lineTotal = 0;
-
-
-            if (mrp > 0) {
-
-                // GST exclusive price
-                price = mrp / (1 + (gstPercentage / 100));
-
-                // Price × Quantity
-                grossAmount = price * qty;
-
-                // After discount
-                taxableAmount = grossAmount - discount;
-
-                if (taxableAmount < 0) {
-                    taxableAmount = 0;
-                }
-
-                // GST
-                gstAmount =
-                    taxableAmount * gstPercentage / 100;
-
-                // Final Total
-                lineTotal =
-                    taxableAmount + gstAmount;
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Set Values - NEW ROW ONLY
-            |--------------------------------------------------------------------------
-            */
-
-            row.find('.c_hsn_code').val(hsnCode);
-
-            row.find('.c_unit').val(unit);
-
-            row.find('.price').val(
-                price.toFixed(2)
-            );
-
-            row.find('.gst_percentage').val(
-                gstPercentage.toFixed(2)
-            );
-
-            row.find('.gst_amount').val(
-                gstAmount.toFixed(2)
-            );
-
-            row.find('.discounted_price').val(
-                taxableAmount.toFixed(2)
-            );
-
-            row.find('.total').val(
-                lineTotal.toFixed(2)
-            );
-
-
-            calculateSummary();
+        if (discount < 0) {
+            discount = 0;
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Existing Product Row Calculation
-        |--------------------------------------------------------------------------
-        | Uses the values already saved in the database.
-        | Does NOT touch HSN code or Unit.
+        | MRP Includes GST
         |--------------------------------------------------------------------------
         */
 
-<<<<<<< HEAD:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
-        function calculateExistingRow(row) {
-=======
+        let price = 0;
+        let grossAmount = 0;
+        let taxableAmount = 0;
+        let gstAmount = 0;
+        let lineTotal = 0;
+
+
+        if (mrp > 0) {
+
+            // GST exclusive price
+            price =
+                mrp / (1 + (gstPercentage / 100));
+
+            // Price × Quantity
+            grossAmount =
+                price * qty;
+
+            // Discount
+            taxableAmount =
+                grossAmount - discount;
+
+            if (taxableAmount < 0) {
+                taxableAmount = 0;
+            }
+
+            // GST Amount
+            gstAmount =
+                taxableAmount * gstPercentage / 100;
+
+            // Final Total
+            lineTotal =
+                taxableAmount + gstAmount;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Set New Row Values
+        |--------------------------------------------------------------------------
+        */
+
         row.find('.c_hsn_code').val(hsnCode);
+
+        row.find('.c_unit').val(unit);
 
         row.find('.price').val(
             price.toFixed(2)
         );
-
-        row.find('.c_unit').val(unit);
 
         row.find('.gst_percentage').val(
             gstPercentage.toFixed(2)
@@ -2401,13 +1762,69 @@ $(document).ready(function() {
         );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Update Summary
-        |--------------------------------------------------------------------------
-        */
-
         calculateSummary();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Existing Product Row Calculation
+    |--------------------------------------------------------------------------
+    */
+
+    function calculateExistingRow(row) {
+
+        let price =
+            parseFloat(row.find('.price').val()) || 0;
+
+        let qty =
+            parseFloat(row.find('.qty').val()) || 0;
+
+        let discount =
+            parseFloat(row.find('.discount').val()) || 0;
+
+        let gstPercentage =
+            parseFloat(row.find('.gst_percentage').val()) || 0;
+
+
+        if (qty < 0) {
+            qty = 0;
+        }
+
+        if (discount < 0) {
+            discount = 0;
+        }
+
+
+        let grossAmount =
+            price * qty;
+
+        let taxableAmount =
+            grossAmount - discount;
+
+        if (taxableAmount < 0) {
+            taxableAmount = 0;
+        }
+
+
+        let gstAmount =
+            taxableAmount * gstPercentage / 100;
+
+        let total =
+            taxableAmount + gstAmount;
+
+
+        row.find('.gst_amount').val(
+            gstAmount.toFixed(2)
+        );
+
+        row.find('.discounted_price').val(
+            taxableAmount.toFixed(2)
+        );
+
+        row.find('.total').val(
+            total.toFixed(2)
+        );
     }
 
 
@@ -2421,20 +1838,23 @@ $(document).ready(function() {
 
         let totalSales = 0;
         let productDiscount = 0;
+        let totalTaxableAmount = 0;
         let totalGst = 0;
 
+        let additionalDiscount =
+            parseFloat(
+                $('#summaryAdditionalDiscount').val()
+            ) || 0;
 
-        $('#productTable tbody tr').each(function() {
+
+        if (additionalDiscount < 0) {
+            additionalDiscount = 0;
+        }
+
+
+        $('#productTable tbody tr').each(function () {
 
             let row = $(this);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Values
-            |--------------------------------------------------------------------------
-            */
->>>>>>> 43fb223a947f389b19e7edf4f9064331240e0ffa:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
 
             let price =
                 parseFloat(row.find('.price').val()) || 0;
@@ -2446,7 +1866,9 @@ $(document).ready(function() {
                 parseFloat(row.find('.discount').val()) || 0;
 
             let gstPercentage =
-                parseFloat(row.find('.gst_percentage').val()) || 0;
+                parseFloat(
+                    row.find('.gst_percentage').val()
+                ) || 0;
 
 
             if (qty < 0) {
@@ -2476,12 +1898,7 @@ $(document).ready(function() {
                 taxableAmount + gstAmount;
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Update calculated values only
-            |--------------------------------------------------------------------------
-            */
-
+            // Update row calculated values
             row.find('.gst_amount').val(
                 gstAmount.toFixed(2)
             );
@@ -2494,228 +1911,37 @@ $(document).ready(function() {
                 total.toFixed(2)
             );
 
-            // HSN and Unit are intentionally NOT changed
+
+            // Summary totals
+            totalSales += grossAmount;
+            productDiscount += discount;
+            totalTaxableAmount += taxableAmount;
+            totalGst += gstAmount;
+
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Final Summary Calculation
+        |--------------------------------------------------------------------------
+        */
+
+        let totalDiscount =
+            productDiscount + additionalDiscount;
+
+        let finalTaxableAmount =
+            totalTaxableAmount - additionalDiscount;
+
+        if (finalTaxableAmount < 0) {
+            finalTaxableAmount = 0;
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate Summary
-        |--------------------------------------------------------------------------
-        */
+        let netSalesAmount =
+            finalTaxableAmount + totalGst;
 
-        function calculateSummary() {
 
-            let totalSales = 0;
-            let productDiscount = 0;
-            let totalGst = 0;
-
-
-            $('#productTable tbody tr').each(function () {
-
-                let row = $(this);
-
-                let price =
-                    parseFloat(row.find('.price').val()) || 0;
-
-                let qty =
-                    parseFloat(row.find('.qty').val()) || 0;
-
-                let discount =
-                    parseFloat(row.find('.discount').val()) || 0;
-
-                let gstPercentage =
-                    parseFloat(
-                        row.find('.gst_percentage').val()
-                    ) || 0;
-
-
-                let grossAmount =
-                    price * qty;
-
-                let taxableAmount =
-                    grossAmount - discount;
-
-
-                if (taxableAmount < 0) {
-                    taxableAmount = 0;
-                }
-
-
-                let gstAmount =
-                    taxableAmount *
-                    gstPercentage / 100;
-
-                let productTotal =
-                    taxableAmount + gstAmount;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Update calculations
-                |--------------------------------------------------------------------------
-                */
-
-                row.find('.gst_amount').val(
-                    gstAmount.toFixed(2)
-                );
-
-                row.find('.discounted_price').val(
-                    taxableAmount.toFixed(2)
-                );
-
-                row.find('.total').val(
-                    productTotal.toFixed(2)
-                );
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Summary
-                |--------------------------------------------------------------------------
-                */
-
-                totalSales += grossAmount;
-                productDiscount += discount;
-                totalGst += gstAmount;
-
-            });
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Additional Discount
-            |--------------------------------------------------------------------------
-            */
-
-            let additionalDiscount =
-                parseFloat(
-                    $('#summaryAdditionalDiscount').val()
-                ) || 0;
-
-
-            if (additionalDiscount < 0) {
-                additionalDiscount = 0;
-            }
-
-
-            let totalDiscount =
-                productDiscount + additionalDiscount;
-
-            let taxableAmount =
-                totalSales - totalDiscount;
-
-
-            if (taxableAmount < 0) {
-                taxableAmount = 0;
-            }
-
-
-            let netSalesAmount =
-                taxableAmount + totalGst;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Display Summary
-            |--------------------------------------------------------------------------
-            */
-
-            $('#summaryTotalSales').val(
-                totalSales.toFixed(2)
-            );
-
-            $('#summaryProductDiscount').val(
-                productDiscount.toFixed(2)
-            );
-
-            $('#summaryTotalDiscount').val(
-                totalDiscount.toFixed(2)
-            );
-
-            $('#summaryTaxableAmount').val(
-                taxableAmount.toFixed(2)
-            );
-
-            $('#summaryGstAmount').val(
-                totalGst.toFixed(2)
-            );
-
-            $('#summaryNetSales').val(
-                netSalesAmount.toFixed(2)
-            );
-
-            $('#n_amount_to_pay').val(
-                netSalesAmount.toFixed(2)
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Additional Discount Change
-        |--------------------------------------------------------------------------
-        */
-
-        $(document).on(
-            'input change',
-            '#summaryAdditionalDiscount',
-            function () {
-
-                calculateSummary();
-
-            }
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Remove Product Row
-        |--------------------------------------------------------------------------
-        */
-
-        $(document).on(
-            'click',
-            '.removeRow',
-            function () {
-
-                $(this).closest('tr').remove();
-
-                calculateSummary();
-
-            }
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | IMPORTANT
-        |--------------------------------------------------------------------------
-        | Do NOT run productTotal() for all products on page load.
-        |
-        | REMOVE this old code:
-        |
-        | $('#productTable tbody .product').each(function () {
-        |     if ($(this).val()) {
-        |         productTotal($(this));
-        |     }
-        | });
-        |--------------------------------------------------------------------------
-        */
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Calculate summary on page load
-        |--------------------------------------------------------------------------
-        */
-
-<<<<<<< HEAD:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
-        calculateSummary();
-
-    });
-    function handlePaymentMode() {
-=======
         $('#summaryTotalSales').val(
             totalSales.toFixed(2)
         );
@@ -2729,7 +1955,7 @@ $(document).ready(function() {
         );
 
         $('#summaryTaxableAmount').val(
-            taxableAmount.toFixed(2)
+            finalTaxableAmount.toFixed(2)
         );
 
         $('#summaryGstAmount').val(
@@ -2743,7 +1969,6 @@ $(document).ready(function() {
         $('#n_amount_to_pay').val(
             netSalesAmount.toFixed(2)
         );
-
     }
 
 
@@ -2756,7 +1981,7 @@ $(document).ready(function() {
     $(document).on(
         'input change',
         '#summaryAdditionalDiscount',
-        function() {
+        function () {
 
             calculateSummary();
 
@@ -2770,13 +1995,17 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    $(document).on('click', '.removeRow', function() {
+    $(document).on(
+        'click',
+        '.removeRow',
+        function () {
 
-        $(this).closest('tr').remove();
+            $(this).closest('tr').remove();
 
-        calculateSummary();
+            calculateSummary();
 
-    });
+        }
+    );
 
 
     /*
@@ -2785,28 +2014,81 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Payment Mode Change
-    |--------------------------------------------------------------------------
-    */
-
     $('.mode_of_payment').on(
         'change',
-        handlePaymentMode
+        function () {
+
+            handlePaymentMode();
+
+        }
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Run Payment Mode on Page Load
-    |--------------------------------------------------------------------------
-    */
+    function handlePaymentMode() {
 
-    handlePaymentMode();
+        let paymentMode =
+            $('.mode_of_payment:checked').val();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | No Payment Mode
+        |--------------------------------------------------------------------------
+        */
+
+        if (!paymentMode) {
+
+            $('#payment-proofs').hide();
+            $('#ps').show();
+
+            $('#c_transaction_id')
+                .removeClass('mandatory');
+
+            $('#payment_image')
+                .removeClass('mandatory');
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Paid to Franchise / Cash on Delivery
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            paymentMode === 'Paid to Franchise' ||
+            paymentMode === 'Cash on Delivery'
+        ) {
+
+            $('#payment-proofs').hide();
+            $('#ps').show();
+
+            $('#c_transaction_id')
+                .removeClass('mandatory');
+
+            $('#payment_image')
+                .removeClass('mandatory');
+
+        } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Other Payment Modes
+            |--------------------------------------------------------------------------
+            */
+
+            $('#payment-proofs').show();
+            $('#ps').show();
+
+            $('#c_transaction_id')
+                .addClass('mandatory');
+
+            $('#payment_image')
+                .addClass('mandatory');
+        }
+    }
 
 
     /*
@@ -2815,20 +2097,10 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    $('#n_customer_id').on('change', function() {
+    $('#n_customer_id').on('change', function () {
 
         let option =
             $(this).find(':selected');
-
-
-        let email =
-            option.data('email') || '';
-
-        let mobile =
-            option.data('mobile') || '';
-
-        let address =
-            option.data('address') || '';
 
         let stateId =
             option.data('state') || '';
@@ -2836,26 +2108,29 @@ $(document).ready(function() {
         let districtId =
             option.data('district') || '';
 
-        let customerName =
-            option.data('name') || '';
 
+        $('#c_customer_name').val(
+            option.data('name') || ''
+        );
 
-        $('#c_customer_email').val(email);
+        $('#c_customer_email').val(
+            option.data('email') || ''
+        );
 
-        $('#n_customer_mobile').val(mobile);
+        $('#n_customer_mobile').val(
+            option.data('mobile') || ''
+        );
 
-        $('#c_customer_address').val(address);
+        $('#c_customer_address').val(
+            option.data('address') || ''
+        );
+
+        $('#c_customer_pincode').val(
+            option.data('pincode') || ''
+        );
 
         $('#customer_state').val(stateId);
 
-        $('#c_customer_name').val(customerName);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | No State
-        |--------------------------------------------------------------------------
-        */
 
         if (!stateId) {
 
@@ -2867,12 +2142,6 @@ $(document).ready(function() {
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Load Customer Districts
-        |--------------------------------------------------------------------------
-        */
-
         $.ajax({
 
             type: 'GET',
@@ -2885,7 +2154,8 @@ $(document).ready(function() {
 
             dataType: 'json',
 
-            beforeSend: function() {
+
+            beforeSend: function () {
 
                 $('#customer_district').html(
                     '<option value="">Loading...</option>'
@@ -2893,18 +2163,19 @@ $(document).ready(function() {
 
             },
 
-            success: function(data) {
+
+            success: function (response) {
 
                 $('#customer_district').html(
                     '<option value="">Select District</option>'
                 );
 
 
-                if (data.districts) {
+                if (response.districts) {
 
                     $.each(
-                        data.districts,
-                        function(index, district) {
+                        response.districts,
+                        function (index, district) {
 
                             $('#customer_district').append(
                                 '<option value="' +
@@ -2916,15 +2187,16 @@ $(document).ready(function() {
 
                         }
                     );
-
                 }
 
 
-                $('#customer_district').val(districtId);
-
+                $('#customer_district').val(
+                    districtId
+                );
             },
 
-            error: function(xhr) {
+
+            error: function (xhr) {
 
                 console.error(
                     'Customer district loading failed:',
@@ -2934,7 +2206,6 @@ $(document).ready(function() {
                 $('#customer_district').html(
                     '<option value="">Unable to load districts</option>'
                 );
-
             }
 
         });
@@ -2944,183 +2215,408 @@ $(document).ready(function() {
 
     /*
     |--------------------------------------------------------------------------
-    | Franchise State Selection
+    | Franchise State → District
     |--------------------------------------------------------------------------
     */
 
-    $('#franchise_state').on('change', function() {
+    $('#franchise_state').on(
+        'change',
+        function () {
 
-        let stateId =
-            $(this).val();
+            let stateId =
+                $(this).val();
 
-
-        $('#franchise_district').html(
-            '<option value="">Loading...</option>'
-        );
-
-        $('#franchise').html(
-            '<option value="">Select Franchise</option>'
-        );
-
-
-        if (!stateId) {
 
             $('#franchise_district').html(
-                '<option value="">Select District</option>'
+                '<option value="">Loading...</option>'
             );
 
-            return;
-        }
-
-
-        $.ajax({
-
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
-
-            type: 'GET',
-
-            data: {
-                state: stateId
-            },
-
-            dataType: 'json',
-
-            success: function(response) {
-
-                $('#franchise_district').html(
-                    '<option value="">Select District</option>'
-                );
-
-
-                if (response.districts) {
-
-                    $.each(
-                        response.districts,
-                        function(index, district) {
-
-                            $('#franchise_district').append(
-                                '<option value="' +
-                                district.id +
-                                '">' +
-                                district.district_name +
-                                '</option>'
-                            );
-
-                        }
-                    );
-
-                }
-
-            },
-
-            error: function(xhr) {
-
-                console.error(
-                    'Franchise district loading failed:',
-                    xhr.responseText
-                );
-
-                $('#franchise_district').html(
-                    '<option value="">Unable to load districts</option>'
-                );
-
-            }
-
-        });
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Franchise District Selection
-    |--------------------------------------------------------------------------
-    */
-
-    $('#franchise_district').on('change', function() {
-
-        let stateId =
-            $('#franchise_state').val();
-
-        let districtId =
-            $(this).val();
-
-
-        $('#franchise').html(
-            '<option value="">Loading...</option>'
-        );
-
-
-        if (!stateId || !districtId) {
+            $('#franchise_panchayath').html(
+                '<option value="">Select Panchayath</option>'
+            );
 
             $('#franchise').html(
                 '<option value="">Select Franchise</option>'
             );
 
-            return;
+
+            if (!stateId) {
+
+                $('#franchise_district').html(
+                    '<option value="">Select District</option>'
+                );
+
+                return;
+            }
+
+
+            $.ajax({
+
+                type: 'GET',
+
+                url: "<?php echo e(route('admin.filterDistrict')); ?>",
+
+                data: {
+                    state: stateId
+                },
+
+                dataType: 'json',
+
+
+                success: function (response) {
+
+                    $('#franchise_district').html(
+                        '<option value="">Select District</option>'
+                    );
+
+
+                    if (response.districts) {
+
+                        $.each(
+                            response.districts,
+                            function (index, district) {
+
+                                $('#franchise_district').append(
+                                    '<option value="' +
+                                    district.id +
+                                    '">' +
+                                    district.district_name +
+                                    '</option>'
+                                );
+
+                            }
+                        );
+                    }
+
+                },
+
+
+                error: function (xhr) {
+
+                    console.error(
+                        'District AJAX Error:',
+                        xhr.responseText
+                    );
+
+                    $('#franchise_district').html(
+                        '<option value="">Unable to load districts</option>'
+                    );
+
+                }
+
+            });
+
         }
+    );
 
 
-        $.ajax({
+    /*
+    |--------------------------------------------------------------------------
+    | Franchise District → Panchayath
+    |--------------------------------------------------------------------------
+    */
 
-            url: "<?php echo e(url('admin/filter-franchise')); ?>",
+    $('#franchise_district').on(
+        'change',
+        function () {
 
-            type: 'GET',
+            let districtId =
+                $(this).val();
 
-            data: {
-                state: stateId,
-                district: districtId
-            },
 
-            dataType: 'json',
+            $('#franchise_panchayath').html(
+                '<option value="">Loading...</option>'
+            );
 
-            success: function(response) {
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+
+            if (!districtId) {
+
+                $('#franchise_panchayath').html(
+                    '<option value="">Select Panchayath</option>'
+                );
+
+                return;
+            }
+
+
+            $.ajax({
+
+                type: 'GET',
+
+                url: "<?php echo e(route('admin.filterPanchayath')); ?>",
+
+                data: {
+                    district: districtId
+                },
+
+                dataType: 'json',
+
+
+                success: function (response) {
+
+                    $('#franchise_panchayath').html(
+                        '<option value="">Select Panchayath</option>'
+                    );
+
+
+                    if (
+                        response.panchayaths &&
+                        response.panchayaths.length > 0
+                    ) {
+
+                        $.each(
+                            response.panchayaths,
+                            function (index, panchayat) {
+
+                                $('#franchise_panchayath').append(
+                                    '<option value="' +
+                                    panchayat.id +
+                                    '">' +
+                                    panchayat.panchayath_name +
+                                    '</option>'
+                                );
+
+                            }
+                        );
+
+                    } else {
+
+                        $('#franchise_panchayath').html(
+                            '<option value="">No Panchayaths Found</option>'
+                        );
+
+                    }
+
+                },
+
+
+                error: function (xhr) {
+
+                    console.error(
+                        'Panchayath AJAX Error:',
+                        xhr.responseText
+                    );
+
+                    $('#franchise_panchayath').html(
+                        '<option value="">Unable to load Panchayaths</option>'
+                    );
+
+                }
+
+            });
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Franchise Panchayath → Nearest Franchise
+    |--------------------------------------------------------------------------
+    */
+
+    $('#franchise_panchayath').on(
+        'change',
+        function () {
+
+            const panchayathId =
+                $(this).val();
+
+
+            if (!panchayathId) {
 
                 $('#franchise').html(
                     '<option value="">Select Franchise</option>'
                 );
 
+                return;
+            }
 
-                if (response.franchises) {
 
-                    $.each(
-                        response.franchises,
-                        function(index, franchise) {
+            findNearestFranchise(panchayathId);
 
-                            $('#franchise').append(
-                                '<option value="' +
-                                franchise.n_store_id +
-                                '">' +
-                                franchise.c_store_name +
-                                ' (' +
-                                franchise.c_store_code +
-                                ')' +
-                                '</option>'
-                            );
+        }
+    );
 
-                        }
-                    );
 
-                }
+    function findNearestFranchise(panchayathId) {
 
-            },
+        $('#franchise').html(
+            '<option value="">Finding franchise...</option>'
+        );
 
-            error: function(xhr) {
 
-                console.error(
-                    'Franchise loading failed:',
-                    xhr.responseText
-                );
+        fetch(
+            "<?php echo e(route('admin.franchise.nearest')); ?>",
+            {
+                method: 'POST',
 
-                $('#franchise').html(
-                    '<option value="">Unable to load franchise</option>'
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': "<?php echo e(csrf_token()); ?>",
+                    'Accept': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    panchayath_id: panchayathId
+                })
+            }
+        )
+
+        .then(function (response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    'HTTP error: ' + response.status
                 );
 
             }
 
-        });
+            return response.json();
 
-    });
+        })
+
+
+        .then(function (data) {
+
+            console.log(
+                'Franchise response:',
+                data
+            );
+
+
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+
+            if (!data.success) {
+
+                $('#franchise').html(
+                    '<option value="">No Franchise Found</option>'
+                );
+
+                return;
+            }
+
+
+            let franchises =
+                Array.isArray(data.franchises)
+                    ? data.franchises
+                    : (
+                        data.franchises
+                            ? [data.franchises]
+                            : []
+                    );
+
+
+            if (franchises.length === 0) {
+
+                $('#franchise').html(
+                    '<option value="">No Franchise Found</option>'
+                );
+
+                return;
+            }
+
+
+            franchises.forEach(
+                function (franchise) {
+
+                    $('#franchise').append(
+                        '<option value="' +
+                        franchise.n_store_id +
+                        '">' +
+                        franchise.c_store_name +
+                        (
+                            franchise.c_store_code
+                                ? ' (' +
+                                  franchise.c_store_code +
+                                  ')'
+                                : ''
+                        ) +
+                        '</option>'
+                    );
+
+                }
+            );
+
+
+            // Automatically select first franchise
+            $('#franchise').val(
+                franchises[0].n_store_id
+            );
+
+        })
+
+
+        .catch(function (error) {
+
+            console.error(
+                'Nearest franchise error:',
+                error
+            );
+
+            $('#franchise').html(
+                '<option value="">Unable to find franchise</option>'
+            );
+
+        });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Order Type
+    |--------------------------------------------------------------------------
+    */
+
+    function toggleOrderType() {
+
+        const orderType =
+            $('input[name="order_type"]:checked').val();
+
+
+        if (orderType === 'franchise') {
+
+            $('#franchise-location-details').show();
+
+            $('#franchise_state').addClass('mandatory');
+            $('#franchise_district').addClass('mandatory');
+            $('#franchise_panchayath').addClass('mandatory');
+            $('#franchise').addClass('mandatory');
+
+        }
+        else if (orderType === 'company') {
+
+            $('#franchise-location-details').hide();
+
+            $('#franchise_state').removeClass('mandatory');
+            $('#franchise_district').removeClass('mandatory');
+            $('#franchise_panchayath').removeClass('mandatory');
+            $('#franchise').removeClass('mandatory');
+
+            $('#franchise_state').val('');
+            $('#franchise_district').val('');
+            $('#franchise_panchayath').val('');
+            $('#franchise').val('');
+        }
+    }
+
+
+    $('input[name="order_type"]').on(
+        'change',
+        function () {
+
+            toggleOrderType();
+
+        }
+    );
 
 
     /*
@@ -3137,7 +2633,7 @@ $(document).ready(function() {
 
         approveModalEl.addEventListener(
             'show.bs.modal',
-            function(event) {
+            function (event) {
 
                 const button =
                     event.relatedTarget;
@@ -3152,25 +2648,11 @@ $(document).ready(function() {
                     button.getAttribute('data-id');
 
 
-                console.log(
-                    'Approval ID:',
-                    id
-                );
+                $('#approval_id').val(id);
 
+                $('#approval_remarks').val('');
 
-                document.getElementById(
-                    'approval_id'
-                ).value = id;
-
-
-                document.getElementById(
-                    'approval_remarks'
-                ).value = '';
-
-
-                document.getElementById(
-                    'approval_status'
-                ).value = '';
+                $('#approval_status').val('');
 
             }
         );
@@ -3187,16 +2669,10 @@ $(document).ready(function() {
     $(document).on(
         'click',
         '.approvalSubmit',
-        function() {
+        function () {
 
             const id =
                 $(this).attr('data-id');
-
-
-            console.log(
-                'Encrypted ID:',
-                id
-            );
 
 
             $('#approval_id').val(id);
@@ -3218,25 +2694,232 @@ $(document).ready(function() {
 
     /*
     |--------------------------------------------------------------------------
-    | Existing Product Rows
+    | Image Upload Preview
     |--------------------------------------------------------------------------
     */
 
-    $('#productTable tbody .product').each(function() {
+    function setupImageUpload(
+        inputId,
+        previewId,
+        containerId,
+        removeInputId,
+        removeButtonId
+    ) {
 
-        if ($(this).val()) {
+        $(document).on(
+            'change',
+            '#' + inputId,
+            function (event) {
 
-            productTotal($(this));
+                const file =
+                    event.target.files[0];
 
-        }
 
-    });
+                if (!file) {
+                    return;
+                }
 
+
+                if (!file.type.startsWith('image/')) {
+
+                    alert(
+                        'Please select an image file.'
+                    );
+
+                    $(this).val('');
+
+                    return;
+                }
+
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function (e) {
+
+                        $('#' + previewId)
+                            .attr(
+                                'src',
+                                e.target.result
+                            )
+                            .show();
+
+
+                        $('#' + removeInputId)
+                            .val('0');
+
+
+                        if (
+                            $('#' + removeButtonId).length === 0
+                        ) {
+
+                            $('#' + containerId).append(
+                                '<br>' +
+                                '<button type="button" ' +
+                                'id="' + removeButtonId + '" ' +
+                                'class="btn btn-danger btn-sm mt-2">' +
+                                'Remove Image' +
+                                '</button>'
+                            );
+
+                        } else {
+
+                            $('#' + removeButtonId).show();
+
+                        }
+
+                    };
+
+
+                reader.readAsDataURL(file);
+
+            }
+        );
+
+
+        $(document).on(
+            'click',
+            '#' + removeButtonId,
+            function () {
+
+                $('#' + inputId).val('');
+
+                $('#' + previewId)
+                    .attr('src', '')
+                    .hide();
+
+
+                $('#' + removeInputId)
+                    .val('1');
+
+
+                $(this).hide();
+
+            }
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Image
+    |--------------------------------------------------------------------------
+    */
+
+    setupImageUpload(
+        'payment_image',
+        'payment_image_preview',
+        'payment_preview_container',
+        'remove_payment_image',
+        'remove_payment_image_btn'
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Booklet Image
+    |--------------------------------------------------------------------------
+    */
+
+    setupImageUpload(
+        'booklet_image',
+        'booklet_image_preview',
+        'booklet_image_preview_container',
+        'remove_booklet_image',
+        'remove_booklet_image_btn'
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | View Mode
+    |--------------------------------------------------------------------------
+    */
+    var viewmode="<?php echo e($viewmode); ?>";
+    if(isset(viewmode) && viewmode == 'on'){
+
+        $('#frm_create input:not([type="hidden"]):not([type="button"]):not([type="submit"])')
+            .prop('readonly', true);
+
+        $('#frm_create textarea')
+            .prop('readonly', true);
+
+        $('#frm_create select')
+            .prop('disabled', true);
+
+        $('#frm_create input[type="radio"]')
+            .prop('disabled', true);
+
+        $('#frm_create input[type="checkbox"]')
+            .prop('disabled', true);
+
+        $('#frm_create input[type="file"]')
+            .prop('disabled', true);
+
+        $('#addRow')
+            .prop('disabled', true);
+
+        $('.removeRow')
+            .prop('disabled', true);
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Page Load Initialization
+    |--------------------------------------------------------------------------
+    */
+
+    // Do not call productTotal() for existing rows.
+    // It may overwrite saved product values.
+    calculateSummary();
+
+    toggleOrderType();
+
+    handlePaymentMode();
+
+
+    // Load selected customer data when customer is already selected
+    if ($('#n_customer_id').val()) {
+
+        $('#n_customer_id').trigger('change');
+
+    }
 
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| Mode of Payment on change
+|--------------------------------------------------------------------------
+*/
+
+
+$('.mode_of_payment').on('change', function () {
+    handlePaymentMode();
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Run Payment Mode on Page Load
+|--------------------------------------------------------------------------
+*/
+
+handlePaymentMode();
+
+
+/*
+|--------------------------------------------------------------------------
+| Handle Payment Mode
+|--------------------------------------------------------------------------
+*/
+
 function handlePaymentMode() {
->>>>>>> 43fb223a947f389b19e7edf4f9064331240e0ffa:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
 
     let paymentMode =
         $('.mode_of_payment:checked').val();
@@ -3251,18 +2934,14 @@ function handlePaymentMode() {
     if (!paymentMode) {
 
         $('#paymet-proofs').hide();
-
         $('#ps').show();
-
         $('#franchise-details').show();
-
 
         $('#franchise_state').addClass('mandatory');
         $('#franchise_district').addClass('mandatory');
         $('#franchise_panchayath').addClass('mandatory');
         $('#franchise').addClass('mandatory');
         $('#payment_status').addClass('mandatory');
-
 
         $('#c_transaction_id').removeClass('mandatory');
         $('#payment_image').removeClass('mandatory');
@@ -3283,38 +2962,29 @@ function handlePaymentMode() {
     ) {
 
         $('#paymet-proofs').hide();
-
         $('#ps').show();
-
         $('#franchise-details').show();
-
 
         $('#franchise_state').addClass('mandatory');
         $('#franchise_district').addClass('mandatory');
         $('#franchise_panchayath').addClass('mandatory');
         $('#franchise').addClass('mandatory');
         $('#payment_status').addClass('mandatory');
-
 
         $('#c_transaction_id').removeClass('mandatory');
         $('#payment_image').removeClass('mandatory');
 
-    }
+    } else {
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Other Payment Modes
-    |--------------------------------------------------------------------------
-    */
-    else {
+        /*
+        |--------------------------------------------------------------------------
+        | Other Payment Modes
+        |--------------------------------------------------------------------------
+        */
 
         $('#paymet-proofs').show();
-
         $('#ps').show();
-
         $('#franchise-details').show();
-
 
         $('#franchise_state').addClass('mandatory');
         $('#franchise_district').addClass('mandatory');
@@ -3322,704 +2992,17 @@ function handlePaymentMode() {
         $('#franchise').addClass('mandatory');
         $('#payment_status').addClass('mandatory');
 
-
         $('#c_transaction_id').addClass('mandatory');
         $('#payment_image').addClass('mandatory');
-
     }
-
 }
-</script>
-<script>
-$(document).ready(function() {
 
-    <?php if(isset($viewmode) && $viewmode == 'on'): ?>
 
-    // Make all text/number/date/email inputs readonly
-    $('#frm_create input:not([type="hidden"]):not([type="button"]):not([type="submit"])')
-        .prop('readonly', true);
 
-    // Make all textareas readonly
-    $('#frm_create textarea').prop('readonly', true);
 
-    // Select, radio, checkbox and file inputs do not support readonly
-    // so disable them
-    $('#frm_create select').prop('disabled', true);
-    $('#frm_create input[type="radio"]').prop('disabled', true);
-    $('#frm_create input[type="checkbox"]').prop('disabled', true);
-    $('#frm_create input[type="file"]').prop('disabled', true);
 
-    // Disable product add/remove controls
-    $('#addRow').prop('disabled', true);
-    $('.removeRow').prop('disabled', true);
 
-    <?php endif; ?>
-
-
-    $("#n_customer_id").change(function() {
-        let option = $(this).find(":selected");
-
-        let stateId = option.data("state");
-        let districtId = option.data("district");
-
-        $("#c_customer_name").val(option.data("name") || '');
-        $("#c_customer_email").val(option.data("email") || '');
-        $("#n_customer_mobile").val(option.data("mobile") || '');
-        $("#c_customer_address").val(option.data("address") || '');
-        $("#c_customer_pincode").val(option.data("pincode") || '');
-
-        $("#customer_state").val(stateId);
-
-        $.ajax({
-            type: "GET",
-            url: "<?php echo e(route('admin.filterDistrict')); ?>",
-            data: {
-                state: stateId
-            },
-            dataType: "json",
-            success: function(data) {
-                $("#customer_district").html(
-                    '<option value="">Select District</option>'
-                );
-
-                $.each(data.districts, function(i, district) {
-                    $("#customer_district").append(
-                        '<option value="' + district.id + '">' +
-                        district.district_name +
-                        '</option>'
-                    );
-                });
-
-                $("#customer_district").val(districtId);
-            }
-        });
-    });
-});
-$('#n_customer_id').trigger('change');
-</script>
-<script>
-/*
-|--------------------------------------------------------------------------
-| FRANCHISE LOCATION: State → District
-|--------------------------------------------------------------------------
-*/
-
-$('#franchise_state').on('change', function() {
-
-    let stateId = $(this).val();
-
-    $('#franchise_district').html(
-        '<option value="">Loading...</option>'
-    );
-
-    $('#franchise_panchayath').html(
-        '<option value="">Select Panchayath</option>'
-    );
-
-    $('#franchise').html(
-        '<option value="">Select Franchise</option>'
-    );
-
-    if (!stateId) {
-        $('#franchise_district').html(
-            '<option value="">Select District</option>'
-        );
-        return;
-    }
-
-    $.ajax({
-        type: 'GET',
-        url: "<?php echo e(route('admin.filterDistrict')); ?>",
-        data: {
-            state: stateId
-        },
-        dataType: 'json',
-
-        success: function(response) {
-
-            $('#franchise_district').html(
-                '<option value="">Select District</option>'
-            );
-
-            if (response.districts) {
-
-                $.each(response.districts, function(index, district) {
-
-                    $('#franchise_district').append(
-                        '<option value="' + district.id + '">' +
-                        district.district_name +
-                        '</option>'
-                    );
-
-                });
-            }
-        },
-
-        error: function(xhr) {
-            console.error('District AJAX Error:', xhr.responseText);
-
-            $('#franchise_district').html(
-                '<option value="">Unable to load districts</option>'
-            );
-        }
-    });
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| FRANCHISE LOCATION: District → Panchayath
-|--------------------------------------------------------------------------
-*/
-
-$('#franchise_district').on('change', function() {
-
-    let districtId = $(this).val();
-
-    $('#franchise_panchayath').html(
-        '<option value="">Loading...</option>'
-    );
-
-    $('#franchise').html(
-        '<option value="">Select Franchise</option>'
-    );
-
-    if (!districtId) {
-
-        $('#franchise_panchayath').html(
-            '<option value="">Select Panchayath</option>'
-        );
-
-        return;
-    }
-
-    $.ajax({
-        type: 'GET',
-        url: "<?php echo e(route('admin.filterPanchayath')); ?>",
-        data: {
-            district: districtId
-        },
-        dataType: 'json',
-
-        success: function(response) {
-
-            console.log('Panchayath response:', response);
-
-            $('#franchise_panchayath').html(
-                '<option value="">Select Panchayath</option>'
-            );
-
-            if (
-                response.panchayaths &&
-                response.panchayaths.length > 0
-            ) {
-
-                $.each(response.panchayaths, function(index, panchayat) {
-
-                    $('#franchise_panchayath').append(
-                        '<option value="' + panchayat.id + '">' +
-                        panchayat.panchayath_name +
-                        '</option>'
-                    );
-
-                });
-
-            } else {
-
-                $('#franchise_panchayath').html(
-                    '<option value="">No Panchayaths Found</option>'
-                );
-            }
-        },
-
-        error: function(xhr) {
-
-            console.error(
-                'Panchayath AJAX Error:',
-                xhr.responseText
-            );
-
-            $('#franchise_panchayath').html(
-                '<option value="">Unable to load Panchayaths</option>'
-            );
-        }
-    });
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| FRANCHISE LOCATION: Panchayath → Franchise
-|--------------------------------------------------------------------------
-*/
-
-/*    $('#franchise_panchayath').on('change', function() {
-
-       let stateId = $('#franchise_state').val();
-       let districtId = $('#franchise_district').val();
-       let panchayathId = $(this).val();
-
-       console.log('Loading franchises:', {
-           state: stateId,
-           district: districtId,
-           panchayath: panchayathId
-       });
-
-       $('#franchise').html(
-           '<option value="">Loading franchises...</option>'
-       );
-
-       if (!stateId || !districtId || !panchayathId) {
-
-           $('#franchise').html(
-               '<option value="">Select Franchise</option>'
-           );
-
-           return;
-       }
-
-       $.ajax({
-           type: 'GET',
-
-           url: "<?php echo e(url('admin/filter-franchise')); ?>",
-
-           data: {
-               state: stateId,
-               district: districtId,
-               panchayath: panchayathId
-           },
-
-           dataType: 'json',
-
-           success: function(response) {
-
-               console.log('Franchise response:', response);
-
-               $('#franchise').html(
-                   '<option value="">Select Franchise</option>'
-               );
-
-               if (
-                   response.franchises &&
-                   response.franchises.length > 0
-               ) {
-
-                   $.each(response.franchises, function(index, franchise) {
-
-                       $('#franchise').append(
-                           '<option value="' +
-                           franchise.n_store_id +
-                           '">' +
-                           franchise.c_store_name +
-                           ' (' +
-                           franchise.c_store_code +
-                           ')' +
-                           '</option>'
-                       );
-
-                   });
-
-               } else {
-
-                   $('#franchise').html(
-                       '<option value="">No Franchises Found</option>'
-                   );
-
-                   console.log('No franchises found');
-               }
-           },
-
-           error: function(xhr, status, error) {
-
-               console.error('Franchise AJAX failed');
-               console.error('Status:', status);
-               console.error('Error:', error);
-               console.error('Response:', xhr.responseText);
-
-               $('#franchise').html(
-                   '<option value="">Unable to load franchises</option>'
-               );
-           }
-       });
-
-   }); */
-</script>
-
-
-<script>
-$('#franchise_panchayath').on('change', function() {
-
-    const panchayathId = $(this).val();
-
-    console.log('Selected Panchayath ID:', panchayathId);
-
-    // No Panchayath selected
-    if (!panchayathId) {
-
-        $('#franchise').html(
-            '<option value="">Select Franchise</option>'
-        );
-
-        return;
-    }
-
-    // Find franchises by Panchayath
-    findNearestFranchise(panchayathId);
-});
-
-
-function findNearestFranchise(panchayathId) {
-
-    console.log('Finding franchises for Panchayath:', panchayathId);
-
-    $('#franchise').html(
-        '<option value="">Finding franchise...</option>'
-    );
-
-    fetch("<?php echo e(route('admin.franchise.nearest')); ?>", {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": "<?php echo e(csrf_token()); ?>",
-                "Accept": "application/json"
-            },
-
-            body: JSON.stringify({
-                panchayath_id: panchayathId
-            })
-
-        })
-
-        .then(function(response) {
-
-            if (!response.ok) {
-                throw new Error(
-                    'HTTP error: ' + response.status
-                );
-            }
-
-            return response.json();
-
-        })
-
-        .then(function(data) {
-
-            console.log('Franchise response:', data);
-
-            $('#franchise').html(
-                '<option value="">Select Franchise</option>'
-            );
-
-            if (!data.success) {
-
-                $('#franchise').html(
-                    '<option value="">No Franchise Found</option>'
-                );
-
-                return;
-            }
-
-            let franchises = Array.isArray(data.franchises) ?
-                data.franchises :
-                (data.franchises ? [data.franchises] : []);
-
-            if (franchises.length === 0) {
-
-                $('#franchise').html(
-                    '<option value="">No Franchise Found</option>'
-                );
-
-                return;
-            }
-
-            franchises.forEach(function(franchise) {
-
-                $('#franchise').append(`
-                    <option value="${franchise.n_store_id}">
-                        ${franchise.c_store_name}
-                        ${
-                            franchise.c_store_code
-                                ? ' (' + franchise.c_store_code + ')'
-                                : ''
-                        }
-                    </option>
-                `);
-
-            });
-
-            // Automatically select first franchise
-            $('#franchise').val(
-                franchises[0].n_store_id
-            );
-
-        })
-
-        .catch(function(error) {
-
-            console.error(
-                'Nearest franchise error:',
-                error
-            );
-
-            $('#franchise').html(
-                '<option value="">Unable to find franchise</option>'
-            );
-
-        });
-
-<<<<<<< HEAD:storage/framework/views/c2769c751f073b56b29b9e775f39fb00.php
-    }
-
-    function toggleOrderType() {
-
-        const orderType = $('input[name="order_type"]:checked').val();
-
-        if (orderType === 'franchise') {
-
-            // Show franchise section
-            $('#franchise-location-details').show();
-
-            // Add mandatory validation
-            $('#franchise_state').addClass('mandatory');
-            $('#franchise_district').addClass('mandatory');
-            $('#franchise_panchayath').addClass('mandatory');
-            $('#franchise').addClass('mandatory');
-
-        } else if (orderType === 'company') {
-
-            // Hide franchise section
-            $('#franchise-location-details').hide();
-
-            // Remove mandatory validation
-            $('#franchise_state').removeClass('mandatory');
-            $('#franchise_district').removeClass('mandatory');
-            $('#franchise_panchayath').removeClass('mandatory');
-            $('#franchise').removeClass('mandatory');
-
-            // Optional: clear values
-            $('#franchise_state').val('');
-            $('#franchise_district').val('');
-            $('#franchise_panchayath').val('');
-            $('#franchise').val('');
-        }
-    }
-
-    // When Company / Franchise changes
-    $('input[name="order_type"]').on('change', function () {
-        toggleOrderType();
-    });
-
-    // Run when page loads
-    toggleOrderType();
-
-
-    $(document).ready(function () {
-
-        function setupImageUpload(inputId, previewId, containerId, removeInputId, removeButtonId) {
-
-            // Preview selected image
-            $(document).on('change', '#' + inputId, function (event) {
-
-                const file = event.target.files[0];
-
-                if (!file) return;
-
-                // Allow images only
-                if (!file.type.startsWith('image/')) {
-                    alert('Please select an image file.');
-                    $(this).val('');
-                    return;
-                }
-
-                const reader = new FileReader();
-
-                reader.onload = function (e) {
-
-                    // Show selected image preview
-                    $('#' + previewId)
-                        .attr('src', e.target.result)
-                        .show();
-
-                    // New image selected, don't delete
-                    $('#' + removeInputId).val('0');
-
-                    // Create Remove button if it doesn't exist
-                    if ($('#' + removeButtonId).length === 0) {
-
-                        $('#' + containerId).append(`
-                            <br>
-                            <button type="button"
-                                id="${removeButtonId}"
-                                class="btn btn-danger btn-sm mt-2">
-                                Remove Image
-                            </button>
-                        `);
-
-                    } else {
-                        $('#' + removeButtonId).show();
-                    }
-                };
-
-                reader.readAsDataURL(file);
-            });
-
-
-            // Remove image
-            $(document).on('click', '#' + removeButtonId, function () {
-
-                // Clear selected file
-                $('#' + inputId).val('');
-
-                // Hide image preview
-                $('#' + previewId)
-                    .attr('src', '')
-                    .hide();
-
-                // Tell Laravel to remove existing image
-                $('#' + removeInputId).val('1');
-
-                // Hide remove button
-                $(this).hide();
-            });
-        }
-
-
-        // ===============================
-        // Payment Image
-        // ===============================
-        setupImageUpload(
-            'payment_image',
-            'payment_image_preview',
-            'payment_preview_container',
-            'remove_payment_image',
-            'remove_payment_image_btn'
-        );
-
-
-        // ===============================
-        // Booklet Image
-        // ===============================
-        setupImageUpload(
-            'booklet_image',
-            'booklet_image_preview',
-            'booklet_image_preview_container',
-            'remove_booklet_image',
-            'remove_booklet_image_btn'
-        );
-
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Payment Mode Change
-    |--------------------------------------------------------------------------
-    */
-
-    $('.mode_of_payment').on('change', function () {
-        handlePaymentMode();
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Run Payment Mode on Page Load
-    |--------------------------------------------------------------------------
-    */
-
-    handlePaymentMode();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Handle Payment Mode
-    |--------------------------------------------------------------------------
-    */
-
-    function handlePaymentMode() {
-
-        let paymentMode =
-            $('.mode_of_payment:checked').val();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | No Payment Mode Selected
-        |--------------------------------------------------------------------------
-        */
-
-        if (!paymentMode) {
-
-            $('#paymet-proofs').hide();
-            $('#ps').show();
-            $('#franchise-details').show();
-
-            $('#franchise_state').addClass('mandatory');
-            $('#franchise_district').addClass('mandatory');
-            $('#franchise_panchayath').addClass('mandatory');
-            $('#franchise').addClass('mandatory');
-            $('#payment_status').addClass('mandatory');
-
-            $('#c_transaction_id').removeClass('mandatory');
-            $('#payment_image').removeClass('mandatory');
-
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Paid to Franchise / Cash on Delivery
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            paymentMode === 'Paid to Franchise' ||
-            paymentMode === 'Cash on Delivery'
-        ) {
-
-            $('#paymet-proofs').hide();
-            $('#ps').show();
-            $('#franchise-details').show();
-
-            $('#franchise_state').addClass('mandatory');
-            $('#franchise_district').addClass('mandatory');
-            $('#franchise_panchayath').addClass('mandatory');
-            $('#franchise').addClass('mandatory');
-            $('#payment_status').addClass('mandatory');
-
-            $('#c_transaction_id').removeClass('mandatory');
-            $('#payment_image').removeClass('mandatory');
-
-        } else {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Other Payment Modes
-            |--------------------------------------------------------------------------
-            */
-
-            $('#paymet-proofs').show();
-            $('#ps').show();
-            $('#franchise-details').show();
-
-            $('#franchise_state').addClass('mandatory');
-            $('#franchise_district').addClass('mandatory');
-            $('#franchise_panchayath').addClass('mandatory');
-            $('#franchise').addClass('mandatory');
-            $('#payment_status').addClass('mandatory');
-
-            $('#c_transaction_id').addClass('mandatory');
-
-            // Uncomment if payment image is mandatory
-            // $('#payment_image').addClass('mandatory');
-        }
-    }
-
-=======
-}
->>>>>>> 43fb223a947f389b19e7edf4f9064331240e0ffa:storage/framework/views/a543e122a44d9e88bb1e71d5d3627e5f.php
 </script>
 <?php $__env->stopPush(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\SPC\resources\views/admin/sales/create.blade.php ENDPATH**/ ?>

@@ -353,6 +353,67 @@ class DashboardController extends Controller
 
         $totalOrders = $orders->count();
 
+        $salesTrendQuery = SalesOrder::query()
+            ->whereBetween('sales_orders.created_at', [
+                now()->subDays(30)->startOfDay(),
+                now()->endOfDay(),
+            ]);
+
+        // FCA: own sales only
+        if ($user->hasRole('Farm Care Advisor')) {
+
+            $salesTrendQuery->where(
+                'sales_orders.farm_care_advisor_id',
+                (int) $user->n_employee_id
+            );
+
+            // FCO: own sales + reporting FCA sales
+        } elseif ($user->hasRole('Farm Care Officer')) {
+
+            $fcoId = (int) $user->n_employee_id;
+
+            $reportingFcaId = EmployeeMaster::query()
+                ->where('n_employee_id', $fcoId)
+                ->whereNull('deleted_at')
+                ->value('reporting_to');
+
+            $employeeIds = [$fcoId];
+
+            if ($reportingFcaId) {
+                $employeeIds[] = (int) $reportingFcaId;
+            }
+
+            $salesTrendQuery->whereIn(
+                'sales_orders.farm_care_advisor_id',
+                array_unique($employeeIds)
+            );
+        }
+
+        // Super Admin, Gipra Admin, National Sales Head,
+        // Regional Sales Head, Team Lead → no filter = all sales
+
+        $salesTrend = $salesTrendQuery
+            ->selectRaw('DATE(sales_orders.created_at) as date, SUM(sales_orders.n_net_sales_amount) as total')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $salesTrendLabels = [];
+        $salesTrendValues = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+
+            $date = now()->subDays($i);
+
+            $salesTrendLabels[] = $date->format('d M');
+
+            $salesTrendValues[] = (float) (
+                $salesTrend
+                    ->firstWhere('date', $date->format('Y-m-d'))
+                    ->total ?? 0
+            );
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Sales values
@@ -520,6 +581,9 @@ class DashboardController extends Controller
             */
 
             'user' => $user,
+
+            'salesTrendLabels' => $salesTrendLabels,
+            'salesTrendValues' => $salesTrendValues,
 
             /*
             |--------------------------------------------------------------------------

@@ -517,8 +517,8 @@ use Illuminate\Support\Facades\Crypt;
                         </td>
                         <td><strong>{{ $sale?->c_order_no ?? 'N/A' }}</strong></td>
                         <td>{{ \Carbon\Carbon::parse($sale->d_date)->format('d M Y') }}</td>
-                        <td>{{ $sale?->c_customer_name ?? 'N/A' }}</td>
-                        <td>{{ $sale?->c_customer_address ?? 'N/A' }}</td>
+                        <td>{{ $sale?->customer->c_customer_name ?? 'N/A' }}</td>
+                        <td>{{ $sale?->customer->c_address ?? 'N/A' }}</td>
 
                         @if(isset($isFarmCareAdvisor))
                         <td>

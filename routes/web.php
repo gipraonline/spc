@@ -390,6 +390,24 @@ Route::middleware(['auth', 'admin'])
         Route::post('/franchise/nearest', [SalesController::class, 'nearestFranchise'])
             ->name('franchise.nearest');
 
+        Route::get('filter-subcategories/{categoryId}', [SalesController::class, 'getSubcategories'])
+            ->name('get.product.subcategories');
+
+        Route::get('filter-products/{subCategoryId}', [SalesController::class, 'getProducts'])
+            ->name('get.products');
+
+        Route::get('filter-productsFromId/{productId}', [SalesController::class, 'getAttributesFromProductname'])
+            ->name('get.attributesFromProductname');
+
+
+        Route::get('filter-packSize/{productName}', [SalesController::class, 'getProductPackSize'])
+            ->name('get.product.packSize');
+
+        Route::get('filter-attributes/{productName}/{packSize}', [SalesController::class, 'getProductAttributes'])
+            ->name('get.product.attributes');
+
+
+
          /*
           |--------------------------------------------------------------------------
           | Tele Callers
@@ -432,7 +450,7 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:tele-callers.delete')
             ->name('telecallers.destroy');
 
-       
+
 
         /*
         |--------------------------------------------------------------------------

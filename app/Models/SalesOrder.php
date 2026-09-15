@@ -21,11 +21,12 @@ class SalesOrder extends Model
         'c_order_no',
         'd_date',
         'farm_care_advisor_id',
+        'c_customer_type',
         'n_customer_id',
-        'c_customer_name',
+        /* 'c_customer_name',
         'c_customer_email',
         'c_customer_address',
-        'n_customer_mobile',
+        'n_customer_mobile', */
         'order_type',
         'n_state_id',
         'n_district_id',
@@ -45,6 +46,7 @@ class SalesOrder extends Model
         'n_net_sales_amount',
 
         'invoice_no',
+        'created_by',
     ];
 
     protected $casts = [
@@ -134,5 +136,49 @@ class SalesOrder extends Model
 
 
         }
+        public static function generateFCOOrderNo()
+        {
+            $lastOrder = self::where('c_order_no', 'like', 'FCO-%')
+            ->orderByDesc('n_sl_no')
+            ->first();
+
+
+            if (! $lastOrder) {
+                return 'FCO-1';
+            }
+
+            $lastNumber = (int) str_replace(
+                'FCO-',
+                '',
+                $lastOrder->c_order_no
+            );
+
+            return 'FCO-' . ($lastNumber + 1);
+
+
+        }
+
+        public static function generateFCOrderNo()
+        {
+            $lastOrder = self::where('c_order_no', 'like', 'FC-%')
+            ->orderByDesc('n_sl_no')
+            ->first();
+
+
+            if (! $lastOrder) {
+                return 'FC-1';
+            }
+
+            $lastNumber = (int) str_replace(
+                'FC-',
+                '',
+                $lastOrder->c_order_no
+            );
+
+            return 'FC-' . ($lastNumber + 1);
+
+
+        }
+
 
 }

@@ -10,7 +10,7 @@ class DesignationController extends Controller
 {
     public function index()
     {
-        $designations = DesignationMaster::all();
+        $designations = DesignationMaster::where('c_status','Y')->get();
 
         return view('admin.designations.index', compact('designations'));
     }

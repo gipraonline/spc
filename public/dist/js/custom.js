@@ -268,6 +268,7 @@ $(document).on('click', '#btn_create, #btn_update', function (e) {
     });
 
     if (error === 0) {
+
         $("#frm_create")[0].submit();
     }
 });

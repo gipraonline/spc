@@ -19,6 +19,8 @@ class OrderProduct extends Model
     protected $fillable = [
 
         'n_order_id',
+        'n_category_id',
+        'n_sub_category_id',
         'product_id',
         'c_hsn_code',
         'product_price',
@@ -40,6 +42,22 @@ class OrderProduct extends Model
             ProductMaster::class,
             'product_id',
             'n_product_id'
+        );
+    }
+     public function category()
+    {
+        return $this->belongsTo(
+            CategoryMaster::class,
+            'n_category_id',
+            'n_category_id'
+        );
+    }
+     public function subCategory()
+    {
+        return $this->belongsTo(
+            CategoryMaster::class,
+            'n_category_id',
+            'n_parent_category_id'
         );
     }
 }

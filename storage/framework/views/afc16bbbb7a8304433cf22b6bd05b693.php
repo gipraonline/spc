@@ -516,8 +516,8 @@ use Illuminate\Support\Facades\Crypt;
                         </td>
                         <td><strong><?php echo e($sale?->c_order_no ?? 'N/A'); ?></strong></td>
                         <td><?php echo e(\Carbon\Carbon::parse($sale->d_date)->format('d M Y')); ?></td>
-                        <td><?php echo e($sale?->c_customer_name ?? 'N/A'); ?></td>
-                        <td><?php echo e($sale?->c_customer_address ?? 'N/A'); ?></td>
+                        <td><?php echo e($sale?->customer->c_customer_name ?? 'N/A'); ?></td>
+                        <td><?php echo e($sale?->customer->c_address ?? 'N/A'); ?></td>
 
                         <?php if(isset($isFarmCareAdvisor)): ?>
                         <td>

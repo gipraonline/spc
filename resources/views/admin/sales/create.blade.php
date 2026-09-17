@@ -859,6 +859,19 @@ use Illuminate\Support\Facades\Crypt;
                     </div>
 
                     <div class="col-md-4">
+                        <label for="c_post_office" class="form-label">
+                            Post Office
+                        </label>
+                        <input type="text" id="c_post_office" name="c_post_office" maxlength="6" value="{{ old('c_post_office',isset($sale) ? $sale->customer->c_post_office : '')}}"
+                            class="form-control" placeholder="Post Office">
+
+                        @error('c_post_office')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                        @enderror
+
+                    </div>
+
+                    <div class="col-md-4">
                         <label for="n_state_id" class="form-label">State</label>
                         <select name="n_state_id" id="n_state_id" class="form-select">
                             <option value="">Select State</option>
@@ -892,6 +905,19 @@ use Illuminate\Support\Facades\Crypt;
                         @error('n_district_id')
                         <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="c_thaluk" class="form-label">
+                            Thaluk
+                        </label>
+                        <input type="text" id="c_thaluk" name="c_thaluk" maxlength="6" value="{{ old('c_thaluk',isset($sale) ? $sale->customer->c_thaluk : '') }}"
+                            class="form-control" placeholder="Thaluk">
+
+                        @error('c_thaluk')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                        @enderror
+
                     </div>
 
                     <div class="col-md-4">
@@ -1144,7 +1170,7 @@ use Illuminate\Support\Facades\Crypt;
                 @if(isset($viewmode) && $viewmode=="on")
                     @can('sales-orders.approval')
                     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
-                        data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
+                        data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
                         Approve
                     </button>
                     @endcan
@@ -1181,7 +1207,7 @@ use Illuminate\Support\Facades\Crypt;
                 </div>
 
                 <div class="modal-body">
-                    <input type="hidden" name="approval_id" id="approval_id">
+                    <input type="hidden" name="sales_id" id="sales_id" value="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
 
                     <div class="mb-3">
                         <label class="form-label">Remarks <span class="text-danger">*</span></label>

@@ -115,7 +115,15 @@
     <div class="card-header-styled d-flex justify-content-between align-items-center">
         <h5 class="card-title-custom mb-0">Edit Employee Details</h5>
     </div>
-
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="card-body p-4 p-md-5">
         <form method="POST" id="frm_create" action="{{ route('admin.employees.update', $employee) }}">
             @csrf @method('PUT')
@@ -141,6 +149,15 @@
                         value="{{ old('c_employee_name', $employee->c_employee_name) }}"
                         data-message="Please enter Employee Name" class="form-control mandatory">
                     @error('c_employee_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-12">
+                    <label for="c_employee_address" class="form-label">Address *</label>
+                    <textarea id="c_employee_address" name="c_employee_address"
+                        data-message="Please enter Employee Address" class="form-control "
+                        placeholder="Enter Address">{{ old('c_employee_address') }}</textarea>
+                    @error('c_employee_address')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
                 </div>
@@ -232,7 +249,7 @@
                     <label for="account_number" class="form-label">Account Number</label>
                     <input type="text" id="account_number" name="account_number"
                         value="{{ old('account_number', $kyc ? $kyc->account_number : '') }}"
-                        data-message="Please add Account Number" class="form-control mandatory" placeholder="ACC-001">
+                        data-message="Please add Account Number" class="form-control " placeholder="ACC-001">
                     @error('account_number')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
@@ -242,7 +259,7 @@
                     <label for="ifsc_code" class="form-label">IFSC Code</label>
                     <input type="text" id="ifsc_code" name="ifsc_code"
                         value="{{ old('ifsc_code', $kyc ? $kyc->ifsc_code : '') }}"
-                        data-message="Please enter IFSC Code" class="form-control mandatory"
+                        data-message="Please enter IFSC Code" class="form-control "
                         placeholder="Enter IFSC code">
                     @error('ifsc_code')
                     <div class="text-danger mt-1">{{ $message }}</div>
@@ -252,7 +269,7 @@
                     <label for="ifsc_code" class="form-label">Bank Name</label>
                     <input type="text" id="bank_name" name="bank_name"
                         value="{{ old('bank_name', $kyc ? $kyc->bank_name : '') }}"
-                        data-message="Please enter Bank name" class="form-control mandatory"
+                        data-message="Please enter Bank name" class="form-control "
                         placeholder="Enter Bank Name">
                     @error('bank_name')
                     <div class="text-danger mt-1">{{ $message }}</div>
@@ -262,7 +279,7 @@
                     <label for="ifsc_code" class="form-label">Branch Name</label>
                     <input type="text" id="branch_name" name="branch_name"
                         value="{{ old('bank_branch', $kyc ? $kyc->bank_branch : '') }}"
-                        data-message="Please enter branch name" class="form-control mandatory"
+                        data-message="Please enter branch name" class="form-control "
                         placeholder="Enter Branch Name">
                     @error('branch_name')
                     <div class="text-danger mt-1">{{ $message }}</div>
@@ -281,7 +298,7 @@
                     <label for="c_employee_email" class="form-label">Work Email Address *</label>
                     <input type="email" id="c_employee_email" name="c_employee_email"
                         value="{{ old('c_employee_email', $employee->c_employee_email) }}"
-                        data-message="Please enter an Email Address" class="form-control mandatory" readonly>
+                        data-message="Please enter an Email Address" class="form-control " readonly>
                     @error('c_employee_email')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror

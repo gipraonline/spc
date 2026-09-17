@@ -175,7 +175,6 @@ Route::middleware(['auth', 'admin'])
         Route::get('filter-panchayath', [StoreController::class, 'filterPanchayath'])
             ->name('admin.filterPanchayath');
 
-
         // *********************************************
 
         /*

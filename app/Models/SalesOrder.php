@@ -160,22 +160,22 @@ class SalesOrder extends Model
 
         public static function generateFCOrderNo()
         {
-            $lastOrder = self::where('c_order_no', 'like', 'FC-%')
+            $lastOrder = self::where('c_order_no', 'like', 'FS-%')
             ->orderByDesc('n_sl_no')
             ->first();
 
 
             if (! $lastOrder) {
-                return 'FC-1';
+                return 'FS-1';
             }
 
             $lastNumber = (int) str_replace(
-                'FC-',
+                'FS-',
                 '',
                 $lastOrder->c_order_no
             );
 
-            return 'FC-' . ($lastNumber + 1);
+            return 'FS-' . ($lastNumber + 1);
 
 
         }

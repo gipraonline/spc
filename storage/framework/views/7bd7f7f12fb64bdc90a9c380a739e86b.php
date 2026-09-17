@@ -152,6 +152,22 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                 </div>
+                <div class="col-md-12">
+                    <label for="c_employee_address" class="form-label">Address *</label>
+                    <textarea id="c_employee_address" name="c_employee_address"
+                        data-message="Please enter Employee Address" class="form-control mandatory"
+                        placeholder="Enter Address"><?php echo e(old('c_employee_address')); ?></textarea>
+                    <?php $__errorArgs = ['c_employee_address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
             </div>
 
             <!-- Section 2: Role & Designation -->
@@ -434,4 +450,5 @@ $(document).ready(function() {
 </script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/employees/create.blade.php ENDPATH**/ ?>

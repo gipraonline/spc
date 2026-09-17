@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
 {
@@ -348,7 +349,8 @@ class EmployeeController extends Controller
 
     public function update(Request $request, EmployeeMaster $employee)
     {
-        $validated = $request->validate([
+        $validator = Validator::make(
+            $request->all(),[
             'c_employee_name' => 'required|string|max:255',
             'c_employee_address' => 'nullable|string|max:500',
 
@@ -381,6 +383,15 @@ class EmployeeController extends Controller
             'ifsc_code.regex' => 'Please enter a valid IFSC code.',
             'account_number.digits_between' => 'Account number must be between 8 and 18 digits.',
         ]);
+
+        if ($validator->fails()) {
+           /*  return back()
+                ->withErrors($validator)
+                ->withInput(); */
+                 dd($validator->errors()->toArray());
+        }
+
+        $validated = $validator->validated();
         DB::beginTransaction();
 
         try {
@@ -484,7 +495,7 @@ class EmployeeController extends Controller
             ->where('designation_masters.hierarchy_level', $designation->hierarchy_level - 1)
             ->select()
             ->get();
-
+//dd($designation);
         return response()->json($reportingEmployees);
     }
 }

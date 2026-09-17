@@ -267,10 +267,13 @@ class CustomerController extends Controller
             ],
 
             'c_address' => 'nullable|string',
+            'c_post_office' => 'required|string',
 
             'n_state_id' => 'nullable|exists:states,n_state_id',
 
             'n_district_id' => 'nullable|exists:districts,id',
+
+            'c_thaluk' =>  'required|string',
 
             'c_pincode' => 'nullable|digits:6',
 
@@ -315,9 +318,13 @@ class CustomerController extends Controller
 
                 'c_address' => $validated['c_address'] ?? null,
 
+                'c_post_office' => $validated['c_post_office'] ?? null,
+
                 'n_state_id' => $validated['n_state_id'] ?? null,
 
                 'n_district_id' => $validated['n_district_id'] ?? null,
+
+                'c_thaluk' => $validated['c_thaluk'] ?? null,
 
                 'c_pincode' => $validated['c_pincode'] ?? null,
 
@@ -438,9 +445,14 @@ class CustomerController extends Controller
 
                 'c_address' => $validated['c_address'] ?? null,
 
+                'c_post_office' => $validated['c_post_office'] ?? null,
+
                 'n_state_id' => $validated['n_state_id'] ?? null,
 
                 'n_district_id' => $validated['n_district_id'] ?? null,
+
+                'c_thaluk' => $validated['c_thaluk'] ?? null,
+
                 'c_pincode' => $validated['c_pincode'] ?? null,
 
                 'c_status' => $validated['c_status'],

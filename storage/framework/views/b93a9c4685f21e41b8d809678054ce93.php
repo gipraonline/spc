@@ -473,22 +473,22 @@
                             </div>
 
                             <div class="buyer-name">
-                                <?php echo e($order->c_customer_name); ?>
+                                <?php echo e($order->customer->c_customer_name); ?>
 
                             </div>
 
                             <div class="small-line">
 
-                                <?php echo e($order->c_customer_address); ?><br>
+                                <?php echo e($order->customer->c_address); ?><br>
 
                                 Pin Code: <?php echo e($order->customer?->c_pincode); ?><br>
 
-                                Ph: <?php echo e($order->n_customer_mobile); ?>
+                                Ph: <?php echo e($order->customer->n_mobile); ?>
 
 
-                                <?php if($order->c_customer_email): ?>
+                                <?php if($order->customer->c_email): ?>
                                 <br>
-                                Email: <?php echo e($order->c_customer_email); ?>
+                                Email: <?php echo e($order->customer->c_email); ?>
 
                                 <?php endif; ?>
 
@@ -570,7 +570,8 @@
                                     </td>
 
                                     <td class="d-value">
-                                        <!-- -to do -->
+                                        <?php echo e($order->order_type ?? '-'); ?>
+
                                     </td>
                                 </tr>
 
@@ -990,4 +991,5 @@
 
 </body>
 
-</html><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/pdf/invoice.blade.php ENDPATH**/ ?>
+</html>
+<?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/pdf/invoice.blade.php ENDPATH**/ ?>

@@ -206,9 +206,19 @@
                     </label>
 
                     <textarea id="c_address" name="c_address" rows="3" class="form-control"
-                        placeholder="Enter Customer Address">{{ old('c_address', $customer->c_address) }}</textarea>
+                        placeholder="Enter Customer Address">{{ old('c_address', $customer->c_address) ?? ''}}</textarea>
 
                     @error('c_address')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+                <div class="col-md-4">
+
+                    <input type="text" id="c_post_office" name="c_post_office" maxlength="6" value="{{ old('c_post_office',$customer->c_post_office) }}"
+                        class="form-control" placeholder="Post Office">
+
+                    @error('c_post_office')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
 
@@ -247,6 +257,18 @@
                     </select>
 
                 </div>
+
+                <div class="col-md-4">
+
+                    <input type="text" id="c_thaluk" name="c_thaluk" maxlength="6" value="{{ old('c_thaluk',$customer->c_thaluk) ?? '' }}"
+                        class="form-control" placeholder="Thaluk">
+
+                    @error('c_thaluk')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
 
 
                 <div class="col-md-4">

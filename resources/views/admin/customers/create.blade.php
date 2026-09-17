@@ -209,6 +209,18 @@
 
                 </div>
                 <div class="col-md-4">
+                     <label for="c_post_office" class="form-label">
+                        Post Office
+                    </label>
+                    <input type="text" id="c_post_office" name="c_post_office" maxlength="6" value="{{ old('c_post_office') }}"
+                        class="form-control" placeholder="Post Office">
+
+                    @error('c_post_office')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+                <div class="col-md-4">
 
                     <label for="c_state" class="form-label">
                         State
@@ -250,6 +262,19 @@
                     </select>
 
                     @error('n_district_id')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
+                <div class="col-md-4">
+                     <label for="c_thaluk" class="form-label">
+                        Thaluk
+                    </label>
+                    <input type="text" id="c_thaluk" name="c_thaluk" maxlength="6" value="{{ old('c_thaluk') }}"
+                        class="form-control" placeholder="Thaluk">
+
+                    @error('c_thaluk')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
 

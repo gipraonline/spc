@@ -344,7 +344,7 @@
 
                     <tr>
 
-                        <td colspan="9" class="text-center py-4">
+                        <td colspan="10" class="text-center py-4">
 
                             <div class="text-muted">
 

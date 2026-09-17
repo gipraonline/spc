@@ -2,63 +2,435 @@
 
 @section('content')
 
-<div class="container-fluid">
+<style>
+/* =========================================================
+       Create User Page
+    ========================================================= */
+.create-user-page {
+    --card-radius: 16px;
+    --soft-bg: #f8fafc;
+    --border-color: #e9edf3;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+}
 
-    <div class="card shadow-sm border-0">
+.create-user-page .card {
+    border-radius: var(--card-radius);
+    border: 1px solid var(--border-color);
+}
 
-        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+/* =========================================================
+       Page Header
+    ========================================================= */
+.page-header-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
 
-            <div>
-                <h4 class="mb-1 fw-bold">
-                    <i class="fas fa-user-plus text-primary me-2"></i>
-                    Create User
-                </h4>
+.page-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
 
-                <small class="text-muted">
-                    Create a new user and assign a role.
-                </small>
+.page-subtitle {
+    font-size: .82rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+}
+
+.page-header-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--bs-primary-rgb), .10);
+    color: var(--bs-primary);
+    font-size: 1.15rem;
+}
+
+/* =========================================================
+       Form Card
+    ========================================================= */
+.form-card {
+    overflow: hidden;
+    background: #fff;
+}
+
+.form-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #eef2f7;
+    background: #fff;
+}
+
+.section-title {
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.section-subtitle {
+    font-size: .76rem;
+    color: var(--text-muted);
+}
+
+.section-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--bs-primary-rgb), .10);
+    color: var(--bs-primary);
+}
+
+/* =========================================================
+       Form Fields
+    ========================================================= */
+.form-section {
+    padding: 24px;
+}
+
+.form-label {
+    font-size: .78rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 7px;
+}
+
+.required-mark {
+    color: #dc2626;
+}
+
+.input-group-text {
+    min-width: 44px;
+    justify-content: center;
+    background: #f8fafc;
+    border-color: #dfe5ec;
+    color: #94a3b8;
+}
+
+.form-control,
+.form-select {
+    min-height: 43px;
+    border-color: #dfe5ec;
+    font-size: .84rem;
+    color: #334155;
+    box-shadow: none !important;
+    transition: all .2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: rgba(var(--bs-primary-rgb), .55);
+    box-shadow: 0 0 0 .2rem rgba(var(--bs-primary-rgb), .08) !important;
+}
+
+.form-control[readonly] {
+    background-color: #f8fafc;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.form-select {
+    cursor: pointer;
+}
+
+.field-help {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 7px;
+    font-size: .72rem;
+    color: var(--text-muted);
+}
+
+.field-help i {
+    font-size: .72rem;
+}
+
+/* =========================================================
+       Employee Preview
+    ========================================================= */
+.employee-preview {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+}
+
+.employee-preview.active {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.employee-preview-icon {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--bs-primary-rgb), .10);
+    color: var(--bs-primary);
+    font-size: .8rem;
+}
+
+.employee-preview-label {
+    font-size: .66rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.employee-preview-value {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+/* =========================================================
+       Role Information
+    ========================================================= */
+.role-info {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+}
+
+.role-info-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .75rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 4px;
+}
+
+.role-info-text {
+    font-size: .72rem;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+/* =========================================================
+       Validation Alert
+    ========================================================= */
+.validation-alert {
+    border: 0;
+    border-radius: 12px;
+    background: #fff1f2;
+    color: #9f1239;
+    padding: 13px 15px;
+    font-size: .8rem;
+}
+
+.validation-alert-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.validation-alert ul {
+    padding-left: 25px;
+    margin-bottom: 0;
+}
+
+.validation-alert li {
+    margin-bottom: 2px;
+}
+
+/* =========================================================
+       Form Footer
+    ========================================================= */
+.form-footer {
+    padding: 18px 24px;
+    border-top: 1px solid #eef2f7;
+    background: #fafbfc;
+}
+
+.btn {
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.btn-create {
+    min-height: 40px;
+    border-radius: 9px;
+    padding: 0 20px;
+}
+
+.btn-cancel {
+    min-height: 40px;
+    border-radius: 9px;
+    padding: 0 18px;
+}
+
+/* =========================================================
+       Responsive
+    ========================================================= */
+@media (max-width: 767px) {
+    .page-title {
+        font-size: 1rem;
+    }
+
+    .page-header-card .card-body {
+        padding: 16px !important;
+    }
+
+    .form-card-header,
+    .form-section {
+        padding: 18px;
+    }
+
+    .form-footer {
+        padding: 15px 18px;
+    }
+
+    .form-footer .d-flex {
+        width: 100%;
+    }
+
+    .btn-cancel,
+    .btn-create {
+        flex: 1;
+    }
+}
+</style>
+
+
+<div class="container-fluid create-user-page py-2">
+
+    {{-- =========================================================
+         Page Header
+    ========================================================= --}}
+    <div class="card page-header-card shadow-sm mb-4">
+        <div class="card-body px-4 py-3">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="page-header-icon">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+
+                    <div>
+                        <div class="page-title">
+                            Create User
+                        </div>
+
+                        <div class="page-subtitle">
+                            Create a new system user and assign the appropriate role.
+                        </div>
+                    </div>
+
+                </div>
+
+                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary px-3">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back
+                </a>
+
             </div>
 
-            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary rounded-pill">
-                <i class="fas fa-arrow-left me-1"></i>
-                Back
-            </a>
+        </div>
+    </div>
+
+
+    {{-- =========================================================
+         Validation Errors
+    ========================================================= --}}
+    @if ($errors->any())
+    <div class="alert validation-alert shadow-sm mb-4">
+
+        <div class="validation-alert-title">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Please correct the following errors
+        </div>
+
+        <ul>
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+
+    </div>
+    @endif
+
+
+    {{-- =========================================================
+         Create User Form
+    ========================================================= --}}
+    <div class="card form-card border-0 shadow-sm mb-4">
+
+        {{-- Form Header --}}
+        <div class="form-card-header">
+
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="section-icon">
+                    <i class="bi bi-person-vcard"></i>
+                </div>
+
+                <div>
+                    <div class="section-title">
+                        User Information
+                    </div>
+
+                    <div class="section-subtitle">
+                        Select an employee and assign their system access role.
+                    </div>
+                </div>
+
+            </div>
 
         </div>
 
-        <div class="card-body bg-white">
 
-            @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
+        <form action="{{ route('admin.users.store') }}" method="POST">
+            @csrf
 
-            <form action="{{ route('admin.users.store') }}" method="POST">
+            <div class="form-section">
 
-                @csrf
+                <div class="row g-4">
 
-                <div class="row">
+                    {{-- =================================================
+                         Employee
+                    ================================================== --}}
+                    <div class="col-lg-6">
 
-                    <div class="col-md-6 mb-4">
-
-                        <label class="form-label fw-semibold">
-                            Employee <span class="text-danger">*</span>
+                        <label for="employee" class="form-label">
+                            Employee
+                            <span class="required-mark">*</span>
                         </label>
 
                         <div class="input-group">
 
                             <span class="input-group-text">
-                                <i class="fas fa-user"></i>
+                                <i class="bi bi-person"></i>
                             </span>
 
                             <select class="form-select" id="employee" name="employee_id" required>
 
-                                <option value="">Select Employee</option>
+                                <option value="">
+                                    Select Employee
+                                </option>
 
                                 @foreach($employees as $employee)
 
@@ -67,9 +439,11 @@
                                     data-designation="{{ $employee->designation?->c_designation }}"
                                     data-designation-identifier="{{ $employee->designation?->identifier }}"
                                     {{ old('employee_id') == $employee->n_employee_id ? 'selected' : '' }}>
+
                                     {{ $employee->c_employee_code }}
                                     -
                                     {{ $employee->c_employee_name }}
+
                                 </option>
 
                                 @endforeach
@@ -78,22 +452,101 @@
 
                         </div>
 
+                        <div class="field-help">
+                            <i class="bi bi-info-circle"></i>
+                            Select the employee who will use this account.
+                        </div>
+
+                        {{-- Employee Designation Preview --}}
+                        <div class="employee-preview" id="employeePreview">
+
+                            <div class="employee-preview-icon">
+                                <i class="bi bi-briefcase-fill"></i>
+                            </div>
+
+                            <div>
+                                <div class="employee-preview-label">
+                                    Designation
+                                </div>
+
+                                <div class="employee-preview-value" id="designationPreview">
+                                    —
+                                </div>
+                            </div>
+
+                        </div>
+
                     </div>
 
-                    <div class="col-md-6 mb-4">
 
-                        <label class="form-label fw-semibold">
+                    {{-- =================================================
+                         Email
+                    ================================================== --}}
+                    <div class="col-lg-6">
+
+                        <label for="username" class="form-label">
                             Email Address
                         </label>
 
                         <div class="input-group">
 
                             <span class="input-group-text">
-                                <i class="fas fa-envelope"></i>
+                                <i class="bi bi-envelope"></i>
                             </span>
 
                             <input type="email" id="username" class="form-control" readonly
-                                placeholder="Employee Email">
+                                placeholder="Employee email will appear here">
+
+                        </div>
+
+                        <div class="field-help">
+                            <i class="bi bi-lock"></i>
+                            Email is automatically retrieved from the employee record.
+                        </div>
+
+                    </div>
+
+
+                    {{-- =================================================
+                         Role
+                    ================================================== --}}
+                    <div class="col-12">
+
+                        <label for="role" class="form-label">
+                            Assigned Role
+                            <span class="required-mark">*</span>
+                        </label>
+
+                        <select class="form-select" id="role" name="role" required>
+
+                            <option value="">
+                                Select Role
+                            </option>
+
+                            @foreach($roles as $role)
+
+                            <option value="{{ $role->name }}" data-identifier="{{ $role->identifier }}"
+                                {{ old('role') == $role->name ? 'selected' : '' }}>
+
+                                {{ $role->name }}
+
+                            </option>
+
+                            @endforeach
+
+                        </select>
+
+                        <div class="role-info">
+
+                            <div class="role-info-title">
+                                <i class="bi bi-shield-check text-primary"></i>
+                                Role & Permissions
+                            </div>
+
+                            <div class="role-info-text">
+                                The assigned role determines the user's menu access,
+                                permissions, and available system features.
+                            </div>
 
                         </div>
 
@@ -101,61 +554,44 @@
 
                 </div>
 
-                <div class="mb-4">
+            </div>
 
-                    <label class="form-label fw-semibold">
-                        Assigned Role <span class="text-danger">*</span>
-                    </label>
 
-                    <select class="form-select" id="role" name="role" required>
-                        <option value="">Select Role</option>
+            {{-- =========================================================
+                 Form Footer
+            ========================================================= --}}
+            <div class="form-footer">
 
-                        @foreach($roles as $role)
-                        <option value="{{ $role->name }}" data-identifier="{{ $role->identifier }}"
-                            {{ old('role') == $role->name ? 'selected' : '' }}>
-                            {{ $role->name }}
-                        </option>
-                        @endforeach
-                    </select>
+                <div class="d-flex justify-content-end align-items-center gap-2">
 
-                    <small class="text-muted">
-                        The selected role determines the user's menu access and permissions.
-                    </small>
+                    <!-- <a href="{{ route('admin.users.index') }}" class="btn btn-light border btn-cancel">
 
-                </div>
-
-                <hr>
-
-                <div class="d-flex justify-content-end">
-
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-light me-2">
+                        <i class="bi bi-x-lg me-1"></i>
                         Cancel
-                    </a>
 
-                    <button type="submit" class="btn buttonSpc px-4">
+                    </a> -->
 
-                        <i class="fas fa-save me-1"></i>
+                    <button type="submit" class="btn btn-primary btn-create">
 
+                        <i class="bi bi-person-plus-fill me-1"></i>
                         Create User
 
                     </button>
 
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+        </form>
 
     </div>
 
 </div>
 
-<!-----------------------------------------------------------
- Create User Form:
-    Allows admin users to select an employee, assign a role,
-    and submit user creation details with validation handling. 
--------------------------------------------------------------->
 
+{{-- =========================================================
+     Employee → Email / Designation / Role Auto Fill
+========================================================= --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -163,49 +599,101 @@ document.addEventListener('DOMContentLoaded', function() {
     const email = document.getElementById('username');
     const role = document.getElementById('role');
 
+    const employeePreview = document.getElementById('employeePreview');
+    const designationPreview = document.getElementById('designationPreview');
+
+
     function fillEmployeeDetails() {
 
         const option = employee.options[employee.selectedIndex];
 
         if (!option || !option.value) {
+
             email.value = '';
-            role.value = '';
+
+            employeePreview.classList.remove('active');
+            designationPreview.textContent = '—';
+
             return;
         }
 
-        // Fill employee email
+
+        /* =========================================================
+           Fill Employee Email
+        ========================================================= */
+
         email.value = option.dataset.email || '';
 
-        // Get employee designation identifier
+
+        /* =========================================================
+           Fill Employee Designation
+        ========================================================= */
+
+        const designation =
+            option.dataset.designation || '';
+
+        designationPreview.textContent =
+            designation || 'Not specified';
+
+        employeePreview.classList.add('active');
+
+
+        /* =========================================================
+           Get Designation Identifier
+        ========================================================= */
+
         const designationIdentifier =
             option.dataset.designationIdentifier || '';
 
-        // Reset role
+
+        /* =========================================================
+           Reset Role
+        ========================================================= */
+
         role.value = '';
 
-        // Find matching role
+
+        /* =========================================================
+           Match Designation → Role
+        ========================================================= */
+
         Array.from(role.options).forEach(function(roleOption) {
 
             const roleIdentifier =
                 roleOption.dataset.identifier || '';
 
             if (
+                roleIdentifier &&
+                designationIdentifier &&
                 roleIdentifier.toLowerCase() ===
                 designationIdentifier.toLowerCase()
             ) {
+
                 roleOption.selected = true;
             }
 
         });
+
     }
 
-    employee.addEventListener('change', fillEmployeeDetails);
 
-    // Run on page load for old/selected employee
+    /* =========================================================
+       Employee Change
+    ========================================================= */
+
+    employee.addEventListener(
+        'change',
+        fillEmployeeDetails
+    );
+
+
+    /* =========================================================
+       Run On Page Load
+    ========================================================= */
+
     fillEmployeeDetails();
 
 });
 </script>
-
 
 @endsection

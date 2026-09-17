@@ -798,8 +798,6 @@ class SalesController extends Controller
                     ) IN (
                         'dispatched',
                         'dispatch',
-                        'shipped',
-                        'shipping',
                         'in transit',
                         'out for delivery'
                     )
@@ -1543,9 +1541,13 @@ class SalesController extends Controller
 
                     'c_address' => 'required|string',
 
+                    'c_post_office'=> 'required|string',
+
                     'n_state_id' => 'required|exists:states,n_state_id',
 
                     'n_district_id' => 'required|exists:districts,id',
+
+                    'c_thaluk'=> 'required|string',
 
                     'c_pincode' => 'required|digits:6',
 
@@ -2007,6 +2009,9 @@ class SalesController extends Controller
         }else{
          $OrderNo = $validated['c_order_no'] ?? '';
         }
+        if ($request->filled('order_type')) {
+            $orderData['order_type'] = $request->order_type;
+        }
             $orderData = [
 
                 'c_order_no' => $OrderNo,
@@ -2027,7 +2032,7 @@ class SalesController extends Controller
 
                 // 'n_customer_mobile' => $validated['n_customer_mobile'],
 
-                'order_type' => $request->order_type ?? 'null',
+                //'order_type' => $request->order_type,
 
                 'n_state_id' => $validated['n_state_id'],
 
@@ -2192,9 +2197,13 @@ class SalesController extends Controller
 
                         'c_address' => $validated['c_address'] ?? null,
 
+                        'c_post_office' => $validated['c_post_office'] ?? null,
+
                         'n_state_id' => $validated['n_state_id'] ?? null,
 
                         'n_district_id' => $validated['n_district_id'] ?? null,
+
+                        'c_thaluk' => $validated['c_thaluk'] ?? null,
 
                         'c_pincode' => $validated['c_pincode'] ?? null,
 
@@ -2316,7 +2325,7 @@ class SalesController extends Controller
             'remarks' => 'required',
         ]);
 
-        $id = Crypt::decryptString($request->approval_id);
+        $id = Crypt::decryptString($request->sales_id);
 
         SalesApproval::updateOrCreate(
             ['sales_order_id' => $id],
@@ -2805,7 +2814,7 @@ public function getSubcategories(Request $request , $categoryId)
     ]);
 }
 
-public function getProducts(Request $request , $subcategoryId)
+/* public function getProducts(Request $request , $subcategoryId)
 {
    $products = ProductMaster::where('n_category_id', $subcategoryId)
     ->where('c_status', 'Y')
@@ -2813,6 +2822,20 @@ public function getProducts(Request $request , $subcategoryId)
     ->distinct()
     ->orderBy('c_product_name')
     ->get();
+
+    return response()->json([
+        'products' => $products
+    ]);
+} */
+
+public function getProducts(Request $request, $subcategoryId)
+{
+    $products = ProductMaster::where('n_category_id', $subcategoryId)
+        ->where('c_status', 'Y')
+        ->selectRaw('MIN(n_product_id) as n_product_id, c_product_name')
+        ->groupBy('c_product_name')
+        ->orderBy('c_product_name')
+        ->get();
 
     return response()->json([
         'products' => $products

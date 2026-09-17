@@ -24,6 +24,7 @@ class ProductController extends Controller
     {
         session([
             'product_search' => $request->search,
+            'product_category_id' => $request->category_id,
             'product_status' => $request->status,
         ]);
 
@@ -34,6 +35,7 @@ class ProductController extends Controller
     {
         session()->forget([
             'product_search',
+            'product_category_id',
             'product_status',
         ]);
 
@@ -43,7 +45,14 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $search = session('product_search');
+        $categoryId = session('product_category_id');
         $status = session('product_status');
+        // Categories for filter dropdown
+        $categories = CategoryMaster::where('c_status', 'Y')
+            ->with('children')
+            ->whereNull('n_parent_category_id')
+            ->orderBy('c_category_name')
+            ->get();
 
         $products = ProductMaster::query()
             ->when($search, function ($query) use ($search) {
@@ -52,12 +61,45 @@ class ProductController extends Controller
                         ->orWhere('c_product_name', 'LIKE', "%{$search}%");
                 });
             })
+
+            // Category filter
+            ->when(! empty($categoryId), function ($query) use ($categoryId) {
+
+                $category = CategoryMaster::with('children')
+                    ->find($categoryId);
+
+                if ($category) {
+
+                    if ($category->n_parent_category_id === null) {
+
+                        // Parent selected:
+                        // Parent + all direct children
+                        $categoryIds = collect([
+                            $category->n_category_id,
+                        ])->merge(
+                            $category->children->pluck('n_category_id')
+                        );
+
+                        $query->whereIn('n_category_id', $categoryIds);
+
+                    } else {
+
+                        // Sub-category selected:
+                        // Only that sub-category
+                        $query->where(
+                            'n_category_id',
+                            $category->n_category_id
+                        );
+                    }
+                }
+            })
+        // status filter
             ->when(! empty($status), function ($query) use ($status) {
                 $query->where('c_status', $status);
             })
             ->paginate(10);
 
-        return view('admin.products.index', compact('products'));
+        return view('admin.products.index', compact('products', 'categories'));
     }
 
     public function create()

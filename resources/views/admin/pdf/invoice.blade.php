@@ -468,20 +468,20 @@
                             </div>
 
                             <div class="buyer-name">
-                                {{ $order->c_customer_name }}
+                                {{ $order->customer->c_customer_name }}
                             </div>
 
                             <div class="small-line">
 
-                                {{ $order->c_customer_address }}<br>
+                                {{ $order->customer->c_address }}<br>
 
                                 Pin Code: {{ $order->customer?->c_pincode }}<br>
 
-                                Ph: {{ $order->n_customer_mobile }}
+                                Ph: {{ $order->customer->n_mobile }}
 
-                                @if($order->c_customer_email)
+                                @if($order->customer->c_email)
                                 <br>
-                                Email: {{ $order->c_customer_email }}
+                                Email: {{ $order->customer->c_email }}
                                 @endif
 
                             </div>
@@ -559,7 +559,7 @@
                                     </td>
 
                                     <td class="d-value">
-                                        <!-- -to do -->
+                                        {{ $order->order_type ?? '-' }}
                                     </td>
                                 </tr>
 

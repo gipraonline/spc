@@ -175,6 +175,39 @@
                             </div>
                         </div>
 
+                        <!-- Category -->
+                        <div class="col-md-3">
+                            <div>
+                                <label class="search-label">
+                                    <i class="ti ti-category" style="color:#1b3e86; margin-right:6px;"></i>
+                                    Category
+                                </label>
+
+                                <select name="category_id" class="form-select styled-select">
+
+                                    <option value="">All Categories</option>
+
+                                    @foreach ($categories as $category)
+
+                                    {{-- Parent Category --}}
+                                    <option value="{{ $category->n_category_id }}"
+                                        {{ session('product_category_id') == $category->n_category_id ? 'selected' : '' }}>
+                                        {{ $category->c_category_name }}
+                                    </option>
+
+                                    {{-- Sub Categories --}}
+                                    @foreach ($category->children as $child)
+                                    <option value="{{ $child->n_category_id }}"
+                                        {{ session('product_category_id') == $child->n_category_id ? 'selected' : '' }}>
+                                        &nbsp;&nbsp;&nbsp;└ {{ $child->c_category_name }}
+                                    </option>
+                                    @endforeach
+
+                                    @endforeach
+
+                                </select>
+                            </div>
+                        </div>
                         <!-- Status -->
                         <div class="col-md-3">
                             <div class="">

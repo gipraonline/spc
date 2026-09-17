@@ -1,269 +1,283 @@
 <?php $__env->startPush('styles'); ?>
 <style>
-    /* Global Page & Background Reset */
-    .content-wrapper {
-        background-color: #f4f8f5;
-        min-height: 100vh;
-        padding: 24px;
-        font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
+/* Global Page & Background Reset */
+.content-wrapper {
+    background-color: #f4f8f5;
+    min-height: 100vh;
+    padding: 24px;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-    /* Top 5 Stat Widget Cards Grid */
-    .widgets-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
-    }
+/* Top 5 Stat Widget Cards Grid */
+.widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
 
-    .widget-card {
-        background: #ffffff;
-        border-radius: 14px;
-        padding: 16px 20px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+.widget-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 16px 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-    .widget-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-    }
+.widget-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
 
-    .widget-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        color: #ffffff;
-    }
+.widget-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #ffffff;
+}
 
-    .widget-icon.green-dark { background-color: #166534; }
-    .widget-icon.orange { background-color: #ea580c; }
-    .widget-icon.blue { background-color: #0284c7; }
-    .widget-icon.green-emerald { background-color: #059669; }
-    .widget-icon.purple { background-color: #7c3aed; }
+.widget-icon.green-dark {
+    background-color: #166534;
+}
 
-    .widget-details {
-        display: flex;
-        flex-direction: column;
-    }
+.widget-icon.orange {
+    background-color: #ea580c;
+}
 
-    .widget-count {
-        font-size: 22px;
-        font-weight: 800;
-        color: #0f172a;
-        line-height: 1.1;
-    }
+.widget-icon.blue {
+    background-color: #0284c7;
+}
 
-    .widget-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #64748b;
-        margin-top: 2px;
-    }
+.widget-icon.green-emerald {
+    background-color: #059669;
+}
 
-    /* Main Container Card Styling */
-    .card {
-        border-radius: 14px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-        background-color: #ffffff;
-    }
+.widget-icon.purple {
+    background-color: #7c3aed;
+}
 
-    .card-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #0f5132;
-    }
+.widget-details {
+    display: flex;
+    flex-direction: column;
+}
 
-    .buttonSpc {
-        background: linear-gradient(135deg, #0f5132 0%, #059669 100%) !important;
-        color: #ffffff !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 10px 20px !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-        transition: all 0.2s ease;
-    }
+.widget-count {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+}
 
-    .buttonSpc:hover {
-        background: linear-gradient(135deg, #0b3e26 0%, #047857 100%) !important;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
-    }
+.widget-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 2px;
+}
 
-    /* Filter Form Styling */
-    .refine-search-card {
-        background-color: #f8faf8 !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 12px !important;
-    }
+/* Main Container Card Styling */
+.card {
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    background-color: #ffffff;
+}
 
-    .form-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #334155;
-        margin-bottom: 6px;
-    }
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f5132;
+}
 
-    .form-control {
-        height: 42px;
-        border-radius: 8px;
-        border: 1px solid #cbd5e1;
-        font-size: 14px;
-    }
+.buttonSpc {
+    background: linear-gradient(135deg, #0f5132 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    transition: all 0.2s ease;
+}
 
-    .form-control:focus {
-        border-color: #059669;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
-    }
+.buttonSpc:hover {
+    background: linear-gradient(135deg, #0b3e26 0%, #047857 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+}
 
-    .btn {
-        height: 42px;
-        border-radius: 8px;
-        font-weight: 600;
-    }
+/* Filter Form Styling */
+.refine-search-card {
+    background-color: #f8faf8 !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+}
 
-    /* Table & Status Badges Styling */
-    .table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+}
 
-    .table thead th {
-        background-color: #f8faf8;
-        color: #475569;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 14px 16px;
-        border-bottom: 1px solid #e2e8f0;
-    }
+.form-control {
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+}
 
-    .table tbody td {
-        padding: 14px 16px;
-        font-size: 13.5px;
-        color: #1e293b;
-        vertical-align: middle;
-        border-bottom: 1px solid #f1f5f9;
-    }
+.form-control:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
 
-    .table tbody tr:hover td {
-        background-color: #f8faf8;
-    }
+.btn {
+    height: 42px;
+    border-radius: 8px;
+    font-weight: 600;
+}
 
-    /* Status Pills matching exact design in image */
-    .badge-status {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
-    }
+/* Table & Status Badges Styling */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
 
-    .badge-status.pending {
-        background-color: #fef3c7;
-        color: #b45309;
-        border: 1px solid #fde68a;
-    }
+.table thead th {
+    background-color: #f8faf8;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
 
-    .badge-status.confirmed {
-        background-color: #e0f2fe;
-        color: #0369a1;
-        border: 1px solid #bae6fd;
-    }
+.table tbody td {
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: #1e293b;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+}
 
-    .badge-status.approved {
-        background-color: #dcfce7;
-        color: #15803d;
-        border: 1px solid #bbf7d0;
-    }
+.table tbody tr:hover td {
+    background-color: #f8faf8;
+}
 
-    .badge-status.dispatched {
-        background-color: #f3e8ff;
-        color: #6b21a8;
-        border: 1px solid #e9d5ff;
-    }
+/* Status Pills matching exact design in image */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
 
-    .badge-status {
+.badge-status.pending {
+    background-color: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.badge-status.confirmed {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.badge-status.approved {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.badge-status.dispatched {
+    background-color: #f3e8ff;
+    color: #6b21a8;
+    border: 1px solid #e9d5ff;
+}
+
+.badge-status {
     display: inline-block;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
-    }
+}
 
-    /* Approved - Green */
-    .badge-status.approved {
-        background-color: #d1fae5;
-        color: #047857;
-    }
+/* Approved - Green */
+.badge-status.approved {
+    background-color: #d1fae5;
+    color: #047857;
+}
 
-    /* Dispatched - Blue */
-    .badge-status.dispatched {
-        background-color: #dbeafe;
-        color: #1d4ed8;
-    }
+/* Dispatched - Blue */
+.badge-status.dispatched {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
 
-    /* Shipped - Purple */
-    .badge-status.shipped {
-        background-color: #ede9fe;
-        color: #7c3aed;
-    }
+/* Shipped - Purple */
+.badge-status.shipped {
+    background-color: #ede9fe;
+    color: #7c3aed;
+}
 
-    /* Delivered - Teal */
-    .badge-status.delivered {
-        background-color: #ccfbf1;
-        color: #0f766e;
-    }
+/* Delivered - Teal */
+.badge-status.delivered {
+    background-color: #ccfbf1;
+    color: #0f766e;
+}
 
-    /* Completed - Dark Green */
-    .badge-status.completed {
-        background-color: #dcfce7;
-        color: #06f55ed8;
-    }
+/* Completed - Dark Green */
+.badge-status.completed {
+    background-color: #dcfce7;
+    color: #06f55ed8;
+}
 
-    .badge-status.returned {
-        background-color: #fee2e2;
-        color: #b91c1c;
-    }
+.badge-status.returned {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
 
-    /* Pending - Yellow/Orange */
-    .badge-status.pending {
-        background-color: #fef3c7;
-        color: #b45309;
-    }
+/* Pending - Yellow/Orange */
+.badge-status.pending {
+    background-color: #fef3c7;
+    color: #b45309;
+}
 
-    /* Unknown status */
-    .badge-status.unknown {
-        background-color: #e5e7eb;
-        color: #374151;
-    }
+/* Unknown status */
+.badge-status.unknown {
+    background-color: #e5e7eb;
+    color: #374151;
+}
 
-    /* Responsive Grid Breakpoints */
-    @media (max-width: 1200px) {
-        .widgets-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
+/* Responsive Grid Breakpoints */
+@media (max-width: 1200px) {
+    .widgets-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
+}
 
-    @media (max-width: 768px) {
-        .widgets-grid {
-            grid-template-columns: repeat(1, 1fr);
-        }
+@media (max-width: 768px) {
+    .widgets-grid {
+        grid-template-columns: repeat(1, 1fr);
     }
+}
 </style>
 <?php $__env->stopPush(); ?>
 
@@ -276,20 +290,21 @@ use Illuminate\Support\Facades\Crypt;
 <div class="widgets-grid">
 
     <?php if($errors->any()): ?>
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <li><?php echo e($error); ?></li>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </ul>
-                </div>
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <li><?php echo e($error); ?></li>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </ul>
+    </div>
     <?php endif; ?>
 
     <!-- 1. Total Sales Orders -->
     <div class="widget-card">
         <div class="widget-icon green-dark">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
         </div>
         <div class="widget-details">
@@ -302,7 +317,8 @@ use Illuminate\Support\Facades\Crypt;
     <div class="widget-card">
         <div class="widget-icon orange">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
         <div class="widget-details">
@@ -315,7 +331,8 @@ use Illuminate\Support\Facades\Crypt;
     <div class="widget-card">
         <div class="widget-icon green-emerald">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2" />
             </svg>
         </div>
         <div class="widget-details">
@@ -329,7 +346,8 @@ use Illuminate\Support\Facades\Crypt;
     <div class="widget-card">
         <div class="widget-icon purple">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8" />
             </svg>
         </div>
         <div class="widget-details">
@@ -338,11 +356,12 @@ use Illuminate\Support\Facades\Crypt;
         </div>
     </div>
 
-     <!-- 3. Order Confirmed -->
+    <!-- 3. Order Confirmed -->
     <div class="widget-card">
         <div class="widget-icon blue">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
         <div class="widget-details">
@@ -360,9 +379,9 @@ use Illuminate\Support\Facades\Crypt;
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.create')): ?>
-            <a href="<?php echo e(route('admin.salesorders.create')); ?>" class="btn buttonSpc">
-                <i class="ti ti-plus me-1"></i> Add Sales Entry
-            </a>
+        <a href="<?php echo e(route('admin.salesorders.create')); ?>" class="btn buttonSpc">
+            <i class="ti ti-plus me-1"></i> Add Sales Entry
+        </a>
         <?php endif; ?>
     </div>
 
@@ -404,14 +423,16 @@ use Illuminate\Support\Facades\Crypt;
                         <!-- Payment Status -->
                         <div class="col-lg-3 col-md-3">
                             <label class="form-label fw-semibold">Payment Status</label>
-                            <select name="payment_status"
-                                    id="leadStatus"
-                                    class="form-select">
+                            <select name="payment_status" id="leadStatus" class="form-select">
 
                                 <option value="">Select Status</option>
 
-                                <option value="pending" <?php echo e(old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>Pending</option>
-                                <option value="confirmed"  <?php echo e(old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : ''); ?>>Paid</option>
+                                <option value="pending"
+                                    <?php echo e(old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : ''); ?>>
+                                    Pending</option>
+                                <option value="confirmed"
+                                    <?php echo e(old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : ''); ?>>
+                                    Paid</option>
 
                             </select>
                         </div>
@@ -424,18 +445,15 @@ use Illuminate\Support\Facades\Crypt;
 
                                 <option value="">Select Status</option>
 
-                                <option value="pending"
-                                    <?php echo e(request('order_status') == 'pending' ? 'selected' : ''); ?>>
+                                <option value="pending" <?php echo e(request('order_status') == 'pending' ? 'selected' : ''); ?>>
                                     Pending
                                 </option>
 
-                                <option value="approved"
-                                    <?php echo e(request('order_status') == 'approved' ? 'selected' : ''); ?>>
+                                <option value="approved" <?php echo e(request('order_status') == 'approved' ? 'selected' : ''); ?>>
                                     Approved
                                 </option>
 
-                                <option value="rejected"
-                                    <?php echo e(request('order_status') == 'rejected' ? 'selected' : ''); ?>>
+                                <option value="rejected" <?php echo e(request('order_status') == 'rejected' ? 'selected' : ''); ?>>
                                     Rejected
                                 </option>
 
@@ -444,8 +462,7 @@ use Illuminate\Support\Facades\Crypt;
                                     Dispatched
                                 </option>
 
-                                <option value="shipped"
-                                    <?php echo e(request('order_status') == 'shipped' ? 'selected' : ''); ?>>
+                                <option value="shipped" <?php echo e(request('order_status') == 'shipped' ? 'selected' : ''); ?>>
                                     Shipped
                                 </option>
 
@@ -459,8 +476,7 @@ use Illuminate\Support\Facades\Crypt;
                                     Completed
                                 </option>
 
-                                <option value="returned"
-                                    <?php echo e(request('order_status') == 'returned' ? 'selected' : ''); ?>>
+                                <option value="returned" <?php echo e(request('order_status') == 'returned' ? 'selected' : ''); ?>>
                                     Returned
                                 </option>
 
@@ -498,6 +514,8 @@ use Illuminate\Support\Facades\Crypt;
                         <th scope="col">Farm Care Advisor</th>
                         <?php endif; ?>
                         <th scope="col">Franchise</th>
+                        
+                        <th scope="col" class="text-end">Sales Total</th>
                         <th scope="col">Payment Image</th>
                         <th scope="col">Payment Status</th>
                         <th scope="col">Order Status</th>
@@ -537,57 +555,61 @@ use Illuminate\Support\Facades\Crypt;
                                 </div>
                             </div>
                         </td>
+                        <td class="text-end">
+                            ₹ <?php echo e(number_format($sale->n_net_sales_amount ?? 0, 2)); ?>
+
+                        </td>
                         <td>
                             <?php if($sale->payment_image): ?>
-                                <a href="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" target="_blank">
-                                    <img src="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>"
-                                        width="50"
-                                        height="50"
-                                        style="object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0;">
-                                </a>
+                            <a href="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" target="_blank">
+                                <img src="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" width="50"
+                                    height="50"
+                                    style="object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0;">
+                            </a>
                             <?php else: ?>
-                                <span class="text-muted">No Image</span>
+                            <span class="text-muted">No Image</span>
                             <?php endif; ?>
                         </td>
-                         <td>
+                        <td>
                             <?php
-                                $status = strtolower($sale->payment_status ?? 'pending');
+                            $status = strtolower($sale->payment_status ?? 'pending');
                             ?>
                             <?php if($status == 'paid' ): ?>
-                                <span class="badge-status confirmed">Paid</span>
+                            <span class="badge-status confirmed">Paid</span>
                             <?php else: ?>
-                                <span class="badge-status pending">Pending</span>
+                            <span class="badge-status pending">Pending</span>
                             <?php endif; ?>
                         </td>
 
                         <td>
                             <?php
-                                $status = strtolower($sale->current_order_status ?? 'pending');
+                            $status = strtolower($sale->current_order_status ?? 'pending');
                             ?>
                             <?php if($status == 'approved' ): ?>
-                                <span class="badge-status approved">Order Approved</span>
+                            <span class="badge-status approved">Order Approved</span>
                             <?php elseif($status == 'rejected'): ?>
-                                <span class="badge-status rejected">Rejected</span>
+                            <span class="badge-status rejected">Rejected</span>
                             <?php elseif($status == 'dispatched'): ?>
-                                <span class="badge-status dispatched">Dispatched</span>
+                            <span class="badge-status dispatched">Dispatched</span>
                             <?php elseif($status == 'shipped'): ?>
-                                <span class="badge-status shipped">Shipped</span>
+                            <span class="badge-status shipped">Shipped</span>
                             <?php elseif($status == 'delivered'): ?>
-                                <span class="badge-status delivered">Delivered</span>
+                            <span class="badge-status delivered">Delivered</span>
                             <?php elseif($status == 'completed'): ?>
-                                <span class="badge-status completed">Completed</span>
+                            <span class="badge-status completed">Completed</span>
                             <?php elseif($status == 'returned'): ?>
-                                <span class="badge-status returned">Returned</span>
+                            <span class="badge-status returned">Returned</span>
 
                             <?php elseif($status == 'pending'): ?>
-                                <span class="badge-status pending">Pending</span>
+                            <span class="badge-status pending">Pending</span>
                             <?php endif; ?>
                         </td>
 
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <td>
                             <div class="dropdown dropstart">
-                                <a href="#" class="text-muted p-1" id="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a href="#" class="text-muted p-1" id="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="ti ti-dots-vertical fs-6"></i>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>">
@@ -609,11 +631,13 @@ use Illuminate\Support\Facades\Crypt;
                                     </li>
                                     <li>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.delete')): ?>
-                                        <form action="<?php echo e(route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no))); ?>"
+                                        <form
+                                            action="<?php echo e(route('admin.salesorders.destroy', Crypt::encryptString($sale->n_sl_no))); ?>"
                                             method="POST" onsubmit="return confirm('Are you sure?')">
                                             <?php echo csrf_field(); ?>
                                             <?php echo method_field('DELETE'); ?>
-                                            <button type="submit" class="dropdown-item d-flex align-items-center gap-3 text-danger">
+                                            <button type="submit"
+                                                class="dropdown-item d-flex align-items-center gap-3 text-danger">
                                                 <i class="fs-4 ti ti-trash"></i>Delete
                                             </button>
                                         </form>
@@ -621,16 +645,15 @@ use Illuminate\Support\Facades\Crypt;
                                     </li>
                                     <li>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.follow-up')): ?>
-                                            <!--Follow-up Button-->
-                                            <button type="button"
-                                                class="dropdown-item d-flex align-items-center gap-3 salesorder-btn"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#salesUpdateModal"
-                                                data-id="<?php echo e(Crypt::encryptString($sale->n_sl_no)); ?>">
+                                        <!--Follow-up Button-->
+                                        <button type="button"
+                                            class="dropdown-item d-flex align-items-center gap-3 salesorder-btn"
+                                            data-bs-toggle="modal" data-bs-target="#salesUpdateModal"
+                                            data-id="<?php echo e(Crypt::encryptString($sale->n_sl_no)); ?>">
 
-                                                <i class="ti ti-pencil"></i>
-                                                Update Order Status
-                                            </button>
+                                            <i class="ti ti-pencil"></i>
+                                            Update Order Status
+                                        </button>
 
                                         <?php endif; ?>
                                     </li>
@@ -694,9 +717,9 @@ use Illuminate\Support\Facades\Crypt;
                                 <option value="">Select Status</option>
 
                                 <?php if(isset($sale) && $sale->c_mode_of_payment != "Paid to Franchise"): ?>
-                                    <option value="dispatched">Dispatched</option>
-                                    <option value="shipped">Shipped</option>
-                                    <option value="delivered">Delivered</option>
+                                <option value="dispatched">Dispatched</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
                                 <?php endif; ?>
                                 <option value="completed">Completed</option>
                                 <option value="cancelled">Cancelled</option>
@@ -734,20 +757,19 @@ use Illuminate\Support\Facades\Crypt;
 
 <?php $__env->startPush('scripts'); ?>
 <script>
-     $(document).ready(function(){
+$(document).ready(function() {
 
-        $('#salesUpdateModal').on('show.bs.modal', function (event) {
+    $('#salesUpdateModal').on('show.bs.modal', function(event) {
 
-            const button = event.relatedTarget;
+        const button = event.relatedTarget;
 
-            const salesNumber = $(button).data('id');
+        const salesNumber = $(button).data('id');
 
-           var s= $('.n_sale_id').val(salesNumber);
-//alert(salesNumber);
-            console.log(salesNumber);
-        });
-    })
+        var s = $('.n_sale_id').val(salesNumber);
+        //alert(salesNumber);
+        console.log(salesNumber);
+    });
+})
 </script>
 <?php $__env->stopPush(); ?>
-
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc\resources\views/admin/sales/index.blade.php ENDPATH**/ ?>

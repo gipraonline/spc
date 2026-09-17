@@ -140,6 +140,15 @@
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
                 </div>
+                <div class="col-md-12">
+                    <label for="c_employee_address" class="form-label">Address *</label>
+                    <textarea id="c_employee_address" name="c_employee_address"
+                        data-message="Please enter Employee Address" class="form-control mandatory"
+                        placeholder="Enter Address">{{ old('c_employee_address') }}</textarea>
+                    @error('c_employee_address')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
 
             <!-- Section 2: Role & Designation -->
@@ -330,7 +339,7 @@ $(document).ready(function() {
             url: '/admin/employees/reporting-managers/' + designation,
             type: 'GET',
             success: function(data) {
-
+                $('#reporting_to').empty();
                 let options = '<option value="">Select Reporting Manager</option>';
 
                 $.each(data, function(index, emp) {

@@ -127,9 +127,8 @@
 
     
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0">
-            Payment Management
-        </h4>
+
+        <h5 class="card-title fw-semibold mb-0 lh-sm"> Payment Management</h5>
     </div>
 
     

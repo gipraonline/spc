@@ -901,6 +901,26 @@ unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <div class="col-md-4">
+                        <label for="c_post_office" class="form-label">
+                            Post Office
+                        </label>
+                        <input type="text" id="c_post_office" name="c_post_office" maxlength="6" value="<?php echo e(old('c_post_office',isset($sale) ? $sale->customer->c_post_office : '')); ?>"
+                            class="form-control" placeholder="Post Office">
+
+                        <?php $__errorArgs = ['c_post_office'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    <div class="col-md-4">
                         <label for="n_state_id" class="form-label">State</label>
                         <select name="n_state_id" id="n_state_id" class="form-select">
                             <option value="">Select State</option>
@@ -950,6 +970,26 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="c_thaluk" class="form-label">
+                            Thaluk
+                        </label>
+                        <input type="text" id="c_thaluk" name="c_thaluk" maxlength="6" value="<?php echo e(old('c_thaluk',isset($sale) ? $sale->customer->c_thaluk : '')); ?>"
+                            class="form-control" placeholder="Thaluk">
+
+                        <?php $__errorArgs = ['c_thaluk'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
                     </div>
 
                     <div class="col-md-4">
@@ -1226,7 +1266,7 @@ unset($__errorArgs, $__bag); ?>
                 <?php if(isset($viewmode) && $viewmode=="on"): ?>
                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.approval')): ?>
                     <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
-                        data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="<?php echo e(Crypt::encryptString($sale->n_sl_no)); ?>">
+                        data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="<?php echo e(Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '')); ?>">
                         Approve
                     </button>
                     <?php endif; ?>
@@ -1263,7 +1303,7 @@ unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="modal-body">
-                    <input type="hidden" name="approval_id" id="approval_id">
+                    <input type="hidden" name="sales_id" id="sales_id" value="<?php echo e(Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '')); ?>">
 
                     <div class="mb-3">
                         <label class="form-label">Remarks <span class="text-danger">*</span></label>

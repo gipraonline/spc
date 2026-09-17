@@ -306,6 +306,12 @@
                     @enderror
                 </div>
 
+                {{-- GPS Location --}}
+                <div class="field-group-title mt-5">
+                    <i class="ti ti-map-pin fs-5"></i>
+                    Franchise GPS Location
+                </div>
+
                 <div class="col-md-4">
                     <label for="n_district_id" class="form-label">
                         Latitude
@@ -343,64 +349,6 @@
                 </div>
             </div>
 
-            {{-- GPS Location --}}
-            <div class="field-group-title mt-5">
-                <i class="ti ti-map-pin fs-5"></i>
-                Franchise GPS Location
-            </div>
-
-            <div class="row g-4 mb-4">
-
-                <div class="col-md-6">
-                    <label for="latitude" class="form-label">
-                        Latitude
-                    </label>
-
-                    <input type="text" id="latitude" name="latitude" value="{{ old('latitude') }}" class="form-control"
-                        placeholder="Latitude" readonly>
-
-                    @error('latitude')
-                    <div class="text-danger mt-1 fs-2">
-                        {{ $message }}
-                    </div>
-                    @enderror
-                </div>
-
-                <div class="col-md-6">
-                    <label for="longitude" class="form-label">
-                        Longitude
-                    </label>
-
-                    <input type="text" id="longitude" name="longitude" value="{{ old('longitude') }}"
-                        class="form-control" placeholder="Longitude" readonly>
-
-                    @error('longitude')
-                    <div class="text-danger mt-1 fs-2">
-                        {{ $message }}
-                    </div>
-                    @enderror
-                </div>
-
-            </div>
-
-            <div class="mb-4 d-flex align-items-center gap-2 flex-wrap">
-
-                <button type="button" id="getLocationBtn" class="btn btn-outline-success">
-                    <i class="ti ti-map-pin-search"></i>
-                    Get Location from Address
-                </button>
-
-                <button type="button" id="selectLocationBtn" class="btn btn-outline-primary">
-                    <i class="ti ti-map-pin"></i>
-                    Select Location on Map
-                </button>
-
-                <span id="locationStatus" class="ms-2 text-muted"></span>
-
-            </div>
-
-            <div id="franchiseMap" style="display:none;width:100%;height:450px;border-radius:12px;margin-bottom:25px;">
-            </div>
 
             <!-- Section 2: Communication -->
             <div class="field-group-title mt-5">

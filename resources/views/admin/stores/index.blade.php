@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
-@section('content')
-
+@push('styles')
 
 <style>
 .refine-search-card {
@@ -88,19 +87,60 @@
     align-items: center;
     gap: 6px;
 }
+
+.search-btn.position-static {
+    position: static;
+}
+
+.reset-btn {
+    height: 38px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.search-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1b3e86;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.search-label svg {
+    flex-shrink: 0;
+}
+
+.custom-select {
+    height: 52px !important;
+    border-radius: 12px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    background-color: #f8fafc !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    padding: 0 16px !important;
+    box-shadow: none !important;
+}
+
+.custom-select:focus {
+    background-color: #ffffff !important;
+    border-color: #5d87ff !important;
+    box-shadow: 0 0 0 4px rgba(93, 135, 255, 0.1) !important;
+}
 </style>
 
-
-
-
-
-
+@endpush
+@section('content')
 
 <div class="card w-100 position-relative overflow-hidden">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
-        <h5 class="card-title fw-semibold mb-0 lh-sm">Stores</h5>
-        @can('stores.create')
-        <a href="{{ route('admin.stores.create') }}" class="btn btn-primary">Add Store</a>
+        <h5 class="card-title fw-semibold mb-0 lh-sm">Franchises</h5>
+        @can('franchises.create')
+        <a href="{{ route('admin.franchises.create') }}" class="btn buttonSpc">Add Franchise</a>
         @endcan
     </div>
     <div class="card-body p-4">
@@ -113,75 +153,147 @@
 
         <!-- Search Store -->
 
-        <form method="GET" action="{{ route('admin.stores.index') }}">
+        <form method="POST" action="{{ route('admin.franchises.search') }}">
+            @csrf
+
             <div class="card refine-search-card border-0 rounded-4 mb-4">
                 <div class="card-body p-4">
-                    <!-- Header Section -->
+
+                    <!-- Header -->
                     <div class="d-flex align-items-center justify-content-between mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-box d-flex align-items-center justify-content-center rounded-3 me-3"
-                                style="width:40px; height:40px;">
+                        <div class="filter-header-sub">
+                            <div class="icon-box">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                                </svg>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold" style="font-size:16px; color:#1e293b; letter-spacing:-0.2px;">
-                                    Refine Search
-                                </h6>
-                                <p class="mb-0 text-muted" style="font-size: 12px; font-weight: 400;">Filter your stores
-                                    by name or unique code</p>
-                            </div>
-                        </div>
-
-                        @if(request('search'))
-                        <a href="{{ route('admin.stores.index') }}" class="text-decoration-none"
-                            style="font-size: 13px; color: #ef4444; font-weight: 600;">
-                            Clear Filters
-                        </a>
-                        @endif
-                    </div>
-                    <!-- Search Field Section -->
-                    <div class="row">
-                        <div class="col-md-6 col-lg-5">
-
-                            <label class="search-label" for="storeSearch">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3">
+                                    </polygon>
                                 </svg>
-                                Store Identity
+                            </div>
+
+                            <span>Refine Search</span>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="row g-3">
+
+                        {{-- Search --}}
+                        <div class="col-md-6">
+                            <label class="search-label" for="storeSearch">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="me-1">
+                                    <path d="M3 9l1-5h16l1 5" />
+                                    <path d="M5 9v10h14V9" />
+                                    <path d="M9 19v-6h6v6" />
+                                    <path d="M3 9h18" />
+                                </svg>
+
+                                Franchise Search
                             </label>
+
                             <div class="search-input-group">
                                 <div class="search-icon-inner">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">
-                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                                        </path>
                                     </svg>
                                 </div>
 
-                                <input type="text" name="search" value="{{ request('search') }}"
+                                <input type="text" name="search" value="{{ session('store_search') }}"
                                     class="form-control custom-input" placeholder="Store Code or Name..."
                                     id="storeSearch" autocomplete="off">
-                                <button type="submit" class="search-btn">
-                                    Search
-                                </button>
                             </div>
                         </div>
+
+
+                        {{-- State --}}
+                        <div class="col-md-3">
+                            <label class="search-label" for="state_id">
+                                State
+                            </label>
+
+                            <select name="state_id" id="state_id" class="form-select custom-select">
+
+                                <option value="">All States</option>
+
+                                @foreach($states as $state)
+                                <option value="{{ $state->n_state_id }}"
+                                    {{ session('store_state_id') == $state->n_state_id ? 'selected' : '' }}>
+                                    {{ $state->name }}
+                                </option>
+                                @endforeach
+
+                            </select>
+                        </div>
+
+
+                        {{-- District --}}
+                        <div class="col-md-3">
+                            <label class="search-label" for="district_id">
+                                District
+                            </label>
+
+                            <select name="district_id" id="district_id" class="form-select custom-select">
+
+                                <option value="">All Districts</option>
+
+                                @foreach($districts as $district)
+                                <option value="{{ $district->id }}"
+                                    {{ session('store_district_id') == $district->id ? 'selected' : '' }}>
+                                    {{ $district->district_name }}
+                                </option>
+                                @endforeach
+
+                            </select>
+                        </div>
+                        {{-- Panchayath --}}
+                        <div class="col-md-3">
+                            <label class="search-label" for="panchayath_id">
+                                Panchayath
+                            </label>
+
+                            <select name="panchayath_id" id="panchayath_id" class="form-select custom-select">
+
+                                <option value="">All Panchayaths</option>
+
+                                @foreach($panchayaths as $panchayath)
+                                <option value="{{ $panchayath->id }}"
+                                    {{ session('store_panchayath_id') == $panchayath->id ? 'selected' : '' }}>
+                                    {{ $panchayath->panchayath_name }}
+                                </option>
+                                @endforeach
+
+                            </select>
+                        </div>
+
                     </div>
+
+
+                    {{-- Buttons --}}
+                    <div class="mt-3 d-flex align-items-center gap-2">
+
+                        <button type="submit" class="search-btn buttonSpc position-static">
+                            Search
+                        </button>
+
+
+                        <a href="{{ route('admin.franchises.clearSearch') }}" class="btn btn-outline-primary reset-btn">
+
+                            <i class="ti ti-refresh me-1"></i>
+                            Reset
+                        </a>
+
+
+                    </div>
+
                 </div>
             </div>
+
         </form>
-
-
-
-
-
         <div class="table-responsive">
             <table class="table text-nowrap mb-0 align-middle">
                 <thead class="text-dark fs-4">
@@ -193,6 +305,19 @@
                             <h6 class="fw-semibold mb-0">Name</h6>
                         </th>
                         <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Owner Name</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">State</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">District</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Panchayath</h6>
+                        </th>
+                        <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Email</h6>
                         </th>
                         <th class="border-bottom-0">
@@ -201,7 +326,7 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Status</h6>
                         </th>
-                        @canany(['stores.edit', 'stores.delete'])
+                        @canany(['franchises.edit', 'franchises.delete'])
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Actions</h6>
                         </th>
@@ -217,6 +342,23 @@
                         <td class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">{{ $store->c_store_name }}</h6>
                         </td>
+                        <!-- Owner Name -->
+                        <td class="border-bottom-0"> <span class="fw-normal"> {{ $store->c_owner_name ?? '-' }}
+                            </span>
+                        </td>
+
+                        <td class="border-bottom-0"><span class="fw-normal">
+                                {{ $store->state->name ?? '-' }} </span>
+                        </td>
+
+
+
+                        <td class="border-bottom-0"><span class="fw-normal">
+                                {{ $store->district->district_name ?? '-' }} </span>
+                        </td>
+                        <td class="border-bottom-0"><span class="fw-normal">
+                                {{ $store->panchayath->panchayath_name ?? '-' }} </span>
+                        </td>
                         <td class="border-bottom-0">
                             <span class="fw-normal">{{ $store->c_store_email ?? '-' }}</span>
                         </td>
@@ -229,13 +371,15 @@
                                 {{ ucfirst($store->c_store_status) }}
                             </span>
                         </td>
-                        @canany(['stores.edit', 'stores.delete'])
+                        @canany(['franchises.edit', 'franchises.delete'])
                         <td class="border-bottom-0">
-                            @can('stores.edit')
-                            <a href="{{ route('admin.stores.edit', $store) }}" class="btn btn-sm btn-primary">Edit</a>
+                            @can('franchises.edit')
+                            <a href="{{ route('admin.franchises.edit', $store) }}"
+                                class="btn btn-sm btn-primary">Edit</a>
                             @endcan
-                            @can('stores.delete')
-                            <form method="POST" action="{{ route('admin.stores.destroy', $store) }}" class="d-inline">
+                            @can('franchises.delete')
+                            <form method="POST" action="{{ route('admin.franchises.destroy', $store) }}"
+                                class="d-inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger ms-2"
                                     onclick="return confirm('Are you sure?')">Delete</button>
@@ -246,7 +390,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center">No stores found</td>
+                        <td colspan="9" class="text-center">No franchises found</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -259,18 +403,130 @@
 </div>
 
 
+@endsection
 @push('scripts')
+
 <script>
-let searchTimer;
+document.addEventListener('DOMContentLoaded', function() {
 
-document.getElementById('storeSearch').addEventListener('keyup', function() {
+    const stateSelect = document.getElementById('state_id');
+    const districtSelect = document.getElementById('district_id');
+    const panchayathSelect = document.getElementById('panchayath_id');
 
-    clearTimeout(searchTimer);
+    /*
+    |--------------------------------------------------------------------------
+    | STATE → DISTRICT
+    |--------------------------------------------------------------------------
+    */
 
-    searchTimer = setTimeout(() => {
-        this.form.submit();
-    }, 1200); // waits 800ms after typing stops
+    stateSelect.addEventListener('change', function() {
+
+        const stateId = this.value;
+
+        districtSelect.innerHTML =
+            '<option value="">Loading Districts...</option>';
+
+        panchayathSelect.innerHTML =
+            '<option value="">All Panchayaths</option>';
+
+        if (!stateId) {
+            districtSelect.innerHTML =
+                '<option value="">All Districts</option>';
+            return;
+        }
+
+        fetch("{{ route('admin.districts', ':stateId') }}"
+                .replace(':stateId', stateId))
+            .then(response => response.json())
+            .then(districts => {
+
+                districtSelect.innerHTML =
+                    '<option value="">All Districts</option>';
+
+                districts.forEach(district => {
+
+                    districtSelect.innerHTML += `
+                        <option value="${district.id}">
+                            ${district.district_name}
+                        </option>
+                    `;
+                });
+
+            })
+            .catch(error => {
+
+                console.error('Error loading districts:', error);
+
+                districtSelect.innerHTML =
+                    '<option value="">Unable to load districts</option>';
+            });
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DISTRICT → PANCHAYATH
+    |--------------------------------------------------------------------------
+    */
+
+    districtSelect.addEventListener('change', function() {
+
+        const districtId = this.value;
+
+        panchayathSelect.innerHTML =
+            '<option value="">Loading Panchayaths...</option>';
+
+        if (!districtId) {
+
+            panchayathSelect.innerHTML =
+                '<option value="">All Panchayaths</option>';
+
+            return;
+        }
+
+        fetch("{{ route('admin.filterPanchayath') }}?district=" + districtId)
+            .then(response => response.json())
+            .then(response => {
+
+                console.log('Panchayath response:', response);
+
+                panchayathSelect.innerHTML =
+                    '<option value="">All Panchayaths</option>';
+
+                if (
+                    response.panchayaths &&
+                    response.panchayaths.length > 0
+                ) {
+
+                    response.panchayaths.forEach(panchayath => {
+
+                        panchayathSelect.innerHTML += `
+                            <option value="${panchayath.id}">
+                                ${panchayath.panchayath_name}
+                            </option>
+                        `;
+                    });
+
+                } else {
+
+                    panchayathSelect.innerHTML =
+                        '<option value="">No Panchayaths Found</option>';
+                }
+
+            })
+            .catch(error => {
+
+                console.error(
+                    'Error loading panchayaths:',
+                    error
+                );
+
+                panchayathSelect.innerHTML =
+                    '<option value="">Unable to load Panchayaths</option>';
+            });
+    });
+
 });
 </script>
+
 @endpush
-@endsection

@@ -3695,6 +3695,8 @@ fieldset:disabled .btn {
   box-shadow: none;
 }
 
+
+
 .btn-primary {
   --bs-btn-color: #fff;
   --bs-btn-bg: #5D87FF;

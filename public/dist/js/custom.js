@@ -159,6 +159,15 @@ $(document).on('click', '#btn_create,#btn_update', function () {
 
     // }
 
+
+    // Check payment mode
+    if ($('input[name="c_mode_of_payment"]:checked').length === 0) {
+
+        $('#payment_mode_error').text('Please Choose a Payment Mode');
+
+        error = 1;
+    }
+
     if ($(this).val() == '') {
       $(this).siblings(".text-danger").text($(this).data('message'));
       error = 1;
@@ -174,25 +183,141 @@ $(document).on('click', '#btn_create,#btn_update', function () {
 // ==============================================================
 //                      ONLOAD VALIDATION
 // ==============================================================
+$(document).on('click', '#btn_create, #btn_update', function (e) {
 
-$(document).on('click', '#btn_create,#btn_update', function () {
+    e.preventDefault();
 
-  var error = 0;
+    var error = 0;
 
-  $('.mandatory').each(function () {
+    // Clear previous errors
+    $('.mandatory').each(function () {
 
-    if ($(this).val() == '') {
-      $(this).siblings(".text-danger").text($(this).data('message'));
-      error = 1;
-      return false;
+        $(this)
+            .closest('.col-md-4, .col-md-6, .col-md-9')
+            .find('.text-danger')
+            .first()
+            .text('');
+    });
+
+    $('.mandatory').each(function (index, obj) {
+
+        var $field = $(this);
+        var message = $(obj).data('message');
+
+        // RADIO
+        if ($field.is(':radio')) {
+
+            var name = $field.attr('name');
+
+            if ($('input[name="' + name + '"]:checked').length === 0) {
+
+                $field
+                    .closest('.col-md-6, .col-md-9')
+                    .find('.text-danger')
+                    .first()
+                    .text(message);
+
+                error = 1;
+            }
+        }
+
+        // FILE
+        else if ($field.is(':file')) {
+
+            if ($field[0].files.length === 0) {
+
+                $field
+                    .closest('.col-md-4, .col-md-6')
+                    .find('.text-danger')
+                    .first()
+                    .text(message);
+
+                error = 1;
+            }
+        }
+
+        // SELECT
+        else if ($field.is('select')) {
+
+            if (!$field.val()) {
+
+                $field
+                    .closest('.col-md-4, .col-md-6')
+                    .find('.text-danger')
+                    .first()
+                    .text(message);
+
+                error = 1;
+            }
+        }
+
+        // TEXT / OTHER INPUT
+        else {
+
+            if ($.trim($field.val()) === '') {
+
+                $field
+                    .closest('.col-md-4, .col-md-6')
+                    .find('.text-danger')
+                    .first()
+                    .text(message);
+
+                error = 1;
+            }
+        }
+    });
+
+    if (error === 0) {
+
+        $("#frm_create")[0].submit();
+    }
+});
+
+/* $(document).on('click', '#btn_create, #btn_update', function (e) {
+
+    e.preventDefault();
+
+    let error = 0;
+
+    $('.text-danger').text('');
+
+    $('.mandatory').each(function () {
+
+        // Radio button validation
+        if ($(this).is(':radio')) {
+
+            let name = $(this).attr('name');
+
+            if ($('input[name="' + name + '"]:checked').length == 0) {
+
+                $(this).closest('.mb-3')
+                       .find('.text-danger')
+                       .text($(this).data('message'));
+
+                error = 1;
+                return false;
+            }
+        }
+        // Textbox, Select, Date, Textarea validation
+        else {
+
+            if ($.trim($(this).val()) == '') {
+
+                $(this).siblings('.text-danger')
+                       .text($(this).data('message'));
+
+                error = 1;
+                return false;
+            }
+        }
+
+    });
+
+    if (error == 0) {
+        $('#frm_create').submit();
     }
 
-  });
-
-  if (error == 0) {
-    $("#frm_create").submit();
-  }
-});
+}); */
 
 // ==============================================================
 //                      LINK TO STORES

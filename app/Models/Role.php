@@ -8,6 +8,7 @@ class Role extends SpatieRole
 {
     protected $fillable = [
         'name',
+        'identifier',
         'guard_name',
     ];
 
@@ -18,6 +19,15 @@ class Role extends SpatieRole
             'role_menu',
             'role_id',
             'menu_id'
+        );
+    }
+
+    public function designation()
+    {
+        return $this->hasOne(
+            DesignationMaster::class,
+            'identifier',
+            'identifier'
         );
     }
 }

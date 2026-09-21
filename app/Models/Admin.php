@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
 class Admin extends Authenticatable
@@ -19,14 +19,25 @@ class Admin extends Authenticatable
     public $incrementing = true;
 
     protected $fillable = [
-    'c_name',
-    'c_username',
-    'c_password',
-    'c_status',
-];
+        'n_employee_id',
+        'c_name',
+        'c_username',
+        'c_password',
+        'c_status',
+
+        // Temporary initial password
+        'initial_password',
+        'initial_password_expires_at',
+    ];
 
     protected $hidden = [
         'c_password',
+        'initial_password',
+    ];
+
+    protected $casts = [
+        'initial_password' => 'encrypted',
+        'initial_password_expires_at' => 'datetime',
     ];
 
     public function getAuthPassword()
@@ -35,18 +46,37 @@ class Admin extends Authenticatable
     }
 
     // Display Name
-   public function getNameAttribute()
-{
-    return $this->c_name;
-}
+    public function getNameAttribute()
+    {
+        return $this->c_name;
+    }
 
-public function getUsernameAttribute()
-{
-    return $this->c_username;
-}
+    public function getUsernameAttribute()
+    {
+        return $this->c_username;
+    }
 
-public function getEmailAttribute()
-{
-    return $this->c_username;
-}
+    public function getEmailAttribute()
+    {
+        return $this->c_username;
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'n_role_id', 'id');
+    }
+
+    public function fieldLogs()
+    {
+        return $this->hasMany(FieldLog::class, 'user_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(
+            EmployeeMaster::class,
+            'n_employee_id',
+            'n_employee_id'
+        );
+    }
 }

@@ -8,7 +8,7 @@
             {{ isset($selectedMenu) ? 'Add Permission' : 'Create Permission' }}
         </h4>
 
-        <a href="{{ route('admin.permissions.index') }}" class="btn btn-secondary">
+        <a href="{{ route('admin.permissions.index') }}" class="btn btn-outline-secondary">
             Back
         </a>
     </div>
@@ -79,31 +79,43 @@
             'export',
             'upload',
             'calculate',
-            'approve',
+            'approval',
             'reject',
             'view-details',
             'confirm',
             'cancel',
             'process-batch',
             'add-sale',
+            'follow-up',
 
             // Dashboard Cards
             'employees-card',
             'stores-card',
             'products-card',
             'sales-card',
+            'sales-card-pending',
+            'sales-card-approved',
+            'sales-card-dispatched',
+            'sales-card-delivered',
+
             'incentives-card',
-            'centreal-sales-card',
-            'centreal-incentives-card',
-            'vanitham-sales-card',
-            'vanitham-incentives-card',
+            // for both field log and dashboard
+            'check-in',
+            'check-out',
+            'working-hours',
+            'work-status',
+            'attendance',
+            'summary',
+            'my-orders',
+            'recent-orders',
+            'schedule',
+
 
             // Dashboard Data Cards
             'recent-sales-card',
             'top-stores-card',
             'pending-sales-card',
-            'top-centreal-performers-card',
-            'top-vanitham-performers-card',
+
             ];
             @endphp
             <div class="mb-3">
@@ -155,7 +167,7 @@
 
             @endif
 
-            <button class="btn btn-primary">
+            <button class="btn buttonSpc">
                 Save
             </button>
 

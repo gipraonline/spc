@@ -14,7 +14,8 @@
     <meta name="keywords" content="Incentive" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/png" href="{{asset('dist/images/logos/fav.png')}}" />
@@ -22,222 +23,10 @@
     <link id="themeColors" rel="stylesheet" href="{{asset('dist/css/style.min.css')}}" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
     @stack('styles')
-</head>
-
-<body>
-    <!-- Preloader -->
-    <div class="preloader">
-        <div style="width: 2rem !important;" class="spinner-border text-danger lds-ripple" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-    <!--  Body Wrapper -->
-    <div class="page-wrapper" id="main-wrapper" data-theme="blue_theme" data-layout="vertical" data-sidebartype="full"
-        data-sidebar-position="fixed" data-header-position="fixed">
-        <!-- Sidebar Start -->
-        <aside class="left-sidebar">
-            <!-- Sidebar scroll-->
-            <div>
-
-                <div class="brand-logo d-flex align-products-center justify-content-center">
-                    <a href="{{ route('dashboard') }}" class="text-nowrap logo-img">
-                        <img src="{{asset('dist/images/logos/centrallogo.png')}}" alt="Centreal Bazaar Logo">
-                    </a>
-                    <div class="close-btn d-lg-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
-                        <i class="ti ti-x fs-8 text-muted"></i>
-                    </div>
-                </div>
-                @php
-                $dynamicMenus = \App\Http\Controllers\Admin\MenuController::getMenus();
-                @endphp
-                <!-- Sidebar navigation-->
-                <nav class="sidebar-nav scroll-sidebar" data-simplebar>
-
-                    <ul id="sidebarnav">
-
-                        @foreach($dynamicMenus as $parent)
-
-                        {{-- Parent without children --}}
-                        @if($parent->children->count() == 0)
-
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ $parent->route_name ? route($parent->route_name) : '#' }}">
-
-                                <span>
-                                    <i data-lucide="{{ $parent->icon }}"></i>
-                                </span>
-
-                                <span class="hide-menu">
-                                    {{ $parent->name }}
-                                </span>
-
-                            </a>
-                        </li>
-
-                        @else
-
-                        {{-- Parent with children --}}
-
-                        <li class="nav-small-cap">
-                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                            <span class="hide-menu">
-                                {{ $parent->name }}
-                            </span>
-                        </li>
-
-                        @foreach($parent->children as $child)
-
-                        <li class="sidebar-item">
-
-                            <a class="sidebar-link" href="{{ route($child->route_name) }}">
-
-                                <span>
-                                    <i data-lucide="{{ $child->icon }}"></i>
-                                </span>
-
-                                <span class="hide-menu">
-                                    {{ $child->name }}
-                                </span>
-
-                            </a>
-
-                        </li>
-
-                        @endforeach
-
-                        @endif
-
-                        @endforeach
-
-                    </ul>
-                </nav>
-            </div>
-            <!-- End Sidebar scroll-->
-        </aside>
-        <!--  Sidebar End -->
-
-        <!--  Main wrapper -->
-        <div class="body-wrapper">
-            <!--  Header Start -->
-            <header class="app-header">
-                <nav class="navbar navbar-expand-lg navbar-light">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link sidebartoggler nav-icon-hover ms-n3" id="headerCollapse"
-                                href="javascript:void(0)">
-                                <i class="ti ti-menu-2"></i>
-                            </a>
-                        </li>
-                    </ul>
-
-                    <button class="navbar-toggler p-0 border-0" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-                        aria-label="Toggle navigation">
-                        <span class="p-2">
-                            <i class="ti ti-dots fs-7"></i>
-                        </span>
-                    </button>
-                    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                        <div class="d-flex align-products-center justify-content-between">
-                            <a href="javascript:void(0)"
-                                class="nav-link d-flex d-lg-none align-products-center justify-content-center"
-                                type="button" data-bs-toggle="offcanvas" data-bs-target="#mobilenavbar"
-                                aria-controls="offcanvasWithBothOptions">
-                                <i class="ti ti-align-justified fs-7"></i>
-                            </a>
-                            <ul class="navbar-nav flex-row ms-auto align-products-center justify-content-center">
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link pe-0" href="javascript:void(0)" id="drop1"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        <div class="d-flex align-products-center">
-                                            <div class="user-profile-img">
-                                                <img src="{{asset('dist/images/profile/user-1.jpg')}}"
-                                                    class="rounded-circle" width="35" height="35" alt="" />
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up"
-                                        aria-labelledby="drop1">
-                                        <div class="profile-dropdown position-relative" data-simplebar>
-                                            <div class="py-3 px-7 pb-0">
-                                                <h5 class="mb-0 fs-5 fw-semibold">User Profile</h5>
-                                            </div>
-                                            <div class="d-flex align-products-center py-9 mx-7 border-bottom">
-                                                <img src="{{asset('dist/images/profile/user-1.jpg')}}"
-                                                    class="rounded-circle" width="80" height="80" alt="" />
-                                                <div class="ms-3">
-                                                    <h5 class="mb-1 fs-3">{{ Auth::user()->name }}</h5>
-                                                    <p class="mb-0 d-flex text-dark align-products-center gap-2">
-                                                        <i class="ti ti-mail fs-4"></i> {{ Auth::user()->email }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="message-body">
-                                                <a href="{{ route('profile.edit') }}"
-                                                    class="py-8 px-7 d-flex align-products-center">
-                                                    <span
-                                                        class="d-flex align-products-center justify-content-center bg-light rounded-1 p-6">
-                                                        <img src="{{asset('dist/images/svgs/icon-account.svg')}}" alt=""
-                                                            width="24" height="24">
-                                                    </span>
-                                                    <div class="w-75 d-inline-block v-middle ps-3">
-                                                        <h6 class="mb-1 bg-hover-primary fw-semibold"> My Profile </h6>
-                                                        <span class="d-block text-dark">Account Settings</span>
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <div class="d-grid py-4 px-7 pt-8">
-                                                <form method="POST" action="{{ route('logout') }}">
-                                                    @csrf
-                                                    <a href="{{ route('logout') }}"
-                                                        onclick="event.preventDefault(); this.closest('form').submit();"
-                                                        class="btn btn-outline-primary w-100">Log Out</a>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-            </header>
-            <!--  Header End -->
-
-            <div class="container-fluid">
-                <!-- Page Heading -->
-                @isset($header)
-                <div class="mb-4">
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                        {{ $header }}
-                    </h2>
-                </div>
-                @endisset
-
-                @yield('content')
-                {{ $slot ?? '' }}
-            </div>
-            <p style="
-    text-align: center;
-    color: #15386f;
-    font-weight: 600;
-">Copyright © 2026 Centreal Bazaar All Rights Reserved.
-
-            </p>
-        </div>
-    </div>
-
-
-
-
-
-
-
-
-
-
 
 
     <style>
@@ -352,8 +141,24 @@
         padding: 2rem 0.25rem;
     }
 
+    .buttonSpc {
+        border-radius: 16px;
+        background: linear-gradient(135deg, #5A8D3A, #074E30);
+        align-items: center;
+        color: #fff !important;
+        min-width: 110px;
+    }
 
+    .btn-outline-secondary {
+        border-radius: 16px !important;
+        align-items: center;
+        font-weight: 600;
+        min-width: 110px;
+    }
 
+    .modal-header {
+        background: linear-gradient(135deg, #5A8D3A, #074E30);
+    }
 
     header.app-header {
         background: rgba(255, 255, 255, 0.85);
@@ -370,7 +175,7 @@
     .sidebar-nav ul .sidebar-item.selected>.sidebar-link,
     .sidebar-nav ul .sidebar-item.selected>.sidebar-link.active,
     .sidebar-nav ul .sidebar-item>.sidebar-link.active {
-        background: linear-gradient(135deg, #024d93, #003366);
+        background: linear-gradient(135deg, #5A8D3A, #074E30);
     }
 
     .body-wrapper>.container-fluid {
@@ -399,7 +204,7 @@
 
     table th,
     th.border-bottom-0 h6 {
-        background: #15386e !important;
+        background: linear-gradient(135deg, #5A8D3A, #074E30);
         color: #fff !important;
 
     }
@@ -607,19 +412,244 @@
         box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
     }
     </style>
+</head>
+
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div style="width: 2rem !important;" class="spinner-border text-danger lds-ripple" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <!--  Body Wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-theme="blue_theme" data-layout="vertical" data-sidebartype="full"
+        data-sidebar-position="fixed" data-header-position="fixed">
+        <!-- Sidebar Start -->
+        <aside class="left-sidebar">
+            <!-- Sidebar scroll-->
+            <div>
+
+                <div class="brand-logo d-flex align-products-center justify-content-center">
+                    <a href="{{ route('dashboard') }}" class="text-nowrap logo-img">
+                        <img src="{{asset('dist/images/logos/spclogo.png')}}" alt="Centreal Bazaar Logo">
+                    </a>
+                    <div class="close-btn d-lg-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+                        <i class="ti ti-x fs-8 text-muted"></i>
+                    </div>
+                </div>
+                @php
+                $dynamicMenus = \App\Http\Controllers\Admin\MenuController::getMenus();
+                @endphp
+                <!-- Sidebar navigation-->
+                <nav class="sidebar-nav scroll-sidebar" data-simplebar>
+
+                    <ul id="sidebarnav">
+
+                        @foreach($dynamicMenus as $parent)
+
+                        {{-- Parent without children --}}
+                        @if($parent->children->count() == 0)
+
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="{{ $parent->route_name ? route($parent->route_name) : '#' }}">
+
+                                <span>
+                                    <i data-lucide="{{ $parent->icon }}"></i>
+                                </span>
+
+                                <span class="hide-menu">
+                                    {{ $parent->name }}
+                                </span>
+
+                            </a>
+                        </li>
+
+                        @else
+
+                        {{-- Parent with children --}}
+
+                        <li class="nav-small-cap">
+                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                            <span class="hide-menu">
+                                {{ $parent->name }}
+                            </span>
+                        </li>
+
+                        @foreach($parent->children as $child)
+
+                        <li class="sidebar-item">
+
+                            <a class="sidebar-link" href="{{ route($child->route_name) }}">
+
+                                <span>
+                                    <i data-lucide="{{ $child->icon }}"></i>
+                                </span>
+
+                                <span class="hide-menu">
+                                    {{ $child->name }}
+                                </span>
+
+                            </a>
+
+                        </li>
+
+                        @endforeach
+
+                        @endif
+
+                        @endforeach
+
+                    </ul>
+                </nav>
+            </div>
+            <!-- End Sidebar scroll-->
+        </aside>
+        <!--  Sidebar End -->
+
+        <!--  Main wrapper -->
+        <div class="body-wrapper">
+            <!--  Header Start -->
+            <header class="app-header">
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link sidebartoggler nav-icon-hover ms-n3" id="headerCollapse"
+                                href="javascript:void(0)">
+                                <i class="ti ti-menu-2"></i>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <button class="navbar-toggler p-0 border-0" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                        <span class="p-2">
+                            <i class="ti ti-dots fs-7"></i>
+                        </span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                        <div class="d-flex align-products-center justify-content-between">
+                            <a href="javascript:void(0)"
+                                class="nav-link d-flex d-lg-none align-products-center justify-content-center"
+                                type="button" data-bs-toggle="offcanvas" data-bs-target="#mobilenavbar"
+                                aria-controls="offcanvasWithBothOptions">
+                                <i class="ti ti-align-justified fs-7"></i>
+                            </a>
+                            <ul class="navbar-nav flex-row ms-auto align-products-center justify-content-center">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link pe-0" href="javascript:void(0)" id="drop1"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <div class="d-flex align-products-center">
+                                            <div class="user-profile-img">
+                                                <img src="{{asset('dist/images/profile/user-1.jpg')}}"
+                                                    class="rounded-circle" width="35" height="35" alt="" />
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up"
+                                        aria-labelledby="drop1">
+                                        <div class="profile-dropdown position-relative" data-simplebar>
+                                            <div class="py-3 px-7 pb-0">
+                                                <h5 class="mb-0 fs-5 fw-semibold">User Profile</h5>
+                                            </div>
+                                            <div class="d-flex align-products-center py-9 mx-7 border-bottom">
+                                                <img src="{{asset('dist/images/profile/user-1.jpg')}}"
+                                                    class="rounded-circle" width="80" height="80" alt="" />
+                                                <div class="ms-3">
+                                                    <h5 class="mb-1 fs-3">{{ Auth::user()->name }}</h5>
+                                                    <p class="mb-0 d-flex text-dark align-products-center gap-2">
+                                                        <i class="ti ti-mail fs-4"></i> {{ Auth::user()->email }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="message-body">
+                                                <a href="{{ route('profile.edit') }}"
+                                                    class="py-8 px-7 d-flex align-products-center">
+                                                    <span
+                                                        class="d-flex align-products-center justify-content-center bg-light rounded-1 p-6">
+                                                        <img src="{{asset('dist/images/svgs/icon-account.svg')}}" alt=""
+                                                            width="24" height="24">
+                                                    </span>
+                                                    <div class="w-75 d-inline-block v-middle ps-3">
+                                                        <h6 class="mb-1 bg-hover-primary fw-semibold"> My Profile </h6>
+                                                        <span class="d-block text-dark">Account Settings</span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <div class="d-grid py-4 px-7 pt-8">
+                                                <form method="POST" action="{{ route('logout') }}">
+                                                    @csrf
+                                                    <a href="{{ route('logout') }}"
+                                                        onclick="event.preventDefault(); this.closest('form').submit();"
+                                                        class="btn btn-outline-primary w-100">Log Out</a>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+            <!--  Header End -->
+
+            <div class="container-fluid">
+                <!-- Page Heading -->
+                @isset($header)
+                <div class="mb-4">
+                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                        {{ $header }}
+                    </h2>
+                </div>
+                @endisset
+
+                @yield('content')
+                {{ $slot ?? '' }}
+
+            </div>
+
+            <p style="
+    text-align: center;
+    color: #15386f;
+    font-weight: 600;
+">Copyright © 2026 All Rights Reserved.
+
+            </p>
+        </div>
+    </div>
+
+
+
+
+
+    <style>
+    @media screen and (max-width:767px) {
+
+        .form-control,
+        .form-select {
+            width: stretch;
+            min-width: 100%;
+        }
+    }
+    </style>
+
+
+
 
     <!-- Import Js Files -->
     {{-- <script src="{{asset('dist/libs/jquery/dist/jquery.min.js')}}"></script> --}}
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    {{-- <script src="{{asset('dist/js/select2.min.js')}}"></script> --}}
+    <script src="{{asset('dist/js/select2.min.js')}}"></script>
     <script src="{{asset('dist/libs/simplebar/dist/simplebar.min.js')}}"></script>
     <script src="{{asset('dist/libs/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- core files -->
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{asset('dist/js/app.min.js')}}"></script>
     <script src="{{asset('dist/js/app.init.js')}}"></script>
     <script src="{{asset('dist/js/sidebarmenu.js')}}"></script>
-    <script src="{{asset('dist/js/custom.js?2')}}"></script>
+    <script src="{{asset('dist/js/custom.js')}}"></script>
     <!-- Link stores Js and CSS files-->
 
 

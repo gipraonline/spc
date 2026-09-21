@@ -1,0 +1,3712 @@
+@extends('layouts.app')
+
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+<style>
+
+    /* Customer Details Card */
+    .customer-details-card {
+        background: #ffffff;
+        border: 1px solid #e1e7ef;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+        margin-bottom: 25px;
+    }
+
+    /* Card Header */
+    .customer-details-header {
+        padding: 18px 36px;
+        border-bottom: 1px solid #edf0f4;
+        background: #fafbfd;
+        font-size: 18px;
+        font-weight: 500;
+        color: #334155;
+    }
+
+    /* Card Body */
+    .customer-details-body {
+        padding: 36px;
+    }
+
+    /* Labels */
+    .customer-details-card .form-label {
+        display: block;
+        font-size: 17px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 9px;
+    }
+
+    /* Required Star */
+    .customer-details-card .required {
+        color: #e87545;
+    }
+
+    /* Inputs */
+    .customer-details-card .form-control,
+    .customer-details-card .form-select {
+        height: 50px;
+        border: 1px solid #cfd8e3;
+        border-radius: 11px;
+        padding: 10px 18px;
+        font-size: 17px;
+        color: #475569;
+        background-color: #fff;
+        box-shadow: none;
+    }
+
+    /* Input Focus */
+    .customer-details-card .form-control:focus,
+    .customer-details-card .form-select:focus {
+        border-color: #2f6b4f;
+        box-shadow: 0 0 0 0.2rem rgba(47, 107, 79, 0.10);
+    }
+
+    /* Placeholder */
+    .customer-details-card .form-control::placeholder {
+        color: #94a3b8;
+        opacity: 1;
+    }
+
+    /* Select */
+    .customer-details-card .form-select {
+        cursor: pointer;
+    }
+
+    /* Row spacing */
+    .customer-details-card .form-row {
+        margin-bottom: 18px;
+    }
+
+    /* Last row no extra bottom margin */
+    .customer-details-card .form-row:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Validation error */
+    .customer-details-card .text-danger {
+        font-size: 13px !important;
+    }
+
+    /* Disabled fields */
+    .customer-details-card input[readonly],
+    .customer-details-card select:disabled {
+        background-color: #f5f6f8;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+
+        .customer-details-header {
+            padding: 15px 20px;
+        }
+
+        .customer-details-body {
+            padding: 20px;
+        }
+
+        .customer-details-card .form-label {
+            font-size: 15px;
+        }
+
+        .customer-details-card .form-control,
+        .customer-details-card .form-select {
+            font-size: 15px;
+        }
+    }
+
+/* Creative Light Theme & Green Palette */
+:root {
+    --bg-body: #f4f8f5;
+    --card-bg: #ffffff;
+    --primary-green: #0f5132;
+    --emerald-green: #059669;
+    --light-green-bg: #f0fdf4;
+    --border-green: #d1e7dd;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --border-slate: #e2e8f0;
+}
+
+/* Main Card Container */
+.card {
+    border-radius: 14px;
+    border: 1px solid var(--border-slate);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    background-color: var(--card-bg);
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+/* Form Section Box Styling */
+.form-section,
+.form-box,
+.border.rounded {
+    border: 1px solid var(--border-slate) !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    margin-bottom: 24px !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(15, 81, 50, 0.02);
+}
+
+/* Section Titles */
+.section-title,
+.form-section-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-green);
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Badge Pills */
+.badge-new {
+    background-color: #059669;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-updated {
+    background-color: #10b981;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-renamed {
+    background-color: #047857;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Form Controls & Inputs */
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #1e293b;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--emerald-green);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    outline: none;
+}
+
+/* Highlighted Readonly Inputs */
+.order-number,
+.advisor-highlight {
+    background-color: #f4f8f5 !important;
+    color: var(--primary-green) !important;
+    font-weight: 700 !important;
+    border-color: var(--border-green) !important;
+}
+
+/* Radio Button Cards (Payment & Order Status) */
+.payment-option,
+.order-status-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.payment-option:hover,
+.order-status-option:hover {
+    background-color: #f4f8f5;
+    border-color: var(--primary-green);
+}
+
+.payment-option input[type="radio"],
+.order-status-option input[type="radio"] {
+    margin: 0;
+    accent-color: var(--primary-green);
+    width: 16px;
+    height: 16px;
+}
+
+.payment-option input[type="radio"]:checked+label,
+.order-status-option input[type="radio"]:checked+label {
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+/* Primary & Secondary Buttons */
+.buttonSpc,
+#addRow,
+#btn_create {
+    background: linear-gradient(135deg, #0f5132 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 22px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    transition: all 0.2s ease;
+}
+
+.buttonSpc:hover,
+#addRow:hover,
+#btn_create:hover {
+    background: linear-gradient(135deg, #0b3e26 0%, #047857 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+}
+
+.btn-outline-secondary {
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
+}
+
+/* Product Table Styling */
+#productTable {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-slate);
+}
+
+#productTable thead th {
+    background-color: #f8faf8;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-slate);
+}
+
+#productTable tbody td {
+    padding: 10px 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.removeRow {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+}
+
+.removeRow:hover {
+    background-color: #b91c1c !important;
+}
+
+/* Product Details Summary Box */
+.product-summary-box {
+    background-color: #f8faf8;
+    border: 1px solid var(--border-slate);
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.summary-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.summary-line:last-child {
+    margin-bottom: 0;
+}
+
+.summary-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    flex: 1;
+}
+
+.summary-input {
+    width: 140px;
+    text-align: right;
+    font-weight: 600;
+    background-color: #ffffff !important;
+}
+
+.summary-line.highlight-green {
+    background-color: #e8f5e9;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #a7f3d0;
+    margin-top: 8px;
+}
+
+.summary-line.highlight-green .summary-label {
+    color: #0f5132;
+    font-size: 14px;
+}
+
+.summary-line.highlight-green .summary-input {
+    color: #0f5132 !important;
+    font-size: 16px;
+    font-weight: 800;
+    border-color: #a7f3d0;
+}
+
+/* Modal Backdrop Z-Index */
+#approveModal {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+/* Mobile Responsive Optimizations */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 16px !important;
+    }
+
+    .form-section,
+    .form-box,
+    .border.rounded {
+        padding: 16px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .payment-option,
+    .order-status-option {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .product-summary-box {
+        width: 100% !important;
+        margin-top: 16px;
+    }
+
+    .summary-input {
+        width: 110px;
+    }
+}
+
+.tablescrolll {
+    overflow-x: scroll;
+}
+
+
+#productTable tbody td input,
+#productTable tbody td select {
+    width: stretch;
+    min-width: 100%;
+}
+
+
+#productTable thead th {
+
+    white-space: nowrap;
+}
+
+@media screen and (max-width:767px) {
+    .summary-line {
+        flex-wrap: wrap;
+    }
+
+    .text-end {
+        text-align: left !important;
+    }
+
+    .section-title,
+    .form-section-header {
+        flex-wrap: wrap
+    }
+
+    .tablescrolll {
+        overflow-x: scroll;
+    }
+}
+
+ .customer-toggle {
+    display: flex;
+    width: 520px;
+    max-width: 100%;
+    padding: 8px;
+    background: #e8edf3;
+    border: 1px solid #d2d9e2;
+    border-radius: 18px;
+    max-height:80px;
+}
+/*
+.newCustomer{
+    display: flex;
+    width: 220px;
+    max-width: 100%;
+    padding: 8px;
+    background: #e8edf3;
+    border: 1px solid #d2d9e2;
+    border-radius: 18px;
+
+} */
+
+.customer-toggle .toggle-btn {
+    flex: 1;
+    margin: 0;
+    padding: 18px 25px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 12px;
+    color: #64748b;
+    font-size: 17px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* Active radio */
+.customer-toggle .btn-check:checked + .toggle-btn {
+    background: linear-gradient(90deg, #527f36, #155b48);
+    color: #ffffff;
+}
+</style>
+@endpush
+
+@section('content')
+@php
+use Illuminate\Support\Facades\Crypt;
+@endphp
+
+
+<div class="card w-100 position-relative overflow-hidden mb-4">
+    <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="card-title fw-semibold mb-0 lh-sm">Add Sales Orders</h5>
+    </div>
+    <div class="card-body p-4">
+
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        @endif
+
+        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}"
+            enctype="multipart/form-data">
+            @csrf
+
+            <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
+
+            <!-- Section 1: Order Information -->
+            <div class="form-section mb-4">
+
+                <div class="section-title mb-3">
+                    <i class="ti ti-file-invoice fs-5"></i>
+                    Order Information
+                </div>
+
+                <!-- Row 1: Date & Booklet Serial No -->
+                <div class="row g-3">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Date *</label>
+                        <input type="date" name="d_date" class="form-control mandatory"
+                            data-message="Please Select a Date"
+                            value="{{ old('d_date', isset($sale) ? $sale->d_date->format('Y-m-d') : date('Y-m-d')) }}"
+                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
+
+                        <div class="text-danger mt-1 fs-2"></div>
+                    </div>
+                    @if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor==true )
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Booklet Serial No *
+                            </label>
+                            <div class="position-relative">
+                                <input type="text" name="c_order_no" placeholder="BK-2026-0417"
+                                    class="form-control order-number fw-bold text-success mandatory"
+                                    data-message="Please Enter Booklet Serial No"
+                                    value="{{ old('c_order_no', isset($sale->c_order_no) ? $sale->c_order_no : '') }}"
+                                    {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
+                                <div class="text-danger mt-1 fs-2"></div>
+                            </div>
+
+                            @error('c_order_no')
+                            <div class="text-danger mt-1 fs-2">
+                                {{ $message }}
+                            </div>
+
+                            @enderror
+                        </div>
+                    @endif
+
+                </div>
+
+                <!-- Row 2: Order No & Farm Care Advisor -->
+                <div class="row g-3">
+
+                        @if(
+                            (!isset($isTelecaller) || $isTelecaller == false) &&
+                            (!isset($isFarmCareOfficer) || $isFarmCareOfficer == false)
+                        )
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Farm Care Advisor *
+                            </label>
+
+                            @if($isFarmCareAdvisor)
+                            <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}"
+                                readonly>
+                            @else
+                            <select name="farm_care_advisor_id" class="form-control "
+                                data-message="Please Enter Farm Care Advisor">
+                                <option value="">Select Farm Care Adviser</option>
+                                @foreach($employees as $employee)
+                                <option value="{{ $employee->n_employee_id }}"
+                                    {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id  ? 'selected' : '' }}>
+                                    {{ $employee->c_employee_name }}
+                                </option>
+                                @endforeach
+
+                            </select>
+                            <div class="text-danger mt-1 fs-2"></div>
+                            @endif
+
+                        </div>
+
+                        {{-- <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Sales Order Booklet Proof *
+                            </label>
+                            <input type="file" name="booklet_image" value="{{ old('booklet_image', isset($sale->booklet_image) ? $sale->booklet_image : '') }}"
+                        class="form-control mandatory"
+                        data-message="Please Enter Booklet Proof">
+                        <div class="text-danger mt-1 fs-2"></div>
+                        @if(isset($sale) && $sale->booklet_image)
+                        <div class="mt-2">
+                            <strong>Existing File:</strong>
+                            <a href="{{ asset('uploads/booklet_images/' . $sale->booklet_image) }}" target="_blank"
+                                class="btn btn-sm btn-primary ms-2"> View Booklet Proof </a>
+                        </div>
+                        @endif
+                        </div> --}}
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            Sales Order Booklet Proof
+                            @if(!isset($sale) || !$sale->booklet_image)
+                            <span class="text-danger">*</span>
+                            @endif
+                        </label>
+
+                        <input type="file" name="booklet_image" id="booklet_image" class="form-control" accept="image/*"
+                            data-message="Please Enter Booklet Proof">
+
+                        <!-- Tell Laravel to delete existing image -->
+                        <input type="hidden" name="remove_booklet_image" id="remove_booklet_image" value="0">
+
+                        <div class="text-danger mt-1 fs-2"></div>
+
+                        <!-- Image Preview -->
+                        <div class="mt-3" id="booklet_image_preview_container">
+
+                            <img id="booklet_image_preview"
+                                src="{{ isset($sale) && $sale->booklet_image ?  asset('uploads/booklet_images/' . $sale->booklet_image)  : '' }}"
+                                alt="Booklet Proof Preview" class="img-thumbnail"
+                                style="{{ isset($sale) && $sale->booklet_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
+
+                            @if(isset($sale) && $sale->booklet_image)
+                            <br>
+
+                            <button type="button" id="remove_booklet_image_btn" class="btn btn-danger btn-sm mt-2">
+                                Remove Image
+                            </button>
+                            @endif
+
+                        </div>
+
+
+                    </div>
+                @endif
+
+            </div>
+
+    </div>
+
+    <!-- Section 2: Product Details -->
+    <div class="form-section mb-4">
+
+        <div class="section-title d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <i class="ti ti-shopping-cart fs-5"></i>
+                Product Details *
+            </div>
+
+            @if(!isset($viewmode) || $viewmode=='off')
+            <button type="button" class="btn buttonSpc btn-sm" id="addRow">
+                <i class="ti ti-plus"></i>
+                Add New Product
+            </button>
+            @endif
+        </div>
+        <div class="tablescrolll">
+            <table class="table table-bordered table-responsive align-middle" id="productTable">
+                <thead class="table-light">
+                    <tr>
+                        <th width="25%">Category</th>
+                        <th width="25%">Product</th>
+                        <th width="12%">HSN Code</th>
+                        <th width="12%">Price</th>
+                        <th width="10%">Quantity</th>
+                        <th width="13%">Unit</th>
+                        <th width="12%">Discount</th>
+                        <th width="10%">GST %</th>
+                        <th width="13%">GST Amount</th>
+                        <th width="13%">Discounted Price</th>
+                        <th width="10%">MRP</th>
+                        <th width="8%">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if(isset($sale->orderProducts) && count($sale->orderProducts) > 0)
+                    @foreach($sale->orderProducts as $key=>$val)
+                    <tr>
+                        <td>
+                            <select name="products[{{ $key }}][product_id]" class="form-control product mandatory">
+
+                                <option value="">Select Product Category</option>
+
+                                @foreach($productCategories as $category)
+
+                                    <option value="{{ $category->n_category_id }}"
+                                        {{ $category->n_category_id == $val->n_category_id ? 'selected' : '' }}>
+                                        {{ $category->c_category_name }}
+                                    </option>
+                                @endforeach
+
+                            </select>
+                        </td>
+                        <td>
+                            <select name="products[{{ $key }}][product_id]" class="form-control product mandatory">
+
+                                <option value="">Select Product</option>
+
+                                @foreach($products as $product)
+
+                                <option value="{{ $product->n_product_id }}" data-price="{{ $product->n_mrp }}"
+                                    data-gst="{{ $product->n_gst_percentage ?? 0 }}"
+                                    data-hsn-code="{{ $product->c_hsn_code ?? '' }}"
+                                    data-unit="{{ $product->c_unit ?? '' }}"
+                                    {{ $val->product_id == $product->n_product_id ? 'selected' : '' }}>
+                                    {{ $product->c_product_name }}
+                                </option>
+                                @endforeach
+
+                            </select>
+                        </td>
+
+                        <td>
+                            <input type="text" name="products[{{ $key }}][c_hsn_code]" class="form-control c_hsn_code"
+                                value="{{ $val->product_price}}">
+                        </td>
+
+
+                        <td>
+                            <input type="text" name="products[{{ $key }}][product_price]" class="form-control price"
+                                value="{{ $val->product_price }}" readonly>
+                        </td>
+
+                        <td>
+                            <input type="number" name="products[{{ $key }}][qty]" class="form-control qty"
+                                value="{{ $val->qty }}" min="1">
+                        </td>
+
+                        <td>
+                            <input type="text" name="products[{{ $key }}][c_unit]" class="form-control c_unit"
+                                value="{{ $val->c_unit }}" readonly>
+                        </td>
+
+                        <td>
+                            <input type="number" name="products[{{ $key }}][discount]" class="form-control discount"
+                                value="{{ $val->discount ?? '0.00' }}" step="">
+                        </td>
+
+                        <!-- Product GST % -->
+                        <td>
+                            <input type="number" name="products[{{ $key }}][n_gst_percentage]"
+                                class="form-control gst_percentage" value="{{ $val->n_gst_percentage ?? 0 }}"
+                                step="0.01" readonly>
+                        </td>
+
+                        <!-- Product GST Amount -->
+                        <td>
+                            <input type="text" name="products[{{ $key }}][gst_amount]" class="form-control gst_amount"
+                                value="{{ $val->gst_amount ?? '0.00' }}" readonly>
+                        </td>
+
+                        <!-- Discounted Price -->
+                        <td>
+                            <input type="text" name="products[{{ $key }}][discounted_price]"
+                                class="form-control discounted_price" value="{{ $val->discounted_price ?? '0.00' }}"
+                                readonly>
+                        </td>
+
+                        <td>
+                            <input type="text" name="products[{{ $key }}][product_total]" class="form-control total"
+                                value="{{ $val->product_total }}" readonly>
+                        </td>
+
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-sm removeRow">
+                                <i class="ti ti-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
+
+                    @endif
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Product Details Summary Box (Right Aligned as shown in shared image) -->
+
+        <div class="row justify-content-end mt-4">
+            <div class="col-md-6 col-lg-5">
+                <div class="product-summary-box">
+
+                    <!-- Total Sales Amount -->
+                    <div class="summary-line">
+                        <span class="summary-label">
+                            Total Sales Amount
+                        </span>
+
+                        <input type="text" name="n_total_sales_amount" class="form-control summary-input text-end"
+                            id="summaryTotalSales"
+                            value="{{ old('n_total_sales_amount', $sale->n_total_sales_amount ?? '0.00') }}" readonly>
+                    </div>
+
+                    {{--  <!-- Product Discount Total -->
+                            <div class="summary-line">
+                                <span class="summary-label">
+                                    Product Discount Total
+                                </span>
+
+                                <input type="text" name="n_product_discount_total"
+                                    class="form-control summary-input text-end" id="summaryProductDiscount"
+                                    value="{{ old('n_product_discount_total', $sale->n_product_discount_total ?? '0.00') }}"
+                    readonly>
+                </div> --}}
+
+                <!-- Additional Discount -->
+                <div class="summary-line">
+                    <span class="summary-label">
+                        Total GST
+
+                    </span>
+
+                    <input type="number" name="n_total_gst" class="form-control summary-input text-end"
+                        id="summaryGstAmount" value="{{ old('n_total_gst', $sale->n_total_gst ?? '0.00') }}" step="0.01"
+                        min="0">
+                </div>
+                <!-- Total Discount -->
+                <div class="summary-line">
+                    <span class="summary-label">
+                        Total Discount
+                    </span>
+
+                    <input type="text" name="n_product_discount_total" class="form-control summary-input"
+                        id="summaryTotalDiscount"
+                        value="{{ old('n_total_discount', $sale->n_product_discount_total ?? '0.00') }}">
+                </div>
+
+                <!-- Net Sales Amount -->
+                <div class="summary-line highlight-green">
+                    <span class="summary-label fw-bold">
+                        Net Sales Amount
+                    </span>
+
+                    <input type="text" name="n_net_sales_amount"
+                        class="form-control summary-input text-end fw-bold text-success" id="summaryNetSales"
+                        value="{{ old('n_net_sales_amount', $sale->n_net_sales_amount ?? '0.00') }}" readonly>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- Customer Type -->
+            <div class="customer-toggle mb-4" >
+                    <input type="radio" class="btn-check " name="c_customer_type"
+                        id="newCustomer" value="new" checked{{isset($sale) && $sale->c_customer_type=="new" ? "checked" : ''}}>
+
+                    <label class="toggle-btn existing" for="newCustomer">
+                        New Customer
+                    </label>
+                    <input type="radio" class="btn-check" name="c_customer_type"
+                        id="existingCustomer" value="existing" {{isset($sale) && $sale->c_customer_type=="existing" ? "checked" : ''}}>
+
+                    <label class="toggle-btn new" for="existingCustomer">
+                        Existing Customer
+                    </label>
+
+            </div>
+
+
+
+            <!-- Existing Customer Lookup -->
+            <div class="card border rounded-4 mb-4" id="lookupCard">
+
+                <div class="card-header bg-light" >
+                    <h6 class="mb-0 fw-semibold">
+                        Existing Customer Lookup
+                    </h6>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row align-items-end">
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                Mobile Number
+                            </label>
+
+                            <input type="text"
+                                id="lookupMobile"
+                                class="form-control"
+                                placeholder="Enter Mobile Number">
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="button"
+                                    id="lookupBtn"
+                                    class="btn buttonSpc w-100">
+                                <i class="ti ti-search me-1"></i>
+                                Find Customer
+                            </button>
+                        </div>
+
+                        <div class="col-md-3">
+                            <small id="lookupMessage"
+                                class="text-success fw-semibold">
+                            </small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+<!-- Section 3: Customer Information -->
+<div class="border rounded p-4 mb-4">
+
+    <div class="form-section-header mb-3">
+        <i class="ti ti-user fs-5"></i> Customer Information
+    </div>
+
+    <input type="hidden" name="c_customer_name" id="c_customer_name" class="c_customer_name"
+        value="{{ isset($sale) ? $sale->c_customer_name : '' }}">
+
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Customer Code
+                    </label>
+
+                    <input type="text" name="c_customer_code" id="c_customer_code" class="form-control customer-code"
+                        value="{{ $customerCode }}" readonly>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Customer Name *
+                    </label>
+
+                    <input type="text" name="c_customer_name"  data-customer_name="{{isset($sale) ? $sale->c_customer_name : ''}}" value=""
+                        class="form-control  c_customer_name mandatory" placeholder="Customer Name">
+
+                    @error('c_customer_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Mobile Number *
+                    </label>
+
+                    <input type="text" maxlength="10" name="n_mobile" value="{{ old('n_mobile') }}"
+                        class="form-control mandatory">
+
+                    @error('n_mobile')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        WhatsApp Number
+                    </label>
+
+                    <input type="text" maxlength="10" name="n_whatsapp" value="{{ old('n_whatsapp') }}"
+                        class="form-control">
+
+                    @error('n_whatsapp')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
+                <div class="col-md-12">
+
+                    <label class="form-label">
+                        Email
+                    </label>
+
+                    <input type="email" name="c_email" value="{{ old('c_email') }}" class="form-control">
+
+                    @error('c_email')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
+            </div>
+            <!-- Address Details -->
+
+            <div class="form-section-header">
+
+                <i class="ti ti-map-pin"></i>
+
+                Address Details
+
+            </div>
+
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-12">
+
+                    <label for="c_address" class="form-label">
+                        Address
+                    </label>
+
+                    <textarea id="c_address" name="c_address" rows="3" class="form-control"
+                        placeholder="Enter Customer Address">{{ old('c_address') }}</textarea>
+
+                    @error('c_address')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+                <div class="col-md-4">
+
+                    <label for="c_state" class="form-label">
+                        State
+                    </label>
+
+                    <select name="n_state_id" id="n_state_id" class="form-select">
+
+                        <option value="">Select State</option>
+
+                        @foreach($states as $state)
+
+                        <option value="{{ $state->n_state_id }}" data-id="{{ $state->n_state_id }}"
+                            {{ old('n_state_id') == $state->n_state_id ? 'selected' : '' }}>
+
+                            {{ $state->name }}
+
+                        </option>
+
+                        @endforeach
+
+                    </select>
+
+                    @error('n_state_id')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label for="c_district" class="form-label">
+                        District
+                    </label>
+
+                    <select name="n_district_id" id="n_district_id" class="form-select">
+
+                        <option value="">Select District</option>
+
+                    </select>
+
+                    @error('n_district_id')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
+
+                <div class="col-md-4">
+                     <label for="c_district" class="form-label">
+                        Pincode
+                    </label>
+                    <input type="text" id="c_pincode" name="c_pincode" maxlength="6" value="{{ old('c_pincode') }}"
+                        class="form-control" placeholder="Pincode">
+
+                    @error('c_pincode')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
+            </div>
+            <!-- Customer Status -->
+
+            <div class="form-section-header">
+                <i class="ti ti-checkup-list"></i>
+                Customer Status
+            </div>
+
+            <div class="row g-4 mb-5">
+
+                <div class="col-md-4">
+
+                    <label for="c_status" class="form-label">
+                        Status <span class="text-danger">*</span>
+                    </label>
+
+                    <select id="c_status" name="c_status" class="form-select mandatory">
+
+                        <option value="">Select Status</option>
+
+                        <option value="Y" {{ old('c_status','Y')=='Y' ? 'selected' : '' }}>
+                            Active
+                        </option>
+
+                        <option value="N" {{ old('c_status')=='N' ? 'selected' : '' }}>
+                            Inactive
+                        </option>
+
+                    </select>
+
+                    @error('c_status')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
+                </div>
+
+            </div>
+</div>
+
+
+
+<!-- Section 4: Payment Details -->
+<div class="form-box mb-4">
+
+    <div class="form-section-header mb-3">
+        <i class="ti ti-credit-card fs-5"></i>
+        Payment Details
+    </div>
+
+    <div class="row mb-4 align-items-center">
+        <label class="col-md-3 col-form-label fw-semibold">
+            Mode of Payment *
+        </label>
+
+        <div class="col-md-9 d-flex flex-wrap">
+            <div class="payment-option">
+                <input class="form-check-input mandatory mode_of_payment " type="radio" name="c_mode_of_payment"
+                    id="cod" value="Cash on Delivery" data-message="Please Choose a Payment Mode"
+                    {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on Delivery" ? 'checked' : '' }}>
+
+                <label for="cod" class="mb-0">
+                    <i class="ti ti-truck"></i>
+                    Cash on Delivery
+                </label>
+
+            </div>
+            @if(isset($isTelecaller) && $isTelecaller==false)
+            <div class="payment-option">
+                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
+                    value="UPI"
+                    {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
+
+                <label for="upi" class="mb-0">
+                    <i class="ti ti-brand-google-pay"></i>
+                    UPI
+                </label>
+            </div>
+
+            <div class="payment-option">
+                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
+                    value="Bank Deposit"
+                    {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
+
+                <label for="bkd" class="mb-0">
+                    <i class="ti ti-building-bank"></i>
+                    Bank Deposit
+                </label>
+            </div>
+            @endif
+            <div class="payment-option">
+                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
+                    value="Paid to Franchise"
+                    {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
+
+                <label for="pf" class="mb-0">
+                    <i class="ti ti-cash"></i>
+                    Paid to Franchise
+                </label>
+            </div>
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1" id="ps">
+        <div class="col-md-4">
+
+            <label class="form-label fw-semibold">
+                Payment Status
+            </label>
+
+            <select name="payment_status" id="payment_status" data-message="Please Select Payment Status"
+                class="form-select">
+
+                <option value="">Select Status</option>
+
+                <option value="pending"
+                    {{ old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : '' }}>Pending
+                </option>
+                <option value="paid"
+                    {{ old('payment_status', $sale->payment_status ?? '') == "paid" ? 'selected' : '' }}>Paid
+                </option>
+
+            </select>
+            <div class="text-danger mt-1 fs-2"></div>
+
+        </div>
+    </div>
+
+    <!-- Payment Details Extra Fields -->
+    <div class="row g-4 mt-1" id="paymet-proofs">
+        <div class="col-md-4">
+            <label class="form-label">
+                Amount to Pay *
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light text-success fw-bold">₹</span>
+                <input type="text" name="n_amount_to_pay" data-message="Please Enter Transaction id"
+                    id="n_amount_to_pay" class="form-control fw-bold text-success" value="" readonly>
+            </div>
+            <small class="text-muted fs-1 mt-1 d-block">Should match product total: ₹4,250.00</small>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">
+                Transaction ID *
+            </label>
+            <input type="text" id="c_transaction_id" name="c_transaction_id"
+                value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
+                data-message="Please Enter Transaction id" class="form-control"
+                placeholder="Enter Transaction / UTR / Reference No">
+            <div class="text-danger mt-1 fs-2"></div>
+        </div>
+
+        {{--  <div class="col-md-4">
+                <label class="form-label">
+                    Transaction Proof *
+                </label>
+                <input type="file" id="payment_image" name="payment_image" data-message="Please Enter Transaction Proof"
+                    class="form-control " value="{{ old('payment_image', $sale->payment_image ?? '')}}">
+        <div class="text-danger mt-1 fs-2"></div>
+
+        @if(isset($sale) && $sale->payment_image)
+        <div class="mt-2"> <strong>Existing File:</strong>
+            <a href="{{ asset('storage/' . $sale->payment_image) }}" target="_blank"
+                class="btn btn-sm btn-primary ms-2"> View Booklet Proof </a>
+        </div>
+        @endif
+    </div> --}}
+
+    <div class="col-md-4">
+        <label class="form-label">
+            Transaction Proof
+            @if(!isset($sale) || !$sale->payment_image)
+            <span class="text-danger">*</span>
+            @endif
+        </label>
+
+
+        <input type="file" id="payment_image" name="payment_image" data-message="Please Enter Transaction Proof"
+            class="form-control" accept="image/*">
+
+        <!-- Used to tell Laravel to delete the existing image -->
+        <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
+
+        <div class="text-danger mt-1 fs-2"></div>
+
+
+        <!-- Image Preview -->
+        <div class="mt-3" id="payment_preview_container">
+
+            <img id="payment_image_preview"
+                src="{{ isset($sale) && $sale->payment_image ? asset('uploads/payment_images/' . $sale->payment_image) : '' }}"
+                alt="Transaction Proof Preview" class="img-thumbnail"
+                style="{{ isset($sale) && $sale->payment_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
+
+            @if(isset($sale) && $sale->payment_image)
+            <br>
+
+            <button type="button" id="remove_payment_image_btn" class="btn btn-danger btn-sm mt-2">
+                Remove Image
+            </button>
+            @endif
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+</div>
+{{--
+            <!-- Section 5: Order Status Section -->
+            <div class="form-box mb-4">
+
+                <div class="form-section-header mb-3">
+                    <i class="ti ti-package fs-5"></i>
+                    Order Status
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label class="col-md-3 col-form-label fw-semibold">
+                        Status <span class="text-danger">*</span>
+                    </label>
+
+                    <div class="col-md-9 d-flex flex-wrap">
+
+                        <div class="order-status-option">
+                            <input
+                                class="form-check-input mandatory order-status"
+                                type="radio"
+                                name="c_order_status"
+                                id="order_status_approved"
+                                value="Approved"
+                                {{ old('c_order_status', $sale->c_order_status ?? '') == 'Approved' ? 'checked' : '' }}
+>
+<label for="order_status_approved" class="mb-0">
+    <i class="ti ti-circle-check text-success me-1"></i> Approved
+</label>
+</div>
+
+<div class="order-status-option">
+    <input class="form-check-input order-status" type="radio" name="c_order_status" id="order_status_dispatched"
+        value="Dispatched" {{ old('c_order_status', $sale->c_order_status ?? '') == 'Dispatched' ? 'checked' : '' }}>
+    <label for="order_status_dispatched" class="mb-0">
+        <i class="ti ti-truck-loading text-info me-1"></i> Dispatched
+    </label>
+</div>
+
+<div class="order-status-option">
+    <input class="form-check-input order-status" type="radio" name="c_order_status" id="order_status_shipped"
+        value="Shipped" {{ old('c_order_status', $sale->c_order_status ?? '') == 'Shipped' ? 'checked' : '' }}>
+    <label for="order_status_shipped" class="mb-0">
+        <i class="ti ti-truck text-primary me-1"></i> Shipped
+    </label>
+</div>
+
+<div class="order-status-option">
+    <input class="form-check-input order-status" type="radio" name="c_order_status" id="order_status_delivered"
+        value="Delivered" {{ old('c_order_status', $sale->c_order_status ?? '') == 'Delivered' ? 'checked' : '' }}>
+    <label for="order_status_delivered" class="mb-0">
+        <i class="ti ti-package-export text-success me-1"></i> Delivered
+    </label>
+</div>
+
+<div class="order-status-option">
+    <input class="form-check-input order-status" type="radio" name="c_order_status" id="order_status_cancelled"
+        value="Cancelled" {{ old('c_order_status', $sale->c_order_status ?? '') == 'Cancelled' ? 'checked' : '' }}>
+    <label for="order_status_cancelled" class="mb-0">
+        <i class="ti ti-circle-x text-danger me-1"></i> Cancelled
+    </label>
+</div>
+
+</div>
+</div>
+
+</div> --}}
+
+<!-- Section 6: Franchise / Company Details Section -->
+<div class="form-box mb-4" id="franchise-details">
+
+    @if(isset($isAdmin) && $isAdmin==true)
+
+    <!-- Company / Franchise Selection -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <label class="form-label fw-bold">
+                Order Type <span class="text-danger">*</span>
+            </label>
+
+            <div class="d-flex gap-4">
+
+                <!-- Company -->
+                <div class="form-check">
+                    <input class="form-check-input mandatory" type="radio" name="order_type" id="company"
+                        value="company" {{ old('order_type', $sale->order_type ?? '') == 'company' ? 'checked' : '' }}>
+
+                    <label class="form-check-label" for="company">
+                        Company
+                    </label>
+                </div>
+
+                <!-- Franchise -->
+                <div class="form-check">
+                    <input class="form-check-input mandatory" type="radio" name="order_type" id="franchise_type"
+                        value="franchise"
+                        {{ old('order_type', $sale->order_type ?? '') == 'franchise' ? 'checked' : '' }}>
+
+                    <label class="form-check-label" for="franchise_type">
+                        Franchise
+                    </label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Franchise Location Details -->
+    <div id="franchise-location-details">
+
+        <div class="row g-4 mb-4">
+
+            <!-- State -->
+            <div class="col-md-6">
+                <label class="form-label">
+                    State <span class="text-danger">*</span>
+                </label>
+
+                <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                    data-message="Please Select State">
+
+                    <option value="">Select State</option>
+
+                    @if(isset($states))
+                    @foreach($states as $state)
+                    <option value="{{ $state->n_state_id }}"
+                        {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
+                        {{ $state->name }}
+                    </option>
+                    @endforeach
+                    @endif
+
+                </select>
+
+                @error('n_state_id')
+                <div class="text-danger mt-1 fs-2">
+                    {{ $message }}
+                </div>
+                @enderror
+            </div>
+
+
+            <!-- District -->
+            <div class="col-md-6">
+                <label class="form-label">
+                    District <span class="text-danger">*</span>
+                </label>
+
+                <select class="form-select " id="franchise_district" name="n_district_id"
+                    data-message="Please Select District" {{ isset($viewmode) && $viewmode == 'on' ? 'disabled' : '' }}>
+
+                    <option value="">Select District</option>
+
+                    @if(isset($sale->n_district_id))
+                    @php
+                    $districts = \App\Models\District::where(
+                    'state_id',
+                    $sale->n_state_id
+                    )->get();
+                    @endphp
+
+                    @foreach($districts as $district)
+                    <option value="{{ $district->id }}"
+                        {{ old('n_district_id', $sale->n_district_id ?? '') == $district->id ? 'selected' : '' }}>
+                        {{ $district->district_name }}
+                    </option>
+                    @endforeach
+                    @endif
+
+                </select>
+            </div>
+
+
+            <!-- Panchayath -->
+            <div class="col-md-6">
+                <label class="form-label">
+                    Panchayath
+                </label>
+
+                <select class="form-select" id="franchise_panchayath" name="n_panchayath_id">
+
+                    <option value="">Select Panchayath</option>
+
+                    @if(isset($sale->n_district_id))
+
+                    @php
+                    $panchayaths = \App\Models\Panchayath::where(
+                    'district_id',
+                    $sale->n_district_id
+                    )->get();
+                    @endphp
+
+                    @foreach($panchayaths as $panchayath)
+                    <option value="{{ $panchayath->id }}"
+                        {{ old('n_panchayath_id', $franchisePanchayathId ?? '') == $panchayath->id ? 'selected' : '' }}>
+                        {{ $panchayath->panchayath_name }}
+                    </option>
+                    @endforeach
+
+                    @endif
+
+                </select>
+            </div>
+
+
+            <!-- Nearest Franchise -->
+            <div class="col-md-6">
+                <label class="form-label">
+                    Nearest Franchise <span class="text-danger">*</span>
+                </label>
+
+                <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                    data-message="Please Select Nearest Franchise">
+
+                    <option value="">Select Franchise</option>
+
+                    @if(isset($franchises))
+                    @foreach($franchises as $franchise)
+                    <option value="{{ $franchise->n_store_id }}"
+                        {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
+                        {{ $franchise->c_store_name }}
+                        ({{ $franchise->c_store_code }})
+                    </option>
+                    @endforeach
+                    @endif
+
+                </select>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<!-- Action Buttons -->
+<div class="mt-4 d-flex gap-2 flex-wrap">
+    @if(isset($viewmode) && $viewmode=="on")
+
+    @can('sales-orders.approval')
+    <!--Approval Button-->
+    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
+        data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
+        Approve
+    </button>
+    @endcan
+    @if(isset($sale) && $sale->n_sl_no)
+    {{-- Always available: Preview --}}
+    <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
+        Order Summary Preview
+    </a>
+
+    <a href="{{route('admin.invoice.download', $sale->n_sl_no)}}"><button type="button" class="btn buttonSpc"
+            style="height:61px;margin-top: 4px;">Generate Invoice</button></a>
+    @endif
+    @else
+    <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
+        id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
+    <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
+    @endif
+</div>
+
+</form>
+
+</div>
+
+
+
+
+</form>
+</div>
+</div>
+
+
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
+
+                @csrf
+                @method('PUT')
+
+
+                <div class="modal-content">
+
+                    <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);"">
+
+                    <h5 class=" modal-title text-white" id="approveModalLabel">
+                        Approval
+                        </h5>
+
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        <input type="hidden" name="approval_id" id="approval_id">
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Remarks <span class="text-danger">*</span>
+                            </label>
+
+                            <textarea class="form-control" name="remarks" id="approval_remarks" rows="3"
+                                required></textarea>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Approval Status
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <select class="form-select" name="status" id="approval_status" required>
+
+                                <option value="">
+                                    Select Status
+                                </option>
+
+                                <option value="Approved">
+                                    Approve
+                                </option>
+
+                                <option value="Rejected">
+                                    Reject
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="submit" class="btn buttonSpc" id="approvalSubmit">
+                            Submit
+                        </button>
+
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Approval Modal -->
+{{-- <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
+@csrf
+@method('PUT')
+<div class="modal-content">
+    <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
+        <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <input type="hidden" name="id" id="approval_id">
+        <div class="mb-3">
+            <label class="form-label">Remarks <span class="text-danger">*</span></label>
+            <textarea class="form-control" name="remarks" id="approval_remarks" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Approval Status <span class="text-danger">*</span></label>
+            <select class="form-select" name="status" id="approval_status" required>
+                <option value="">Select Status</option>
+                <option value="Approved">Approve</option>
+                <option value="Rejected">Reject</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn buttonSpc" id="approvalSubmit">Submit</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</div>
+</form>
+</div>
+</div> --}}
+@php
+$hasPaymentImage = isset($sale) && !empty($sale->payment_image);
+@endphp
+
+@endsection
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script>
+
+$(document).ready(function () {
+
+    console.log('Sales Order JS loaded');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product Row Index
+    |--------------------------------------------------------------------------
+    */
+
+    let rowIndex = $('#productTable tbody tr').length;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Add New Product
+    |--------------------------------------------------------------------------
+    */
+
+    $('#addRow').on('click', function () {
+
+        let row = `
+            <tr class="new-product-row">
+                <!-- Category-->
+
+                        <td>
+                            <select name="products[${rowIndex}][n_category_id]" class="form-control product mandatory">
+
+                                <option value="">Select Product Category</option>
+
+                                @foreach($productCategories as $category)
+
+                                    <option value="{{ $category->n_category_id }}">
+                                        {{ $category->c_category_name }}
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+                        </td>
+
+                <!-- Product -->
+                <td>
+                    <select
+                        name="products[${rowIndex}][product_id]"
+                        class="form-control product mandatory"
+                        data-message="Please Select Product">
+
+                        <option value="">Select Product</option>
+
+                        @foreach($products as $product)
+                            <option
+                                value="{{ $product->n_product_id }}"
+                                data-price="{{ $product->n_mrp }}"
+                                data-gst="{{ $product->n_gst_percentage }}"
+                                data-hsn-code="{{ $product->c_hsn_code }}"
+                                data-unit="{{ $product->c_unit }}">
+
+                                {{ $product->c_product_name }}
+                                ({{ $product->c_product_code }})
+                                ({{ $product->c_unit }})
+
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    <div class="text-danger mt-1 fs-2"></div>
+                </td>
+
+                <!-- Unit -->
+                 <td>
+                    <select name="products[${rowIndex}][n_category_id]" class="form-control product mandatory">
+
+                        <option value="">Select Product Category</option>
+
+                        @foreach($productCategories as $category)
+
+                            <option value="{{ $category->n_category_id }}">
+                                {{ $category->c_category_name }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+                </td>
+
+
+                <!-- HSN Code -->
+                <td>
+                    <input
+                        type="text"
+                        name="products[${rowIndex}][c_hsn_code]"
+                        class="form-control c_hsn_code"
+                        value=""
+                        readonly>
+                </td>
+
+
+                <!-- Price -->
+                <td>
+                    <input
+                        type="text"
+                        name="products[${rowIndex}][product_price]"
+                        class="form-control price"
+                        value="0.00"
+                        readonly>
+                </td>
+
+
+                <!-- Quantity -->
+                <td>
+                    <input
+                        type="number"
+                        name="products[${rowIndex}][qty]"
+                        class="form-control qty"
+                        value="1"
+                        min="1">
+                </td>
+
+                <!-- Discount -->
+                <td>
+                    <input
+                        type="number"
+                        name="products[${rowIndex}][discount]"
+                        class="form-control discount"
+                        value="0.00"
+                        step="0.01"
+                        min="0">
+                </td>
+
+
+                <!-- GST % -->
+                <td>
+                    <input
+                        type="number"
+                        name="products[${rowIndex}][n_gst_percentage]"
+                        class="form-control gst_percentage"
+                        value="0.00"
+                        step="0.01"
+                        readonly>
+                </td>
+
+
+                <!-- GST Amount -->
+                <td>
+                    <input
+                        type="text"
+                        name="products[${rowIndex}][gst_amount]"
+                        class="form-control gst_amount"
+                        value="0.00"
+                        readonly>
+                </td>
+
+
+                <!-- Discounted Price -->
+                <td>
+                    <input
+                        type="text"
+                        name="products[${rowIndex}][discounted_price]"
+                        class="form-control discounted_price"
+                        value="0.00"
+                        readonly>
+                </td>
+
+
+                <!-- Product Total -->
+                <td>
+                    <input
+                        type="text"
+                        name="products[${rowIndex}][product_total]"
+                        class="form-control total"
+                        value="0.00"
+                        readonly>
+                </td>
+
+
+                <!-- Remove -->
+                <td class="text-center">
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm removeRow">
+
+                        <i class="ti ti-trash"></i>
+
+                    </button>
+                </td>
+
+            </tr>
+        `;
+
+        $('#productTable tbody').append(row);
+
+        rowIndex++;
+
+        console.log('New product row added');
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product Selection - New Rows Only
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'change',
+        '.new-product-row .product',
+        function () {
+
+            productTotal($(this));
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Quantity / Discount Change
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'input change',
+        '.qty, .discount',
+        function () {
+
+            let row = $(this).closest('tr');
+
+
+            // Existing product row
+            if (!row.hasClass('new-product-row')) {
+
+                calculateExistingRow(row);
+                calculateSummary();
+
+                return;
+            }
+
+
+            // New product row
+            let product = row.find('.product');
+
+            if (product.length && product.val()) {
+                productTotal(product);
+            } else {
+                calculateSummary();
+            }
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | New Product Calculation
+    |--------------------------------------------------------------------------
+    */
+
+    function productTotal(productSelect) {
+
+        let row = productSelect.closest('tr');
+
+        if (!row.length) {
+            return;
+        }
+
+        let selectedOption = productSelect.find(':selected');
+
+        let mrp = parseFloat(
+            selectedOption.attr('data-price')
+        ) || 0;
+
+        let gstPercentage = parseFloat(
+            selectedOption.attr('data-gst')
+        ) || 0;
+
+        let hsnCode =
+            selectedOption.attr('data-hsn-code') || '';
+
+        let unit =
+            selectedOption.attr('data-unit') || '';
+
+        let qty = parseFloat(
+            row.find('.qty').val()
+        ) || 0;
+
+        let discount = parseFloat(
+            row.find('.discount').val()
+        ) || 0;
+
+
+        if (qty < 0) {
+            qty = 0;
+        }
+
+        if (discount < 0) {
+            discount = 0;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MRP Includes GST
+        |--------------------------------------------------------------------------
+        */
+
+        let price = 0;
+        let grossAmount = 0;
+        let taxableAmount = 0;
+        let gstAmount = 0;
+        let lineTotal = 0;
+
+
+        if (mrp > 0) {
+
+            // GST exclusive price
+            price =
+                mrp / (1 + (gstPercentage / 100));
+
+            // Price × Quantity
+            grossAmount =
+                price * qty;
+
+            // Discount
+            taxableAmount =
+                grossAmount - discount;
+
+            if (taxableAmount < 0) {
+                taxableAmount = 0;
+            }
+
+            // GST Amount
+            gstAmount =
+                taxableAmount * gstPercentage / 100;
+
+            // Final Total
+            lineTotal =
+                taxableAmount + gstAmount;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Set New Row Values
+        |--------------------------------------------------------------------------
+        */
+
+        row.find('.c_hsn_code').val(hsnCode);
+
+        row.find('.c_unit').val(unit);
+
+        row.find('.price').val(
+            price.toFixed(2)
+        );
+
+        row.find('.gst_percentage').val(
+            gstPercentage.toFixed(2)
+        );
+
+        row.find('.gst_amount').val(
+            gstAmount.toFixed(2)
+        );
+
+        row.find('.discounted_price').val(
+            taxableAmount.toFixed(2)
+        );
+
+        row.find('.total').val(
+            lineTotal.toFixed(2)
+        );
+
+
+        calculateSummary();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Existing Product Row Calculation
+    |--------------------------------------------------------------------------
+    */
+
+    function calculateExistingRow(row) {
+
+        let price =
+            parseFloat(row.find('.price').val()) || 0;
+
+        let qty =
+            parseFloat(row.find('.qty').val()) || 0;
+
+        let discount =
+            parseFloat(row.find('.discount').val()) || 0;
+
+        let gstPercentage =
+            parseFloat(row.find('.gst_percentage').val()) || 0;
+
+
+        if (qty < 0) {
+            qty = 0;
+        }
+
+        if (discount < 0) {
+            discount = 0;
+        }
+
+
+        let grossAmount =
+            price * qty;
+
+        let taxableAmount =
+            grossAmount - discount;
+
+        if (taxableAmount < 0) {
+            taxableAmount = 0;
+        }
+
+
+        let gstAmount =
+            taxableAmount * gstPercentage / 100;
+
+        let total =
+            taxableAmount + gstAmount;
+
+
+        row.find('.gst_amount').val(
+            gstAmount.toFixed(2)
+        );
+
+        row.find('.discounted_price').val(
+            taxableAmount.toFixed(2)
+        );
+
+        row.find('.total').val(
+            total.toFixed(2)
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calculate Summary
+    |--------------------------------------------------------------------------
+    */
+
+    function calculateSummary() {
+
+        let totalSales = 0;
+        let productDiscount = 0;
+        let totalTaxableAmount = 0;
+        let totalGst = 0;
+
+        let additionalDiscount =
+            parseFloat(
+                $('#summaryAdditionalDiscount').val()
+            ) || 0;
+
+
+        if (additionalDiscount < 0) {
+            additionalDiscount = 0;
+        }
+
+
+        $('#productTable tbody tr').each(function () {
+
+            let row = $(this);
+
+            let price =
+                parseFloat(row.find('.price').val()) || 0;
+
+            let qty =
+                parseFloat(row.find('.qty').val()) || 0;
+
+            let discount =
+                parseFloat(row.find('.discount').val()) || 0;
+
+            let gstPercentage =
+                parseFloat(
+                    row.find('.gst_percentage').val()
+                ) || 0;
+
+
+            if (qty < 0) {
+                qty = 0;
+            }
+
+            if (discount < 0) {
+                discount = 0;
+            }
+
+
+            let grossAmount =
+                price * qty;
+
+            let taxableAmount =
+                grossAmount - discount;
+
+            if (taxableAmount < 0) {
+                taxableAmount = 0;
+            }
+
+
+            let gstAmount =
+                taxableAmount * gstPercentage / 100;
+
+            let total =
+                taxableAmount + gstAmount;
+
+
+            // Update row calculated values
+            row.find('.gst_amount').val(
+                gstAmount.toFixed(2)
+            );
+
+            row.find('.discounted_price').val(
+                taxableAmount.toFixed(2)
+            );
+
+            row.find('.total').val(
+                total.toFixed(2)
+            );
+
+
+            // Summary totals
+            totalSales += grossAmount;
+            productDiscount += discount;
+            totalTaxableAmount += taxableAmount;
+            totalGst += gstAmount;
+
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Final Summary Calculation
+        |--------------------------------------------------------------------------
+        */
+
+        let totalDiscount =
+            productDiscount + additionalDiscount;
+
+        let finalTaxableAmount =
+            totalTaxableAmount - additionalDiscount;
+
+        if (finalTaxableAmount < 0) {
+            finalTaxableAmount = 0;
+        }
+
+
+        let netSalesAmount =
+            finalTaxableAmount + totalGst;
+
+
+        $('#summaryTotalSales').val(
+            totalSales.toFixed(2)
+        );
+
+        $('#summaryProductDiscount').val(
+            productDiscount.toFixed(2)
+        );
+
+        $('#summaryTotalDiscount').val(
+            totalDiscount.toFixed(2)
+        );
+
+        $('#summaryTaxableAmount').val(
+            finalTaxableAmount.toFixed(2)
+        );
+
+        $('#summaryGstAmount').val(
+            totalGst.toFixed(2)
+        );
+
+        $('#summaryNetSales').val(
+            netSalesAmount.toFixed(2)
+        );
+
+        $('#n_amount_to_pay').val(
+            netSalesAmount.toFixed(2)
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Additional Discount Change
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'input change',
+        '#summaryAdditionalDiscount',
+        function () {
+
+            calculateSummary();
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove Product Row
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'click',
+        '.removeRow',
+        function () {
+
+            $(this).closest('tr').remove();
+
+            calculateSummary();
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Mode
+    |--------------------------------------------------------------------------
+    */
+
+    $('.mode_of_payment').on(
+        'change',
+        function () {
+
+            handlePaymentMode();
+
+        }
+    );
+
+
+    function handlePaymentMode() {
+
+        let paymentMode =
+            $('.mode_of_payment:checked').val();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | No Payment Mode
+        |--------------------------------------------------------------------------
+        */
+
+        if (!paymentMode) {
+
+            $('#payment-proofs').hide();
+            $('#ps').show();
+
+            $('#c_transaction_id')
+                .removeClass('mandatory');
+
+            $('#payment_image')
+                .removeClass('mandatory');
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Paid to Franchise / Cash on Delivery
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            paymentMode === 'Paid to Franchise' ||
+            paymentMode === 'Cash on Delivery'
+        ) {
+
+            $('#payment-proofs').hide();
+            $('#ps').show();
+
+            $('#c_transaction_id')
+                .removeClass('mandatory');
+
+            $('#payment_image')
+                .removeClass('mandatory');
+
+        } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Other Payment Modes
+            |--------------------------------------------------------------------------
+            */
+
+            $('#payment-proofs').show();
+            $('#ps').show();
+
+            $('#c_transaction_id')
+                .addClass('mandatory');
+
+            $('#payment_image')
+                .addClass('mandatory');
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Customer Selection
+    |--------------------------------------------------------------------------
+    */
+
+    $('#n_customer_id').on('change', function () {
+
+        let option =
+            $(this).find(':selected');
+
+        let stateId =
+            option.data('state') || '';
+
+        let districtId =
+            option.data('district') || '';
+
+
+        $('#c_customer_name').val(
+            option.data('name') || ''
+        );
+
+        $('#c_customer_email').val(
+            option.data('email') || ''
+        );
+
+        $('#n_customer_mobile').val(
+            option.data('mobile') || ''
+        );
+
+        $('#c_customer_address').val(
+            option.data('address') || ''
+        );
+
+        $('#c_customer_pincode').val(
+            option.data('pincode') || ''
+        );
+
+        $('#customer_state').val(stateId);
+
+
+        if (!stateId) {
+
+            $('#customer_district').html(
+                '<option value="">Select District</option>'
+            );
+
+            return;
+        }
+
+
+        $.ajax({
+
+            type: 'GET',
+
+            url: "{{ route('admin.filterDistrict') }}",
+
+            data: {
+                state: stateId
+            },
+
+            dataType: 'json',
+
+
+            beforeSend: function () {
+
+                $('#customer_district').html(
+                    '<option value="">Loading...</option>'
+                );
+
+            },
+
+
+            success: function (response) {
+
+                $('#customer_district').html(
+                    '<option value="">Select District</option>'
+                );
+
+
+                if (response.districts) {
+
+                    $.each(
+                        response.districts,
+                        function (index, district) {
+
+                            $('#customer_district').append(
+                                '<option value="' +
+                                district.id +
+                                '">' +
+                                district.district_name +
+                                '</option>'
+                            );
+
+                        }
+                    );
+                }
+
+
+                $('#customer_district').val(
+                    districtId
+                );
+            },
+
+
+            error: function (xhr) {
+
+                console.error(
+                    'Customer district loading failed:',
+                    xhr.responseText
+                );
+
+                $('#customer_district').html(
+                    '<option value="">Unable to load districts</option>'
+                );
+            }
+
+        });
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Franchise State → District
+    |--------------------------------------------------------------------------
+    */
+
+    $('#franchise_state').on(
+        'change',
+        function () {
+
+            let stateId =
+                $(this).val();
+
+
+            $('#franchise_district').html(
+                '<option value="">Loading...</option>'
+            );
+
+            $('#franchise_panchayath').html(
+                '<option value="">Select Panchayath</option>'
+            );
+
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+
+            if (!stateId) {
+
+                $('#franchise_district').html(
+                    '<option value="">Select District</option>'
+                );
+
+                return;
+            }
+
+
+            $.ajax({
+
+                type: 'GET',
+
+                url: "{{ route('admin.filterDistrict') }}",
+
+                data: {
+                    state: stateId
+                },
+
+                dataType: 'json',
+
+
+                success: function (response) {
+
+                    $('#franchise_district').html(
+                        '<option value="">Select District</option>'
+                    );
+
+
+                    if (response.districts) {
+
+                        $.each(
+                            response.districts,
+                            function (index, district) {
+
+                                $('#franchise_district').append(
+                                    '<option value="' +
+                                    district.id +
+                                    '">' +
+                                    district.district_name +
+                                    '</option>'
+                                );
+
+                            }
+                        );
+                    }
+
+                },
+
+
+                error: function (xhr) {
+
+                    console.error(
+                        'District AJAX Error:',
+                        xhr.responseText
+                    );
+
+                    $('#franchise_district').html(
+                        '<option value="">Unable to load districts</option>'
+                    );
+
+                }
+
+            });
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Franchise District → Panchayath
+    |--------------------------------------------------------------------------
+    */
+
+    $('#franchise_district').on(
+        'change',
+        function () {
+
+            let districtId =
+                $(this).val();
+
+
+            $('#franchise_panchayath').html(
+                '<option value="">Loading...</option>'
+            );
+
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+
+            if (!districtId) {
+
+                $('#franchise_panchayath').html(
+                    '<option value="">Select Panchayath</option>'
+                );
+
+                return;
+            }
+
+
+            $.ajax({
+
+                type: 'GET',
+
+                url: "{{ route('admin.filterPanchayath') }}",
+
+                data: {
+                    district: districtId
+                },
+
+                dataType: 'json',
+
+
+                success: function (response) {
+
+                    $('#franchise_panchayath').html(
+                        '<option value="">Select Panchayath</option>'
+                    );
+
+
+                    if (
+                        response.panchayaths &&
+                        response.panchayaths.length > 0
+                    ) {
+
+                        $.each(
+                            response.panchayaths,
+                            function (index, panchayat) {
+
+                                $('#franchise_panchayath').append(
+                                    '<option value="' +
+                                    panchayat.id +
+                                    '">' +
+                                    panchayat.panchayath_name +
+                                    '</option>'
+                                );
+
+                            }
+                        );
+
+                    } else {
+
+                        $('#franchise_panchayath').html(
+                            '<option value="">No Panchayaths Found</option>'
+                        );
+
+                    }
+
+                },
+
+
+                error: function (xhr) {
+
+                    console.error(
+                        'Panchayath AJAX Error:',
+                        xhr.responseText
+                    );
+
+                    $('#franchise_panchayath').html(
+                        '<option value="">Unable to load Panchayaths</option>'
+                    );
+
+                }
+
+            });
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Franchise Panchayath → Nearest Franchise
+    |--------------------------------------------------------------------------
+    */
+
+    $('#franchise_panchayath').on(
+        'change',
+        function () {
+
+            const panchayathId =
+                $(this).val();
+
+
+            if (!panchayathId) {
+
+                $('#franchise').html(
+                    '<option value="">Select Franchise</option>'
+                );
+
+                return;
+            }
+
+
+            findNearestFranchise(panchayathId);
+
+        }
+    );
+
+
+    function findNearestFranchise(panchayathId) {
+
+        $('#franchise').html(
+            '<option value="">Finding franchise...</option>'
+        );
+
+
+        fetch(
+            "{{ route('admin.franchise.nearest') }}",
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                    'Accept': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    panchayath_id: panchayathId
+                })
+            }
+        )
+
+        .then(function (response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    'HTTP error: ' + response.status
+                );
+
+            }
+
+            return response.json();
+
+        })
+
+
+        .then(function (data) {
+
+            console.log(
+                'Franchise response:',
+                data
+            );
+
+
+            $('#franchise').html(
+                '<option value="">Select Franchise</option>'
+            );
+
+
+            if (!data.success) {
+
+                $('#franchise').html(
+                    '<option value="">No Franchise Found</option>'
+                );
+
+                return;
+            }
+
+
+            let franchises =
+                Array.isArray(data.franchises)
+                    ? data.franchises
+                    : (
+                        data.franchises
+                            ? [data.franchises]
+                            : []
+                    );
+
+
+            if (franchises.length === 0) {
+
+                $('#franchise').html(
+                    '<option value="">No Franchise Found</option>'
+                );
+
+                return;
+            }
+
+
+            franchises.forEach(
+                function (franchise) {
+
+                    $('#franchise').append(
+                        '<option value="' +
+                        franchise.n_store_id +
+                        '">' +
+                        franchise.c_store_name +
+                        (
+                            franchise.c_store_code
+                                ? ' (' +
+                                  franchise.c_store_code +
+                                  ')'
+                                : ''
+                        ) +
+                        '</option>'
+                    );
+
+                }
+            );
+
+
+            // Automatically select first franchise
+            $('#franchise').val(
+                franchises[0].n_store_id
+            );
+
+        })
+
+
+        .catch(function (error) {
+
+            console.error(
+                'Nearest franchise error:',
+                error
+            );
+
+            $('#franchise').html(
+                '<option value="">Unable to find franchise</option>'
+            );
+
+        });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Order Type
+    |--------------------------------------------------------------------------
+    */
+
+    function toggleOrderType() {
+
+        const orderType =
+            $('input[name="order_type"]:checked').val();
+
+
+        if (orderType === 'franchise') {
+
+            $('#franchise-location-details').show();
+
+            $('#franchise_state').addClass('mandatory');
+            $('#franchise_district').addClass('mandatory');
+            $('#franchise_panchayath').addClass('mandatory');
+            $('#franchise').addClass('mandatory');
+
+        }
+        else if (orderType === 'company') {
+
+            $('#franchise-location-details').hide();
+
+            $('#franchise_state').removeClass('mandatory');
+            $('#franchise_district').removeClass('mandatory');
+            $('#franchise_panchayath').removeClass('mandatory');
+            $('#franchise').removeClass('mandatory');
+
+            $('#franchise_state').val('');
+            $('#franchise_district').val('');
+            $('#franchise_panchayath').val('');
+            $('#franchise').val('');
+        }
+    }
+
+
+    $('input[name="order_type"]').on(
+        'change',
+        function () {
+
+            toggleOrderType();
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Approval Modal
+    |--------------------------------------------------------------------------
+    */
+
+    const approveModalEl =
+        document.getElementById('approveModal');
+
+
+    if (approveModalEl) {
+
+        approveModalEl.addEventListener(
+            'show.bs.modal',
+            function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+
+                if (!button) {
+                    return;
+                }
+
+
+                const id =
+                    button.getAttribute('data-id');
+
+
+                $('#approval_id').val(id);
+
+                $('#approval_remarks').val('');
+
+                $('#approval_status').val('');
+
+            }
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Approval Submit
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'click',
+        '.approvalSubmit',
+        function () {
+
+            const id =
+                $(this).attr('data-id');
+
+
+            $('#approval_id').val(id);
+
+
+            $('#approvalForm').attr(
+                'action',
+                "{{ route('admin.salesorders.approval.save') }}"
+            );
+
+
+            $('#approval_remarks').val('');
+
+            $('#approval_status').val('');
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Image Upload Preview
+    |--------------------------------------------------------------------------
+    */
+
+    function setupImageUpload(
+        inputId,
+        previewId,
+        containerId,
+        removeInputId,
+        removeButtonId
+    ) {
+
+        $(document).on(
+            'change',
+            '#' + inputId,
+            function (event) {
+
+                const file =
+                    event.target.files[0];
+
+
+                if (!file) {
+                    return;
+                }
+
+
+                if (!file.type.startsWith('image/')) {
+
+                    alert(
+                        'Please select an image file.'
+                    );
+
+                    $(this).val('');
+
+                    return;
+                }
+
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function (e) {
+
+                        $('#' + previewId)
+                            .attr(
+                                'src',
+                                e.target.result
+                            )
+                            .show();
+
+
+                        $('#' + removeInputId)
+                            .val('0');
+
+
+                        if (
+                            $('#' + removeButtonId).length === 0
+                        ) {
+
+                            $('#' + containerId).append(
+                                '<br>' +
+                                '<button type="button" ' +
+                                'id="' + removeButtonId + '" ' +
+                                'class="btn btn-danger btn-sm mt-2">' +
+                                'Remove Image' +
+                                '</button>'
+                            );
+
+                        } else {
+
+                            $('#' + removeButtonId).show();
+
+                        }
+
+                    };
+
+
+                reader.readAsDataURL(file);
+
+            }
+        );
+
+
+        $(document).on(
+            'click',
+            '#' + removeButtonId,
+            function () {
+
+                $('#' + inputId).val('');
+
+                $('#' + previewId)
+                    .attr('src', '')
+                    .hide();
+
+
+                $('#' + removeInputId)
+                    .val('1');
+
+
+                $(this).hide();
+
+            }
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Image
+    |--------------------------------------------------------------------------
+    */
+
+    setupImageUpload(
+        'payment_image',
+        'payment_image_preview',
+        'payment_preview_container',
+        'remove_payment_image',
+        'remove_payment_image_btn'
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Booklet Image
+    |--------------------------------------------------------------------------
+    */
+
+    setupImageUpload(
+        'booklet_image',
+        'booklet_image_preview',
+        'booklet_image_preview_container',
+        'remove_booklet_image',
+        'remove_booklet_image_btn'
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | View Mode
+    |--------------------------------------------------------------------------
+    */
+    var viewmode="{{$viewmode}}";
+    if( viewmode == 'on'){
+
+        $('#frm_create input:not([type="hidden"]):not([type="button"]):not([type="submit"])')
+            .prop('readonly', true);
+
+        $('#frm_create textarea')
+            .prop('readonly', true);
+
+        $('#frm_create select')
+            .prop('disabled', true);
+
+        $('#frm_create input[type="radio"]')
+            .prop('disabled', true);
+
+        $('#frm_create input[type="checkbox"]')
+            .prop('disabled', true);
+
+        $('#frm_create input[type="file"]')
+            .prop('disabled', true);
+
+        $('#addRow')
+            .prop('disabled', true);
+
+        $('.removeRow')
+            .prop('disabled', true);
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Page Load Initialization
+    |--------------------------------------------------------------------------
+    */
+
+    // Do not call productTotal() for existing rows.
+    // It may overwrite saved product values.
+    calculateSummary();
+
+    toggleOrderType();
+
+    handlePaymentMode();
+
+
+    // Load selected customer data when customer is already selected
+    if ($('#n_customer_id').val()) {
+
+        $('#n_customer_id').trigger('change');
+
+    }
+
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Mode of Payment on change
+|--------------------------------------------------------------------------
+*/
+
+
+$('.mode_of_payment').on('change', function () {
+    handlePaymentMode();
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Run Payment Mode on Page Load
+|--------------------------------------------------------------------------
+*/
+
+handlePaymentMode();
+
+
+/*
+|--------------------------------------------------------------------------
+| Handle Payment Mode
+|--------------------------------------------------------------------------
+*/
+
+function handlePaymentMode() {
+
+    let paymentMode =
+        $('.mode_of_payment:checked').val();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | No Payment Mode Selected
+    |--------------------------------------------------------------------------
+    */
+
+    if (!paymentMode) {
+
+        $('#paymet-proofs').hide();
+        $('#ps').show();
+        $('#franchise-details').show();
+
+        $('#franchise_state').addClass('mandatory');
+        $('#franchise_district').addClass('mandatory');
+        $('#franchise_panchayath').addClass('mandatory');
+        $('#franchise').addClass('mandatory');
+        $('#payment_status').addClass('mandatory');
+
+        $('#c_transaction_id').removeClass('mandatory');
+        $('#payment_image').removeClass('mandatory');
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Paid to Franchise / Cash on Delivery
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        paymentMode === 'Paid to Franchise' ||
+        paymentMode === 'Cash on Delivery'
+    ) {
+
+        $('#paymet-proofs').hide();
+        $('#ps').show();
+        $('#franchise-details').show();
+
+        $('#franchise_state').addClass('mandatory');
+        $('#franchise_district').addClass('mandatory');
+        $('#franchise_panchayath').addClass('mandatory');
+        $('#franchise').addClass('mandatory');
+        $('#payment_status').addClass('mandatory');
+
+        $('#c_transaction_id').removeClass('mandatory');
+        $('#payment_image').removeClass('mandatory');
+
+    } else {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Other Payment Modes
+        |--------------------------------------------------------------------------
+        */
+
+        $('#paymet-proofs').show();
+        $('#ps').show();
+        $('#franchise-details').show();
+
+        $('#franchise_state').addClass('mandatory');
+        $('#franchise_district').addClass('mandatory');
+        $('#franchise_panchayath').addClass('mandatory');
+        $('#franchise').addClass('mandatory');
+        $('#payment_status').addClass('mandatory');
+
+        $('#c_transaction_id').addClass('mandatory');
+        $('#payment_image').addClass('mandatory');
+    }
+}
+
+
+
+        //-------------------------------------------------------
+        // Existing Customer Onload
+        //-------------------------------------------------------
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('input[name="c_customer_type"]')
+                .forEach(function (radio) {
+
+                    radio.addEventListener('change', toggleCustomerType);
+
+                });
+
+            toggleCustomerType();
+        });
+
+        //-------------------------------------------------------
+        // Existing Customer Toggle
+        //-------------------------------------------------------
+
+        const lookupCard = document.getElementById('lookupCard');
+        const newCustomer = document.getElementById('newCustomer');
+        const existingCustomer = document.getElementById('existingCustomer');
+
+        function toggleCustomerType() {
+
+            const selected = document.querySelector(
+                'input[name="c_customer_type"]:checked'
+            );
+
+            if (!selected) {
+                return;
+            }
+
+            const lookupCard = document.getElementById('lookupCard');
+
+            // lookupCard doesn't exist on edit page
+            if (!lookupCard) {
+                return;
+            }
+
+            if (selected.value === 'existing') {
+                lookupCard.classList.remove('d-none');
+            } else {
+                lookupCard.classList.add('d-none');
+            }
+        }
+
+        if (newCustomer) {
+            newCustomer.addEventListener('change', toggleCustomerType);
+        }
+
+        if (existingCustomer) {
+            existingCustomer.addEventListener('change', toggleCustomerType);
+        }
+
+        toggleCustomerType();
+
+        //-------------------------------------------------------
+        // Mobile Lookup
+        //-------------------------------------------------------
+
+        const lookupBtn = document.getElementById('lookupBtn');
+
+        if (lookupBtn) {
+
+            lookupBtn.addEventListener('click', function () {
+
+                const mobileInput = document.getElementById('lookupMobile');
+                const mobile = mobileInput.value.trim();
+
+                if (!/^[0-9]{10}$/.test(mobile)) {
+                    alert('Please enter a valid 10 digit mobile number.');
+                    return;
+                }
+
+                fetch("{{ route('admin.leads.existingCustomer') }}", {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+
+                    body: JSON.stringify({
+                        mobile: mobile
+                    })
+                })
+                .then(function (response) {
+
+                    console.log("HTTP Status:", response.status);
+
+                    if (!response.ok) {
+                        return response.text().then(function (text) {
+                            throw new Error(text);
+                        });
+                    }
+
+                    return response.json();
+                })
+                .then(function (data) {
+
+                    console.log("Customer Response:", data);
+
+                    if (data.status === true) {
+
+                        //-------------------------------------------------------
+                        // Customer Details
+                        //-------------------------------------------------------
+
+                        $(".c_customer_name").val(data.customer.c_customer_name);
+
+
+                        document.querySelector('[name="n_whatsapp"]').value =
+                            data.customer.n_whatsapp || '';
+
+                        document.querySelector('[name="n_mobile"]').value =
+                            data.customer.n_mobile || '';
+
+                        document.querySelector('[name="c_email"]').value =
+                            data.customer.c_email || '';
+
+                        document.querySelector('[name="c_address"]').value =
+                            data.customer.c_address || '';
+
+
+                        //-------------------------------------------------------
+                        // State
+                        //-------------------------------------------------------
+
+                        const stateDropdown =
+                            document.querySelector('[name="n_state_id"]');
+
+                        const selectedState =
+                            data.customer.n_state_id;
+
+                        if (selectedState) {
+
+                            stateDropdown.value = selectedState;
+
+                        } else if (data.customer.c_state) {
+
+                            Array.from(stateDropdown.options).forEach(function (option) {
+
+                                if (
+                                    option.text.trim().toLowerCase() ===
+                                    data.customer.c_state.trim().toLowerCase()
+                                ) {
+                                    option.selected = true;
+                                }
+
+                            });
+                        }
+
+
+                        //-------------------------------------------------------
+                        // District
+                        //-------------------------------------------------------
+
+                        const selectedDistrict =
+                            data.customer.n_district_id || null;
+
+                        districtFilter(
+                            selectedState,
+                            selectedDistrict
+                        );
+
+                        //------Pin code----//
+
+                        document.querySelector('[name="c_pincode"]').value =
+                            data.customer.c_pincode || '';
+
+
+                    } else {
+
+                        alert('Customer not found.');
+
+                    }
+
+                })
+                .catch(function (error) {
+
+                    console.error('Fetch Error:', error);
+
+                    alert('Unable to find customer. Please try again.');
+
+                });
+
+            });
+        }
+
+
+        //-------------------------------------------------------
+        // District Filter
+        //-------------------------------------------------------
+
+        function districtFilter(state, selectedDistrict = null) {
+
+            if (!state) {
+
+                $('#district').empty();
+
+                $('#district').append(
+                    '<option value="">Select District</option>'
+                );
+
+                return;
+            }
+
+            $.ajax({
+
+                type: 'GET',
+
+                url: "{{ route('admin.filterDistrict') }}",
+
+                data: {
+                    state: state
+                },
+
+                cache: false,
+
+                dataType: 'json',
+
+                success: function (data) {
+
+                        $('#district').empty();
+
+                        $('#district').append(
+                            '<option value="">Select District</option>'
+                        );
+
+                        console.log(data.districts);
+
+                        $('#district').empty().append(
+                            '<option value="">Select District</option>'
+                        );
+
+                        $.each(data.districts, function (index, district) {
+
+                            $('#n_district_id').append(
+                                '<option value="' + district.id + '">' +
+                                    district.district_name +
+                                '</option>'
+                            );
+
+                        });
+
+
+                    //-------------------------------------------------------
+                    // Select Existing Customer District
+                    //-------------------------------------------------------
+
+                    if (selectedDistrict !== null) {
+
+                        $('#n_district_id').val(selectedDistrict);
+
+                    }
+
+                },
+
+                error: function (xhr) {
+
+                    console.error(
+                        'District AJAX Error:',
+                        xhr.responseText
+                    );
+
+                }
+
+            });
+
+        }
+
+
+
+      $(document).ready(function () {
+
+        // ON LOAD
+        $('.customer-toggle .btn-check:checked')
+            .next('.new')
+            .css({
+                'background': 'linear-gradient(90deg, #527f36, #155b48)',
+                'color': '#fff'
+            });
+
+        // ON TOGGLE
+        $('.customer-toggle .btn-check').on('change', function () {
+
+            // Reset all buttons
+            $('.customer-toggle .toggle-btn').css({
+                'background': '#e8edf3',
+                'color': '#64748b'
+            });
+
+            // Set selected button
+            $(this).next('.toggle-btn').css({
+                'background': 'linear-gradient(90deg, #527f36, #155b48)',
+                'color': '#fff'
+            });
+
+        });
+
+        $(document).on('change', '.product', function () {
+
+            let productName = $(this).val();
+
+            let row = $(this).closest('tr');
+
+            let unitDropdown = row.find('.unit');
+
+            // Clear existing units
+            unitDropdown.empty();
+
+            unitDropdown.append(
+                '<option value="">Select Unit</option>'
+            );
+
+            if (!productName) {
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('get.product.units') }}",
+                type: "GET",
+                data: {
+                    product_name: productName
+                },
+                success: function (response) {
+
+                    $.each(response.units, function (index, unit) {
+
+                        unitDropdown.append(
+                            $('<option>', {
+                                value: unit.n_product_id,
+                                text: unit.c_unit
+                            })
+                        );
+
+                    });
+
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+
+        });
+
+
+    });
+</script>
+@endpush

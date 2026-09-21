@@ -2,13 +2,13 @@
 <html lang="en">
 
 <head>
-    <title>Centreal Bazaar - A Fast Growing Supermarket chain in India</title>
+    <title>SPC</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="handheldfriendly" content="true" />
     <meta name="MobileOptimized" content="width" />
-    <meta name="description" content="Centreal Bazaar - A Fast Growing Supermarket chain in India" />
-    <meta name="keywords" content="Centreal Bazaar, Supermarket, India, Grocery" />
+    <meta name="description" content="SPC" />
+    <meta name="keywords" content="spc" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="shortcut icon" type="image/png" href="{{asset('dist/images/logos/fav.png')}}" />
 
@@ -16,18 +16,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --primary-blue: #004b91;
-            --primary-red: #ed1c24;
-            --accent-glow: rgba(0, 75, 145, 0.15);
-            --bg-color: #fcfdfe;
-            --card-bg: #ffffff;
-            --text-dark: #1a1a1a;
-            --text-grey: #666666;
-            --input-border: #e0e0e0;
-            --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.05);
-            --shadow-glow: 0 0 20px rgba(0, 75, 145, 0.1);
-        }
+       :root {
+                --primary-blue: #0f7d3d;
+                --primary-red: #1e550b;
+                --accent-glow: rgba(0, 75, 145, 0.15);
+                --bg-color: #fcfdfe;
+                --card-bg: #ffffff;
+                --text-dark: #1a1a1a;
+                --text-grey: #666666;
+                --input-border: #e0e0e0;
+                --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.05);
+                --shadow-glow: 0 0 20px rgba(0, 75, 145, 0.1);
+            }
 
         * {
             margin: 0;
@@ -218,13 +218,13 @@
             padding: 15px;
             border-radius: 12px;
             border: none;
-            background: linear-gradient(135deg, var(--primary-blue), #003366);
+            background: linear-gradient(135deg, #5A8D3A, #074E30);
             color: white;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            margin-bottom: 25px;
+
             box-shadow: 0 10px 20px rgba(0, 75, 145, 0.2);
             position: relative;
             overflow: hidden;
@@ -315,15 +315,16 @@
             }
         }
 
-        .copy {
-            text-align: center;
-            color: #000;
-            font-weight: 600;
-            position: absolute;
-            bottom: 7px;
-            font-size: 15px;
-            margin-top: 20px
-        }
+       .copy {
+    text-align: center;
+    color: #000;
+    font-weight: 600;
+    position: absolute;
+    bottom: 7px;
+    font-size: 15px;
+    margin-top: 20px;
+    font-family: auto;
+}
 
         @media screen and (max-width:767px) {
             .copy {
@@ -363,7 +364,7 @@
     <div class="auth-container">
         <div class="auth-card">
             <div class="logo-box">
-                <img src="{{asset('dist/images/logos/centrallogo.png')}}" alt="Centreal Bazaar Logo">
+                <img src="{{asset('dist/images/logos/spclogo.png')}}" alt="SPC Logo">
             </div>
 
             <div class="auth-header animated">
@@ -415,17 +416,16 @@
                     Sign In
                 </button>
 
-                <div class="footer-text animated delay-2">
-                    New to Centreal Bazaar?
-                    <a href="./authentication-register.html"></a>
-                </div>
+                {{-- <div class="footer-text animated delay-2">
+                    New to SPC?
+                    <a href="{{route('register')}}"></a>
+                </div> --}}
             </form>
+
         </div>
     </div>
-    <p class="copy">Copyright © 2026 Centreal Bazaar All Rights Reserved.
 
-    </p>
-
+  <p class="copy">Copyright © 2026 SPC All Rights Reserved.</p>
 
     <!--  Import Js Files -->
     <script src="{{asset('dist/libs/jquery/dist/jquery.min.js')}}"></script>

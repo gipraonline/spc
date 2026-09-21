@@ -4,405 +4,498 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DesignationMaster;
-use App\Models\EmployeeMaster;
-use App\Models\PoolMaster;
-use App\Models\StoreMaster;
 use App\Models\EmployeeEditLog;
-use App\Models\OperationCluster;
+use App\Models\EmployeeMaster;
 use App\Models\KycSubmission;
-use Illuminate\Support\Facades\DB;
-
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
-
+use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
 {
+    public function search(Request $request)
+    {
+        session([
+            'employee_search' => $request->employee_search,
+            'designation_filter' => $request->n_designation_id,
+        ]);
+
+        return redirect()->route('admin.employees.index');
+    }
+
+    public function clearSearch()
+    {
+        session()->forget([
+            'employee_search',
+            'designation_filter',
+        ]);
+
+        return redirect()->route('admin.employees.index');
+    }
 
     public function index(Request $request)
     {
-        $query = EmployeeMaster::query()
-            ->select([
-                'employee_masters.*',
-            ])
+        $query = EmployeeMaster::with(['designation'])
+            ->whereNull('deleted_at');
 
-            // designation
-            ->leftJoin('designation_masters as d', 'employee_masters.n_designation_id', '=', 'd.n_designation_id');
+        // Get filters from session
+        $search = session('employee_search');
+        $designation = session('designation_filter');
 
+        /*
+         * Get logged-in user's role identifier from Spatie.
+         *
+         * Example:
+         * Farm Care Officer -> FCO
+         * National Sales Head -> NSH
+         */
+        $role = auth()->user()->roles->first();
 
-            // KYC Submission
-           // ->leftjoin('kyc_submissions as kyc','kyc.n_employee_id','=','employee_masters.n_employee_id');
+        $userDesignation = null;
 
-
-
-            //Employee search (name OR code)
-        if ($request->filled('employee_search')) {
-                $search = $request->employee_search;
-
-                $query->where(function ($q) use ($search) {
-                    $q->where('employee_masters.c_employee_name', 'LIKE', "%{$search}%")
-                        ->orWhere('employee_masters.c_employee_code', 'LIKE', "%{$search}%");
-                });
+        if ($role) {
+            $userDesignation = DesignationMaster::where(
+                'identifier',
+                $role->identifier
+            )
+                ->where('c_status', 'Y')
+                ->first();
         }
 
-        if ($request->filled('n_designation_id')) {
-            $query->where('employee_masters.n_designation_id', $request->n_designation_id);
+        /*
+         * Get employees only from designations below
+         * the logged-in user's designation.
+         */
+        if ($userDesignation) {
+            $query->whereHas('designation', function ($q) use ($userDesignation) {
+                $q->where('hierarchy_level', '>', $userDesignation->hierarchy_level)
+                    ->where('c_status', 'Y');
+            });
         }
 
-        /* if ($request->filled('n_store_id')) {
-            $query->where('employee_masters.n_store_id', $request->n_store_id);
-        } */
+        // Search by employee code or employee name
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('c_employee_code', 'LIKE', "%{$search}%")
+                    ->orWhere('c_employee_name', 'LIKE', "%{$search}%");
+            });
+        }
 
-        $employees = $query->paginate(15)->appends($request->all());
+        /*
+         * Apply designation filter only if it belongs
+         * to the logged-in user's allowed hierarchy.
+         */
+        if (! empty($designation) && $userDesignation) {
+            $query->whereHas('designation', function ($q) use ($designation, $userDesignation) {
+                $q->where('n_designation_id', $designation)
+                    ->where(
+                        'hierarchy_level',
+                        '>',
+                        $userDesignation->hierarchy_level
+                    );
+            });
+        }
+
+        $employees = $query->paginate(10);
+
+        /*
+         * Designation dropdown:
+         * Show only designations below the logged-in user.
+         */
+        $designations = DesignationMaster::where('c_status', 'Y')
+            ->when($userDesignation, function ($q) use ($userDesignation) {
+                $q->where(
+                    'hierarchy_level',
+                    '>',
+                    $userDesignation->hierarchy_level
+                );
+            })
+            ->orderBy('hierarchy_level')
+            ->get();
+
+        /*
+         * Employee autocomplete:
+         * Show only employees from allowed designations.
+         */
         $employeesForSearch = EmployeeMaster::select(
-        'n_employee_id',
-        'c_employee_name',
-        'c_employee_code'
-    )
-    ->get();
+            'n_employee_id',
+            'c_employee_name',
+            'c_employee_code'
+        )
+            ->where('c_status', 'Y')
+            ->when($userDesignation, function ($q) use ($userDesignation) {
+                $q->whereHas('designation', function ($designationQuery) use ($userDesignation) {
+                    $designationQuery->where(
+                        'hierarchy_level',
+                        '>',
+                        $userDesignation->hierarchy_level
+                    );
+                });
+            })
+            ->orderBy('c_employee_name')
+            ->get();
 
-        $designations = DesignationMaster::where('c_status', 'Y')->get();
-       // $stores = StoreMaster::where('c_store_status', 'Y')->get();
-        return view('admin.employees.index', compact('employees', 'designations','employeesForSearch'));
+        return view(
+            'admin.employees.index',
+            compact(
+                'employees',
+                'designations',
+                'employeesForSearch'
+            )
+        );
+    }
+
+    public function generateEmployeeCode($designationId)
+    {
+        $designation = DesignationMaster::findOrFail($designationId);
+
+        $prefix = strtoupper(trim($designation->identifier));
+
+        // Find the latest employee code with this designation identifier
+        $lastEmployee = EmployeeMaster::where(
+            'c_employee_code',
+            'LIKE',
+            $prefix.'%'
+        )
+            ->orderByDesc('n_employee_id')
+            ->first();
+
+        if ($lastEmployee) {
+
+            preg_match('/(\d+)$/', $lastEmployee->c_employee_code, $matches);
+
+            $nextNumber = isset($matches[1])
+                ? ((int) $matches[1]) + 1
+                : 1;
+
+        } else {
+            $nextNumber = 1;
+        }
+
+        $employeeCode = $prefix.str_pad(
+            $nextNumber,
+            3,
+            '0',
+            STR_PAD_LEFT
+        );
+
+        return response()->json([
+            'employee_code' => $employeeCode,
+        ]);
     }
 
     public function create()
     {
-        $designations = DesignationMaster::where('c_status', 'Y')->get();
-        //unique cluster for a store
-       /*  $assignedStoreIds = DB::table('store_clusters')
-            ->pluck('n_store_id')
-            ->toArray();
-
-        $clusterStores = StoreMaster::where('c_store_status', 'Y')
-            ->whereNotIn('n_store_id', $assignedStoreIds)
+        $employees = EmployeeMaster::where('c_status', 'Y')
+            ->orderBy('c_employee_name')
             ->get();
 
+        $user = auth()->user();
 
-        $stores = StoreMaster::where('c_store_status', 'Y')->get();
+        /*
+         * Super Admin and Gipra Admin
+         * can create employees for all designations
+         */
+        if ($user->hasAnyRole(['Super Admin', 'Gipra Admin'])) {
 
-        $pools = PoolMaster::all();
-        $clusterManagers = EmployeeMaster::whereIn('n_designation_id', function ($query) {
-            $query->select('n_designation_id')->from('designation_masters')->where('c_designation', 'CLUSTER');
-        })->where('c_status', 'Y')->get();
-    */
+            $designations = DesignationMaster::where('c_status', 'Y')
+                ->orderBy('hierarchy_level')
+                ->get();
 
-        $operationsUsers = EmployeeMaster::whereIn('n_designation_id', function ($query) {
-            $query->select('n_designation_id')->from('designation_masters')->where('c_designation', 'OPERATIONS');
-        })->where('c_status', 'Y')->get();
+            /*
+             * Farm Care Officer can create
+             * employee only for Farm Care Advisor
+             */
+        } elseif ($user->hasRole('Farm Care Officer')) {
 
-        /*   // For Linked stores Auto Suggest
-        $clusterStoresData = $clusterStores->values();
-        $clusterIds = old('cluster_stores', []); */
+            $designations = DesignationMaster::where('c_status', 'Y')
+                ->where('identifier', 'FCA')
+                ->get();
 
-        return view('admin.employees.create', compact('designations','operationsUsers'));
+        } else {
+
+            /*
+             * No allowed designation
+             */
+            $designations = collect();
+        }
+
+        return view(
+            'admin.employees.create',
+            compact('designations', 'employees')
+        );
     }
 
     public function store(Request $request)
     {
+
         $validated = $request->validate([
-            'c_employee_code' => 'required|string|unique:employee_masters',
-            'c_employee_name' => 'required|string',
-            'c_employee_address' => 'nullable|string',
-            //'c_employee_email' => 'nullable|email',
-            'c_employee_email' => 'nullable|email|unique:employee_masters,c_employee_email|unique:employee_masters,c_username',
-            'n_employee_phone' => 'nullable|string',
-            'n_designation_id' => 'nullable|exists:designation_masters,n_designation_id',
-            'n_store_id' => 'nullable|exists:store_masters,n_store_id',
+            'c_employee_code' => [
+                'required',
+                'string',
+                'max:20',
+                'regex:/^[A-Za-z0-9_-]+$/',
+                'unique:employee_masters,c_employee_code',
+            ],
+
+            'c_employee_name' => 'required|string|max:255',
+            'c_employee_address' => 'nullable|string|max:500',
+
+            'c_employee_email' => 'nullable|email|max:255|unique:employee_masters,c_employee_email|unique:employee_masters,c_username',
+
+            'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
+
+            'n_designation_id' => 'required|exists:designation_masters,n_designation_id',
+            'reporting_to' => 'nullable|exists:employee_masters,n_employee_id',
+
             'c_status' => 'required|in:Y,N',
-            'n_pool_id' => 'nullable|exists:pool_masters,n_pool_id',
-            'cluster_stores' => 'nullable|array',
-            'cluster_stores.*' => 'exists:store_masters,n_store_id',
-            'n_cluster_manager_id' => 'nullable|array',
-            'n_cluster_manager_id.*' => 'exists:employee_masters,n_employee_id',
-            'n_operation_manager_id' => 'nullable|exists:employee_masters,n_employee_id',
-            'account_number' => 'required|string|max:30',
-            'ifsc_code'      => 'required|string|max:15',
-        ],[
 
-    'c_employee_email.unique' => 'This Email/Username already exists.',
+            'account_number' => 'nullable|digits_between:8,18',
 
-    ]);
+            'ifsc_code' => 'nullable|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
 
-        $validated['c_username'] = $request['c_employee_code'] ?? null;
-        $validated['c_password'] = Hash::make('Password@123');
-        $this->assignPoolByDesignation($validated);
+            'bank_name' => 'nullable|string|max:255',
 
-        // Custom validation for specific designations
-        if (!empty($validated['n_designation_id'])) {
-            $designation = DesignationMaster::find($validated['n_designation_id']);
-            if ($designation) {
-                $desigName = strtoupper(trim($designation->c_designation));
+            'branch_name' => 'nullable|string|max:255',
 
-                // Store is mandatory for CSA, C&A, SM
-                if (in_array($desigName, ['CSA', 'C&A', 'SM'])) {
-                    if (empty($request->n_store_id)) {
-                        return back()->withErrors(['n_store_id' => 'The Assigned Store field is mandatory for ' . $desigName . '.'])->withInput();
-                    }
-                }
+        ], [
 
-                // Operations Manager is mandatory for Cluster Manager
-                if ($desigName === 'CLUSTER') {
-                    if (empty($request->n_operation_manager_id)) {
-                        return back()->withErrors(['n_operation_manager_id' => 'The Operations Manager field is mandatory for Cluster Managers.'])->withInput();
-                    }
-                }
-            }
-        }
-        // insert employee and kyc data in transaction
+            'c_employee_code.regex' => 'Employee Code can contain only letters, numbers, hyphens (-), and underscores (_).',
 
-    DB::beginTransaction();
+            'c_employee_name.required' => 'Employee Name is required.',
+
+            'c_employee_email.email' => 'Please enter a valid email address.',
+            'c_employee_email.unique' => 'This Email/Username already exists.',
+
+            'n_employee_phone.regex' => 'Please enter a valid 10-digit mobile number.',
+
+            'n_designation_id.required' => 'Please select a designation.',
+
+            'c_status.required' => 'Please select employee status.',
+
+            'account_number.required' => 'Account Number is required.',
+            'account_number.digits_between' => 'Account Number must be between 8 and 18 digits.',
+
+            'ifsc_code.required' => 'IFSC Code is required.',
+            'ifsc_code.regex' => 'Please enter a valid IFSC Code.',
+
+            'bank_name.required' => 'Bank Name is required.',
+            'branch_name.required' => 'Branch Name is required.',
+        ]);
+
+        DB::beginTransaction();
 
         try {
 
-        $employee = EmployeeMaster::create($validated);
-        $employee->kycSubmission()->create([
-        'account_number' => $request->account_number,
-        'ifsc_code'      => $request->ifsc_code,
-        'bank_name'       => null,
-        'bank_branch'     => null,
-        'document_path'  => '',
-        'status'         => 'pending',
-        ]);
-        $this->syncClusterStores($employee, $validated);
-        $this->syncOperationCluster($employee, $validated);
+            // Employee
+            $employee = EmployeeMaster::create([
+                'c_employee_code' => $validated['c_employee_code'],
+                'c_username' => $validated['c_employee_code'],
+                'c_password' => Hash::make('Password@123'),
+                'c_employee_name' => $validated['c_employee_name'],
+                'c_employee_address' => $validated['c_employee_address'] ?? null,
+                'c_employee_email' => $validated['c_employee_email'] ?? null,
+                'n_employee_phone' => $validated['n_employee_phone'] ?? null,
+                'n_designation_id' => $validated['n_designation_id'] ?? null,
+                'reporting_to' => $validated['reporting_to'] ?? null,
+                'c_status' => $validated['c_status'],
+            ]);
 
-    DB::commit();
+            // Bank Details
 
-        return redirect()->route('admin.employees.index')->with('success', 'Employee created successfully');
+            // KycSubmission::create([
+            //     'n_employee_id' => $employee->n_employee_id,
+            //     'bank_name' => $validated['bank_name'],
+            //     'bank_branch' => $validated['branch_name'],
+            //     'account_number' => $validated['account_number'],
+            //     'ifsc_code' => $validated['ifsc_code'],
+            //     'document_path' => '',
+            //     'status' => 'Active',
+            // ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.employees.index')
+                ->with('success', 'Employee created successfully.');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
         }
-        catch (\Exception $e) {
-
-    DB::rollback();
-
-            return back()->with('error', $e->getMessage());
-        }
-    }
-
-    public function show(EmployeeMaster $employee)
-    {
-        $employee = EmployeeMaster::with('designation', 'store')->get();
-
-        return view('admin.employees.show', compact('employee'));
     }
 
     public function edit(EmployeeMaster $employee)
     {
 
         $designations = DesignationMaster::where('c_status', 'Y')->get();
-        //unique cluster for a store
-        $assignedStoreIds = DB::table('store_clusters')
+        $employees = EmployeeMaster::where('c_status', 'Y')
             ->where('n_employee_id', '!=', $employee->n_employee_id)
-            ->pluck('n_store_id')
-            ->toArray();
-
-
-        $clusterStores = StoreMaster::where('c_store_status', 'Y')
-            ->whereNotIn('n_store_id', $assignedStoreIds)
+            ->orderBy('c_employee_name')
             ->get();
 
-        $stores = StoreMaster::where('c_store_status', 'Y')->get();
+        $kyc = KycSubmission::where('n_employee_id', $employee->n_employee_id)
+            ->where('status', 'Active')
+            ->first();
 
-        $pools = PoolMaster::all();
-        $clusterManagers = EmployeeMaster::whereIn('n_designation_id', function ($query) {
-            $query->select('n_designation_id')->from('designation_masters')->where('c_designation', 'CLUSTER');
-        })->where('c_status', 'Y')->get();
-
-        $operationsUsers = EmployeeMaster::whereIn('n_designation_id', function ($query) {
-            $query->select('n_designation_id')->from('designation_masters')->where('c_designation', 'OPERATIONS');
-        })->where('c_status', 'Y')->get();
-
-        $operationManager = OperationCluster::where('n_cluster_manager_id', $employee->n_employee_id)->latest()->first();
-        // dd( $operationManager);
-        //dd($operationManager->toSql(), $operationManager->getBindings());
-        // For Linked stores Auto Suggest
-        $clusterStoresData = $clusterStores->values();
-        $clusterIds = old('cluster_stores', $employee->clusters->pluck('n_store_id')->toArray());
-        $kyc = $employee->kycSubmission;
-// {{ dd($clusterStoresData); }}
-        return view('admin.employees.edit', compact('employee', 'designations', 'stores', 'clusterStores', 'pools', 'clusterManagers', 'operationsUsers', 'operationManager','clusterStoresData','clusterIds','kyc'));
+        return view('admin.employees.edit', compact('employees', 'employee', 'designations', 'kyc'));
     }
 
     public function update(Request $request, EmployeeMaster $employee)
     {
-        //dd($request->all());
-        $validated = $request->validate([
-            'c_employee_name' => 'required|string',
-            'c_employee_address' => 'nullable|string',
-            'c_employee_email' => 'nullable|email',
-            'n_employee_phone' => 'nullable|string',
+        $validator = Validator::make(
+            $request->all(),[
+            'c_employee_name' => 'required|string|max:255',
+            'c_employee_address' => 'nullable|string|max:500',
 
-            'n_designation_id' => 'nullable|exists:designation_masters,n_designation_id',
-            'n_store_id' => 'nullable|exists:store_masters,n_store_id',
+            'c_employee_email' => 'nullable|email|max:255|',
+
+            'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
+
+            'n_designation_id' => 'required|exists:designation_masters,n_designation_id',
+
+            'reporting_to' => 'nullable|exists:employee_masters,n_employee_id',
+
             'c_status' => 'required|in:Y,N',
-            'n_pool_id' => 'nullable|exists:pool_masters,n_pool_id',
-            'cluster_stores.*' => 'exists:store_masters,n_store_id',
-            'n_cluster_manager_id' => 'nullable|array',
-            'n_cluster_manager_id.*' => 'exists:employee_masters,n_employee_id',
-            'n_operation_manager_id' => 'nullable|exists:employee_masters,n_employee_id',
+
+            'account_number' => 'nullable|digits_between:8,18',
+
+            'ifsc_code' => 'nullable|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
+
+            'bank_name' => 'nullable|string|max:255',
+
+            'branch_name' => 'nullable|string|max:255',
 
             'password' => [
                 'nullable',
                 'confirmed',
-                Password::min(8)
-                    ->letters()      // at least one alphabet
-                    ->numbers()      // at least one number
-                    ->symbols(),     // at least one special character
+                Password::min(8)->letters()->numbers()->symbols(),
             ],
-            [
-                'password.min' => 'Password must be at least 8 characters.',
-            ]
-
+        ], [
+            'c_employee_email.unique' => 'This email already exists.',
+            'n_employee_phone.regex' => 'Please enter a valid 10-digit mobile number.',
+            'ifsc_code.regex' => 'Please enter a valid IFSC code.',
+            'account_number.digits_between' => 'Account number must be between 8 and 18 digits.',
         ]);
 
-        //emplyee draft log data entry
-        $emploeedeslog = EmployeeEditLog::create([
-            'n_employee_id' => $employee->n_employee_id,
-            'n_pre_designation_id' => $employee->n_designation_id,
-            'n_new_designation_id' => $request->n_designation_id,
-        ]);
-
-
-        // Capture n_pool_id explicitly if it's not being placed into the array properly
-        // wait, $request->validate() will include it if it's there.
-        $validated['n_pool_id'] = $request->input('n_pool_id');
-        $validated['n_designation_id'] = $request->input('n_designation_id');
-        $validated['cluster_stores'] = $request->input('cluster_stores');
-        $validated['n_cluster_manager_id'] = $request->input('n_cluster_manager_id');
-        $validated['n_operation_manager_id'] = $request->input('n_operation_manager_id');
-
-        // Only set password if not already set
-        if (!empty($request->password)) {
-            $validated['c_password'] = Hash::make($request->password);
-        } elseif (empty($employee->c_password)) {
-            $validated['c_password'] = Hash::make('Password@123');
+        if ($validator->fails()) {
+           /*  return back()
+                ->withErrors($validator)
+                ->withInput(); */
+                 dd($validator->errors()->toArray());
         }
 
-        $this->assignPoolByDesignation($validated);
+        $validated = $validator->validated();
+        DB::beginTransaction();
 
-        // Custom validation for specific designations
-        if (!empty($validated['n_designation_id'])) {
-            $designation = DesignationMaster::find($validated['n_designation_id']);
-            if ($designation) {
-                $desigName = strtoupper(trim($designation->c_designation));
+        try {
 
-                // Store is mandatory for CSA, C&A, SM
-                if (in_array($desigName, ['CSA', 'C&A', 'SM'])) {
-                    if (empty($request->n_store_id)) {
-                        return back()->withErrors(['n_store_id' => 'The Assigned Store field is mandatory for ' . $desigName . '.'])->withInput();
-                    }
-                }
+            EmployeeEditLog::create([
+                'n_employee_id' => $employee->n_employee_id,
+                'n_pre_designation_id' => $employee->n_designation_id,
+                'n_new_designation_id' => $request->n_designation_id,
+            ]);
 
-                // Operations Manager is mandatory for Cluster Manager
-                if ($desigName === 'CLUSTER') {
-                    if (empty($request->n_operation_manager_id)) {
-                        return back()->withErrors(['n_operation_manager_id' => 'The Operations Manager field is mandatory for Cluster Managers.'])->withInput();
-                    }
-                }
+            // Update employee
+            $employee->update([
+                'c_employee_name' => $request->c_employee_name,
+                'c_employee_address' => $request->c_employee_address,
+                'c_employee_email' => $request->c_employee_email,
+                'n_employee_phone' => $request->n_employee_phone,
+                'n_designation_id' => $request->n_designation_id,
+                'reporting_to' => $request->reporting_to,
+                'c_status' => $request->c_status,
+            ]);
+
+            // Update password only if entered
+            if ($request->filled('password')) {
+                $employee->update([
+                    'c_password' => Hash::make($request->password),
+                ]);
             }
+
+            // Update or create bank details
+            // $employee->kycSubmission()->updateOrCreate(
+            //     ['n_employee_id' => $employee->n_employee_id],
+            //     [
+            //         'bank_name' => $request->bank_name,
+            //         'bank_branch' => $request->branch_name,
+            //         'account_number' => $request->account_number,
+            //         'ifsc_code' => $request->ifsc_code,
+            //         'document_path' => '',
+            //         'status' => 'Active',
+            //     ]
+            // );
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.employees.index')
+                ->with('success', 'Employee updated successfully.');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
         }
-
-        $employee->update($validated);
-        $employee->kycSubmission()->updateOrCreate(
-            ['n_employee_id' => $employee->n_employee_id],
-            [
-                'account_number' => $request->account_number,
-                'ifsc_code'      => $request->ifsc_code,
-                'document_path'  => '',
-            ]
-        );
-
-        $this->syncClusterStores($employee, $validated);
-        $this->syncOperationCluster($employee, $validated);
-
-
-
-        return redirect()->route('admin.employees.index')->with('success', 'Employee updated successfully');
     }
 
-    public function destroy(EmployeeMaster $employee)
+    public function destroy($id)
     {
+        $employee = EmployeeMaster::findOrFail($id);
+
+        // Update employee status to 'D' (Deleted)
+
+        $employee->update([
+            'c_status' => 'D',
+        ]);
+
+        // Soft delete the employee by setting the deleted_at timestamp
+
         $employee->delete();
 
-        return redirect()->route('admin.employees.index')->with('success', 'Employee deleted successfully');
+        return redirect()->route('admin.employees.index')
+            ->with('success', 'Employee deleted successfully.');
     }
 
-    private function assignPoolByDesignation(array &$validated)
+    public function getReportingManagers($designationId)
     {
-        if (!empty($validated['n_designation_id'])) {
-            $designation = DesignationMaster::find($validated['n_designation_id']);
-            if ($designation) {
-                $desigName = strtoupper(trim($designation->c_designation));
-                if (in_array($desigName, ['CSA', 'C&A', 'SM'])) {
-                    $validated['n_pool_id'] = 0;
-                    $validated['n_operations_poolid'] = 0;
-                } elseif ($desigName === 'OPERATIONS') {
-                   // dd($validated['n_pool_id']);
-                    // Pool ID is coming from the request, fallback to first matches if empty
-                    if (empty($validated['n_pool_id'])) {
-                        $pool = PoolMaster::where('c_pool_name', 'like', '%Operations%')->first();
-                        if ($pool) {
-                            $validated['n_pool_id'] = $pool->n_pool_id;
-                        }
-                    }
-                    $validated['n_operations_poolid'] = 0;
-                } elseif (in_array($desigName, ['BM', 'DC', 'HO'])) {
-                    $poolNameSearch = '';
-                    if ($desigName === 'HO')
-                        $poolNameSearch = 'Head Office';
-                    elseif ($desigName === 'DC')
-                        $poolNameSearch = 'DC';
-                    elseif ($desigName === 'BM')
-                        $poolNameSearch = 'BM';
+        $designation = DesignationMaster::findOrFail($designationId);
 
-                    $pool = PoolMaster::where('c_pool_name', 'like', '%' . $poolNameSearch . '%')->first();
-                    if ($pool) {
-                        $validated['n_pool_id'] = $pool->n_pool_id;
-                        $validated['n_operations_poolid'] = 0;
-                    }
-                }
-            }
-        }
-    }
-
-    private function syncClusterStores(EmployeeMaster $employee, array $validated)
-    {
-        if (!empty($validated['n_designation_id'])) {
-            $designation = DesignationMaster::find($validated['n_designation_id']);
-            if ($designation && strtoupper(trim($designation->c_designation)) === 'CLUSTER') {
-                $employee->clusters()->delete();
-                if (!empty($validated['cluster_stores']) && is_array($validated['cluster_stores'])) {
-                    foreach ($validated['cluster_stores'] as $storeId) {
-                        $employee->clusters()->create(['n_store_id' => $storeId]);
-                    }
-                }
-            } else {
-                $employee->clusters()->delete();
-            }
-        }
-    }
-
-    private function syncOperationCluster(EmployeeMaster $employee, array $validated)
-    {
-        if (!empty($validated['n_designation_id'])) {
-            $designation = DesignationMaster::find($validated['n_designation_id']);
-            if ($designation && strtoupper(trim($designation->c_designation)) === 'CLUSTER') {
-                // If it's a Cluster manager, link them to the selected Operations manager
-                // We use n_cluster_manager_id as the cluster manager and n_employee_id as the operations manager
-                \App\Models\OperationCluster::where('n_cluster_manager_id', $employee->n_employee_id)->delete();
-
-                if (!empty($validated['n_operation_manager_id'])) {
-                    \App\Models\OperationCluster::create([
-                        'n_employee_id' => $validated['n_operation_manager_id'],
-                        'n_cluster_manager_id' => $employee->n_employee_id,
-                    ]);
-                }
-            } else {
-                // If the designation changed away from CLUSTER, or it's not CLUSTER,
-                // we might want to clean up. But usually n_cluster_manager_id is unique for CLUSTER managers.
-                \App\Models\OperationCluster::where('n_cluster_manager_id', $employee->n_employee_id)->delete();
-            }
-        }
+        /*  $employees = EmployeeMaster::join(
+                 'designation_masters',
+                 'employee_masters.n_designation_id',
+                 '=',
+                 'designation_masters.n_designation_id'
+             )
+             ->where('designation_masters.hierarchy_level', '<', $designation->hierarchy_level)
+             ->where('employee_masters.c_status', 'Y')
+             ->select(
+                 'employee_masters.n_employee_id',
+                 'employee_masters.c_employee_name',
+                 'designation_masters.c_designation'
+             )
+             ->orderBy('designation_masters.hierarchy_level')
+             ->get(); */
+        $reportingEmployees = EmployeeMaster::join(
+            'designation_masters',
+            'employee_masters.n_designation_id',
+            '=',
+            'designation_masters.n_designation_id'
+        )
+            ->where('designation_masters.hierarchy_level', $designation->hierarchy_level - 1)
+            ->select()
+            ->get();
+//dd($designation);
+        return response()->json($reportingEmployees);
     }
 }

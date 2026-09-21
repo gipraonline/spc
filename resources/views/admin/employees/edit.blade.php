@@ -115,7 +115,15 @@
     <div class="card-header-styled d-flex justify-content-between align-items-center">
         <h5 class="card-title-custom mb-0">Edit Employee Details</h5>
     </div>
-
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="card-body p-4 p-md-5">
         <form method="POST" id="frm_create" action="{{ route('admin.employees.update', $employee) }}">
             @csrf @method('PUT')
@@ -130,7 +138,9 @@
                     <input type="text" id="c_employee_code" name="c_employee_code"
                         value="{{ old('c_employee_code', $employee->c_employee_code) }}"
                         data-message="Please add Employee Code" class="form-control mandatory" disabled>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_employee_code')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -138,7 +148,18 @@
                     <input type="text" id="c_employee_name" name="c_employee_name"
                         value="{{ old('c_employee_name', $employee->c_employee_name) }}"
                         data-message="Please enter Employee Name" class="form-control mandatory">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_employee_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-12">
+                    <label for="c_employee_address" class="form-label">Address *</label>
+                    <textarea id="c_employee_address" name="c_employee_address"
+                        data-message="Please enter Employee Address" class="form-control "
+                        placeholder="Enter Address">{{ old('c_employee_address') }}</textarea>
+                    @error('c_employee_address')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -189,82 +210,35 @@
                         </option>
                         @endforeach
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+
+                    @error('account_number')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+
                 </div>
+                <div class="col-md-6">
 
+                    <label for="reporting_to" class="form-label">
+                        Reporting Manager
+                    </label>
+                    <select name="reporting_to" id="reporting_to" class="form-select">
+                        <option value="">Select Reporting Manager</option>
 
-
-                <div class="col-md-6" id="store_div">
-                    <label for="n_store_id" class="form-label">Primary Store Assignment</label>
-                    <!-- Search input -->
-                    <input type="text" id="store_search" autocomplete="off"
-                        value="{{ old('store_name', $employee->store->c_store_name ?? '') }}" class="form-control"
-                        placeholder="Search Store...">
-
-                    <!-- Hidden value -->
-                    <input type="hidden" name="n_store_id" id="n_store_id"
-                        value="{{ old('n_store_id', $employee->n_store_id ?? '') }}">
-
-                    <!-- Results -->
-                    <ul id="store_results" class="list-group mt-1"></ul>
-
-                    <div class="text-danger mt-1 fs-2"></div>
-                </div>
-
-                <div class="col-md-6" id="operations_pool_div" style="display: none;">
-                    <label for="n_pool_id" class="form-label">Operations Pool *</label>
-                    <select id="n_pool_id" name="n_pool_id" class="form-select">
-                        <option value="">Select Pool</option>
-                        @foreach($pools as $pool)
-                        @if(stripos($pool->c_pool_name, 'Operations') !== false)
-                        <option value="{{ $pool->n_pool_id }}"
-                            {{ old('n_pool_id', $employee->n_pool_id) == $pool->n_pool_id ? 'selected' : '' }}>
-                            {{ $pool->c_pool_name }}
+                        @if(isset($employees))
+                        @foreach ($employees as $manager)
+                        <option value="{{ $manager->n_employee_id }}"
+                            {{ old('reporting_to', $employee->reporting_to) == $manager->n_employee_id ? 'selected' : '' }}>
+                            {{ $manager->c_employee_name }}
                         </option>
-                        @endif
                         @endforeach
+                        @endif
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+
+                    @error('reporting_to')
+                    <small class="text-danger">{{ $message }}</small>
+                    @enderror
                 </div>
 
-                <div class="col-12" id="operation_manager_div" style="display: none;">
-                    <div class="p-3 bg-light rounded-3 border">
-                        <label for="n_operation_manager_id" class="form-label">Operations Manager *</label>
-                        <select id="n_operation_manager_id" name="n_operation_manager_id" class="form-select">
-                            <option value="">Select Operations Manager</option>
-                            @foreach($operationsUsers as $opUser)
-                            <option value="{{ $opUser->n_employee_id }}"
-                                {{ old('n_operation_manager_id', $operationManager->n_employee_id ?? '') == $opUser->n_employee_id ? 'selected' : '' }}>
-                                {{ $opUser->c_employee_name }} ({{ $opUser->c_employee_code }})
-                            </option>
-                            @endforeach
-                        </select>
-                        <div class="form-text mt-2" style="font-size: 0.75rem;"><i class="ti ti-info-circle"></i> Each
-                            cluster manager must be linked to an operations manager.</div>
-                        @error('n_operation_manager_id')
-                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-12" id="cluster_stores_container" style="display: none;">
-                    <div class="p-3 bg-light rounded-3 border">
-                        <label class="form-label">Linked Stores (For Cluster Manager)</label>
-
-                        <!-- Search -->
-                        <input type="text" id="cluster_store_search" class="form-control mb-2"
-                            placeholder="Search stores..." autocomplete="off">
-
-                        <!-- Suggestions -->
-                        <ul id="cluster_store_results" class="list-group mb-2"></ul>
-
-                        <!-- Selected stores -->
-                        <div id="selected_cluster_stores" class="d-flex flex-wrap gap-2"></div>
-
-                        <!-- Hidden inputs -->
-                        <div id="cluster_hidden_inputs"></div>
-                    </div>
-                </div>
             </div>
             <!-- Section 3: Account Details -->
             <div class="section-label">
@@ -272,20 +246,44 @@
             </div>
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <label for="account_number" class="form-label">Account Number *</label>
+                    <label for="account_number" class="form-label">Account Number</label>
                     <input type="text" id="account_number" name="account_number"
                         value="{{ old('account_number', $kyc ? $kyc->account_number : '') }}"
-                        data-message="Please add Account Number" class="form-control mandatory" placeholder="ACC-001">
-                    <div class="text-danger mt-1 fs-2"></div>
+                        data-message="Please add Account Number" class="form-control " placeholder="ACC-001">
+                    @error('account_number')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
-                    <label for="ifsc_code" class="form-label">IFSC Code *</label>
+                    <label for="ifsc_code" class="form-label">IFSC Code</label>
                     <input type="text" id="ifsc_code" name="ifsc_code"
                         value="{{ old('ifsc_code', $kyc ? $kyc->ifsc_code : '') }}"
-                        data-message="Please enter IFSC Code" class="form-control mandatory"
+                        data-message="Please enter IFSC Code" class="form-control "
                         placeholder="Enter IFSC code">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('ifsc_code')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-6">
+                    <label for="ifsc_code" class="form-label">Bank Name</label>
+                    <input type="text" id="bank_name" name="bank_name"
+                        value="{{ old('bank_name', $kyc ? $kyc->bank_name : '') }}"
+                        data-message="Please enter Bank name" class="form-control "
+                        placeholder="Enter Bank Name">
+                    @error('bank_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-6">
+                    <label for="ifsc_code" class="form-label">Branch Name</label>
+                    <input type="text" id="branch_name" name="branch_name"
+                        value="{{ old('bank_branch', $kyc ? $kyc->bank_branch : '') }}"
+                        data-message="Please enter branch name" class="form-control "
+                        placeholder="Enter Branch Name">
+                    @error('branch_name')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -300,8 +298,10 @@
                     <label for="c_employee_email" class="form-label">Work Email Address *</label>
                     <input type="email" id="c_employee_email" name="c_employee_email"
                         value="{{ old('c_employee_email', $employee->c_employee_email) }}"
-                        data-message="Please enter an Email Address" class="form-control mandatory" disabled>
-                    <div class="text-danger mt-1 fs-2"></div>
+                        data-message="Please enter an Email Address" class="form-control " readonly>
+                    @error('c_employee_email')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-4">
@@ -314,7 +314,9 @@
                         <option value="N" {{ old('c_status', $employee->c_status) === 'N' ? 'selected' : '' }}>Inactive
                         </option>
                     </select>
-                    <div class="text-danger mt-1 fs-2"></div>
+                    @error('c_status')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -331,198 +333,107 @@
         </form>
     </div>
 </div>
-
-
+@endsection
 @push('scripts')
 
-<script>
-document.getElementById('btn_edit_password').addEventListener('click', function() {
-    let section = document.getElementById('password_section');
-    let inputs = section.querySelectorAll('input');
+<!-- <script>
+$(document).ready(function() {
 
-    if (section.style.display === 'none') {
-        section.style.display = 'block';
+    $('#n_designation_id').change(function() {
 
-        //  Force clear autofill
-        inputs.forEach(input => {
-            input.value = '';
-            input.setAttribute('value', '');
-        });
+        let designation = $(this).val();
 
-    } else {
-        section.style.display = 'none';
+        console.log(designation);
 
-        inputs.forEach(input => {
-            input.value = '';
-            input.setAttribute('value', '');
-        });
-    }
-});
-</script>
+        $.ajax({
+            url: '/admin/employees/reporting-managers/' + designation,
+            type: 'GET',
+            success: function(data) {
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    let designation = document.getElementById('n_designation_id');
-    let storeDiv = document.getElementById('store_div');
-    let storeSelect = document.getElementById('n_store_id');
-    let poolDiv = document.getElementById('operations_pool_div');
-    let poolSelect = document.getElementById('n_pool_id');
+                let options = '<option value="">Select Reporting Manager</option>';
 
-    function toggleStore() {
-        let selectedOption = designation.options[designation.selectedIndex];
-        let isRequired = selectedOption ? selectedOption.getAttribute('data-store') : null;
-        let designName = selectedOption ? selectedOption.text.trim().toUpperCase() : '';
+                $.each(data, function(index, emp) {
 
-        if (isRequired === "1") {
-            storeDiv.style.opacity = '1';
-            storeDiv.style.pointerEvents = 'auto';
-            storeSelect.setAttribute('required', 'required');
-            storeSelect.classList.add('mandatory');
-        } else {
-            storeDiv.style.opacity = '0.5';
-            storeDiv.style.pointerEvents = 'none';
-            storeSelect.removeAttribute('required');
-            storeSelect.classList.remove('mandatory');
-            storeSelect.value = '';
-            if (storeSelect.nextElementSibling) {
-                storeSelect.nextElementSibling.innerText = '';
+                    options += `
+            <option value="${emp.n_employee_id}">
+                ${emp.c_employee_name}
+            </option>
+        `;
+
+                });
+
+                $('#reporting_to').html(options);
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
             }
-        }
+        });
 
-        if (designName === 'OPERATIONS') {
-            poolDiv.style.display = 'block';
-            poolSelect.classList.add('mandatory');
-        } else {
-            poolDiv.style.display = 'none';
-            poolSelect.classList.remove('mandatory');
-            poolSelect.value = '';
-        }
-    }
-    designation.addEventListener('change', toggleStore);
-    toggleStore();
+    });
+
 });
-</script>
-
-{{--
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const designationSelect = document.getElementById('n_designation_id');
-                const clusterContainer = document.getElementById('cluster_stores_container');
-
-                function toggleClusterStores() {
-                    if (!designationSelect || !clusterContainer) return;
-                    const selectedOption = designationSelect.options[designationSelect.selectedIndex];
-                    if (selectedOption && selectedOption.text.trim().toUpperCase() === 'CLUSTER') {
-                        clusterContainer.style.display = 'block';
-                    } else {
-                        clusterContainer.style.display = 'none';
-                    }
-                }
-
-                designationSelect.addEventListener('change', toggleClusterStores);
-                toggleClusterStores();
-            });
-        </script>
-
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const designationSelect = document.getElementById('n_designation_id');
-                const clusterContainer = document.getElementById('cluster_stores_container');
-                const clusterManagerDiv = document.getElementById('cluster_manager_div');
-                const clusterManagerSelect = document.getElementById('n_cluster_manager_id');
-                const operationManagerDiv = document.getElementById('operation_manager_div');
-                const operationManagerSelect = document.getElementById('n_operation_manager_id');
-
-                function toggleClusterManager() {
-                    if (!designationSelect || !clusterContainer || !clusterManagerDiv || !operationManagerDiv) return;
-                    const selectedOption = designationSelect.options[designationSelect.selectedIndex];
-                    const designName = selectedOption ? selectedOption.text.trim().toUpperCase() : '';
-
-                    if (designName === 'CLUSTER') {
-                        clusterContainer.style.display = 'block';
-                        clusterManagerDiv.style.display = 'none';
-                        clusterManagerSelect.classList.remove('mandatory');
-
-                        operationManagerDiv.style.display = 'block';
-                        operationManagerSelect.classList.add('mandatory');
-                    } else if (designName === 'OPERATIONS') {
-                        clusterContainer.style.display = 'none';
-                        clusterManagerDiv.style.display = 'none'; // Previously 'block', now 'none' as requested
-                        clusterManagerSelect.classList.remove('mandatory');
-
-                        operationManagerDiv.style.display = 'none';
-                        operationManagerSelect.classList.remove('mandatory');
-                    } else {
-                        clusterContainer.style.display = 'none';
-                        clusterManagerDiv.style.display = 'none';
-                        clusterManagerSelect.classList.remove('mandatory');
-
-                        operationManagerDiv.style.display = 'none';
-                        operationManagerSelect.classList.remove('mandatory');
-                    }
-                }
-
-                designationSelect.addEventListener('change', toggleClusterManager);
-                toggleClusterManager();
-            });
-
-
-        </script>
-        --}}
+</script> -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
 
-    const designationSelect = document.getElementById('n_designation_id');
-    const clusterContainer = document.getElementById('cluster_stores_container');
-    const clusterManagerDiv = document.getElementById('cluster_manager_div');
-    const clusterManagerSelect = document.getElementById('n_employee_id');
-    const operationManagerDiv = document.getElementById('operation_manager_div');
-    const operationManagerSelect = document.getElementById('n_operation_manager_id');
+    function loadReportingManagers() {
 
-    function handleDesignationChange() {
+        let designation = $('#n_designation_id').val();
 
-        if (!designationSelect) return;
+        console.log('Designation:', designation);
 
-        const selectedOption = designationSelect.options[designationSelect.selectedIndex];
-        const designName = selectedOption ? selectedOption.text.trim().toUpperCase() : '';
-
-        // Reset everything first (clean approach)
-        clusterContainer && (clusterContainer.style.display = 'none');
-        clusterManagerDiv && (clusterManagerDiv.style.display = 'none');
-        operationManagerDiv && (operationManagerDiv.style.display = 'none');
-
-        clusterManagerSelect && clusterManagerSelect.classList.remove('mandatory');
-        operationManagerSelect && operationManagerSelect.classList.remove('mandatory');
-
-        // Apply conditions
-        if (designName === 'CLUSTER') {
-            clusterContainer && (clusterContainer.style.display = 'block');
-
-            operationManagerDiv && (operationManagerDiv.style.display = 'block');
-            operationManagerSelect && operationManagerSelect.classList.add('mandatory');
-
-        } else if (designName === 'OPERATIONS') {
-            // Everything already hidden (based on your requirement)
+        if (!designation) {
+            $('#reporting_to').html(
+                '<option value="">Select Reporting Manager</option>'
+            );
+            return;
         }
+
+        $.ajax({
+            url: '/admin/employees/reporting-managers/' + designation,
+            type: 'GET',
+
+            success: function(data) {
+
+                let options =
+                    '<option value="">Select Reporting Manager</option>';
+
+                $.each(data, function(index, emp) {
+
+                    // Keep existing reporting manager selected
+                    let selected = '';
+
+                    if (emp.n_employee_id == "{{ $employee->reporting_to ?? '' }}") {
+                        selected = 'selected';
+                    }
+
+                    options += `
+                        <option value="${emp.n_employee_id}" ${selected}>
+                            ${emp.c_employee_name}
+                        </option>
+                    `;
+                });
+
+                $('#reporting_to').html(options);
+            },
+
+            error: function(xhr) {
+                console.log(xhr.responseText);
+            }
+        });
     }
 
-    designationSelect.addEventListener('change', handleDesignationChange);
 
-    // Run on page load
-    handleDesignationChange();
+    // When designation is changed manually
+    $('#n_designation_id').on('change', function() {
+        loadReportingManagers();
+    });
+
+
+    // IMPORTANT:
+    // Run automatically when edit page loads
+    loadReportingManagers();
+
 });
-
-//Auto Suggest Store List
-window.stores = @json($stores);
-
-// Cluster Linked Stores
-
-
-window.clusterStores = @json($clusterStoresData);
-window.preselectedClusterStores = @json($clusterIds);
 </script>
-<script src="{{asset('dist/js/custom.js?1')}}"></script>
 @endpush
-
-@endsection

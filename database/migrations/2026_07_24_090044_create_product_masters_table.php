@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-      public function up(): void
+    public function up(): void
     {
         Schema::create('product_masters', function (Blueprint $table) {
             $table->bigIncrements('n_product_id');
@@ -24,9 +24,11 @@ return new class extends Migration
             $table->string('c_status')->default('Y');
 
             $table->timestamps();
+
+            // Soft delete support
+            $table->softDeletes();
         });
     }
-
 
     /**
      * Reverse the migrations.

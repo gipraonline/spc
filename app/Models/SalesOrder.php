@@ -9,7 +9,7 @@ class SalesOrder extends Model
 {
     use HasFactory;
 
-    protected $table = 'sales_orders'; // Change if your table name is different
+    protected $table = 'sales_orders';
 
     protected $primaryKey = 'n_sl_no';
 
@@ -18,22 +18,167 @@ class SalesOrder extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
+        'c_order_no',
         'd_date',
-        'n_sold_price',
-        'farm_care_advisor',
-        'c_customer_name',
-        'c_customer_address',
+        'farm_care_advisor_id',
+        'c_customer_type',
+        'n_customer_id',
+        /* 'c_customer_name',
         'c_customer_email',
-        'n_customer_mobile',
-        'c_state',
-        'c_district',
+        'c_customer_address',
+        'n_customer_mobile', */
+        'order_type',
+        'n_state_id',
+        'n_district_id',
+        'n_panchayath_id',
         'c_mode_of_payment',
-        'nearest_franchise',
+        'c_order_status',
+        'nearest_franchise_id',
         'payment_status',
-        'delivery_status',
+        'c_transaction_id',
+        'payment_image',
+        'booklet_image',
+
+        'n_total_sales_amount',
+        'n_product_discount_total',
+        'n_total_gst',
+        'n_total_discount',
+        'n_net_sales_amount',
+
+        'invoice_no',
+        'created_by',
     ];
 
     protected $casts = [
         'd_date' => 'date',
     ];
+
+    public function employee()
+    {
+        return $this->belongsTo(
+            EmployeeMaster::class,
+            'farm_care_advisor_id',
+            'n_employee_id'
+        );
+    }
+
+    // public function customer()
+    // {
+    //     return $this->hasOne(
+    //         CustomerMaster::class,
+    //         'n_customer_id',
+    //         'n_customer_id'
+    //     );
+    // }
+    public function customer()
+    {
+        return $this->belongsTo(
+            CustomerMaster::class,
+            'n_customer_id',
+            'n_customer_id'
+        );
+    }
+
+    public function franchise()
+    {
+        return $this->belongsTo(
+            StoreMaster::class,
+            'nearest_franchise_id',
+            'n_store_id'
+        );
+    }
+
+    public function orderProducts()
+    {
+        return $this->hasMany(
+            OrderProduct::class,
+            'n_order_id',
+            'n_sl_no'
+        );
+    }
+
+    public function paymentStatusLogs()
+    {
+        return $this->hasMany(
+            PaymentStatusLog::class,
+            'sales_order_n_sl_no',
+            'n_sl_no'
+        );
+    }
+
+    public function latestPaymentStatusLog()
+    {
+        return $this->hasOne(
+            PaymentStatusLog::class,
+            'sales_order_n_sl_no',
+            'n_sl_no'
+        )->latestOfMany();
+    }
+
+    public static function generateTeleOrderNo()
+        {
+            $lastOrder = self::where('c_order_no', 'like', 'TL-%')
+            ->orderByDesc('n_sl_no')
+            ->first();
+
+
+            if (! $lastOrder) {
+                return 'TL-1';
+            }
+
+            $lastNumber = (int) str_replace(
+                'TL-',
+                '',
+                $lastOrder->c_order_no
+            );
+
+            return 'TL-' . ($lastNumber + 1);
+
+
+        }
+        public static function generateFCOOrderNo()
+        {
+            $lastOrder = self::where('c_order_no', 'like', 'FCO-%')
+            ->orderByDesc('n_sl_no')
+            ->first();
+
+
+            if (! $lastOrder) {
+                return 'FCO-1';
+            }
+
+            $lastNumber = (int) str_replace(
+                'FCO-',
+                '',
+                $lastOrder->c_order_no
+            );
+
+            return 'FCO-' . ($lastNumber + 1);
+
+
+        }
+
+        public static function generateFCOrderNo()
+        {
+            $lastOrder = self::where('c_order_no', 'like', 'FS-%')
+            ->orderByDesc('n_sl_no')
+            ->first();
+
+
+            if (! $lastOrder) {
+                return 'FS-1';
+            }
+
+            $lastNumber = (int) str_replace(
+                'FS-',
+                '',
+                $lastOrder->c_order_no
+            );
+
+            return 'FS-' . ($lastNumber + 1);
+
+
+        }
+
+
 }

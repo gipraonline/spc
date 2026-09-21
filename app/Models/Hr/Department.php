@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
 {
-    protected $connection = 'hr_spc';
+    protected $connection = 'spc_hr';
 
     protected $guarded = [];
+
     public $timestamps = true;
 
     public function designations()

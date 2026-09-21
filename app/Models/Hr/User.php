@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-    protected $connection = 'hr_spc';
+    protected $connection = 'spc_hr';
 
     protected $guarded = [];
+
     public $timestamps = true;
 
     protected $hidden = ['password'];

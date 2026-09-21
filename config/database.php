@@ -64,28 +64,28 @@ return [
             ]) : [],
         ],
 
-        // HR Module — separate database (HR_SPC), isolated from the SPC module's DB.
+        // HR Module — separate database (spc_hr), isolated from the SPC module's DB.
         // Keeps SPC and HR data fully separate while running inside the same
         // Laravel application (see ONE SPC Project Plan, Section 3 & 6).
-        'hr_spc' => [
-    'driver' => 'mysql',
-    'url' => env('HR_DB_URL'),
-    'host' => env('HR_DB_HOST', env('DB_HOST', '127.0.0.1')),
-    'port' => env('HR_DB_PORT', env('DB_PORT', '3306')),
-    'database' => env('HR_DB_DATABASE', 'hr_spc'),
-    'username' => env('HR_DB_USERNAME', env('DB_USERNAME', 'root')),
-    'password' => env('HR_DB_PASSWORD', env('DB_PASSWORD', 'root')),
-    'unix_socket' => env('HR_DB_SOCKET', ''),
-    'charset' => env('HR_DB_CHARSET', 'utf8mb4'),
-    'collation' => env('HR_DB_COLLATION', 'utf8mb4_unicode_ci'),
-    'prefix' => '',
-    'prefix_indexes' => true,
-    'strict' => true,
-    'engine' => null,
-    'options' => extension_loaded('pdo_mysql') ? array_filter([
-        (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
-    ]) : [],
-],
+        'spc_hr' => [
+            'driver' => 'mysql',
+            'url' => env('HR_DB_URL'),
+            'host' => env('HR_DB_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('HR_DB_PORT', env('DB_PORT', '3306')),
+            'database' => env('HR_DB_DATABASE', 'spc_hr'),
+            'username' => env('HR_DB_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('HR_DB_PASSWORD', env('DB_PASSWORD', 'root')),
+            'unix_socket' => env('HR_DB_SOCKET', ''),
+            'charset' => env('HR_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('HR_DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
 
         'mariadb' => [
             'driver' => 'mariadb',

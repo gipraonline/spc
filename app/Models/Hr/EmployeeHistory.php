@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmployeeHistory extends Model
 {
-    protected $connection = 'hr_spc';
+    protected $connection = 'spc_hr';
 
     protected $table = 'employee_history';
+
     protected $guarded = [];
+
     public $timestamps = false;
 
     public function employee()

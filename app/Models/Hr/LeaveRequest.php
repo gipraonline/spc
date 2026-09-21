@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class LeaveRequest extends Model
 {
-    protected $connection = 'hr_spc';
+    protected $connection = 'spc_hr';
 
     protected $guarded = [];
+
     public $timestamps = false;
+
     protected $dates = ['start_date', 'end_date', 'approved_at', 'created_at'];
 
     public function employee()

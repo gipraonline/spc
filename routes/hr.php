@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 | HR Module Routes (ONE SPC)
 |--------------------------------------------------------------------------
 |
-| Everything here is mounted under /hr, reads/writes only the "hr_spc"
+| Everything here is mounted under /hr, reads/writes only the "spc_hr"
 | database connection, and is registered separately from the SPC
 | module's own routes/web.php so the SPC module is left untouched.
 | Route names are auto-prefixed "hr." by the group below.

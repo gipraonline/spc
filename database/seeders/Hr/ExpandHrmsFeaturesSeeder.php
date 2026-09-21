@@ -10,7 +10,7 @@ class ExpandHrmsFeaturesSeeder extends Seeder
     /**
      * Adds sample data for the HR module's newer tables: birthdays/gender
      * backfill, holidays, announcements, WFH requests, a support ticket and
-     * a few notifications — all against the hr_spc database. Safe to run
+     * a few notifications — all against the spc_hr database. Safe to run
      * once on top of HrDatabaseSeeder — it only updates existing rows and
      * inserts new ones, it never re-inserts the original dataset.
      */
@@ -24,7 +24,7 @@ class ExpandHrmsFeaturesSeeder extends Seeder
             return;
         }
 
-        $connection = DB::connection('hr_spc');
+        $connection = DB::connection('spc_hr');
 
         $tablesToReset = [
             'announcement_reads' => [1, 2, 3],

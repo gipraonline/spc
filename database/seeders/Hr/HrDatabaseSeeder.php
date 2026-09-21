@@ -11,7 +11,7 @@ class HrDatabaseSeeder extends Seeder
     /**
      * Loads the HR module's sample dataset (10 users/employees across
      * HR, Sales and Operations, plus attendance, leave, payroll, PF,
-     * appraisal, recruitment and incentive history) into the hr_spc
+     * appraisal, recruitment and incentive history) into the spc_hr
      * database — this never touches the SPC module's own database.
      *
      * The statements in seed_data.sql are ordered so that parent rows
@@ -28,7 +28,7 @@ class HrDatabaseSeeder extends Seeder
             return;
         }
 
-        $connection = DB::connection('hr_spc');
+        $connection = DB::connection('spc_hr');
 
         $this->clearExistingData($connection);
 

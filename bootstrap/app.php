@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             Route::middleware('web')
                 ->group(base_path('routes/auth.php'));
+
+            // HR Module — separate routes, separate DB (hr_spc), mounted under /hr.
+            Route::middleware('web')
+                ->group(base_path('routes/hr.php'));
         },
         health: '/up',
     )
@@ -33,6 +37,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+
+            // HR Module's own session-based auth gate (separate from the SPC module's auth).
+            'hr.auth' => \App\Http\Middleware\Hr\EnsureUserSelected::class,
         ]);
 
     })

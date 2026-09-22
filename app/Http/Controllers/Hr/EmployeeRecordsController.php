@@ -142,62 +142,20 @@ class EmployeeRecordsController extends Controller
     }
 
     /**
-     * HR / Super Admin create a brand-new employee (and their login account)
-     * in one step — the "corporate" employee-lifecycle entry point that the
-     * reference design's "+ Add Employee" button represents.
+     * Employee creation now happens in the SPC module (Employees → Add
+     * Employee) — that record is synced into the HR module automatically
+     * by EmployeeHrSyncService. This endpoint is kept only so old links or
+     * a stale page don't hard-error; it just redirects to the one true
+     * creation form instead of making a second, disconnected HR record.
      */
     public function store(Request $request)
     {
         $this->abortUnlessModuleAllowed('employee-records');
         abort_unless($this->isHrOrAbove(), 403);
 
-        $data = $request->validate([
-            'name' => 'required|string|max:150',
-            'email' => 'required|email|max:150|unique:users,email',
-            'portal_role' => 'required|in:employee,manager',
-            'department_id' => 'nullable|exists:departments,id',
-            'designation_id' => 'nullable|exists:designations,id',
-            'reporting_manager_id' => 'nullable|exists:employees,id',
-            'date_of_joining' => 'required|date',
-        ]);
-
-        $employee = DB::transaction(function () use ($data) {
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'role' => $data['portal_role'],
-                'password' => Hash::make('changeme'),
-                'is_active' => true,
-            ]);
-
-            $lastNumber = (int) Employee::query()
-                ->selectRaw("MAX(CAST(SUBSTR(employee_code, 4) AS INTEGER)) as n")
-                ->value('n');
-
-            $employee = Employee::create([
-                'user_id' => $user->id,
-                'employee_code' => 'EMP'.str_pad((string) ($lastNumber + 1), 3, '0', STR_PAD_LEFT),
-                'department_id' => $data['department_id'] ?? null,
-                'designation_id' => $data['designation_id'] ?? null,
-                'reporting_manager_id' => $data['reporting_manager_id'] ?? null,
-                'date_of_joining' => $data['date_of_joining'],
-                'employment_status' => 'active',
-            ]);
-
-            AuditLog::create([
-                'user_id' => $this->currentUser()->id,
-                'action' => 'CREATE',
-                'module' => 'employee-records',
-                'record_id' => $employee->id,
-                'new_value' => json_encode(['name' => $user->name, 'employee_code' => $employee->employee_code, 'role' => $user->role]),
-                'created_at' => now(),
-            ]);
-
-            return $employee;
-        });
-
-        return redirect()->route('hr.records.index', ['employee' => $employee->id])
-            ->with('status', $employee->employee_code.' — '.$data['name'].' added. Temporary password: changeme');
+        return redirect()
+            ->route('admin.employees.create')
+            ->with('status', 'Employees are created from the SPC module — it keeps the employee record, designation and HR access in sync in one place.');
     }
 
     public function toggleStatus(Employee $employee)

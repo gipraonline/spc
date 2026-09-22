@@ -28,6 +28,19 @@ class EmployeeMaster extends Model
         'n_designation_id',
         'reporting_to',
         'c_status',
+
+        // HR-facing fields (synced into the spc_hr database by
+        // EmployeeHrSyncService — see app/Services/Hr/EmployeeHrSyncService.php)
+        'department_id',
+        'date_of_birth',
+        'gender',
+        'personal_email',
+        'city',
+        'date_of_joining',
+        'bank_name',
+        'bank_account_number',
+        'bank_ifsc',
+        'c_hr_role',
     ];
 
     public function designation()

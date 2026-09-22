@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\DesignationMaster;
 use App\Models\EmployeeEditLog;
 use App\Models\EmployeeMaster;
+use App\Models\Hr\Department as HrDepartment;
 use App\Models\KycSubmission;
+use App\Services\Hr\EmployeeHrSyncService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -225,6 +227,7 @@ class EmployeeController extends Controller
         return view(
             'admin.employees.create',
             compact('designations', 'employees')
+                + ['hrDepartments' => HrDepartment::orderBy('name')->get()]
         );
     }
 
@@ -259,6 +262,17 @@ class EmployeeController extends Controller
             'bank_name' => 'nullable|string|max:255',
 
             'branch_name' => 'nullable|string|max:255',
+
+            // HR-facing fields — the SPC employee form is now the single
+            // place these are captured; EmployeeHrSyncService pushes them
+            // into the HR module.
+            'date_of_birth' => 'nullable|date|before:today',
+            'gender' => 'nullable|in:male,female,other',
+            'personal_email' => 'nullable|email|max:255',
+            'city' => 'nullable|string|max:100',
+            'department_id' => 'nullable|integer',
+            'date_of_joining' => 'nullable|date',
+            'c_hr_role' => 'nullable|in:employee,manager,hr_admin,super_admin',
 
         ], [
 
@@ -301,6 +315,18 @@ class EmployeeController extends Controller
                 'n_designation_id' => $validated['n_designation_id'] ?? null,
                 'reporting_to' => $validated['reporting_to'] ?? null,
                 'c_status' => $validated['c_status'],
+
+                // HR-facing fields
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+                'personal_email' => $validated['personal_email'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'department_id' => $validated['department_id'] ?? null,
+                'date_of_joining' => $validated['date_of_joining'] ?? null,
+                'bank_name' => $validated['bank_name'] ?? null,
+                'bank_account_number' => $validated['account_number'] ?? null,
+                'bank_ifsc' => $validated['ifsc_code'] ?? null,
+                'c_hr_role' => $validated['c_hr_role'] ?? 'employee',
             ]);
 
             // Bank Details
@@ -316,6 +342,22 @@ class EmployeeController extends Controller
             // ]);
 
             DB::commit();
+
+            // Mirror this employee into the HR module (spc_hr database) so
+            // it shows up there without a separate "Add Employee" step.
+            // This is deliberately outside the SPC transaction above (it's
+            // a different database) and deliberately non-fatal: if the HR
+            // database is unreachable, the SPC employee is still created,
+            // and the sync will catch up next time this record is saved.
+            try {
+                EmployeeHrSyncService::sync($employee);
+            } catch (\Throwable $e) {
+                report($e);
+
+                return redirect()
+                    ->route('admin.employees.index')
+                    ->with('warning', 'Employee created, but could not be synced to the HR module: '.$e->getMessage());
+            }
 
             return redirect()
                 ->route('admin.employees.index')
@@ -344,7 +386,8 @@ class EmployeeController extends Controller
             ->where('status', 'Active')
             ->first();
 
-        return view('admin.employees.edit', compact('employees', 'employee', 'designations', 'kyc'));
+        return view('admin.employees.edit', compact('employees', 'employee', 'designations', 'kyc')
+            + ['hrDepartments' => HrDepartment::orderBy('name')->get()]);
     }
 
     public function update(Request $request, EmployeeMaster $employee)
@@ -371,6 +414,14 @@ class EmployeeController extends Controller
             'bank_name' => 'nullable|string|max:255',
 
             'branch_name' => 'nullable|string|max:255',
+
+            'date_of_birth' => 'nullable|date|before:today',
+            'gender' => 'nullable|in:male,female,other',
+            'personal_email' => 'nullable|email|max:255',
+            'city' => 'nullable|string|max:100',
+            'department_id' => 'nullable|integer',
+            'date_of_joining' => 'nullable|date',
+            'c_hr_role' => 'nullable|in:employee,manager,hr_admin,super_admin',
 
             'password' => [
                 'nullable',
@@ -411,6 +462,17 @@ class EmployeeController extends Controller
                 'n_designation_id' => $request->n_designation_id,
                 'reporting_to' => $request->reporting_to,
                 'c_status' => $request->c_status,
+
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+                'personal_email' => $validated['personal_email'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'department_id' => $validated['department_id'] ?? null,
+                'date_of_joining' => $validated['date_of_joining'] ?? $employee->date_of_joining,
+                'bank_name' => $validated['bank_name'] ?? null,
+                'bank_account_number' => $validated['account_number'] ?? null,
+                'bank_ifsc' => $validated['ifsc_code'] ?? null,
+                'c_hr_role' => $validated['c_hr_role'] ?? $employee->c_hr_role,
             ]);
 
             // Update password only if entered
@@ -434,6 +496,16 @@ class EmployeeController extends Controller
             // );
 
             DB::commit();
+
+            try {
+                EmployeeHrSyncService::sync($employee->fresh());
+            } catch (\Throwable $e) {
+                report($e);
+
+                return redirect()
+                    ->route('admin.employees.index')
+                    ->with('warning', 'Employee updated, but could not be synced to the HR module: '.$e->getMessage());
+            }
 
             return redirect()
                 ->route('admin.employees.index')

@@ -43,7 +43,9 @@
                             <option value="exited" @selected($statusFilter === 'exited')>Exited</option>
                         </select>
                         <button type="button" class="employee-export" onclick="exportEmployees()"><i class="fa-solid fa-file-csv" style="margin-right:5px;font-size:12px;"></i>Export</button>
-                        <button type="button" class="employee-add" onclick="openAddEmployee()">Add Employee</button>
+                        @if(in_array($role, ['hr_admin', 'super_admin']))
+                        <a href="{{ route('admin.employees.create') }}" class="employee-add" title="Employees are created from the SPC module so the record, designation and portal access all stay in one place."><i class="fa-solid fa-user-plus" style="margin-right:6px;font-size:12px;"></i>Add Employee</a>
+                        @endif
                     </div>
                 </form>
 
@@ -158,52 +160,9 @@
         @endif
     </div>
 
-    {{-- Creative add-employee modal --}}
-    <dialog id="addEmployeeModal" class="modal-dialog">
-        <div class="modal-grid">
-            <div class="modal-side">
-                <button type="button" class="modal-close" onclick="document.getElementById('addEmployeeModal').close()" aria-label="Close">&times;</button>
-                <div class="modal-side-ico"><i class="fa-solid fa-user-plus"></i></div>
-                <h3>Onboard a teammate</h3>
-                <p>Create the employee master record and their portal login in one step.</p>
-                <div class="modal-side-steps">
-                    <div class="modal-step"><span class="num">1</span>Identity & portal access</div>
-                    <div class="modal-step"><span class="num">2</span>Department & role</div>
-                    <div class="modal-step"><span class="num">3</span>Reporting line</div>
-                </div>
-            </div>
-            <form method="POST" action="{{ route('hr.records.store') }}" class="modal-body">
-                @csrf
-                <div class="modal-note"><i class="fa-solid fa-key"></i>A temporary portal password (<code>changeme</code>) is emailed to the new joiner.</div>
-                <div class="field-grid">
-                    <div class="field"><label><i class="fa-regular fa-user" style="color:var(--brand);margin-right:6px;"></i>Full name</label><input name="name" value="{{ old('name') }}" placeholder="e.g. Ananya Menon" required></div>
-                    <div class="field"><label><i class="fa-regular fa-envelope" style="color:var(--brand);margin-right:6px;"></i>Work email</label><input type="email" name="email" value="{{ old('email') }}" placeholder="name@spc.com" required></div>
-                    <div class="field">
-                        <label><i class="fa-solid fa-user-shield" style="color:var(--brand);margin-right:6px;"></i>Portal role</label>
-                        <select name="portal_role"><option value="employee">Employee</option><option value="manager">Reporting Manager</option></select>
-                    </div>
-                    <div class="field"><label><i class="fa-regular fa-calendar-plus" style="color:var(--brand);margin-right:6px;"></i>Date of joining</label><input type="date" name="date_of_joining" value="{{ old('date_of_joining', now()->toDateString()) }}" required></div>
-                    <div class="field">
-                        <label><i class="fa-solid fa-sitemap" style="color:var(--brand);margin-right:6px;"></i>Department</label>
-                        <select name="department_id"><option value="">—</option>@foreach($departments as $d)<option value="{{ $d->id }}">{{ $d->name }}</option>@endforeach</select>
-                    </div>
-                    <div class="field">
-                        <label><i class="fa-solid fa-briefcase" style="color:var(--brand);margin-right:6px;"></i>Designation</label>
-                        <select name="designation_id"><option value="">—</option>@foreach($designations as $d)<option value="{{ $d->id }}">{{ $d->title }}</option>@endforeach</select>
-                    </div>
-                    <div class="field full">
-                        <label><i class="fa-solid fa-user-tie" style="color:var(--brand);margin-right:6px;"></i>Reporting manager</label>
-                        <select name="reporting_manager_id"><option value="">— None —</option>@foreach($possibleManagers as $m)<option value="{{ $m->id }}">{{ $m->user->name }} ({{ $m->user->roleLabel() }})</option>@endforeach</select>
-                    </div>
-                </div>
-                <div class="modal-foot">
-                    <span class="hint-secure"><i class="fa-solid fa-lock"></i>Only HR & Super Admin can add employees</span>
-                    <button type="button" class="btn-secondary" onclick="document.getElementById('addEmployeeModal').close()">Cancel</button>
-                    <button type="submit" class="btn-primary">Save employee</button>
-                </div>
-            </form>
-        </div>
-    </dialog>
+    {{-- Employee creation now happens in the SPC module (Employees → Add
+         Employee), which is why there's no add-employee modal here any
+         more — see the "Add Employee" link above. --}}
 
     {{-- Edit-employee modal (same creative split style) --}}
     <dialog id="editEmployeeModal" class="modal-dialog">
@@ -359,11 +318,10 @@
         card.querySelectorAll('[data-tabpanel="'+name+'"]').forEach(p => p.classList.add('active'));
     }
 
-    function openAddEmployee(){
-        document.getElementById('addEmployeeModal').showModal();
-    }
     @if($errors->any())
-        document.addEventListener('DOMContentLoaded', openAddEmployee);
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('editEmployeeModal')?.showModal();
+        });
     @endif
 
     function exportEmployees() {

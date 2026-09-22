@@ -186,6 +186,100 @@
                 </div>
             </div>
 
+            <!-- Personal & HR Details Section -->
+            <div class="section-label">
+                <i class="ti ti-id-badge-2 fs-5"></i> Personal & HR Details
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <label for="date_of_birth" class="form-label">Date of Birth</label>
+                    <input type="date" id="date_of_birth" name="date_of_birth"
+                        value="{{ old('date_of_birth', optional($employee->date_of_birth)->format('Y-m-d')) }}"
+                        class="form-control">
+                    @error('date_of_birth')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select id="gender" name="gender" class="form-select">
+                        <option value="">Select</option>
+                        <option value="male" {{ old('gender', $employee->gender) === 'male' ? 'selected' : '' }}>Male
+                        </option>
+                        <option value="female" {{ old('gender', $employee->gender) === 'female' ? 'selected' : '' }}>
+                            Female</option>
+                        <option value="other" {{ old('gender', $employee->gender) === 'other' ? 'selected' : '' }}>
+                            Other</option>
+                    </select>
+                    @error('gender')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-3">
+                    <label for="personal_email" class="form-label">Personal Email</label>
+                    <input type="email" id="personal_email" name="personal_email"
+                        value="{{ old('personal_email', $employee->personal_email) }}" class="form-control">
+                    @error('personal_email')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-3">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" id="city" name="city" value="{{ old('city', $employee->city) }}"
+                        class="form-control">
+                    @error('city')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="department_id" class="form-label">Department</label>
+                    <select id="department_id" name="department_id" class="form-select">
+                        <option value="">Select Department</option>
+                        @foreach($hrDepartments as $dept)
+                        <option value="{{ $dept->id }}"
+                            {{ old('department_id', $employee->department_id) == $dept->id ? 'selected' : '' }}>
+                            {{ $dept->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted d-block mt-1">Used by the HR module.</small>
+                    @error('department_id')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="date_of_joining" class="form-label">Date of Joining</label>
+                    <input type="date" id="date_of_joining" name="date_of_joining"
+                        value="{{ old('date_of_joining', optional($employee->date_of_joining)->format('Y-m-d')) }}"
+                        class="form-control">
+                    @error('date_of_joining')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="c_hr_role" class="form-label">HR Portal Access</label>
+                    <select id="c_hr_role" name="c_hr_role" class="form-select">
+                        <option value="employee"
+                            {{ old('c_hr_role', $employee->c_hr_role) === 'employee' ? 'selected' : '' }}>Employee
+                        </option>
+                        <option value="manager"
+                            {{ old('c_hr_role', $employee->c_hr_role) === 'manager' ? 'selected' : '' }}>Reporting
+                            Manager</option>
+                        <option value="hr_admin"
+                            {{ old('c_hr_role', $employee->c_hr_role) === 'hr_admin' ? 'selected' : '' }}>HR Admin
+                        </option>
+                        <option value="super_admin"
+                            {{ old('c_hr_role', $employee->c_hr_role) === 'super_admin' ? 'selected' : '' }}>Super
+                            Admin</option>
+                    </select>
+                    <small class="text-muted d-block mt-1">Role granted inside the HR module.</small>
+                    @error('c_hr_role')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
             <!-- Role Section -->
             <div class="section-label">
                 <i class="ti ti-briefcase fs-5"></i> Role & Assigment
@@ -248,7 +342,7 @@
                 <div class="col-md-6">
                     <label for="account_number" class="form-label">Account Number</label>
                     <input type="text" id="account_number" name="account_number"
-                        value="{{ old('account_number', $kyc ? $kyc->account_number : '') }}"
+                        value="{{ old('account_number', $employee->bank_account_number) }}"
                         data-message="Please add Account Number" class="form-control " placeholder="ACC-001">
                     @error('account_number')
                     <div class="text-danger mt-1">{{ $message }}</div>
@@ -258,7 +352,7 @@
                 <div class="col-md-6">
                     <label for="ifsc_code" class="form-label">IFSC Code</label>
                     <input type="text" id="ifsc_code" name="ifsc_code"
-                        value="{{ old('ifsc_code', $kyc ? $kyc->ifsc_code : '') }}"
+                        value="{{ old('ifsc_code', $employee->bank_ifsc) }}"
                         data-message="Please enter IFSC Code" class="form-control "
                         placeholder="Enter IFSC code">
                     @error('ifsc_code')
@@ -268,7 +362,7 @@
                 <div class="col-md-6">
                     <label for="ifsc_code" class="form-label">Bank Name</label>
                     <input type="text" id="bank_name" name="bank_name"
-                        value="{{ old('bank_name', $kyc ? $kyc->bank_name : '') }}"
+                        value="{{ old('bank_name', $employee->bank_name) }}"
                         data-message="Please enter Bank name" class="form-control "
                         placeholder="Enter Bank Name">
                     @error('bank_name')
@@ -278,7 +372,7 @@
                 <div class="col-md-6">
                     <label for="ifsc_code" class="form-label">Branch Name</label>
                     <input type="text" id="branch_name" name="branch_name"
-                        value="{{ old('bank_branch', $kyc ? $kyc->bank_branch : '') }}"
+                        value="{{ old('branch_name') }}"
                         data-message="Please enter branch name" class="form-control "
                         placeholder="Enter Branch Name">
                     @error('branch_name')

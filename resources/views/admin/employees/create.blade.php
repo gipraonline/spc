@@ -151,6 +151,90 @@
                 </div>
             </div>
 
+            <!-- Section 1b: Personal & HR Details (mirrors the HR module's own employee fields) -->
+            <div class="form-section-header">
+                <i class="ti ti-id-badge-2 fs-5"></i> Personal & HR Details
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <label for="date_of_birth" class="form-label">Date of Birth</label>
+                    <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
+                        class="form-control">
+                    @error('date_of_birth')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select id="gender" name="gender" class="form-select">
+                        <option value="">Select</option>
+                        <option value="male" {{ old('gender') === 'male' ? 'selected' : '' }}>Male</option>
+                        <option value="female" {{ old('gender') === 'female' ? 'selected' : '' }}>Female</option>
+                        <option value="other" {{ old('gender') === 'other' ? 'selected' : '' }}>Other</option>
+                    </select>
+                    @error('gender')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-3">
+                    <label for="personal_email" class="form-label">Personal Email</label>
+                    <input type="email" id="personal_email" name="personal_email" value="{{ old('personal_email') }}"
+                        class="form-control" placeholder="personal@email.com">
+                    @error('personal_email')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-3">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" id="city" name="city" value="{{ old('city') }}" class="form-control"
+                        placeholder="Kochi">
+                    @error('city')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="department_id" class="form-label">Department</label>
+                    <select id="department_id" name="department_id" class="form-select">
+                        <option value="">Select Department</option>
+                        @foreach($hrDepartments as $dept)
+                        <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
+                            {{ $dept->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted d-block mt-1">Used by the HR module.</small>
+                    @error('department_id')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="date_of_joining" class="form-label">Date of Joining</label>
+                    <input type="date" id="date_of_joining" name="date_of_joining"
+                        value="{{ old('date_of_joining', now()->toDateString()) }}" class="form-control">
+                    @error('date_of_joining')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4">
+                    <label for="c_hr_role" class="form-label">HR Portal Access</label>
+                    <select id="c_hr_role" name="c_hr_role" class="form-select">
+                        <option value="employee" {{ old('c_hr_role', 'employee') === 'employee' ? 'selected' : '' }}>
+                            Employee</option>
+                        <option value="manager" {{ old('c_hr_role') === 'manager' ? 'selected' : '' }}>Reporting
+                            Manager</option>
+                        <option value="hr_admin" {{ old('c_hr_role') === 'hr_admin' ? 'selected' : '' }}>HR Admin
+                        </option>
+                        <option value="super_admin" {{ old('c_hr_role') === 'super_admin' ? 'selected' : '' }}>Super
+                            Admin</option>
+                    </select>
+                    <small class="text-muted d-block mt-1">Role granted inside the HR module.</small>
+                    @error('c_hr_role')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
             <!-- Section 2: Role & Designation -->
             <div class="form-section-header">
                 <i class="ti ti-briefcase fs-5"></i> Role & Assignment

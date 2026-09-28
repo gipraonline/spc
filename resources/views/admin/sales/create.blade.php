@@ -5,382 +5,682 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 
 <style>
-    /* Customer Details Card */
-    .customer-details-card {
-        background: #ffffff;
-        border: 1px solid #e1e7ef;
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
-        margin-bottom: 25px;
-    }
-
-    /* Card Header */
-    .customer-details-header {
-        padding: 18px 36px;
-        border-bottom: 1px solid #edf0f4;
-        background: #fafbfd;
-        font-size: 18px;
-        font-weight: 500;
-        color: #334155;
-    }
-
-    /* Card Body */
-    .customer-details-body {
-        padding: 36px;
-    }
-
-    /* Labels */
-    .customer-details-card .form-label {
-        display: block;
-        font-size: 17px;
-        font-weight: 500;
-        color: #374151;
-        margin-bottom: 9px;
-    }
-
-    /* Required Star */
-    .customer-details-card .required {
-        color: #e87545;
-    }
-
-    /* Inputs */
-    .customer-details-card .form-control,
-    .customer-details-card .form-select {
-        height: 50px;
-        border: 1px solid #cfd8e3;
-        border-radius: 11px;
-        padding: 10px 18px;
-        font-size: 17px;
-        color: #475569;
-        background-color: #fff;
-        box-shadow: none;
-    }
-
-    /* Input Focus */
-    .customer-details-card .form-control:focus,
-    .customer-details-card .form-select:focus {
-        border-color: #2f6b4f;
-        box-shadow: 0 0 0 0.2rem rgba(47, 107, 79, 0.10);
-    }
-
-    /* Placeholder */
-    .customer-details-card .form-control::placeholder {
-        color: #94a3b8;
-        opacity: 1;
-    }
-
-    /* Select */
-    .customer-details-card .form-select {
-        cursor: pointer;
-    }
-
-    /* Row spacing */
-    .customer-details-card .form-row {
-        margin-bottom: 18px;
-    }
-
-    /* Last row no extra bottom margin */
-    .customer-details-card .form-row:last-child {
-        margin-bottom: 0;
-    }
-
-    /* Validation error */
-    .customer-details-card .text-danger {
-        font-size: 13px !important;
-    }
-
-    /* Disabled fields */
-    .customer-details-card input[readonly],
-    .customer-details-card select:disabled {
-        background-color: #f5f6f8;
-        cursor: not-allowed;
-    }
-
-    @media (max-width: 768px) {
-        .customer-details-header {
-            padding: 15px 20px;
-        }
-
-        .customer-details-body {
-            padding: 20px;
-        }
-
-        .customer-details-card .form-label {
-            font-size: 15px;
-        }
-
-        .customer-details-card .form-control,
-        .customer-details-card .form-select {
-            font-size: 15px;
-        }
-    }
-
-/* Creative Light Theme & Green Palette */
-:root {
-    --bg-body: #f4f8f5;
-    --card-bg: #ffffff;
-    --primary-green: #0f5132;
-    --emerald-green: #059669;
-    --light-green-bg: #f0fdf4;
-    --border-green: #d1e7dd;
-    --text-dark: #1e293b;
-    --text-muted: #64748b;
-    --border-slate: #e2e8f0;
+/* =====================================================================
+       SALES ORDER FORM — SPC "Evergreen" edition
+       Palette: olive #5E8D3D · forest #1F5C2E · leaf #7CA243
+                accents #A8CB6A/#C2DC96 · mint wash #CBFFCD (45deg)
+       ===================================================================== */
+.so-wrap {
+    --so-olive: #5E8D3D;
+    --so-forest: #1F5C2E;
+    --so-leaf: #7CA243;
+    --so-acc: #A8CB6A;
+    --so-acc2: #C2DC96;
+    --so-ink: #123A28;
+    --so-mut: #5F7A6C;
+    --so-line: rgba(18, 58, 40, .1);
+    --so-grad: linear-gradient(135deg, #5E8D3D, #1F5C2E);
+    --so-wash: linear-gradient(45deg, #CBFFCD, transparent 60%);
+    font-family: var(--font-body, 'Outfit', sans-serif);
 }
 
-/* Main Card Container */
-.card {
-    border-radius: 14px;
-    border: 1px solid var(--border-slate);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    background-color: var(--card-bg);
+.so-wrap h1,
+.so-wrap h2,
+.so-wrap h5,
+.so-wrap h6,
+.so-wrap .card-title,
+.so-wrap .section-title,
+.so-wrap .form-section-header,
+.so-wrap .modal-title {
+    font-family: var(--font-head, 'Kanit', sans-serif);
 }
 
-.card-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--primary-green);
+/* ---------- Page hero ---------- */
+.so-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    background:
+        radial-gradient(340px 240px at 88% -12%, rgba(255, 255, 255, .16), transparent 60%),
+        radial-gradient(420px 320px at -14% 116%, rgba(203, 255, 205, .34), transparent 55%),
+        var(--so-grad);
+    color: #fff;
+    padding: 24px 28px;
+    margin-bottom: 18px;
+    box-shadow: 0 18px 40px -18px rgba(31, 92, 46, .55);
 }
 
-/* Form Section Box Styling */
-.form-section,
-.form-box,
-.border.rounded {
-    border: 1px solid var(--border-slate) !important;
-    border-radius: 12px !important;
-    padding: 24px !important;
-    margin-bottom: 24px !important;
-    background-color: #ffffff !important;
-    box-shadow: 0 2px 10px rgba(15, 81, 50, 0.02);
+.so-hero::before {
+    content: "";
+    position: absolute;
+    right: -70px;
+    top: -70px;
+    width: 230px;
+    height: 230px;
+    border: 2px dashed rgba(255, 255, 255, .22);
+    border-radius: 50%;
 }
 
-/* Section Titles */
-.section-title,
-.form-section-header {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--primary-green);
-    border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 12px;
-    margin-bottom: 20px;
-    display: flex;
+.so-hero::after {
+    content: "";
+    position: absolute;
+    right: -34px;
+    top: -34px;
+    width: 150px;
+    height: 150px;
+    border: 2px solid rgba(255, 255, 255, .16);
+    border-radius: 50%;
+}
+
+.so-hero .fl-wave {
+    position: absolute;
+    right: 26px;
+    bottom: 14px;
+    font-size: 60px;
+    color: rgba(203, 255, 205, .28);
+    transform: rotate(-8deg);
+    pointer-events: none;
+}
+
+.so-eyebrow {
+    display: inline-flex;
     align-items: center;
     gap: 8px;
+    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #D8F5C8;
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 999px;
+    padding: 5px 12px;
 }
 
-/* Form Controls & Inputs */
-.form-label {
-    font-size: 13px;
+.so-eyebrow::before {
+    content: "";
+    width: 16px;
+    height: 2px;
+    border-radius: 2px;
+    background: #D8F5C8;
+}
+
+.so-hero-title {
+    font-size: 24px;
     font-weight: 600;
-    color: #334155;
-    margin-bottom: 6px;
+    color: #fff;
+    margin: 10px 0 3px;
+    line-height: 1.15;
 }
 
-.form-control,
-.form-select {
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 10px 14px;
+.so-hero-sub {
+    color: #D9EEDC;
+    font-size: 13px;
+    margin: 0;
+}
+
+.so-steps {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+.so-steps .st {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .22);
+    color: #EAF7E2;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+.so-steps .st b {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--so-forest);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-family: var(--font-head, 'Kanit', sans-serif);
+}
+
+/* ---------- Alerts ---------- */
+.so-alert {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    border-radius: 14px;
+    padding: 13px 16px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+}
+
+.so-alert i {
+    font-size: 19px;
+    margin-top: 1px;
+}
+
+.so-alert.ok {
+    background: #F1FBEE;
+    border-color: #D6EDCB;
+    color: #2C5B34;
+}
+
+.so-alert.err {
+    background: #FDF1F0;
+    border-color: #F3D3CF;
+    color: #8C3B32;
+}
+
+.so-alert ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+}
+
+/* ---------- Cards & sections ---------- */
+.so-wrap .card {
+    border-radius: 18px;
+    border: 1px solid var(--so-line);
+    box-shadow: 0 6px 20px -12px rgba(18, 58, 40, .18);
+    background: #fff;
+}
+
+.so-wrap .card-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--so-ink);
+}
+
+.so-section {
+    border: 1px solid var(--so-line) !important;
+    border-radius: 18px !important;
+    padding: 22px !important;
+    margin-bottom: 20px !important;
+    background: #fff !important;
+    box-shadow: 0 6px 20px -14px rgba(18, 58, 40, .16);
+    position: relative;
+    overflow: hidden;
+}
+
+.so-section::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 4px;
+    background: var(--so-grad);
+    opacity: .85;
+}
+
+.so-section>.section-title,
+.so-section>.form-section-header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 15.5px;
+    font-weight: 600;
+    color: var(--so-ink);
+    border-bottom: 1px solid var(--so-line);
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+}
+
+.so-section>.section-title .t-ic,
+.so-section>.form-section-header .t-ic {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--so-wash), #EAF6E6;
+    color: var(--so-olive);
+    font-size: 17px;
+    border: 1px solid #E2F1D9;
+}
+
+.so-section .form-section-header:not(.section-title) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: var(--so-olive);
+    text-transform: uppercase;
+    margin: 6px 0 14px;
+}
+
+.so-section .form-section-header:not(.section-title)::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(94, 141, 61, .3), transparent);
+}
+
+/* ---------- Labels & inputs ---------- */
+.so-wrap .form-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--so-mut);
+    margin-bottom: 7px;
+}
+
+.so-wrap .form-control,
+.so-wrap .form-select {
+    border: 1.5px solid #E3EDE3;
+    border-radius: 12px;
+    min-height: 44px;
+    padding: 9px 14px;
     font-size: 14px;
-    color: #1e293b;
-    background-color: #ffffff;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    color: #2F4A3C;
+    font-family: var(--font-body, 'Outfit', sans-serif);
+    transition: border-color .15s, box-shadow .15s;
 }
 
-.form-control:focus,
-.form-select:focus {
-    border-color: var(--emerald-green);
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+.so-wrap .form-control:focus,
+.so-wrap .form-select:focus {
+    border-color: var(--so-leaf);
+    box-shadow: 0 0 0 3.5px rgba(94, 141, 61, .14);
     outline: none;
 }
 
-/* Highlighted Readonly Inputs */
-.order-number,
-.advisor-highlight {
-    background-color: #f4f8f5 !important;
-    color: var(--primary-green) !important;
-    font-weight: 700 !important;
-    border-color: var(--border-green) !important;
+.so-wrap .form-control::placeholder {
+    color: #A3B8AC;
+    opacity: 1;
 }
 
-/* Radio Button Cards */
+.so-wrap .order-number,
+.so-wrap .advisor-highlight {
+    background: var(--so-wash), #F4FBF3 !important;
+    color: var(--so-forest) !important;
+    font-weight: 700;
+    border-color: #D6EDCB !important;
+    font-family: var(--font-head, 'Kanit', sans-serif);
+    letter-spacing: .03em;
+}
+
+.so-wrap input[readonly],
+.so-wrap select:disabled {
+    background-color: #F7FAF6;
+    cursor: not-allowed;
+}
+
+/* ---------- Payment / order-type selectable chips ---------- */
 .payment-option,
 .order-status-option {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 10px 16px;
-    margin-right: 10px;
-    margin-bottom: 10px;
+    gap: 9px;
+    border: 1.5px solid #E3EDE3;
+    border-radius: 14px;
+    padding: 11px 18px;
+    margin: 0 10px 10px 0;
     cursor: pointer;
-    background-color: #ffffff;
-    transition: all 0.2s ease;
+    background: #fff;
+    transition: all .16s;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #3D5247;
 }
 
 .payment-option:hover,
 .order-status-option:hover {
-    background-color: #f4f8f5;
-    border-color: var(--primary-green);
+    background: #F6FBF3;
+    border-color: var(--so-leaf);
+    transform: translateY(-1px);
+}
+
+.payment-option:has(input:checked) {
+    background: var(--so-wash), #F1F9EC;
+    border-color: var(--so-olive);
+    box-shadow: 0 8px 18px -10px rgba(94, 141, 61, .55);
 }
 
 .payment-option input[type="radio"],
 .order-status-option input[type="radio"] {
     margin: 0;
-    accent-color: var(--primary-green);
+    accent-color: var(--so-olive);
     width: 16px;
     height: 16px;
 }
 
 .payment-option input[type="radio"]:checked+label,
 .order-status-option input[type="radio"]:checked+label {
-    color: var(--primary-green);
+    color: var(--so-forest);
     font-weight: 700;
 }
 
-/* Primary & Secondary Buttons */
-.buttonSpc,
-#addRow,
-#btn_create {
-    background: linear-gradient(135deg, #0f5132 0%, #059669 100%) !important;
-    color: #ffffff !important;
+.payment-option label {
+    cursor: pointer;
+}
+
+.payment-option i {
+    color: var(--so-olive);
+    font-size: 16px;
+}
+
+/* ---------- Buttons ---------- */
+.so-wrap .buttonSpc,
+.so-wrap #addRow,
+.so-wrap #btn_create {
+    background: var(--so-grad) !important;
+    color: #fff !important;
     border: none !important;
-    border-radius: 8px !important;
+    border-radius: 13px !important;
+    padding: 11px 24px !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 10px 22px -10px rgba(31, 92, 46, .6) !important;
+    transition: all .16s !important;
+}
+
+.so-wrap .buttonSpc:hover,
+.so-wrap #addRow:hover,
+.so-wrap #btn_create:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 14px 26px -10px rgba(31, 92, 46, .7) !important;
+    filter: brightness(1.07);
+}
+
+.so-wrap .btn-outline-secondary {
+    border: 1.5px solid #DCEDD2 !important;
+    color: var(--so-olive) !important;
+    border-radius: 13px !important;
     padding: 10px 22px !important;
     font-weight: 600 !important;
-    font-size: 14px !important;
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-    transition: all 0.2s ease;
+    background: #fff;
 }
 
-.buttonSpc:hover,
-#addRow:hover,
-#btn_create:hover {
-    background: linear-gradient(135deg, #0b3e26 0%, #047857 100%) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+.so-wrap .btn-outline-secondary:hover {
+    background: #F4FAF0 !important;
+    border-color: var(--so-leaf) !important;
+    color: var(--so-forest) !important;
 }
 
-.btn-outline-secondary {
-    border: 1px solid #cbd5e1 !important;
-    color: #475569 !important;
-    border-radius: 8px !important;
-    padding: 10px 20px !important;
-    font-weight: 600 !important;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #f8fafc !important;
-    color: #1e293b !important;
-}
-
-/* Product Table Styling */
-#productTable {
+/* ---------- Product table ---------- */
+.so-wrap #productTable {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
-    border-radius: 10px;
+    border-radius: 16px;
     overflow: hidden;
-    border: 1px solid var(--border-slate);
+    border: 1px solid var(--so-line);
 }
 
-#productTable thead th {
-    background-color: #f8faf8;
-    color: #334155;
-    font-size: 13px;
+.so-wrap #productTable thead th {
+    background: var(--so-grad) !important;
+    color: #fff !important;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
     font-weight: 700;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border-slate);
+    padding: 13px 14px;
+    border: none !important;
     white-space: nowrap;
 }
 
-#productTable tbody td {
-    padding: 10px 12px;
+.so-wrap #productTable thead th:first-child {
+    border-top-left-radius: 0;
+}
+
+.so-wrap #productTable tbody td {
+    padding: 10px 10px;
     vertical-align: middle;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #EEF4EA;
+    background: #fff;
 }
 
-.removeRow {
-    background-color: #dc2626 !important;
-    color: #ffffff !important;
+.so-wrap #productTable tbody tr:hover td {
+    background: #F8FCF5;
+}
+
+.so-wrap #productTable tbody td input,
+.so-wrap #productTable tbody td select {
+    border-radius: 10px;
+    font-size: 13px;
+    min-height: 38px;
+}
+
+.so-wrap #productTable tbody td input[readonly] {
+    background: #F4F8F2;
+    border-color: #E7F0E2;
+    color: #5F7A6C;
+}
+
+.so-wrap .removeRow {
+    background: #FDEEEC !important;
+    color: #C4574A !important;
     border: none !important;
-    border-radius: 6px !important;
-    padding: 6px 12px !important;
+    border-radius: 10px !important;
+    padding: 7px 11px !important;
+    transition: all .15s;
 }
 
-.removeRow:hover {
-    background-color: #b91c1c !important;
+.so-wrap .removeRow:hover {
+    background: #C4574A !important;
+    color: #fff !important;
+    transform: rotate(6deg) scale(1.05);
 }
 
-/* Product Details Summary Box */
-.product-summary-box {
-    background-color: #f8faf8;
-    border: 1px solid var(--border-slate);
-    border-radius: 12px;
-    padding: 18px;
+.so-wrap .btn-danger.btn-sm {
+    background: #FDEEEC !important;
+    color: #C4574A !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 600;
+    transition: all .15s;
 }
 
-.summary-line {
+.so-wrap .btn-danger.btn-sm:hover {
+    background: #C4574A !important;
+    color: #fff !important;
+}
+
+/* ---------- Summary (bill card) ---------- */
+.so-bill {
+    border: 1.5px solid #DCEBD5;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 14px 30px -18px rgba(31, 92, 46, .4);
+}
+
+.so-bill .b-head {
+    background: var(--so-wash), #F3FAF0;
+    border-bottom: 1px dashed #CFE3C4;
+    padding: 13px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-weight: 600;
+    color: var(--so-forest);
+    font-size: 14.5px;
+}
+
+.so-bill .b-head i {
+    color: var(--so-olive);
+    font-size: 17px;
+}
+
+.so-bill .b-body {
+    padding: 16px 18px;
+}
+
+.so-bill .summary-line {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
     gap: 12px;
+    margin-bottom: 11px;
 }
 
-.summary-line:last-child {
-    margin-bottom: 0;
-}
-
-.summary-label {
-    font-size: 13px;
+.so-bill .summary-label {
+    font-size: 12.5px;
     font-weight: 600;
-    color: #475569;
+    color: var(--so-mut);
     flex: 1;
 }
 
-.summary-input {
-    width: 140px;
+.so-bill .summary-input {
+    width: 150px;
     text-align: right;
+    font-weight: 700;
+    background: #FBFDF9 !important;
+    border-color: #E7F0E2 !important;
+    color: var(--so-forest) !important;
+    font-family: var(--font-head, 'Kanit', sans-serif);
+}
+
+.so-bill .summary-line.highlight-green {
+    background: var(--so-wash), #F1F9EC;
+    border: 1px solid #D6EDCB;
+    border-radius: 13px;
+    padding: 11px 12px;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.so-bill .summary-line.highlight-green .summary-label {
+    color: var(--so-forest);
+    font-size: 13px;
+}
+
+.so-bill .summary-line.highlight-green .summary-input {
+    color: var(--so-forest) !important;
+    font-size: 17px;
+    font-weight: 700;
+    background: #fff !important;
+    border-color: #D6EDCB !important;
+}
+
+/* ---------- Customer toggle ---------- */
+.customer-toggle {
+    display: flex;
+    width: 480px;
+    max-width: 100%;
+    padding: 7px;
+    background: #F1F7EE;
+    border: 1px solid #DCEBD5;
+    border-radius: 18px;
+    margin: 0 auto 20px;
+}
+
+.customer-toggle .toggle-btn {
+    flex: 1;
+    margin: 0;
+    padding: 12px 22px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 12px;
+    color: var(--so-mut);
+    font-size: 14px;
     font-weight: 600;
-    background-color: #ffffff !important;
+    transition: all .2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
 }
 
-.summary-line.highlight-green {
-    background-color: #e8f5e9;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #a7f3d0;
-    margin-top: 8px;
+.customer-toggle .btn-check:checked+.toggle-btn {
+    background: var(--so-grad);
+    color: #fff;
+    box-shadow: 0 8px 18px -8px rgba(31, 92, 46, .6);
 }
 
-.summary-line.highlight-green .summary-label {
-    color: #0f5132;
+.customer-toggle .toggle-btn i {
+    font-size: 16px;
+}
+
+/* ---------- Lookup card ---------- */
+.so-lookup {
+    border: 1.5px dashed #CFE3C4;
+    border-radius: 18px;
+    background: var(--so-wash), #FBFDF8;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.so-lookup .card-header {
+    background: transparent;
+    border-bottom: 1px dashed #CFE3C4;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-weight: 600;
+    color: var(--so-forest);
     font-size: 14px;
 }
 
-.summary-line.highlight-green .summary-input {
-    color: #0f5132 !important;
+.so-lookup .card-header i {
+    color: var(--so-olive);
+    font-size: 17px;
+}
+
+.so-lookup .card-body {
+    padding: 18px 20px;
+}
+
+/* ---------- Modals ---------- */
+.so-wrap .modal-content {
+    border: 0;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -20px rgba(12, 40, 24, .45);
+}
+
+.so-wrap .modal-header {
+    padding: 17px 22px;
+    border: none;
+    color: #fff;
+    background: radial-gradient(300px 160px at 90% -20%, rgba(255, 255, 255, .18), transparent 60%), var(--so-grad);
+}
+
+.so-wrap .modal-title {
     font-size: 16px;
-    font-weight: 800;
-    border-color: #a7f3d0;
+    font-weight: 600;
+    color: #fff;
 }
 
-/* Modal Backdrop Z-Index */
-#approveModal {
-    z-index: 1060 !important;
+.so-wrap .modal-body {
+    padding: 22px;
 }
 
-.modal-backdrop {
-    z-index: 1050 !important;
+.so-wrap .modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--so-line);
+    background: #FBFDF9;
+    gap: 10px;
 }
 
-/* Table and Responsive Fixes */
+/* ---------- Table & responsive fixes ---------- */
 .tablescrolll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    border-radius: 16px;
 }
 
 #productTable tbody td input,
@@ -404,7 +704,171 @@
     min-width: 150px;
 }
 
+/* ---------- Product rows: compact grid cards (desktop / tablet) – no sideways scrolling ---------- */
+@media screen and (min-width:768px) {
+    .so-wrap .tablescrolll {
+        overflow: visible;
+    }
+
+    .so-wrap #productTable,
+    .so-wrap #productTable tbody {
+        display: block;
+        width: 100%;
+        border: 0;
+    }
+
+    .so-wrap #productTable thead {
+        display: none;
+    }
+
+    .so-wrap #productTable tbody tr {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 12px 14px;
+        margin: 0 0 16px;
+        padding: 16px 18px;
+        border: 1.5px solid var(--so-line);
+        border-radius: 16px;
+        background: #FBFDF9;
+        box-shadow: 0 6px 16px -12px rgba(18, 58, 40, .25);
+    }
+
+    .so-wrap #productTable tbody td {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        text-align: left;
+    }
+
+    .so-wrap #productTable tbody td::before {
+        content: attr(data-label);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--so-mut);
+    }
+
+    .so-wrap #productTable tbody td input,
+    .so-wrap #productTable tbody td select,
+    .so-wrap #productTable tbody td select.category-select,
+    .so-wrap #productTable tbody td select.subcategory-select,
+    .so-wrap #productTable tbody td select.product-select,
+    .so-wrap #productTable tbody td select.attribute-select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* ---- Aligned 4-column grid: every row uses the same 4 equal columns ---- */
+    .so-wrap #productTable tbody {
+        counter-reset: prow;
+    }
+
+    .so-wrap #productTable tbody tr {
+        counter-increment: prow;
+        row-gap: 14px;
+    }
+
+    /* Card header: "Product 1" + remove button */
+    .so-wrap #productTable tbody tr::before {
+        content: "Product " counter(prow);
+        grid-column: 1 / span 9;
+        grid-row: 1;
+        align-self: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: #1F5C2E;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed #DCEBD5;
+        margin-bottom: 2px;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(13) {
+        grid-column: 10 / span 3;
+        grid-row: 1;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        padding-bottom: 10px !important;
+        border-bottom: 1px dashed #DCEBD5 !important;
+        margin-bottom: 2px;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(13)::before {
+        content: "";
+        display: none;
+    }
+
+    /* Row A – what is being sold */
+    .so-wrap #productTable tbody td:nth-child(1) { grid-column: 1 / span 3; grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(2) { grid-column: 4 / span 3; grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(3) { grid-column: 7 / span 3; grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(4) { grid-column: 10 / span 3; grid-row: 2; }
+
+    /* Row B – HSN, price, quantity, discount */
+    .so-wrap #productTable tbody td:nth-child(5) { grid-column: 1 / span 3; grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(6) { grid-column: 4 / span 3; grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(7) { grid-column: 7 / span 3; grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(8) { grid-column: 10 / span 3; grid-row: 3; }
+
+    /* Row C – calculated amounts */
+    .so-wrap #productTable tbody td:nth-child(9)  { grid-column: 1 / span 3; grid-row: 4; }
+    .so-wrap #productTable tbody td:nth-child(10) { grid-column: 4 / span 3; grid-row: 4; }
+    .so-wrap #productTable tbody td:nth-child(11) { grid-column: 7 / span 3; grid-row: 4; }
+    .so-wrap #productTable tbody td:nth-child(12) { grid-column: 10 / span 3; grid-row: 4; }
+
+    /* Auto-filled / calculated fields look muted, editable ones stay white */
+    .so-wrap #productTable tbody td input[readonly],
+    .so-wrap #productTable tbody td select[disabled] {
+        background: #F1F7EE !important;
+        color: #4B6656;
+        cursor: not-allowed;
+    }
+
+    .so-wrap #productTable tbody td input.qty,
+    .so-wrap #productTable tbody td input.discount {
+        background: #fff;
+        border-color: #A9CD94;
+    }
+
+    /* Total stands out */
+    .so-wrap #productTable tbody td:nth-child(12) input {
+        font-weight: 700;
+        font-size: 15px;
+        color: #1F5C2E;
+        background: #E4F5DC !important;
+        border-color: #A9CD94;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(12)::before {
+        color: #1F5C2E;
+    }
+}
+
 @media screen and (max-width:767px) {
+    .so-hero {
+        padding: 20px 18px;
+        border-radius: 18px;
+    }
+
+    .so-hero-title {
+        font-size: 20px;
+    }
+
+    .so-hero .fl-wave {
+        font-size: 42px;
+        bottom: 10px;
+        right: 12px;
+    }
+
+    .so-section {
+        padding: 16px !important;
+    }
+
     .summary-line {
         flex-wrap: wrap;
     }
@@ -417,35 +881,92 @@
     .form-section-header {
         flex-wrap: wrap;
     }
+
+    .customer-toggle {
+        width: 100%;
+    }
+
+    .customer-toggle .toggle-btn {
+        padding: 11px 10px;
+        font-size: 13px;
+    }
+
+    .payment-option,
+    .order-status-option {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .so-steps .st {
+        font-size: 10.5px;
+        padding: 5px 10px;
+    }
+
+    /* Product table → stacked cards */
+    .so-wrap #productTable thead {
+        display: none;
+    }
+
+    .so-wrap #productTable tbody tr {
+        display: block;
+        margin: 0 0 14px;
+        border: 1.5px solid var(--so-line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 6px 16px -10px rgba(18, 58, 40, .2);
+    }
+
+    .so-wrap #productTable tbody tr.existing-product-row td:first-child,
+    .so-wrap #productTable tbody tr.new-product-row td:first-child {
+        background: var(--so-wash), #F3FAF0;
+        border-bottom: 1px dashed #DCEBD5;
+    }
+
+    .so-wrap #productTable tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid #F2F7EF;
+        padding: 9px 13px;
+        text-align: right;
+    }
+
+    .so-wrap #productTable tbody td::before {
+        content: attr(data-label);
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--so-mut);
+        text-align: left;
+    }
+
+    .so-wrap #productTable tbody td input,
+    .so-wrap #productTable tbody td select {
+        flex: 1;
+        max-width: 62%;
+    }
+
+    .so-wrap #productTable tbody td.text-center {
+        justify-content: flex-end;
+    }
+
+    .so-wrap #productTable tbody td.text-center::before {
+        content: "";
+    }
+}
+</style>
+
+<style>
+/* Legacy overrides kept: modal z-index fixes (rest moved into the Evergreen block above) */
+#approveModal {
+    z-index: 1060 !important;
 }
 
-.customer-toggle {
-    display: flex;
-    width: 520px;
-    max-width: 100%;
-    padding: 8px;
-    background: #e8edf3;
-    border: 1px solid #d2d9e2;
-    border-radius: 18px;
-    max-height:80px;
-}
-
-.customer-toggle .toggle-btn {
-    flex: 1;
-    margin: 0;
-    padding: 18px 25px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 12px;
-    color: #64748b;
-    font-size: 17px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.customer-toggle .btn-check:checked + .toggle-btn {
-    background: linear-gradient(90deg, #527f36, #155b48);
-    color: #ffffff;
+.modal-backdrop {
+    z-index: 1050 !important;
 }
 </style>
 @endpush
@@ -455,54 +976,76 @@
 use Illuminate\Support\Facades\Crypt;
 @endphp
 
-<div class="card w-100 position-relative overflow-hidden mb-4">
-    <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
-        <h5 class="card-title fw-semibold mb-0 lh-sm">Add Sales Orders</h5>
-    </div>
-    <div class="card-body p-4">
+<div class="so-wrap">
 
-        @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-
-        @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
-
-        <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}"
-            enctype="multipart/form-data">
-            @csrf
-
-            <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
-
-            <!-- Section 1: Order Information -->
-            <div class="form-section mb-4">
-                <div class="section-title mb-3">
-                    <i class="ti ti-file-invoice fs-5"></i>
-                    Order Information
+    {{-- ===================== HERO ====================== --}}
+    <div class="so-hero">
+        <i class="fa fa-cart-plus fl-wave"></i>
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+            <div>
+                <span class="so-eyebrow">SPC Portal · Sales</span>
+                <h2 class="so-hero-title">{{isset($sale->n_sl_no) ? 'Edit Sales Order' : 'New Sales Order'}} 🧾</h2>
+                <p class="so-hero-sub">Fill the sections top to bottom — products, customer, payment — and submit.</p>
+                <div class="so-steps">
+                    <span class="st"><b>1</b> Order Info</span>
+                    <span class="st"><b>2</b> Products</span>
+                    <span class="st"><b>3</b> Customer</span>
+                    <span class="st"><b>4</b> Payment</span>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Row 1: Date & Booklet Serial No -->
-                <div class="row g-3">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Date *</label>
-                        <input type="date" name="d_date" class="form-control mandatory"
-                            data-message="Please Select a Date"
-                            value="{{ old('d_date', isset($sale) ? $sale->d_date->format('Y-m-d') : date('Y-m-d')) }}"
-                            {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
-                        <div class="text-danger mt-1 fs-2"></div>
+    <div class="card w-100 position-relative overflow-hidden mb-4 border-0"
+        style="box-shadow:none;background:transparent;">
+        <div class="card-body p-0">
+
+            @if ($errors->any())
+            <div class="so-alert err">
+                <i class="ti ti-alert-circle"></i>
+                <div>
+                    <strong>Please check the following:</strong>
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            @endif
+
+            @if(session('success'))
+            <div class="so-alert ok">
+                <i class="ti ti-circle-check"></i>
+                <div>{{ session('success') }}</div>
+            </div>
+            @endif
+
+            <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}"
+                enctype="multipart/form-data">
+                @csrf
+
+                <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
+
+                <!-- Section 1: Order Information -->
+                <div class="form-section so-section mb-4">
+                    <div class="section-title mb-3">
+                        <span class="t-ic"><i class="ti ti-file-invoice"></i></span>
+                        Order Information
                     </div>
 
-                    @if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor==true )
+                    <!-- Row 1: Date & Booklet Serial No -->
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date *</label>
+                            <input type="date" name="d_date" class="form-control mandatory"
+                                data-message="Please Select a Date"
+                                value="{{ old('d_date', isset($sale) ? $sale->d_date->format('Y-m-d') : date('Y-m-d')) }}"
+                                {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
+                            <div class="text-danger mt-1 fs-2"></div>
+                        </div>
+
+                        @if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor==true )
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Booklet Serial No *</label>
                             <div class="position-relative">
@@ -517,607 +1060,655 @@ use Illuminate\Support\Facades\Crypt;
                             <div class="text-danger mt-1 fs-2">{{ $message }}</div>
                             @enderror
                         </div>
-                    @endif
-                </div>
+                        @endif
+                    </div>
 
 
-                <!-- Row 2: Farm Care Advisor & Booklet Proof -->
-                @if(
-                        (!isset($isTelecaller) || $isTelecaller == false) &&
-                        (!isset($isFarmCareOfficer) || $isFarmCareOfficer == false)
+                    <!-- Row 2: Farm Care Advisor & Booklet Proof -->
+                    @if(
+                    (!isset($isTelecaller) || $isTelecaller == false) &&
+                    (!isset($isFarmCareOfficer) || $isFarmCareOfficer == false)
                     )
-                <div class="row g-3">
+                    <div class="row g-3">
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Farm Care Advisor *</label>
-                        @if($isFarmCareAdvisor)
-                        <input type="hidden" name="farm_care_advisor_id" class="form-control advisor-highlight" value="{{ auth()->user()->n_employee_id }}" readonly>
-                        <input type="text" class="form-control advisor-highlight" value="{{ auth()->user()->c_name }}" readonly>
-                        @else
-                        <select name="farm_care_advisor_id" class="form-control" data-message="Please Enter Farm Care Advisor">
-                            <option value="">Select Farm Care Adviser</option>
-                            @if(isset($employees))
-                            @foreach($employees as $employee)
-                            <option value="{{ $employee->n_employee_id }}"
-                                {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id ? 'selected' : '' }}>
-                                {{ $employee->c_employee_name }}
-                            </option>
-                            @endforeach
-                            @endif
-                        </select>
-                        <div class="text-danger mt-1 fs-2"></div>
-                        @endif
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">
-                            Sales Order Booklet Proof
-                            @if(!isset($sale) || !$sale->booklet_image)
-                            <span class="text-danger">*</span>
-                            @endif
-                        </label>
-
-                        <input type="file" name="booklet_image" id="booklet_image" class="form-control" accept="image/*"
-                            data-message="Please Enter Booklet Proof">
-                        <input type="hidden" name="remove_booklet_image" id="remove_booklet_image" value="0">
-                        <div class="text-danger mt-1 fs-2"></div>
-
-                        <div class="mt-3" id="booklet_image_preview_container">
-                            <img id="booklet_image_preview"
-                                src="{{ isset($sale) && $sale->booklet_image ? asset('uploads/booklet_images/' . $sale->booklet_image) : '' }}"
-                                alt="Booklet Proof Preview" class="img-thumbnail"
-                                style="{{ isset($sale) && $sale->booklet_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
-
-                            @if(isset($sale) && $sale->booklet_image)
-                            <br>
-                            <button type="button" id="remove_booklet_image_btn" class="btn btn-danger btn-sm mt-2">
-                                Remove Image
-                            </button>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Farm Care Advisor *</label>
+                            @if($isFarmCareAdvisor)
+                            <input type="hidden" name="farm_care_advisor_id" class="form-control advisor-highlight"
+                                value="{{ auth()->user()->n_employee_id }}" readonly>
+                            <input type="text" class="form-control advisor-highlight"
+                                value="{{ auth()->user()->c_name }}" readonly>
+                            @else
+                            <select name="farm_care_advisor_id" class="form-control"
+                                data-message="Please Enter Farm Care Advisor">
+                                <option value="">Select Farm Care Adviser</option>
+                                @if(isset($employees))
+                                @foreach($employees as $employee)
+                                <option value="{{ $employee->n_employee_id }}"
+                                    {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id ? 'selected' : '' }}>
+                                    {{ $employee->c_employee_name }}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
+                            <div class="text-danger mt-1 fs-2"></div>
                             @endif
                         </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                Sales Order Booklet Proof
+                                @if(!isset($sale) || !$sale->booklet_image)
+                                <span class="text-danger">*</span>
+                                @endif
+                            </label>
+
+                            <input type="file" name="booklet_image" id="booklet_image" class="form-control"
+                                accept="image/*" data-message="Please Enter Booklet Proof">
+                            <input type="hidden" name="remove_booklet_image" id="remove_booklet_image" value="0">
+                            <div class="text-danger mt-1 fs-2"></div>
+
+                            <div class="mt-3" id="booklet_image_preview_container">
+                                <img id="booklet_image_preview"
+                                    src="{{ isset($sale) && $sale->booklet_image ? asset('uploads/booklet_images/' . $sale->booklet_image) : '' }}"
+                                    alt="Booklet Proof Preview" class="img-thumbnail"
+                                    style="{{ isset($sale) && $sale->booklet_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
+
+                                @if(isset($sale) && $sale->booklet_image)
+                                <br>
+                                <button type="button" id="remove_booklet_image_btn" class="btn btn-danger btn-sm mt-2">
+                                    Remove Image
+                                </button>
+                                @endif
+                            </div>
+                        </div>
+
                     </div>
-
-                </div>
-                @endif
-            </div>
-
-            <!-- Section 2: Product Details (Hierarchical Category -> Subcategory -> Product -> Attributes) -->
-            <div class="form-section mb-4">
-                <div class="section-title d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <i class="ti ti-shopping-cart fs-5"></i>
-                        Product Details *
-                    </div>
-
-                    @if(!isset($viewmode) || $viewmode=='off')
-                    <button type="button" class="btn buttonSpc btn-sm" id="addRow">
-                        <i class="ti ti-plus"></i>
-                        Add New Product
-                    </button>
                     @endif
                 </div>
 
-                <div class="tablescrolll">
-                    <table class="table table-bordered table-responsive align-middle" id="productTable">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="min-width: 170px;">Category *</th>
-                                <th style="min-width: 195px;">Sub Category</th>
-                                <th style="min-width: 220px;">Product *</th>
-                                <th style="min-width: 155px;">Attribute / Pack Size *</th>
-                                <th style="min-width: 110px;">HSN Code</th>
-                                <th style="min-width: 110px;">Price (Excl. GST)</th>
-                                <th style="min-width: 90px;">Quantity *</th>
-                                <th style="min-width: 100px;">Discount</th>
-                                <th style="min-width: 80px;">GST %</th>
-                                <th style="min-width: 110px;">GST Amount</th>
-                                <th style="min-width: 120px;">Taxable Amount</th>
-                                <th style="min-width: 120px;">Total (MRP)</th>
-                                <th style="min-width: 60px;" class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if(isset($sale->orderProducts) && count($sale->orderProducts) > 0)
-                            @foreach($sale->orderProducts as $key=>$val)
-                            <tr class="existing-product-row">
-                                <!-- Category -->
-                                <td>
-                                    <input type="hidden" name="products[{{ $key }}][n_category_id]" class="form-control subcategory-select" value="{{$val->category?->n_category_id}}">
-
-                                    <input type="text" name="" class="form-control" value="{{$val->category?->c_category_name}}" readonly>
-
-                                </td>
-
-                                <!-- Sub Category -->
-                                <td>
-                                    <input type="hidden" name="products[{{ $key }}][n_sub_category_id]" class="form-control subcategory-select" value="{{$val->subCategory?->n_category_id}}">
-
-                                    <input type="text" name="" class="form-control" value="{{$val->subCategory?->c_category_name}}" readonly>
-
-                                </td>
-
-                                <!-- Product -->
-                                <td>
-                                    <input type="hidden" name="products[{{ $key }}][product_id]" class="form-control product-select" value="{{$val->product->n_product_id}}">
-
-                                    <input type="text" name="" class="form-control" value="{{$val->product->c_product_name}}" readonly>
-
-
-                                </td>
-
-                                <!-- Attribute / Pack Size -->
-                                <td>
-                                    <input type="hidden" name="products[{{ $key }}][c_unit]" class="form-control attribute-select" value="{{$val->product->c_unit}}">
-
-                                    <input type="text" name="" class="form-control" value="{{$val->product->c_unit}}" readonly>
-
-                                </td>
-
-                                <!-- HSN Code -->
-                                <td>
-                                    <input type="text" name="products[{{ $key }}][c_hsn_code]" class="form-control c_hsn_code"
-                                        value="{{ $val->c_hsn_code ?? '' }}" readonly>
-                                </td>
-
-                                <!-- Price -->
-                                <td>
-                                    <input type="text" name="products[{{ $key }}][product_price]" class="form-control price"
-                                        value="{{ $val->product_price ?? '0.00' }}" readonly>
-                                </td>
-
-                                <!-- Quantity -->
-                                <td>
-                                    <input type="number" name="products[{{ $key }}][qty]" class="form-control qty"
-                                        value="{{ $val->qty ?? 1 }}" min="1">
-                                </td>
-
-
-
-                                <!-- Discount -->
-                                <td>
-                                    <input type="number" name="products[{{ $key }}][discount]" class="form-control discount"
-                                        value="{{ $val->discount ?? '0.00' }}" step="0.01" min="0">
-                                </td>
-
-                                <!-- GST % -->
-                                <td>
-                                    <input type="number" name="products[{{ $key }}][n_gst_percentage]"
-                                        class="form-control gst_percentage" value="{{ $val->n_gst_percentage ?? 0 }}"
-                                        step="0.01" readonly>
-                                </td>
-
-                                <!-- GST Amount -->
-                                <td>
-                                    <input type="text" name="products[{{ $key }}][gst_amount]" class="form-control gst_amount"
-                                        value="{{ $val->gst_amount ?? '0.00' }}" readonly>
-                                </td>
-
-                                <!-- Taxable / Discounted Price -->
-                                <td>
-                                    <input type="text" name="products[{{ $key }}][discounted_price]"
-                                        class="form-control discounted_price" value="{{ $val->discounted_price ?? '0.00' }}"
-                                        readonly>
-                                </td>
-
-                                <!-- Total (MRP) -->
-                                <td>
-                                    <input type="text" name="products[{{ $key }}][product_total]" class="form-control total"
-                                        value="{{ $val->product_total ?? '0.00' }}" readonly>
-                                </td>
-
-                                <td class="text-center">
-                                    <button type="button" class="btn btn-danger btn-sm removeRow">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            @endforeach
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Product Details Summary Box -->
-                <div class="row justify-content-end mt-4">
-                    <div class="col-md-6 col-lg-5">
-                        <div class="product-summary-box">
-                            <div class="summary-line">
-                                <span class="summary-label">Total Sales Amount</span>
-                                <input type="text" name="n_total_sales_amount" class="form-control summary-input text-end"
-                                    id="summaryTotalSales"
-                                    value="{{ old('n_total_sales_amount', $sale->n_total_sales_amount ?? '0.00') }}" readonly>
-                            </div>
-
-                            <div class="summary-line">
-                                <span class="summary-label">Total GST</span>
-                                <input type="number" name="n_total_gst" class="form-control summary-input text-end"
-                                    id="summaryGstAmount" value="{{ old('n_total_gst', $sale->n_total_gst ?? '0.00') }}" step="0.01"
-                                    min="0" readonly>
-                            </div>
-
-                            <div class="summary-line">
-                                <span class="summary-label">Total Discount</span>
-                                <input type="text" name="n_product_discount_total" class="form-control summary-input text-end"
-                                    id="summaryTotalDiscount"
-                                    value="{{ old('n_total_discount', $sale->n_product_discount_total ?? '0.00') }}" readonly>
-                            </div>
-
-                            <div class="summary-line highlight-green">
-                                <span class="summary-label fw-bold">Net Sales Amount</span>
-                                <input type="text" name="n_net_sales_amount"
-                                    class="form-control summary-input text-end fw-bold text-success" id="summaryNetSales"
-                                    value="{{ old('n_net_sales_amount', $sale->n_net_sales_amount ?? '0.00') }}" readonly>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Customer Type Selection -->
-            <div class="customer-toggle mb-4">
-                <input type="radio" class="btn-check" name="c_customer_type"
-                    id="newCustomer" value="new" {{ (!isset($sale) || (isset($sale) && $sale->c_customer_type=="new")) ? "checked" : '' }}>
-                <label class="toggle-btn new" for="newCustomer">New Customer</label>
-
-                <input type="radio" class="btn-check" name="c_customer_type"
-                    id="existingCustomer" value="existing" {{ (isset($sale) && $sale->c_customer_type=="existing") ? "checked" : '' }}>
-                <label class="toggle-btn existing" for="existingCustomer">Existing Customer</label>
-            </div>
-
-            <!-- Existing Customer Lookup -->
-            <div class="card border rounded-4 mb-4 d-none" id="lookupCard">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0 fw-semibold">Existing Customer Lookup</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row align-items-end">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Mobile Number</label>
-                            <input type="text" id="lookupMobile" value="{{ old('n_mobile', isset($sale) ? $sale->customer->n_mobile : '') }}" class="form-control" placeholder="Enter 10-digit Mobile Number">
-                        </div>
-                        <div class="col-md-3">
-                            <button type="button" id="lookupBtn" class="btn buttonSpc w-100">
-                                <i class="ti ti-search me-1"></i> Find Customer
-                            </button>
-                        </div>
-                        <div class="col-md-3">
-                            <small id="lookupMessage" class="text-success fw-semibold"></small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 3: Customer Information -->
-            <div class="border rounded p-4 mb-4">
-                <div class="form-section-header mb-3">
-                    <i class="ti ti-user fs-5"></i> Customer Information
-                </div>
-
-                <input type="hidden" name="n_customer_id" id="n_customer_id" class="form-control customer-id" value="{{ (isset($sale) ? $sale->customer->n_customer_id : '') }}">
-
-                <div class="row g-4 mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label">Customer Code</label>
-                        <input type="text" name="c_customer_code" id="c_customer_code" class="form-control customer-code"
-                            value="{{ $customerCode ?? (isset($sale) ? $sale->customer->c_customer_code : '') }}" readonly>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Customer Name *</label>
-                        <input type="text" name="c_customer_name" id="c_customer_name"
-                            value="{{ old('c_customer_name', isset($sale) ? $sale->customer->c_customer_name : '') }}"
-                            class="form-control c_customer_name mandatory" placeholder="Customer Name">
-                        @error('c_customer_name')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Mobile Number *</label>
-                        <input type="text" maxlength="10" name="n_mobile" id="n_mobile"
-                            value="{{ old('n_mobile', isset($sale) ? $sale->customer->n_mobile : '') }}"
-                            class="form-control mandatory" placeholder="10 Digit Mobile Number">
-                        @error('n_mobile')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">WhatsApp Number</label>
-                        <input type="text" maxlength="10" name="n_whatsapp" id="n_whatsapp"
-                            value="{{ old('n_whatsapp', isset($sale) ? $sale->customer->n_whatsapp : '') }}"
-                            class="form-control" placeholder="WhatsApp Number">
-                        @error('n_whatsapp')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-12">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="c_email" id="c_email"
-                            value="{{ old('c_email', isset($sale) ? $sale->customer->c_email : '') }}"
-                            class="form-control" placeholder="example@domain.com">
-                        @error('c_email')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <!-- Address Details -->
-                <div class="form-section-header">
-                    <i class="ti ti-map-pin"></i> Address Details
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-md-12">
-                        <label for="c_address" class="form-label">Address</label>
-                        <textarea id="c_address" name="c_address" rows="3" class="form-control"
-                            placeholder="Enter Customer Address">{{ old('c_address', isset($sale) ? $sale->customer->c_address : '') }}</textarea>
-                        @error('c_address')
-                            <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="c_post_office" class="form-label">
-                            Post Office
-                        </label>
-                        <input type="text" id="c_post_office" name="c_post_office" maxlength="6" value="{{ old('c_post_office',isset($sale) ? $sale->customer->c_post_office : '')}}"
-                            class="form-control" placeholder="Post Office">
-
-                        @error('c_post_office')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="n_state_id" class="form-label">State</label>
-                        <select name="n_state_id" id="n_state_id" class="form-select">
-                            <option value="">Select State</option>
-                            @if(isset($states))
-                            @foreach($states as $state)
-                            <option value="{{ $state->n_state_id }}" data-id="{{ $state->n_state_id }}"
-                                {{ old('n_state_id', isset($sale) ? $sale->customer->n_state_id : '') == $state->n_state_id ? 'selected' : '' }}>
-                                {{ $state->name }}
-                            </option>
-                            @endforeach
-                            @endif
-                        </select>
-                        @error('n_state_id')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="n_district_id" class="form-label">District</label>
-                        <select name="n_district_id" id="n_district_id" class="form-select">
-                            <option value="">Select District</option>
-                            @if(isset($districts))
-                            @foreach($districts as $district)
-                            <option value="{{ $district->id }}"
-                                {{ old('n_district_id', isset($sale) ? $sale->customer->n_district_id : '') == $district->id ? 'selected' : '' }}>
-                                {{ $district->district_name }}
-                            </option>
-                            @endforeach
-                            @endif
-                        </select>
-                        @error('n_district_id')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="c_thaluk" class="form-label">
-                            Thaluk
-                        </label>
-                        <input type="text" id="c_thaluk" name="c_thaluk" maxlength="6" value="{{ old('c_thaluk',isset($sale) ? $sale->customer->c_thaluk : '') }}"
-                            class="form-control" placeholder="Thaluk">
-
-                        @error('c_thaluk')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="c_pincode" class="form-label">Pincode</label>
-                        <input type="text" id="c_pincode" name="c_pincode" maxlength="6"
-                            value="{{ old('c_pincode', isset($sale) ? $sale->customer->c_pincode : '') }}"
-                            class="form-control" placeholder="Pincode">
-                        @error('c_pincode')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <!-- Customer Status -->
-                <div class="form-section-header">
-                    <i class="ti ti-checkup-list"></i> Customer Status
-                </div>
-
-                <div class="row g-4 mb-2">
-                    <div class="col-md-4">
-                        <label for="c_status" class="form-label">
-                            Status <span class="text-danger">*</span>
-                        </label>
-                        <select id="c_status" name="c_status" class="form-select mandatory">
-                            <option value="">Select Status</option>
-                            <option value="Y" {{ old('c_status', isset($sale) ? $sale->customer->c_status : 'Y') == 'Y' ? 'selected' : '' }}>Active</option>
-                            <option value="N" {{ old('c_status', isset($sale) ? $sale->customer->c_status : '') == 'N' ? 'selected' : '' }}>Inactive</option>
-                        </select>
-                        @error('c_status')
-                        <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 4: Payment Details -->
-            <div class="form-box mb-4">
-                <div class="form-section-header mb-3">
-                    <i class="ti ti-credit-card fs-5"></i> Payment Details
-                </div>
-
-                <div class="row mb-4 align-items-center">
-                    <label class="col-md-3 col-form-label fw-semibold">Mode of Payment *</label>
-
-                    <div class="col-md-9 d-flex flex-wrap">
-                        <div class="payment-option">
-                            <input class="form-check-input mandatory mode_of_payment" type="radio" name="c_mode_of_payment"
-                                id="cod" value="Cash on Delivery" data-message="Please Choose a Payment Mode"
-                                {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on Delivery" ? 'checked' : '' }}>
-                            <label for="cod" class="mb-0">
-                                <i class="ti ti-truck"></i> Cash on Delivery
-                            </label>
+                <!-- Section 2: Product Details (Hierarchical Category -> Subcategory -> Product -> Attributes) -->
+                <div class="form-section so-section mb-4">
+                    <div class="section-title d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="t-ic"><i class="ti ti-shopping-cart"></i></span>
+                            Product Details *
                         </div>
 
-                        @if(isset($isTelecaller) && $isTelecaller==false)
-                        <div class="payment-option">
-                            <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="upi"
-                                value="UPI"
-                                {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
-                            <label for="upi" class="mb-0">
-                                <i class="ti ti-brand-google-pay"></i> UPI
-                            </label>
-                        </div>
-
-                        <div class="payment-option">
-                            <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="bkd"
-                                value="Bank Deposit"
-                                {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
-                            <label for="bkd" class="mb-0">
-                                <i class="ti ti-building-bank"></i> Bank Deposit
-                            </label>
-                        </div>
+                        @if(!isset($viewmode) || $viewmode=='off')
+                        <button type="button" class="btn buttonSpc btn-sm" id="addRow">
+                            <i class="ti ti-plus"></i>
+                            Add Product
+                        </button>
                         @endif
-
-                        <div class="payment-option">
-                            <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment" id="pf"
-                                value="Paid to Franchise"
-                                {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
-                            <label for="pf" class="mb-0">
-                                <i class="ti ti-cash"></i> Paid to Franchise
-                            </label>
-                        </div>
-                        <div class="text-danger mt-1 fs-2"></div>
-                    </div>
-                </div>
-
-                <div class="row g-4 mt-1" id="ps">
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Payment Status</label>
-                        <select name="payment_status" id="payment_status" data-message="Please Select Payment Status" class="form-select">
-                            <option value="">Select Status</option>
-                            <option value="pending" {{ old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : '' }}>Pending</option>
-                            <option value="paid" {{ old('payment_status', $sale->payment_status ?? '') == "paid" ? 'selected' : '' }}>Paid</option>
-                        </select>
-                        <div class="text-danger mt-1 fs-2"></div>
-                    </div>
-                </div>
-
-                <!-- Payment Details Extra Fields -->
-                <div class="row g-4 mt-1" id="paymet-proofs">
-                    <div class="col-md-4">
-                        <label class="form-label">Amount to Pay *</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-success fw-bold">₹</span>
-                            <input type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
-                                id="n_amount_to_pay" class="form-control fw-bold text-success"
-                                value="{{ old('n_amount_to_pay', $sale->n_amount_to_pay ?? '') }}" readonly>
-                        </div>
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label">Transaction ID *</label>
-                        <input type="text" id="c_transaction_id" name="c_transaction_id"
-                            value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
-                            data-message="Please Enter Transaction id" class="form-control"
-                            placeholder="Enter Transaction / UTR / Reference No">
-                        <div class="text-danger mt-1 fs-2"></div>
+                    <div class="tablescrolll">
+                        <table class="table table-bordered table-responsive align-middle" id="productTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="min-width: 170px;">Category *</th>
+                                    <th style="min-width: 195px;">Sub Category</th>
+                                    <th style="min-width: 220px;">Product *</th>
+                                    <th style="min-width: 155px;">Attribute / Pack Size</th>
+                                    <th style="min-width: 110px;">HSN Code</th>
+                                    <th style="min-width: 110px;">Price (Excl. GST)</th>
+                                    <th style="min-width: 90px;">Quantity *</th>
+                                    <th style="min-width: 100px;">Discount</th>
+                                    <th style="min-width: 80px;">GST %</th>
+                                    <th style="min-width: 110px;">GST Amount</th>
+                                    <th style="min-width: 120px;">Taxable Amount</th>
+                                    <th style="min-width: 120px;">Total (MRP)</th>
+                                    <th style="min-width: 60px;" class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if(isset($sale->orderProducts) && count($sale->orderProducts) > 0)
+                                @foreach($sale->orderProducts as $key=>$val)
+                                <tr class="existing-product-row">
+                                    <!-- Category -->
+                                    <td>
+                                        <input type="hidden" name="products[{{ $key }}][n_category_id]"
+                                            class="form-control subcategory-select"
+                                            value="{{$val->category?->n_category_id}}">
+
+                                        <input type="text" name="" class="form-control"
+                                            value="{{$val->category?->c_category_name}}" readonly>
+
+                                    </td>
+
+                                    <!-- Sub Category -->
+                                    <td>
+                                        <input type="hidden" name="products[{{ $key }}][n_sub_category_id]"
+                                            class="form-control subcategory-select"
+                                            value="{{$val->subCategory?->n_category_id}}">
+
+                                        <input type="text" name="" class="form-control"
+                                            value="{{$val->subCategory?->c_category_name}}" readonly>
+
+                                    </td>
+
+                                    <!-- Product -->
+                                    <td>
+                                        <input type="hidden" name="products[{{ $key }}][product_id]"
+                                            class="form-control product-select" value="{{$val->product->n_product_id}}">
+
+                                        <input type="text" name="" class="form-control"
+                                            value="{{$val->product->c_product_name}}" readonly>
+
+
+                                    </td>
+
+                                    <!-- Attribute / Pack Size -->
+                                    <td>
+                                        <input type="hidden" name="products[{{ $key }}][c_unit]"
+                                            class="form-control attribute-select" value="{{$val->product->c_unit}}">
+
+                                        <input type="text" name="" class="form-control"
+                                            value="{{$val->product->c_unit}}" readonly>
+
+                                    </td>
+
+                                    <!-- HSN Code -->
+                                    <td>
+                                        <input type="text" name="products[{{ $key }}][c_hsn_code]"
+                                            class="form-control c_hsn_code" value="{{ $val->c_hsn_code ?? '' }}"
+                                            readonly>
+                                    </td>
+
+                                    <!-- Price -->
+                                    <td>
+                                        <input type="text" name="products[{{ $key }}][product_price]"
+                                            class="form-control price" value="{{ $val->product_price ?? '0.00' }}"
+                                            readonly>
+                                    </td>
+
+                                    <!-- Quantity -->
+                                    <td>
+                                        <input type="number" name="products[{{ $key }}][qty]" class="form-control qty"
+                                            value="{{ $val->qty ?? 1 }}" min="1">
+                                    </td>
+
+
+
+                                    <!-- Discount -->
+                                    <td>
+                                        <input type="number" name="products[{{ $key }}][discount]"
+                                            class="form-control discount" value="{{ $val->discount ?? '0.00' }}"
+                                            step="0.01" min="0">
+                                    </td>
+
+                                    <!-- GST % -->
+                                    <td>
+                                        <input type="number" name="products[{{ $key }}][n_gst_percentage]"
+                                            class="form-control gst_percentage"
+                                            value="{{ $val->n_gst_percentage ?? 0 }}" step="0.01" readonly>
+                                    </td>
+
+                                    <!-- GST Amount -->
+                                    <td>
+                                        <input type="text" name="products[{{ $key }}][gst_amount]"
+                                            class="form-control gst_amount" value="{{ $val->gst_amount ?? '0.00' }}"
+                                            readonly>
+                                    </td>
+
+                                    <!-- Taxable / Discounted Price -->
+                                    <td>
+                                        <input type="text" name="products[{{ $key }}][discounted_price]"
+                                            class="form-control discounted_price"
+                                            value="{{ $val->discounted_price ?? '0.00' }}" readonly>
+                                    </td>
+
+                                    <!-- Total (MRP) -->
+                                    <td>
+                                        <input type="text" name="products[{{ $key }}][product_total]"
+                                            class="form-control total" value="{{ $val->product_total ?? '0.00' }}"
+                                            readonly>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-danger btn-sm removeRow">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                                @endif
+                            </tbody>
+                        </table>
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label">
-                            Transaction Proof
-                            @if(!isset($sale) || !$sale->payment_image)
-                            <span class="text-danger">*</span>
-                            @endif
-                        </label>
+                    <!-- Product Details Summary Box (Bill Card) -->
+                    <div class="row justify-content-end mt-4">
+                        <div class="col-md-6 col-lg-5">
+                            <div class="so-bill">
+                                <div class="b-head">
+                                    <i class="ti ti-receipt"></i> Order Summary
+                                </div>
+                                <div class="b-body">
+                                    <div class="summary-line">
+                                        <span class="summary-label">Total Sales Amount</span>
+                                        <input type="text" name="n_total_sales_amount"
+                                            class="form-control summary-input text-end" id="summaryTotalSales"
+                                            value="{{ old('n_total_sales_amount', $sale->n_total_sales_amount ?? '0.00') }}"
+                                            readonly>
+                                    </div>
 
-                        <input type="file" id="payment_image" name="payment_image" data-message="Please Enter Transaction Proof"
-                            class="form-control" accept="image/*">
-                        <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
-                        <div class="text-danger mt-1 fs-2"></div>
+                                    <div class="summary-line">
+                                        <span class="summary-label">Total GST</span>
+                                        <input type="number" name="n_total_gst"
+                                            class="form-control summary-input text-end" id="summaryGstAmount"
+                                            value="{{ old('n_total_gst', $sale->n_total_gst ?? '0.00') }}" step="0.01"
+                                            min="0" readonly>
+                                    </div>
 
-                        <div class="mt-3" id="payment_preview_container">
-                            <img id="payment_image_preview"
-                                src="{{ isset($sale) && $sale->payment_image ? asset('uploads/payment_images/' . $sale->payment_image) : '' }}"
-                                alt="Transaction Proof Preview" class="img-thumbnail"
-                                style="{{ isset($sale) && $sale->payment_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
+                                    <div class="summary-line">
+                                        <span class="summary-label">Total Discount</span>
+                                        <input type="text" name="n_product_discount_total"
+                                            class="form-control summary-input text-end" id="summaryTotalDiscount"
+                                            value="{{ old('n_total_discount', $sale->n_product_discount_total ?? '0.00') }}"
+                                            readonly>
+                                    </div>
 
-                            @if(isset($sale) && $sale->payment_image)
-                            <br>
-                            <button type="button" id="remove_payment_image_btn" class="btn btn-danger btn-sm mt-2">
-                                Remove Image
-                            </button>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 6: Franchise / Company Details Section -->
-            <div class="form-box mb-4" id="franchise-details">
-                @if(isset($isAdmin) && $isAdmin==true)
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <label class="form-label fw-bold">Order Type <span class="text-danger">*</span></label>
-                        <div class="d-flex gap-4">
-                            <div class="form-check">
-                                <input class="form-check-input mandatory" type="radio" name="order_type" id="company"
-                                    value="company" {{ old('order_type', $sale->order_type ?? '') == 'company' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="company">Company</label>
+                                    <div class="summary-line highlight-green">
+                                        <span class="summary-label fw-bold">Net Sales Amount</span>
+                                        <input type="text" name="n_net_sales_amount"
+                                            class="form-control summary-input text-end fw-bold text-success"
+                                            id="summaryNetSales"
+                                            value="{{ old('n_net_sales_amount', $sale->n_net_sales_amount ?? '0.00') }}"
+                                            readonly>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
 
-                            <div class="form-check">
-                                <input class="form-check-input mandatory" type="radio" name="order_type" id="franchise_type"
-                                    value="franchise" {{ old('order_type', $sale->order_type ?? '') == 'franchise' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="franchise_type">Franchise</label>
+                <!-- Customer Type Selection -->
+                <div class="customer-toggle mb-4">
+                    <input type="radio" class="btn-check" name="c_customer_type" id="newCustomer" value="new"
+                        {{ (!isset($sale) || (isset($sale) && $sale->c_customer_type=="new")) ? "checked" : '' }}>
+                    <label class="toggle-btn new" for="newCustomer"><i class="ti ti-user-plus"></i> New Customer</label>
+
+                    <input type="radio" class="btn-check" name="c_customer_type" id="existingCustomer" value="existing"
+                        {{ (isset($sale) && $sale->c_customer_type=="existing") ? "checked" : '' }}>
+                    <label class="toggle-btn existing" for="existingCustomer"><i class="ti ti-user-search"></i> Existing
+                        Customer</label>
+                </div>
+
+                <!-- Existing Customer Lookup -->
+                <div class="card so-lookup mb-4 d-none" id="lookupCard">
+                    <div class="card-header">
+                        <i class="ti ti-user-search"></i> Find an Existing Customer
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-end">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Mobile Number</label>
+                                <input type="text" id="lookupMobile"
+                                    value="{{ old('n_mobile', isset($sale) ? $sale->customer->n_mobile : '') }}"
+                                    class="form-control" placeholder="Enter 10-digit Mobile Number">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" id="lookupBtn" class="btn buttonSpc w-100">
+                                    <i class="ti ti-search me-1"></i> Find Customer
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <small id="lookupMessage" class="fw-semibold"
+                                    style="color:var(--so-olive, #5E8D3D);"></small>
                             </div>
                         </div>
                     </div>
                 </div>
-                @endif
 
-                <div id="franchise-location-details">
+                <!-- Section 3: Customer Information -->
+                <div class="border rounded so-section p-4 mb-4">
+                    <div class="form-section-header section-title mb-3">
+                        <span class="t-ic"><i class="ti ti-user"></i></span> Customer Information
+                    </div>
+
+                    <input type="hidden" name="n_customer_id" id="n_customer_id" class="form-control customer-id"
+                        value="{{ (isset($sale) ? $sale->customer->n_customer_id : '') }}">
+
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
-                            <label class="form-label">State <span class="text-danger">*</span></label>
-                            <select class="form-select mandatory" id="franchise_state" name="n_state_id" data-message="Please Select State">
+                            <label class="form-label">Customer Code</label>
+                            <input type="text" name="c_customer_code" id="c_customer_code"
+                                class="form-control customer-code"
+                                value="{{ $customerCode ?? (isset($sale) ? $sale->customer->c_customer_code : '') }}"
+                                readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Customer Name *</label>
+                            <input type="text" name="c_customer_name" id="c_customer_name"
+                                value="{{ old('c_customer_name', isset($sale) ? $sale->customer->c_customer_name : '') }}"
+                                class="form-control c_customer_name mandatory" placeholder="Customer Name">
+                            @error('c_customer_name')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Mobile Number *</label>
+                            <input type="text" maxlength="10" name="n_mobile" id="n_mobile"
+                                value="{{ old('n_mobile', isset($sale) ? $sale->customer->n_mobile : '') }}"
+                                class="form-control mandatory" placeholder="10 Digit Mobile Number">
+                            @error('n_mobile')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">WhatsApp Number</label>
+                            <input type="text" maxlength="10" name="n_whatsapp" id="n_whatsapp"
+                                value="{{ old('n_whatsapp', isset($sale) ? $sale->customer->n_whatsapp : '') }}"
+                                class="form-control" placeholder="WhatsApp Number">
+                            @error('n_whatsapp')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="c_email" id="c_email"
+                                value="{{ old('c_email', isset($sale) ? $sale->customer->c_email : '') }}"
+                                class="form-control" placeholder="example@domain.com">
+                            @error('c_email')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div> <!-- Address Details -->
+                    <div class="form-section-header">
+                        <i class="ti ti-map-pin"></i> Address Details
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-12">
+                            <label for="c_address" class="form-label">Address</label>
+                            <textarea id="c_address" name="c_address" rows="3" class="form-control"
+                                placeholder="Enter Customer Address">{{ old('c_address', isset($sale) ? $sale->customer->c_address : '') }}</textarea>
+                            @error('c_address')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="c_post_office" class="form-label">
+                                Post Office
+                            </label>
+                            <input type="text" id="c_post_office" name="c_post_office"
+                                value="{{ old('c_post_office',isset($sale) ? $sale->customer->c_post_office : '')}}"
+                                class="form-control" placeholder="Post Office">
+
+                            @error('c_post_office')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="n_state_id" class="form-label">State</label>
+                            <select name="n_state_id" id="n_state_id" class="form-select">
                                 <option value="">Select State</option>
                                 @if(isset($states))
                                 @foreach($states as $state)
-                                <option value="{{ $state->n_state_id }}"
-                                    {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
+                                <option value="{{ $state->n_state_id }}" data-id="{{ $state->n_state_id }}"
+                                    {{ old('n_state_id', isset($sale) ? $sale->customer->n_state_id : '') == $state->n_state_id ? 'selected' : '' }}>
                                     {{ $state->name }}
                                 </option>
                                 @endforeach
                                 @endif
                             </select>
                             @error('n_state_id')
-                            <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                            <div class="text-danger mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">District <span class="text-danger">*</span></label>
-                            <select class="form-select" id="franchise_district" name="n_district_id" data-message="Please Select District"
-                                {{ isset($viewmode) && $viewmode == 'on' ? 'disabled' : '' }}>
+                        <div class="col-md-4">
+                            <label for="n_district_id" class="form-label">District</label>
+                            <select name="n_district_id" id="n_district_id" class="form-select">
                                 <option value="">Select District</option>
-                                @if(isset($sale->n_district_id) && isset($sale->n_state_id))
+                                @if(isset($districts))
+                                @foreach($districts as $district)
+                                <option value="{{ $district->id }}"
+                                    {{ old('n_district_id', isset($sale) ? $sale->customer->n_district_id : '') == $district->id ? 'selected' : '' }}>
+                                    {{ $district->district_name }}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
+                            @error('n_district_id')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="c_thaluk" class="form-label">
+                                Thaluk
+                            </label>
+                            <input type="text" id="c_thaluk" name="c_thaluk"
+                                value="{{ old('c_thaluk',isset($sale) ? $sale->customer->c_thaluk : '') }}"
+                                class="form-control" placeholder="Thaluk">
+
+                            @error('c_thaluk')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="c_pincode" class="form-label">Pincode</label>
+                            <input type="text" id="c_pincode" name="c_pincode" maxlength="6"
+                                value="{{ old('c_pincode', isset($sale) ? $sale->customer->c_pincode : '') }}"
+                                class="form-control" placeholder="Pincode">
+                            @error('c_pincode')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div> <!-- Customer Status -->
+                    <div class="form-section-header">
+                        <i class="ti ti-checkup-list"></i> Customer Status
+                    </div>
+
+                    <div class="row g-4 mb-2">
+                        <div class="col-md-4">
+                            <label for="c_status" class="form-label">
+                                Status <span class="text-danger">*</span>
+                            </label>
+                            <select id="c_status" name="c_status" class="form-select mandatory">
+                                <option value="">Select Status</option>
+                                <option value="Y"
+                                    {{ old('c_status', isset($sale) ? $sale->customer->c_status : 'Y') == 'Y' ? 'selected' : '' }}>
+                                    Active</option>
+                                <option value="N"
+                                    {{ old('c_status', isset($sale) ? $sale->customer->c_status : '') == 'N' ? 'selected' : '' }}>
+                                    Inactive</option>
+                            </select>
+                            @error('c_status')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Payment Details -->
+                <div class="form-box so-section mb-4">
+                    <div class="form-section-header section-title mb-3">
+                        <span class="t-ic"><i class="ti ti-credit-card"></i></span> Payment Details
+                    </div>
+
+                    <div class="row mb-4 align-items-center">
+                        <label class="col-md-3 col-form-label fw-semibold">Mode of Payment *</label>
+
+                        <div class="col-md-9 d-flex flex-wrap">
+                            <div class="payment-option">
+                                <input class="form-check-input mandatory mode_of_payment" type="radio"
+                                    name="c_mode_of_payment" id="cod" value="Cash on Delivery"
+                                    data-message="Please Choose a Payment Mode"
+                                    {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on Delivery" ? 'checked' : '' }}>
+                                <label for="cod" class="mb-0">
+                                    <i class="ti ti-truck"></i> Cash on Delivery
+                                </label>
+                            </div>
+
+                            @if(isset($isTelecaller) && $isTelecaller==false)
+                            <div class="payment-option">
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
+                                    id="upi" value="UPI"
+                                    {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : '' }}>
+                                <label for="upi" class="mb-0">
+                                    <i class="ti ti-brand-google-pay"></i> UPI
+                                </label>
+                            </div>
+
+                            <div class="payment-option">
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
+                                    id="bkd" value="Bank Deposit"
+                                    {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : '' }}>
+                                <label for="bkd" class="mb-0">
+                                    <i class="ti ti-building-bank"></i> Bank Deposit
+                                </label>
+                            </div>
+                            @endif
+
+                            <div class="payment-option">
+                                <input class="form-check-input mode_of_payment" type="radio" name="c_mode_of_payment"
+                                    id="pf" value="Paid to Franchise"
+                                    {{ old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : '' }}>
+                                <label for="pf" class="mb-0">
+                                    <i class="ti ti-cash"></i> Paid to Franchise
+                                </label>
+                            </div>
+                            <div class="text-danger mt-1 fs-2"></div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mt-1" id="ps">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Payment Status</label>
+                            <select name="payment_status" id="payment_status"
+                                data-message="Please Select Payment Status" class="form-select">
+                                <option value="">Select Status</option>
+                                <option value="pending"
+                                    {{ old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : '' }}>
+                                    Pending</option>
+                                <option value="paid"
+                                    {{ old('payment_status', $sale->payment_status ?? '') == "paid" ? 'selected' : '' }}>
+                                    Paid</option>
+                            </select>
+                            <div class="text-danger mt-1 fs-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Details Extra Fields -->
+                    <div class="row g-4 mt-1" id="paymet-proofs">
+                        <div class="col-md-4">
+                            <label class="form-label">Amount to Pay *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-success fw-bold">₹</span>
+                                <input type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
+                                    id="n_amount_to_pay" class="form-control fw-bold text-success"
+                                    value="{{ old('n_amount_to_pay', $sale->n_amount_to_pay ?? '') }}" readonly>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Transaction ID *</label>
+                            <input type="text" id="c_transaction_id" name="c_transaction_id"
+                                value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
+                                data-message="Please Enter Transaction id" class="form-control"
+                                placeholder="Enter Transaction / UTR / Reference No">
+                            <div class="text-danger mt-1 fs-2"></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                Transaction Proof
+                                @if(!isset($sale) || !$sale->payment_image)
+                                <span class="text-danger">*</span>
+                                @endif
+                            </label>
+
+                            <input type="file" id="payment_image" name="payment_image"
+                                data-message="Please Enter Transaction Proof" class="form-control" accept="image/*">
+                            <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
+                            <div class="text-danger mt-1 fs-2"></div>
+
+                            <div class="mt-3" id="payment_preview_container">
+                                <img id="payment_image_preview"
+                                    src="{{ isset($sale) && $sale->payment_image ? asset('uploads/payment_images/' . $sale->payment_image) : '' }}"
+                                    alt="Transaction Proof Preview" class="img-thumbnail"
+                                    style="{{ isset($sale) && $sale->payment_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
+
+                                @if(isset($sale) && $sale->payment_image)
+                                <br>
+                                <button type="button" id="remove_payment_image_btn" class="btn btn-danger btn-sm mt-2">
+                                    Remove Image
+                                </button>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 6: Franchise / Company Details Section -->
+                <div class="form-box so-section mb-4" id="franchise-details">
+                    @if(isset($isAdmin) && $isAdmin==true)
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Order Type <span class="text-danger">*</span></label>
+                            <div class="d-flex gap-4">
+                                <div class="form-check">
+                                    <input class="form-check-input mandatory" type="radio" name="order_type"
+                                        id="company" value="company"
+                                        {{ old('order_type', $sale->order_type ?? '') == 'company' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="company">Company</label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input mandatory" type="radio" name="order_type"
+                                        id="franchise_type" value="franchise"
+                                        {{ old('order_type', $sale->order_type ?? '') == 'franchise' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="franchise_type">Franchise</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div id="franchise-location-details">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">State <span class="text-danger">*</span></label>
+                                <select class="form-select mandatory" id="franchise_state" name="n_state_id"
+                                    data-message="Please Select State">
+                                    <option value="">Select State</option>
+                                    @if(isset($states))
+                                    @foreach($states as $state)
+                                    <option value="{{ $state->n_state_id }}"
+                                        {{ old('n_state_id', $sale->n_state_id ?? '') == $state->n_state_id ? 'selected' : '' }}>
+                                        {{ $state->name }}
+                                    </option>
+                                    @endforeach
+                                    @endif
+                                </select>
+                                @error('n_state_id')
+                                <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">District <span class="text-danger">*</span></label>
+                                <select class="form-select" id="franchise_district" name="n_district_id"
+                                    data-message="Please Select District"
+                                    {{ isset($viewmode) && $viewmode == 'on' ? 'disabled' : '' }}>
+                                    <option value="">Select District</option>
+                                    @if(isset($sale->n_district_id) && isset($sale->n_state_id))
                                     @php
-                                        $franchiseDistricts = \App\Models\District::where('state_id', $sale->n_state_id)->get();
+                                    $franchiseDistricts = \App\Models\District::where('state_id',
+                                    $sale->n_state_id)->get();
                                     @endphp
                                     @foreach($franchiseDistricts as $district)
                                     <option value="{{ $district->id }}"
@@ -1125,17 +1716,18 @@ use Illuminate\Support\Facades\Crypt;
                                         {{ $district->district_name }}
                                     </option>
                                     @endforeach
-                                @endif
-                            </select>
-                        </div>
+                                    @endif
+                                </select>
+                            </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">Panchayath</label>
-                            <select class="form-select" id="franchise_panchayath" name="n_panchayath_id">
-                                <option value="">Select Panchayath</option>
-                                @if(isset($sale->n_district_id))
+                            <div class="col-md-6">
+                                <label class="form-label">Panchayath</label>
+                                <select class="form-select" id="franchise_panchayath" name="n_panchayath_id">
+                                    <option value="">Select Panchayath</option>
+                                    @if(isset($sale->n_district_id))
                                     @php
-                                        $franchisePanchayaths = \App\Models\Panchayath::where('district_id', $sale->n_district_id)->get();
+                                    $franchisePanchayaths = \App\Models\Panchayath::where('district_id',
+                                    $sale->n_district_id)->get();
                                     @endphp
                                     @foreach($franchisePanchayaths as $panchayath)
                                     <option value="{{ $panchayath->id }}"
@@ -1143,34 +1735,36 @@ use Illuminate\Support\Facades\Crypt;
                                         {{ $panchayath->panchayath_name }}
                                     </option>
                                     @endforeach
-                                @endif
-                            </select>
-                        </div>
+                                    @endif
+                                </select>
+                            </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">Nearest Franchise <span class="text-danger">*</span></label>
-                            <select class="form-select mandatory" id="franchise" name="nearest_franchise_id" data-message="Please Select Nearest Franchise">
-                                <option value="">Select Franchise</option>
-                                @if(isset($franchises))
-                                @foreach($franchises as $franchise)
-                                <option value="{{ $franchise->n_store_id }}"
-                                    {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
-                                    {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
-                                </option>
-                                @endforeach
-                                @endif
-                            </select>
+                            <div class="col-md-6">
+                                <label class="form-label">Nearest Franchise <span class="text-danger">*</span></label>
+                                <select class="form-select mandatory" id="franchise" name="nearest_franchise_id"
+                                    data-message="Please Select Nearest Franchise">
+                                    <option value="">Select Franchise</option>
+                                    @if(isset($franchises))
+                                    @foreach($franchises as $franchise)
+                                    <option value="{{ $franchise->n_store_id }}"
+                                        {{ old('nearest_franchise_id', $sale->nearest_franchise_id ?? '') == $franchise->n_store_id ? 'selected' : '' }}>
+                                        {{ $franchise->c_store_name }} ({{ $franchise->c_store_code }})
+                                    </option>
+                                    @endforeach
+                                    @endif
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="mt-4 d-flex gap-2 flex-wrap">
-                @if(isset($viewmode) && $viewmode=="on")
+                <!-- Action Buttons -->
+                <div class="mt-4 d-flex gap-2 flex-wrap">
+                    @if(isset($viewmode) && $viewmode=="on")
                     @can('sales-orders.approval')
-                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc" data-bs-toggle="modal"
-                        data-bs-target="#approveModal" data-bs-dismiss="modal" data-id="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
+                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
+                        data-bs-toggle="modal" data-bs-target="#approveModal" data-bs-dismiss="modal"
+                        data-id="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
                         Approve
                     </button>
                     @endcan
@@ -1180,94 +1774,114 @@ use Illuminate\Support\Facades\Crypt;
                         Order Summary Preview
                     </a>
                     <a href="{{ route('admin.invoice.download', $sale->n_sl_no) }}">
-                        <button type="button" class="btn buttonSpc" style="height:61px;margin-top: 4px;">Generate Invoice</button>
+                        <button type="button" class="btn buttonSpc" style="height:61px;margin-top: 4px;">Generate
+                            Invoice</button>
                     </a>
                     @endif
-                @else
+                    @else
                     <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
                         id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
                     <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                @endif
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Approval Modal -->
-<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
-                @csrf
-                @method('PUT')
-
-                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
-                    <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    <input type="hidden" name="sales_id" id="sales_id" value="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
-
-                    <div class="mb-3">
-                        <label class="form-label">Remarks <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="remarks" id="approval_remarks" rows="3" required></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Approval Status <span class="text-danger">*</span></label>
-                        <select class="form-select" name="status" id="approval_status" required>
-                            <option value="">Select Status</option>
-                            <option value="Approved">Approve</option>
-                            <option value="Rejected">Reject</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn buttonSpc" id="approvalSubmit">Submit</button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    @endif
                 </div>
             </form>
         </div>
     </div>
-</div>
-@endsection
 
-@push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-<script>
+    <!-- Approval Modal -->
+    <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
+                    @csrf
+                    @method('PUT')
 
-$(document).ready(function () {
-    console.log('Sales Order JS loaded with Category & Attribute flow');
+                    <div class="modal-header" style="background: linear-gradient(135deg, #5E8D3D, #1F5C2E);">
+                        <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
 
-    let rowIndex = $('#productTable tbody tr').length;
+                    <div class="modal-body">
+                        <input type="hidden" name="sales_id" id="sales_id"
+                            value="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
 
-    /*
-    |--------------------------------------------------------------------------
-    | Helper to Normalize Category Value to Catalog Key
-    |--------------------------------------------------------------------------
-    */
-    function resolveCategoryKey(catVal) {
-        if (!catVal) return '';
-        let lower = String(catVal).toLowerCase().trim();
-        if (lower.indexOf('organ') !== -1 || lower === '1') {
-            return 'organics';
+                        <div class="mb-3">
+                            <label class="form-label">Remarks <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="remarks" id="approval_remarks" rows="3"
+                                required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Approval Status <span class="text-danger">*</span></label>
+                            <select class="form-select" name="status" id="approval_status" required>
+                                <option value="">Select Status</option>
+                                <option value="Approved">Approve</option>
+                                <option value="Rejected">Reject</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn buttonSpc" id="approvalSubmit">Submit</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endsection
+
+    @push('scripts')
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script>
+    $(document).ready(function() {
+        console.log('Sales Order JS loaded with Category & Attribute flow');
+
+        let rowIndex = $('#productTable tbody tr').length;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Inject mobile card labels from thead (harmless on desktop)
+        |--------------------------------------------------------------------------
+        */
+        function soLabelRows() {
+            const labels = $('#productTable thead th').map(function() {
+                return $(this).text().replace(/\*/g, '').trim();
+            }).get();
+            $('#productTable tbody tr').each(function() {
+                $(this).children('td').each(function(i) {
+                    $(this).attr('data-label', labels[i] || '');
+                });
+            });
         }
-        if (lower.indexOf('plant') !== -1 || lower.indexOf('garden') !== -1 || lower.indexOf('foliage') !== -1 || lower === '6') {
-            return 'garden_plants';
-        }
-        return catVal;
-    }
+        soLabelRows();
 
-    /*
-    |--------------------------------------------------------------------------
-    | Add New Product Row
-    |--------------------------------------------------------------------------
-    */
-    $('#addRow').on('click', function () {
-        let row = `
+        /*
+        |--------------------------------------------------------------------------
+        | Helper to Normalize Category Value to Catalog Key
+        |--------------------------------------------------------------------------
+        */
+        function resolveCategoryKey(catVal) {
+            if (!catVal) return '';
+            let lower = String(catVal).toLowerCase().trim();
+            if (lower.indexOf('organ') !== -1 || lower === '1') {
+                return 'organics';
+            }
+            if (lower.indexOf('plant') !== -1 || lower.indexOf('garden') !== -1 || lower.indexOf('foliage') !==
+                -1 || lower === '6') {
+                return 'garden_plants';
+            }
+            return catVal;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Add New Product Row
+        |--------------------------------------------------------------------------
+        */
+        $('#addRow').on('click', function() {
+            let row = `
             <tr class="new-product-row">
                 <!-- 1. Category -->
                 <td>
@@ -1357,20 +1971,21 @@ $(document).ready(function () {
             </tr>
         `;
 
-        $('#productTable tbody').append(row);
-        rowIndex++;
-    });
+            $('#productTable tbody').append(row);
+            rowIndex++;
+            soLabelRows();
+        });
 
 
-        $(document).ready(function () {
+        $(document).ready(function() {
 
-        /*
-        |--------------------------------------------------------------------------
-        | CATEGORY CHANGE
-        |--------------------------------------------------------------------------
-        */
+            /*
+            |--------------------------------------------------------------------------
+            | CATEGORY CHANGE
+            |--------------------------------------------------------------------------
+            */
 
-            $(document).on('change', '.category-select', function () {
+            $(document).on('change', '.category-select', function() {
 
                 let row = $(this).closest('.new-product-row');
 
@@ -1399,56 +2014,57 @@ $(document).ready(function () {
                 }
 
 
-                let url = "{{ route('admin.get.product.subcategories', ['categoryId' => ':categoryId']) }}";
+                let url =
+                    "{{ route('admin.get.product.subcategories', ['categoryId' => ':categoryId']) }}";
                 url = url.replace(':categoryId', categoryId);
 
                 $.ajax({
-                        url: url,
-                        type: 'GET',
+                    url: url,
+                    type: 'GET',
 
-                        success: function (data) {
+                    success: function(data) {
 
 
 
-                            subCategory.empty();
+                        subCategory.empty();
+
+                        subCategory.append(
+                            $('<option>', {
+                                value: '',
+                                text: 'Select Sub Category',
+
+                            })
+                        );
+
+                        $.each(data.subcategories, function(index, item) {
 
                             subCategory.append(
                                 $('<option>', {
-                                    value: '',
-                                    text: 'Select Sub Category',
+                                    value: item.n_category_id,
+                                    text: item.c_category_name,
 
                                 })
                             );
+                            // Enable subcategory dropdown
+                            subCategory.prop('disabled', false);
+                        });
 
-                            $.each(data.subcategories, function (index, item) {
+                    },
 
-                                subCategory.append(
-                                    $('<option>', {
-                                        value: item.n_category_id,
-                                        text: item.c_category_name,
-
-                                    })
-                                );
-                               // Enable subcategory dropdown
-                                subCategory.prop('disabled', false);
-                            });
-
-                        },
-
-                    error: function (xhr) {
+                    error: function(xhr) {
                         console.log('Sub Category Error:', xhr.responseText);
                     }
                 });
             });
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | SUB CATEGORY CHANGE
-        |--------------------------------------------------------------------------
-        */
+            /*
+            |--------------------------------------------------------------------------
+            | SUB CATEGORY CHANGE
+            |--------------------------------------------------------------------------
+            */
 
-            $(document).on('change', '.subcategory-select', function () {
+            $(document).on('change', '.subcategory-select', function() {
 
                 let row = $(this).closest('.new-product-row');
 
@@ -1470,7 +2086,8 @@ $(document).ready(function () {
                     return;
                 }
 
-                let url = "{{ route('admin.get.products', ['subCategoryId' => ':subCategoryId']) }}";
+                let url =
+                    "{{ route('admin.get.products', ['subCategoryId' => ':subCategoryId']) }}";
                 url = url.replace(':subCategoryId', subCategoryId);
 
                 $.ajax({
@@ -1478,18 +2095,18 @@ $(document).ready(function () {
                     url: url,
                     type: 'GET',
 
-                    success: function (data) {
-                            product.empty();
+                    success: function(data) {
+                        product.empty();
 
-                            product.append(
-                                $('<option>', {
-                                    value: '',
-                                    text: 'Select Product',
+                        product.append(
+                            $('<option>', {
+                                value: '',
+                                text: 'Select Product',
 
-                                })
-                            );
+                            })
+                        );
 
-                        $.each(data.products, function (index, item) {
+                        $.each(data.products, function(index, item) {
 
                             product.append(
                                 $('<option>', {
@@ -1499,13 +2116,13 @@ $(document).ready(function () {
                             );
 
                             // Enable product dropdown
-                                product.prop('disabled', false);
+                            product.prop('disabled', false);
 
                         });
 
                     },
 
-                    error: function (xhr) {
+                    error: function(xhr) {
                         console.log('Product Error:', xhr.responseText);
                     }
 
@@ -1514,17 +2131,18 @@ $(document).ready(function () {
             });
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | PRODUCT CHANGE
-        |--------------------------------------------------------------------------
-        */
+            /*
+            |--------------------------------------------------------------------------
+            | PRODUCT CHANGE
+            |--------------------------------------------------------------------------
+            */
 
-            $(document).on('change', '.product-select', function () {
+            $(document).on('change', '.product-select', function() {
 
 
                 let row = $(this).closest('.new-product-row');
-                let categoryCode=row.find(".category-select").find(':selected').attr("data-categoryCode");
+                let categoryCode = row.find(".category-select").find(':selected').attr(
+                    "data-categoryCode");
                 let productId = $(this).val();
 
                 let productName = $(this).find(':selected').text();
@@ -1539,9 +2157,15 @@ $(document).ready(function () {
                     return;
                 }
 
-                if(categoryCode=="PLANT"){
+                if (String(categoryCode).toUpperCase() === "PLANTS") {
 
-                    let url = "{{ route('admin.get.attributesFromProductname',['productId' => ':productId'])}}";
+                    // Plant products have no pack size / attribute -> not applicable
+                    packSize.html('<option value="">Not applicable</option>')
+                        .val('')
+                        .prop('disabled', true);
+
+                    let url =
+                        "{{ route('admin.get.attributesFromProductname',['productId' => ':productId'])}}";
                     url = url.replace(':productId', productId);
 
                     $.ajax({
@@ -1549,7 +2173,7 @@ $(document).ready(function () {
                         url: url,
                         type: 'GET',
 
-                        success: function (data) {
+                        success: function(data) {
 
                             // Example:
                             // Set HSN
@@ -1558,14 +2182,15 @@ $(document).ready(function () {
                             row.find('.gst_percentage').val(data.n_gst_percentage);
                             row.find('.n_product_id').val(data.n_product_id);
 
-                            globalmrp=data.n_mrp;
-                            globalGstPercentage=data.n_gst_percentage
+                            globalmrp = data.n_mrp;
+                            globalGstPercentage = data.n_gst_percentage
 
-                            calculateRowWithMrp(row, data.n_mrp,data.n_gst_percentage);
+                            calculateRowWithMrp(row, data.n_mrp, data
+                                .n_gst_percentage);
 
                         },
 
-                        error: function (xhr) {
+                        error: function(xhr) {
                             console.log(
                                 'Attribute Details Error:',
                                 xhr.responseText
@@ -1574,51 +2199,51 @@ $(document).ready(function () {
 
                     });
 
-                }
-            else{
+                } else {
 
-                let url = "{{ route('admin.get.product.packSize',['productName' => ':productName'])}}";
-                url = url.replace(':productName', productName);
+                    let url =
+                        "{{ route('admin.get.product.packSize',['productName' => ':productName'])}}";
+                    url = url.replace(':productName', productName);
 
-                $.ajax({
+                    $.ajax({
 
-                    url: url,
-                    type: 'GET',
+                        url: url,
+                        type: 'GET',
 
-                    success: function (data) {
-                        packSize.empty();
-
-                        packSize.append(
-                            $('<option>', {
-                                value: '',
-                                text: 'Select Pack Size',
-                            })
-                        );
-                        $.each(data.units, function (index, item) {
+                        success: function(data) {
+                            packSize.empty();
 
                             packSize.append(
                                 $('<option>', {
-                                    value: item.c_unit,
-                                    text: item.c_unit
+                                    value: '',
+                                    text: 'Select Pack Size',
                                 })
                             );
+                            $.each(data.units, function(index, item) {
 
-                            // Enable packSize dropdown
+                                packSize.append(
+                                    $('<option>', {
+                                        value: item.c_unit,
+                                        text: item.c_unit
+                                    })
+                                );
+
+                                // Enable packSize dropdown
                                 packSize.prop('disabled', false);
 
-                        });
+                            });
 
-                    },
+                        },
 
-                    error: function (xhr) {
-                        console.log(
-                            'Pack Size Error:',
-                            xhr.responseText
-                        );
-                    }
+                        error: function(xhr) {
+                            console.log(
+                                'Pack Size Error:',
+                                xhr.responseText
+                            );
+                        }
 
-                });
-            }
+                    });
+                }
 
             });
 
@@ -1629,63 +2254,64 @@ $(document).ready(function () {
             |--------------------------------------------------------------------------
             */
 
-                let globalmrp=0;
-                let globalGstPercentage='';
+            let globalmrp = 0;
+            let globalGstPercentage = '';
 
-                $(document).on('change', '.packSize-select', function () {
+            $(document).on('change', '.packSize-select', function() {
 
-                    let row = $(this).closest('.new-product-row');
-                    let productId = row.find(".product-select").find(':selected').val();
-                    let productName = row.find(".product-select").find(':selected').text();
-                    let packSize = $(this).val();
+                let row = $(this).closest('.new-product-row');
+                let productId = row.find(".product-select").find(':selected').val();
+                let productName = row.find(".product-select").find(':selected').text();
+                let packSize = $(this).val();
 
-                    if (!packSize) {
-                        return;
+                if (!packSize) {
+                    return;
+                }
+
+                let url =
+                    "{{ route('admin.get.product.attributes',['productName' => ':productName','packSize'=>':packSize'])}}";
+                url = url.replace(':productName', productName);
+                url = url.replace(':packSize', packSize);
+
+                $.ajax({
+
+                    url: url,
+                    type: 'GET',
+
+                    success: function(data) {
+
+                        // Example:
+                        // Set HSN
+                        row.find('.c_hsn_code').val(data.c_hsn_code);
+                        //set gst percentage
+                        row.find('.gst_percentage').val(data.n_gst_percentage);
+                        row.find('.n_product_id').val(data.n_product_id);
+
+                        globalmrp = data.n_mrp;
+                        globalGstPercentage = data.n_gst_percentage
+
+                        calculateRowWithMrp(row, data.n_mrp, data.n_gst_percentage);
+
+                    },
+
+                    error: function(xhr) {
+                        console.log(
+                            'Attribute Details Error:',
+                            xhr.responseText
+                        );
                     }
-
-                    let url = "{{ route('admin.get.product.attributes',['productName' => ':productName','packSize'=>':packSize'])}}";
-                    url = url.replace(':productName', productName);
-                    url = url.replace(':packSize', packSize);
-
-                    $.ajax({
-
-                        url: url,
-                        type: 'GET',
-
-                        success: function (data) {
-
-                            // Example:
-                            // Set HSN
-                            row.find('.c_hsn_code').val(data.c_hsn_code);
-                            //set gst percentage
-                            row.find('.gst_percentage').val(data.n_gst_percentage);
-                            row.find('.n_product_id').val(data.n_product_id);
-
-                            globalmrp=data.n_mrp;
-                            globalGstPercentage=data.n_gst_percentage
-
-                            calculateRowWithMrp(row, data.n_mrp,data.n_gst_percentage);
-
-                        },
-
-                        error: function (xhr) {
-                            console.log(
-                                'Attribute Details Error:',
-                                xhr.responseText
-                            );
-                        }
-
-                    });
 
                 });
 
-             /*
+            });
+
+            /*
             |--------------------------------------------------------------------------
             | Quantity / Discount Change Event
             |--------------------------------------------------------------------------
             */
 
-            $(document).on('input change', '.qty, .discount', function () {
+            $(document).on('input change', '.qty, .discount', function() {
 
                 let row = $(this).closest('.new-product-row');
 
@@ -1694,7 +2320,7 @@ $(document).ready(function () {
                     parseFloat(globalmrp) || 0,
                     parseFloat(globalGstPercentage) || 0
                 );
-                if($(this).closest('.existing-product-row')){
+                if ($(this).closest('.existing-product-row')) {
                     calculateExistingRow($(this).closest('.existing-product-row'));
                 }
 
@@ -1919,36 +2545,36 @@ $(document).ready(function () {
         | Summary Totals
         |--------------------------------------------------------------------------
         */
-       /*  function calculateSummary() {
-            let totalSales = 0;
-            let totalDiscount = 0;
-            let totalTaxable = 0;
-            let totalGst = 0;
+        /*  function calculateSummary() {
+             let totalSales = 0;
+             let totalDiscount = 0;
+             let totalTaxable = 0;
+             let totalGst = 0;
 
-            $('#productTable tbody tr').each(function () {
-                let row = $(this);
-                let price = parseFloat(row.find('.price').val()) || 0;
-                let qty = parseFloat(row.find('.qty').val()) || 0;
-                let discount = parseFloat(row.find('.discount').val()) || 0;
-                let gstAmount = parseFloat(row.find('.gst_amount').val()) || 0;
-                let taxable = parseFloat(row.find('.discounted_price').val()) || 0;
+             $('#productTable tbody tr').each(function () {
+                 let row = $(this);
+                 let price = parseFloat(row.find('.price').val()) || 0;
+                 let qty = parseFloat(row.find('.qty').val()) || 0;
+                 let discount = parseFloat(row.find('.discount').val()) || 0;
+                 let gstAmount = parseFloat(row.find('.gst_amount').val()) || 0;
+                 let taxable = parseFloat(row.find('.discounted_price').val()) || 0;
 
-                let gross = price * qty;
+                 let gross = price * qty;
 
-                totalSales += gross;
-                totalDiscount += discount;
-                totalTaxable += taxable;
-                totalGst += gstAmount;
-            });
+                 totalSales += gross;
+                 totalDiscount += discount;
+                 totalTaxable += taxable;
+                 totalGst += gstAmount;
+             });
 
-            let netSalesAmount = totalTaxable + totalGst;
+             let netSalesAmount = totalTaxable + totalGst;
 
-            $('#summaryTotalSales').val(totalSales.toFixed(2));
-            $('#summaryTotalDiscount').val(totalDiscount.toFixed(2));
-            $('#summaryGstAmount').val(totalGst.toFixed(2));
-            $('#summaryNetSales').val(netSalesAmount.toFixed(2));
-            $('#n_amount_to_pay').val(netSalesAmount.toFixed(2));
-        } */
+             $('#summaryTotalSales').val(totalSales.toFixed(2));
+             $('#summaryTotalDiscount').val(totalDiscount.toFixed(2));
+             $('#summaryGstAmount').val(totalGst.toFixed(2));
+             $('#summaryNetSales').val(netSalesAmount.toFixed(2));
+             $('#n_amount_to_pay').val(netSalesAmount.toFixed(2));
+         } */
 
         function calculateSummary() {
             let totalSales = 0;
@@ -1956,7 +2582,7 @@ $(document).ready(function () {
             let totalTaxable = 0;
             let totalGst = 0;
 
-            $('#productTable tbody tr').each(function () {
+            $('#productTable tbody tr').each(function() {
 
                 let row = $(this);
 
@@ -1990,7 +2616,7 @@ $(document).ready(function () {
         | Remove Product Row
         |--------------------------------------------------------------------------
         */
-        $(document).on('click', '.removeRow', function () {
+        $(document).on('click', '.removeRow', function() {
             $(this).closest('tr').remove();
             calculateSummary();
         });
@@ -2000,7 +2626,7 @@ $(document).ready(function () {
         | Payment Mode Handling
         |--------------------------------------------------------------------------
         */
-        $('.mode_of_payment').on('change', function () {
+        $('.mode_of_payment').on('change', function() {
             handlePaymentMode();
         });
 
@@ -2036,7 +2662,7 @@ $(document).ready(function () {
         | Franchise Location Cascading (State -> District -> Panchayath -> Store)
         |--------------------------------------------------------------------------
         */
-        $('#franchise_state').on('change', function () {
+        $('#franchise_state').on('change', function() {
             let stateId = $(this).val();
 
             $('#franchise_district').html('<option value="">Loading...</option>');
@@ -2051,23 +2677,29 @@ $(document).ready(function () {
             $.ajax({
                 type: 'GET',
                 url: "{{ route('admin.filterDistrict') }}",
-                data: { state: stateId },
+                data: {
+                    state: stateId
+                },
                 dataType: 'json',
-                success: function (response) {
-                    $('#franchise_district').html('<option value="">Select District</option>');
+                success: function(response) {
+                    $('#franchise_district').html(
+                        '<option value="">Select District</option>');
                     if (response.districts) {
-                        $.each(response.districts, function (index, district) {
-                            $('#franchise_district').append(`<option value="${district.id}">${district.district_name}</option>`);
+                        $.each(response.districts, function(index, district) {
+                            $('#franchise_district').append(
+                                `<option value="${district.id}">${district.district_name}</option>`
+                            );
                         });
                     }
                 },
-                error: function () {
-                    $('#franchise_district').html('<option value="">Unable to load districts</option>');
+                error: function() {
+                    $('#franchise_district').html(
+                        '<option value="">Unable to load districts</option>');
                 }
             });
         });
 
-        $('#franchise_district').on('change', function () {
+        $('#franchise_district').on('change', function() {
             let districtId = $(this).val();
 
             $('#franchise_panchayath').html('<option value="">Loading...</option>');
@@ -2081,25 +2713,32 @@ $(document).ready(function () {
             $.ajax({
                 type: 'GET',
                 url: "{{ route('admin.filterPanchayath') }}",
-                data: { district: districtId },
+                data: {
+                    district: districtId
+                },
                 dataType: 'json',
-                success: function (response) {
-                    $('#franchise_panchayath').html('<option value="">Select Panchayath</option>');
+                success: function(response) {
+                    $('#franchise_panchayath').html(
+                        '<option value="">Select Panchayath</option>');
                     if (response.panchayaths && response.panchayaths.length > 0) {
-                        $.each(response.panchayaths, function (index, panchayat) {
-                            $('#franchise_panchayath').append(`<option value="${panchayat.id}">${panchayat.panchayath_name}</option>`);
+                        $.each(response.panchayaths, function(index, panchayat) {
+                            $('#franchise_panchayath').append(
+                                `<option value="${panchayat.id}">${panchayat.panchayath_name}</option>`
+                            );
                         });
                     } else {
-                        $('#franchise_panchayath').html('<option value="">No Panchayaths Found</option>');
+                        $('#franchise_panchayath').html(
+                            '<option value="">No Panchayaths Found</option>');
                     }
                 },
-                error: function () {
-                    $('#franchise_panchayath').html('<option value="">Unable to load Panchayaths</option>');
+                error: function() {
+                    $('#franchise_panchayath').html(
+                        '<option value="">Unable to load Panchayaths</option>');
                 }
             });
         });
 
-        $('#franchise_panchayath').on('change', function () {
+        $('#franchise_panchayath').on('change', function() {
             const panchayathId = $(this).val();
             if (!panchayathId) {
                 $('#franchise').html('<option value="">Select Franchise</option>');
@@ -2112,37 +2751,43 @@ $(document).ready(function () {
             $('#franchise').html('<option value="">Finding franchise...</option>');
 
             fetch("{{ route('admin.franchise.nearest') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ panchayath_id: panchayathId })
-            })
-            .then(res => res.json())
-            .then(function (data) {
-                $('#franchise').html('<option value="">Select Franchise</option>');
-                if (!data.success) {
-                    $('#franchise').html('<option value="">No Franchise Found</option>');
-                    return;
-                }
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        panchayath_id: panchayathId
+                    })
+                })
+                .then(res => res.json())
+                .then(function(data) {
+                    $('#franchise').html('<option value="">Select Franchise</option>');
+                    if (!data.success) {
+                        $('#franchise').html('<option value="">No Franchise Found</option>');
+                        return;
+                    }
 
-                let franchises = Array.isArray(data.franchises) ? data.franchises : (data.franchises ? [data.franchises] : []);
-                if (franchises.length === 0) {
-                    $('#franchise').html('<option value="">No Franchise Found</option>');
-                    return;
-                }
+                    let franchises = Array.isArray(data.franchises) ? data.franchises : (data.franchises ? [
+                        data.franchises
+                    ] : []);
+                    if (franchises.length === 0) {
+                        $('#franchise').html('<option value="">No Franchise Found</option>');
+                        return;
+                    }
 
-                franchises.forEach(function (f) {
-                    $('#franchise').append(`<option value="${f.n_store_id}">${f.c_store_name} ${f.c_store_code ? '(' + f.c_store_code + ')' : ''}</option>`);
+                    franchises.forEach(function(f) {
+                        $('#franchise').append(
+                            `<option value="${f.n_store_id}">${f.c_store_name} ${f.c_store_code ? '(' + f.c_store_code + ')' : ''}</option>`
+                        );
+                    });
+
+                    $('#franchise').val(franchises[0].n_store_id);
+                })
+                .catch(function() {
+                    $('#franchise').html('<option value="">Unable to find franchise</option>');
                 });
-
-                $('#franchise').val(franchises[0].n_store_id);
-            })
-            .catch(function () {
-                $('#franchise').html('<option value="">Unable to find franchise</option>');
-            });
         }
 
         /*
@@ -2154,10 +2799,12 @@ $(document).ready(function () {
             const orderType = $('input[name="order_type"]:checked').val();
             if (orderType === 'franchise') {
                 $('#franchise-location-details').show();
-                $('#franchise_state, #franchise_district, #franchise_panchayath, #franchise').addClass('mandatory');
+                $('#franchise_state, #franchise_district, #franchise_panchayath, #franchise').addClass(
+                    'mandatory');
             } else if (orderType === 'company') {
                 $('#franchise-location-details').hide();
-                $('#franchise_state, #franchise_district, #franchise_panchayath, #franchise').removeClass('mandatory');
+                $('#franchise_state, #franchise_district, #franchise_panchayath, #franchise').removeClass(
+                    'mandatory');
             }
         }
 
@@ -2169,7 +2816,7 @@ $(document).ready(function () {
         |--------------------------------------------------------------------------
         */
         function setupImageUpload(inputId, previewId, containerId, removeInputId, removeButtonId) {
-            $(document).on('change', '#' + inputId, function (event) {
+            $(document).on('change', '#' + inputId, function(event) {
                 const file = event.target.files[0];
                 if (!file) return;
 
@@ -2180,7 +2827,7 @@ $(document).ready(function () {
                 }
 
                 const reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     $('#' + previewId).attr('src', e.target.result).show();
                     $('#' + removeInputId).val('0');
 
@@ -2195,7 +2842,7 @@ $(document).ready(function () {
                 reader.readAsDataURL(file);
             });
 
-            $(document).on('click', '#' + removeButtonId, function () {
+            $(document).on('click', '#' + removeButtonId, function() {
                 $('#' + inputId).val('');
                 $('#' + previewId).attr('src', '').hide();
                 $('#' + removeInputId).val('1');
@@ -2203,118 +2850,129 @@ $(document).ready(function () {
             });
         }
 
-        setupImageUpload('payment_image', 'payment_image_preview', 'payment_preview_container', 'remove_payment_image', 'remove_payment_image_btn');
-        setupImageUpload('booklet_image', 'booklet_image_preview', 'booklet_image_preview_container', 'remove_booklet_image', 'remove_booklet_image_btn');
+        setupImageUpload('payment_image', 'payment_image_preview', 'payment_preview_container',
+            'remove_payment_image', 'remove_payment_image_btn');
+        setupImageUpload('booklet_image', 'booklet_image_preview', 'booklet_image_preview_container',
+            'remove_booklet_image', 'remove_booklet_image_btn');
 
         /*
     |--------------------------------------------------------------------------
     | View Mode
     |--------------------------------------------------------------------------
     */
-    var viewmode = "{{ $viewmode ?? 'off' }}";
-    if (viewmode === 'on') {
-        $('#frm_create input:not([type="hidden"]):not([type="button"]):not([type="submit"])').prop('readonly', true);
-        $('#frm_create textarea').prop('readonly', true);
-        $('#frm_create select, #frm_create input[type="radio"], #frm_create input[type="checkbox"], #frm_create input[type="file"], #addRow, .removeRow').prop('disabled', true);
-    }
-
-    // Initialize Page
-    calculateSummary();
-    toggleOrderType();
-    handlePaymentMode();
-});
-
-/*
-|--------------------------------------------------------------------------
-| Customer Toggle & Mobile Lookup
-|--------------------------------------------------------------------------
-*/
-document.addEventListener('DOMContentLoaded', function () {
-    const lookupCard = document.getElementById('lookupCard');
-    const newCustomer = document.getElementById('newCustomer');
-    const existingCustomer = document.getElementById('existingCustomer');
-
-    function toggleCustomerType() {
-        const selected = document.querySelector('input[name="c_customer_type"]:checked');
-        if (!selected || !lookupCard) return;
-
-        if (selected.value === 'existing') {
-            lookupCard.classList.remove('d-none');
-        } else {
-            lookupCard.classList.add('d-none');
-            $("#c_customer_code").val("{{ $customerCode ?? (isset($sale) ? $sale->c_customer_code : '') }}");
+        var viewmode = "{{ $viewmode ?? 'off' }}";
+        if (viewmode === 'on') {
+            $('#frm_create input:not([type="hidden"]):not([type="button"]):not([type="submit"])').prop(
+                'readonly', true);
+            $('#frm_create textarea').prop('readonly', true);
+            $('#frm_create select, #frm_create input[type="radio"], #frm_create input[type="checkbox"], #frm_create input[type="file"], #addRow, .removeRow')
+                .prop('disabled', true);
         }
-    }
 
-    if (newCustomer) newCustomer.addEventListener('change', toggleCustomerType);
-    if (existingCustomer) existingCustomer.addEventListener('change', toggleCustomerType);
-    toggleCustomerType();
+        // Initialize Page
+        calculateSummary();
+        toggleOrderType();
+        handlePaymentMode();
+    });
 
-    const lookupBtn = document.getElementById('lookupBtn');
-    if (lookupBtn) {
-        lookupBtn.addEventListener('click', function () {
-            const mobile = document.getElementById('lookupMobile').value.trim();
-            if (!/^[0-9]{10}$/.test(mobile)) {
-                alert('Please enter a valid 10-digit mobile number.');
-                return;
+    /*
+    |--------------------------------------------------------------------------
+    | Customer Toggle & Mobile Lookup
+    |--------------------------------------------------------------------------
+    */
+    document.addEventListener('DOMContentLoaded', function() {
+        const lookupCard = document.getElementById('lookupCard');
+        const newCustomer = document.getElementById('newCustomer');
+        const existingCustomer = document.getElementById('existingCustomer');
+
+        function toggleCustomerType() {
+            const selected = document.querySelector('input[name="c_customer_type"]:checked');
+            if (!selected || !lookupCard) return;
+
+            if (selected.value === 'existing') {
+                lookupCard.classList.remove('d-none');
+            } else {
+                lookupCard.classList.add('d-none');
+                $("#c_customer_code").val(
+                    "{{ $customerCode ?? (isset($sale) ? $sale->c_customer_code : '') }}");
             }
+        }
 
-            fetch("{{ route('admin.leads.existingCustomer') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ mobile: mobile })
-            })
-            .then(res => res.json())
-            .then(function (data) {
-                if (data.status === true && data.customer) {
-                    $("#n_customer_id").val(data.customer.n_customer_id);
-                    $("#c_customer_code").val(data.customer.c_customer_code);
-                    $(".c_customer_name").val(data.customer.c_customer_name);
-                    $('[name="n_whatsapp"]').val(data.customer.n_whatsapp || '');
-                    $('[name="n_mobile"]').val(data.customer.n_mobile || '');
-                    $('[name="c_email"]').val(data.customer.c_email || '');
-                    $('[name="c_address"]').val(data.customer.c_address || '');
-                    $('[name="c_pincode"]').val(data.customer.c_pincode || '');
+        if (newCustomer) newCustomer.addEventListener('change', toggleCustomerType);
+        if (existingCustomer) existingCustomer.addEventListener('change', toggleCustomerType);
+        toggleCustomerType();
 
-                    if (data.customer.n_state_id) {
-                        $('[name="n_state_id"]').val(data.customer.n_state_id);
-                        districtFilter(data.customer.n_state_id, data.customer.n_district_id);
-                    }
-                    $('#lookupMessage').text('Customer loaded successfully!');
-                } else {
-                    alert('Customer not found.');
+        const lookupBtn = document.getElementById('lookupBtn');
+        if (lookupBtn) {
+            lookupBtn.addEventListener('click', function() {
+                const mobile = document.getElementById('lookupMobile').value.trim();
+                if (!/^[0-9]{10}$/.test(mobile)) {
+                    alert('Please enter a valid 10-digit mobile number.');
+                    return;
                 }
-            })
-            .catch(function () {
-                alert('Unable to find customer. Please try again.');
-            });
-        });
-    }
 
-    function districtFilter(state, selectedDistrict = null) {
-        if (!state) return;
-        $.ajax({
-            type: 'GET',
-            url: "{{ route('admin.filterDistrict') }}",
-            data: { state: state },
-            dataType: 'json',
-            success: function (data) {
-                $('#n_district_id').empty().append('<option value="">Select District</option>');
-                if (data.districts) {
-                    $.each(data.districts, function (index, d) {
-                        $('#n_district_id').append(`<option value="${d.id}">${d.district_name}</option>`);
+                fetch("{{ route('admin.leads.existingCustomer') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            mobile: mobile
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(function(data) {
+                        if (data.status === true && data.customer) {
+                            $("#n_customer_id").val(data.customer.n_customer_id);
+                            $("#c_customer_code").val(data.customer.c_customer_code);
+                            $(".c_customer_name").val(data.customer.c_customer_name);
+                            $('[name="n_whatsapp"]').val(data.customer.n_whatsapp || '');
+                            $('[name="n_mobile"]').val(data.customer.n_mobile || '');
+                            $('[name="c_email"]').val(data.customer.c_email || '');
+                            $('[name="c_address"]').val(data.customer.c_address || '');
+                            $('[name="c_pincode"]').val(data.customer.c_pincode || '');
+
+                            if (data.customer.n_state_id) {
+                                $('[name="n_state_id"]').val(data.customer.n_state_id);
+                                districtFilter(data.customer.n_state_id, data.customer
+                                    .n_district_id);
+                            }
+                            $('#lookupMessage').text('Customer loaded successfully!');
+                        } else {
+                            alert('Customer not found.');
+                        }
+                    })
+                    .catch(function() {
+                        alert('Unable to find customer. Please try again.');
                     });
-                    if (selectedDistrict) {
-                        $('#n_district_id').val(selectedDistrict);
+            });
+        }
+
+        function districtFilter(state, selectedDistrict = null) {
+            if (!state) return;
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('admin.filterDistrict') }}",
+                data: {
+                    state: state
+                },
+                dataType: 'json',
+                success: function(data) {
+                    $('#n_district_id').empty().append('<option value="">Select District</option>');
+                    if (data.districts) {
+                        $.each(data.districts, function(index, d) {
+                            $('#n_district_id').append(
+                                `<option value="${d.id}">${d.district_name}</option>`);
+                        });
+                        if (selectedDistrict) {
+                            $('#n_district_id').val(selectedDistrict);
+                        }
                     }
                 }
-            }
-        });
-    }
-});
-</script>
-@endpush
+            });
+        }
+    });
+    </script>
+    @endpush

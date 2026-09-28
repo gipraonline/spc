@@ -11,7 +11,7 @@
 
 .status-paid {
     background-color: #d1e7dd;
-    color: #0f5132;
+    color: #5E8D3D;
     border-color: #badbcc;
     font-weight: 600;
 }

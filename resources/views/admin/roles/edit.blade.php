@@ -79,6 +79,42 @@
                 @enderror
             </div>
 
+            <div class="mb-4">
+                <label class="form-label fw-semibold">
+                    HR Portal Access
+                </label>
+
+                @php $hrAccess = old('hr_access', $role->hr_access); @endphp
+                <select name="hr_access" class="form-select">
+                    <option value="" {{ $hrAccess ? '' : 'selected' }}>
+                        Not set (based on reporting structure)
+                    </option>
+                    <option value="super_admin" {{ $hrAccess === 'super_admin' ? 'selected' : '' }}>
+                        Super Admin
+                    </option>
+                    <option value="hr_admin" {{ $hrAccess === 'hr_admin' ? 'selected' : '' }}>
+                        HR Admin
+                    </option>
+                    <option value="manager" {{ $hrAccess === 'manager' ? 'selected' : '' }}>
+                        Reporting Manager
+                    </option>
+                    <option value="employee" {{ $hrAccess === 'employee' ? 'selected' : '' }}>
+                        Employee
+                    </option>
+                </select>
+
+                <small class="text-muted d-block mt-1">
+                    The level of access anyone holding this role gets inside the HR module. Leave as
+                    "Not set" to fall back to whether they have direct reports in SPC.
+                </small>
+
+                @error('hr_access')
+                <small class="text-danger">
+                    {{ $message }}
+                </small>
+                @enderror
+            </div>
+
             <hr>
 
             {{-- MENUS --}}

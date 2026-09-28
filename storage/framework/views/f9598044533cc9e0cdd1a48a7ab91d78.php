@@ -1,4 +1,10 @@
 <?php $__env->startSection('content'); ?>
+<?php if(session('success')): ?>
+    <div class="alert alert-success mx-0"><?php echo e(session('success')); ?></div>
+<?php endif; ?>
+<?php if(session('error')): ?>
+    <div class="alert alert-danger mx-0"><?php echo e(session('error')); ?></div>
+<?php endif; ?>
 <div class="card w-100 position-relative overflow-hidden">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Designations</h5>
@@ -26,9 +32,14 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Status</h6>
                         </th>
-                        <!-- <th class="border-bottom-0">
-              <h6 class="fw-semibold mb-0">Actions</h6>
-            </th> -->
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Reports To</h6>
+                        </th>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['designations.edit', 'designations.delete'])): ?>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Actions</h6>
+                        </th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,11 +55,29 @@
 
                             </span>
                         </td>
-                        
+                        <td class="border-bottom-0">
+                            <?php echo e($designation->parent->c_designation ?? '—'); ?>
+
+                        </td>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['designations.edit', 'designations.delete'])): ?>
+                        <td class="border-bottom-0">
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('designations.edit')): ?>
+                            <a href="<?php echo e(route('admin.designations.edit', $designation)); ?>" class="btn btn-sm btn-primary">Edit</a>
+                            <?php endif; ?>
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('designations.delete')): ?>
+                            <form method="POST" action="<?php echo e(route('admin.designations.destroy', $designation)); ?>"
+                                class="d-inline">
+                                <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
+                                <button type="submit" class="btn btn-sm btn-danger ms-2"
+                                    onclick="return confirm('Are you sure?')">Delete</button>
+                            </form>
+                            <?php endif; ?>
+                        </td>
+                        <?php endif; ?>
                     </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
-                        <td colspan="3" class="text-center">No designations found</td>
+                        <td colspan="4" class="text-center">No designations found</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>

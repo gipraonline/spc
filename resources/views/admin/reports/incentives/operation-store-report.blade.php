@@ -9,8 +9,8 @@
 }
 
 :root {
-    --primary-green: #1b3e86;
-    --accent-orange: #1b3e86;
+    --primary-green: #5E8D3D;
+    --accent-orange: #5E8D3D;
     --card-shadow: 0 10px 25px rgba(0, 0, 0, .04);
     --border-radius: 12px;
 }
@@ -52,7 +52,7 @@
 }
 
 .btn-filter {
-    background: #1b3e86;
+    background: #1F5C2E;
     color: #fff;
     border: none;
     border-radius: 12px;
@@ -70,8 +70,8 @@
 
 .btn-export {
     background: #fff;
-    color: #1b3e86;
-    border: 2px solid #1b3e86;
+    color: #5E8D3D;
+    border: 2px solid #5E8D3D;
     border-radius: 12px;
     padding: 14px 32px;
     font-size: 1.05rem;
@@ -80,7 +80,7 @@
 }
 
 .btn-export:hover {
-    background: #1b3e86;
+    background: #1F5C2E;
     color: #fff;
 }
 
@@ -131,7 +131,7 @@
 }
 
 .bg-emerald {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, #A8CB6A, #7CA243);
     color: #fff;
 }
 
@@ -166,7 +166,7 @@
 }
 
 .amount-incentive {
-    color: #059669;
+    color: #7CA243;
     font-weight: 700;
 }
 </style>

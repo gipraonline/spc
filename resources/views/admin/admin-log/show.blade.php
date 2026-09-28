@@ -230,11 +230,9 @@
 
 .task-table {
     margin-bottom: 0;
-}
-
-.task-table thead th {
-    linear-gradient(135deg, #5A8D3A, #074E30);
-    color: #64748b;
+}    .task-table thead th {
+        background: linear-gradient(135deg, #5E8D3D, #1F5C2E);
+        color: #fff;
     font-size: .72rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -350,6 +348,87 @@
 }
 </style>
 
+
+<style>
+/* =========================================================
+       Field Log Details — SPC Evergreen re-theme
+       (aligns this page with the unified mint/green design)
+    ========================================================= */
+    .field-log-page{--card-radius:18px;--soft-bg:#F7FCF9;--border-color:#dde8e1;}
+    .field-log-page .page-title,.field-log-page .task-title,.field-log-page .summary-number,.field-log-percentage{font-family:var(--font-head);letter-spacing:.01em;}
+    .field-log-page .page-title,.field-log-page .task-title{color:var(--spc-brand-ink);}
+    .field-log-page .page-subtitle,.field-log-page .task-subtitle{color:var(--spc-muted);}
+
+    /* Header band + gradient icon tile */
+    .field-log-page .page-header-card{background:linear-gradient(45deg,rgba(203,255,205,.4),transparent 60%),#fff;border:1px solid var(--spc-line);}
+    .field-log-page .page-header-card .rounded-3.bg-primary{
+      background:linear-gradient(135deg,#7CA243,#1F5C2E) !important;
+      color:#fff !important;
+      box-shadow:0 10px 18px -8px rgba(14,107,75,.55),inset 0 1.5px 0 rgba(255,255,255,.3);
+    }
+
+    /* Info cards — mint wash + gradient tiles */
+    .field-log-page .info-card{
+      background:linear-gradient(45deg,rgba(203,255,205,.28),transparent 55%),#fff;
+      border:1px solid var(--spc-line);
+    }
+    .field-log-page .info-card:hover{box-shadow:0 18px 34px -16px rgba(8,48,31,.35) !important;border-color:rgba(94,141,61,.45);}
+    .field-log-page .info-icon{
+      background:linear-gradient(135deg,#7CA243,#1F5C2E) !important;
+      color:#fff !important;
+      box-shadow:0 10px 18px -8px rgba(14,107,75,.55),inset 0 1.5px 0 rgba(255,255,255,.3);
+      transition:transform .2s;
+    }
+    .field-log-page .info-card:hover .info-icon{transform:rotate(-6deg) scale(1.06);}
+    .field-log-page .info-label{color:var(--spc-muted);}
+    .field-log-page .info-value{color:var(--spc-brand-ink);}
+    .field-log-page .info-value.text-success{color:#0E8A52 !important;}
+
+    /* Remark cards */
+    .field-log-page .remark-card{background:linear-gradient(45deg,rgba(203,255,205,.22),transparent 58%),#fff;border:1px solid var(--spc-line);}
+    .field-log-page .remark-title{color:var(--spc-brand-ink);font-family:var(--font-head);}
+    .field-log-page .remark-text{background:#F7FCF9;border:1px solid rgba(94,141,61,.16);color:var(--spc-ink);}
+
+    /* Summary cards — semantic gradient tiles + matching bottom bars */
+    .field-log-page .summary-card{
+      background:linear-gradient(45deg,rgba(203,255,205,.28),transparent 55%),#fff;
+      border:1px solid var(--spc-line) !important;
+    }
+    .field-log-page .summary-card:hover{box-shadow:0 18px 34px -16px rgba(8,48,32,.35) !important;border-color:rgba(94,141,61,.45) !important;}
+    .field-log-page .summary-icon{color:#fff !important;box-shadow:0 10px 18px -8px rgba(14,107,75,.5),inset 0 1.5px 0 rgba(255,255,255,.3);transition:transform .2s;}
+    .field-log-page .summary-card:hover .summary-icon{transform:rotate(-6deg) scale(1.06);}
+    .field-log-page .summary-icon.bg-primary,.field-log-page .summary-icon.bg-success{background:linear-gradient(135deg,#7CA243,#1F5C2E) !important;}
+    .field-log-page .summary-icon.bg-warning{background:linear-gradient(135deg,#F4B942,#C07E08) !important;}
+    .field-log-page .summary-icon.bg-danger{background:linear-gradient(135deg,#F07568,#C03434) !important;}
+    .field-log-page .summary-icon.bg-info{background:linear-gradient(135deg,#4FA3E0,#1D6FA5) !important;}
+    .field-log-page .summary-label{color:var(--spc-muted);}
+    .field-log-page .summary-number{color:var(--spc-brand-ink);}
+    .field-log-page .summary-description{color:var(--spc-muted);}
+    .field-log-page .summary-bottom.bg-primary,.field-log-page .summary-bottom.bg-success{background:linear-gradient(90deg,#7CA243,#1F5C2E) !important;}
+    .field-log-page .summary-bottom.bg-warning{background:linear-gradient(90deg,#F4B942,#C07E08) !important;}
+    .field-log-page .summary-bottom.bg-danger{background:linear-gradient(90deg,#F07568,#C03434) !important;}
+    .field-log-page .summary-bottom.bg-info{background:linear-gradient(90deg,#4FA3E0,#1D6FA5) !important;}
+
+    /* Progress */
+    .field-log-page .progress-card{background:linear-gradient(45deg,rgba(203,255,205,.3),transparent 58%),#fff;border:1px solid var(--spc-line);}
+    .field-log-page .progress{background:#E4EFE8 !important;}
+    .field-log-page .progress-bar{background:linear-gradient(90deg,#7CA243,#1F5C2E) !important;border-radius:99px;}
+    .field-log-page .progress-percentage{color:var(--spc-brand);}
+
+    /* Task table card */
+    .field-log-page .task-card{border:1px solid var(--spc-line);}
+    .field-log-page .task-card-header{background:linear-gradient(45deg,rgba(203,255,205,.4),transparent 62%),linear-gradient(180deg,#F7FBF9,#fff);border-bottom:1px solid var(--spc-line-soft);}
+    .field-log-page .task-number{background:var(--spc-brand-soft);color:var(--spc-brand);}
+    .field-log-page .task-name{color:var(--spc-brand-ink);}
+    .field-log-page .task-table tbody td{color:var(--spc-ink);border-color:var(--spc-line-soft);}
+    .field-log-page .task-table tbody tr:hover{background:#F4FAF7;}
+    .field-log-page .status-done{color:#116A38;background:#DCF3E4;}
+    .field-log-page .status-progress{color:#8A5A10;background:#FCF0D8;}
+    .field-log-page .status-pending{color:#942B2B;background:#FBE7E4;}
+    .field-log-page .empty-state i{color:#A7C9B8;}
+    .field-log-page .text-primary{color:var(--spc-brand) !important;}
+    .field-log-page .text-info{color:#0E8A52 !important;}
+</style>
 
 <div class="container-fluid field-log-page py-2">
 

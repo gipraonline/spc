@@ -1,339 +1,506 @@
 @extends('layouts.app')
 @push('styles')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-:root {
-    --primary-green: #1b3e86;
-    --accent-orange: #1b3e86;
-    --deep-slate: #1e293b;
-    --glass-bg: #fdfdfe;
-    --border-radius-lg: 18px;
-    --card-shadow: 0 15px 35px rgba(0, 0, 0, 0.04), 0 5px 15px rgba(0, 0, 0, 0.02);
+/* ===== Add / Edit Franchise — same visual language as the Employee Records module ===== */
+.employee-page.efp {
+    --brand: #4E7A33;
+    --brand-strong: #0E5239;
+    --brand-ink: #1F3D14;
+    --brand-bright: #5E8D3D;
+    --brand-glow: rgba(94, 141, 61, .35);
+    --brand-soft: #E4F3EB;
+    --brand-softer: #F2F9F5;
+    --line: rgba(18, 58, 40, 0.13);
+    --line-soft: rgba(18, 58, 40, 0.07);
+    --text: #22352C;
+    --text-muted: #61756B;
+    --bad: #C23A3A;
+    --shadow-sm: 0 1px 2px rgba(10, 61, 44, .05);
+    --font-head: 'Kanit', sans-serif;
+    --font-body: 'Outfit', sans-serif;
+    padding: 24px clamp(16px, 3vw, 32px) 8px;
+    font-family: var(--font-body);
+    color: var(--text);
 }
 
-/* Architectural Layout */
-.premium-edit-card {
-    background: #ffffff;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--card-shadow);
-    overflow: hidden;
-    position: relative;
-}
-
-/* Signature Accent Line */
-.premium-edit-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: linear-gradient(90deg, var(--accent-orange) 0%, #ffae42 100%);
-    z-index: 10;
-}
-
-.card-header-premium {
-    padding: 2.2rem 2.5rem 1.2rem;
-    background: #fff;
-}
-
-.page-main-title {
-    font-weight: 800;
-    font-size: 1.4rem;
-    color: var(--deep-slate);
-    letter-spacing: -0.8px;
-}
-
-/* Sectional Typography */
-.field-group-title {
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: var(--accent-orange);
-    letter-spacing: 1.5px;
-    margin-bottom: 1.4rem;
+/* Page heading */
+.efp .employee-page-heading { margin-bottom: 18px; }
+.efp .employee-page-heading h2 {
+    margin: 0;
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 21px;
+    color: var(--brand-ink);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+}
+.efp .employee-page-heading h2 i {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+.efp .employee-page-heading p { margin: 5px 0 0; color: var(--text-muted); font-size: 13px; }
+
+/* Split card */
+.efp-card {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
 }
 
-.field-group-title::after {
-    content: '';
-    height: 1px;
-    flex: 1;
-    background: linear-gradient(90deg, #f1f5f9 0%, transparent 100%);
-}
-
-/* Modern Inputs */
-.form-label {
-    font-weight: 700;
-    color: #475569;
-    font-size: 0.85rem;
-    margin-bottom: 0.6rem;
-}
-
-.form-control,
-.form-select {
-    border-radius: 12px;
-    padding: 0.85rem 1.1rem;
-
-    background-color: #f8fafc;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 600;
-    color: var(--deep-slate);
-}
-
-.form-control:focus,
-.form-select:focus {
-    border-color: var(--accent-orange);
-    background-color: #ffffff;
-    box-shadow: 0 8px 20px rgba(247, 148, 30, 0.08);
-    transform: translateY(-1px);
-}
-
-/* Action Buttons */
-.btn-update-action {
-    background: var(--accent-orange);
-    border: none;
-    padding: 14px 40px;
-    border-radius: 12px;
-    font-weight: 800;
+/* Left panel */
+.efp-side {
+    background: linear-gradient(160deg, #0E5239 0%, #1F5C2E 55%, #4E7A33 125%);
     color: #fff;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 20px rgba(247, 148, 30, 0.15);
+    padding: 28px 22px;
+}
+.efp-side-inner { position: sticky; top: 24px; }
+.efp-side-ico {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-left: 4px;
+}
+.efp-side h3 {
+    margin: 16px 4px 6px;
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #fff;
+    word-break: break-word;
+}
+.efp-side p { margin: 0 4px; font-size: 13px; line-height: 1.55; color: rgba(255, 255, 255, .78); }
+.efp-steps { margin-top: 22px; display: grid; gap: 2px; }
+.efp-step {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, .9);
+    text-decoration: none;
+}
+.efp-step:hover { background: rgba(255, 255, 255, .09); color: #fff; }
+.efp-step .num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .16);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+/* Form body */
+.efp-body { padding: 26px 30px 0; background: #fff; min-width: 0; margin: 0; }
+.efp-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--brand-softer);
+    border: 1px solid var(--line-soft);
+    color: var(--brand-ink);
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin-bottom: 22px;
+}
+.efp-note i { color: var(--brand); font-size: 16px; margin-top: 1px; }
+.efp-alert {
+    background: #FBE7E4;
+    border: 1px solid rgba(194, 58, 58, .25);
+    color: #942B2B;
+    border-radius: 12px;
+    padding: 11px 14px 11px 18px;
+    font-size: 12.5px;
+    margin-bottom: 22px;
+}
+.efp-alert ul { margin: 0; padding-left: 16px; }
+
+.efp-section {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-family: var(--font-head);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--brand);
+    margin: 4px 0 14px;
+    scroll-margin-top: 20px;
 }
+.efp-section i { font-size: 16px; }
+.efp-section::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
 
-.btn-update-action:hover {
-    background: #1b3e86;
-    box-shadow: 0 12px 25px rgba(247, 148, 30, 0.25);
-    transform: translateY(-2px);
+.efp-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
+    margin-bottom: 26px;
 }
+.efp-field { min-width: 0; }
+.efp-field.full { grid-column: 1 / -1; }
+.efp-field > label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #3B5246;
+    margin-bottom: 6px;
+}
+.efp-field > label i { color: var(--brand); font-size: 15px; }
 
-.btn-cancel-action {
+.efp-field .form-control,
+.efp-field .form-select {
+    height: 42px;
+    border: 1px solid var(--line);
     border-radius: 12px;
-    padding: 14px 30px;
-    font-weight: 700;
-    border: 2px solid #f1f5f9;
-    color: #64748b;
-    transition: all 0.2s ease;
+    padding: 0 12px;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 400;
+    color: var(--text);
+    background-color: #FBFDFC;
+    box-shadow: none;
+    transition: border-color .2s, box-shadow .2s, background-color .2s;
+}
+.efp-field .form-select { padding-right: 34px; }
+.efp-field textarea.form-control { height: auto; min-height: 92px; padding: 10px 12px; resize: vertical; }
+.efp-field .form-control::placeholder { color: #98A9A0; }
+.efp-field .form-control:focus,
+.efp-field .form-select:focus {
+    border-color: var(--brand-bright);
+    background-color: #fff;
+    box-shadow: 0 0 0 3.5px rgba(94, 141, 61, .14);
+    outline: 0;
+}
+.efp-field .form-control:disabled,
+.efp-field .form-control[readonly] {
+    background-color: #F1F5F2;
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+.efp-field .form-control.is-invalid,
+.efp-field .form-select.is-invalid { border-color: var(--bad); }
+.efp-hint { display: block; margin-top: 5px; font-size: 11.5px; color: var(--text-muted); }
+.efp-err { margin-top: 5px; font-size: 12px; }
+
+/* Footer */
+.efp-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 16px 0 22px;
+    border-top: 1px solid var(--line-soft);
+}
+.efp-hint-secure {
+    margin-right: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.efp-btn {
+    height: 41px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid transparent;
+    line-height: 1;
+}
+.efp-btn-secondary { background: var(--brand-softer); color: var(--brand); border-color: var(--line); }
+.efp-btn-secondary:hover { background: var(--brand-soft); color: var(--brand-strong); }
+.efp-btn-primary {
+    background: linear-gradient(135deg, #5E8D3D, #1F5C2E);
+    color: #fff;
+    box-shadow: 0 10px 20px -10px var(--brand-glow);
+}
+.efp-btn-primary:hover { filter: brightness(1.07); color: #fff; }
+
+@media (max-width: 992px) {
+    .efp-card { grid-template-columns: 1fr; }
+    .efp-side { padding: 22px 20px; }
+    .efp-side-inner { position: static; }
+    .efp-steps { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+}
+@media (max-width: 640px) {
+    .efp-grid { grid-template-columns: 1fr; }
+    .efp-body { padding: 20px 18px 0; }
 }
 
+/* 6-column grid so 2 / 3 / 6 wide fields can share rows */
+.efp-grid-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.efp-grid-6 > * { grid-column: span 6; }
+.efp-grid-6 > .span-3 { grid-column: span 3; }
+.efp-grid-6 > .span-2 { grid-column: span 2; }
+.efp-err:empty { display: none; }
+.efp-field-action { display: flex; align-items: flex-end; }
+.efp-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.efp .location-status { font-size: 12.5px; font-weight: 500; }
+
+/* Leaflet map containers (ids used by the page scripts) */
+#map,
 #franchiseMap {
     width: 100%;
-    height: 450px;
-    border-radius: 12px;
-    margin-bottom: 25px;
+    height: 400px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
     overflow: hidden;
 }
+.leaflet-control-geocoder { width: 300px; }
+.leaflet-control-geocoder-form input { width: 250px; }
 
-.location-status {
-    font-weight: 600;
+@media (max-width: 1200px) {
+    .efp-grid-6 > .span-2 { grid-column: span 3; }
+}
+@media (max-width: 640px) {
+    .efp-grid-6 > *,
+    .efp-grid-6 > .span-2,
+    .efp-grid-6 > .span-3 { grid-column: 1 / -1; }
 }
 </style>
 @endpush
 
 @section('content')
-
-
-<div class="card premium-edit-card mb-4">
-    <div class="card-header-premium">
-        <h5 class="page-main-title mb-0">Edit Store</h5>
+<div class="employee-page efp">
+    <div class="employee-page-heading">
+        <h2><i class="ti ti-building-store"></i>Edit Store</h2>
+        <p>Update the details for this store.</p>
     </div>
 
-    <div class="card-body p-4 p-md-5 pt-md-4">
-        <form id="frm_create" method="POST" action="{{ route('admin.franchises.update', $franchise) }}">
+    <div class="efp-card">
+        <aside class="efp-side">
+            <div class="efp-side-inner">
+                <div class="efp-side-ico"><i class="ti ti-building-store"></i></div>
+                <h3>Edit — {{ $franchise->c_store_name }}</h3>
+                <p>{{ $franchise->c_store_code }}</p>
+                <div class="efp-steps">
+                    <a href="#sec-config" class="efp-step"><span class="num">1</span>Store configuration</a>
+                    <a href="#sec-gps" class="efp-step"><span class="num">2</span>Franchise GPS location</a>
+                    <a href="#sec-contact" class="efp-step"><span class="num">3</span>Contact & status</a>
+                </div>
+            </div>
+        </aside>
+
+        <form id="frm_create" method="POST" action="{{ route('admin.franchises.update', $franchise) }}" class="efp-body">
             @csrf @method('PUT')
 
-            <!-- Section 1: Store Configuration -->
-            <div class="field-group-title">
-                <i class="ti ti-settings-automation fs-5"></i> Store Configuration
-            </div>
+            <div class="efp-note"><i class="ti ti-pencil"></i>Use Get Location from Address or Select Location on Map to update the franchise's GPS position.</div>
 
-            <div class="row g-4 mb-4">
-                <div class="col-md-5">
-                    <label for="c_store_code" class="form-label">Store Code *</label>
+            <!-- Section 1: Store Configuration -->
+            <div class="efp-section" id="sec-config"><i class="ti ti-settings-automation"></i>Store Configuration</div>
+            <div class="efp-grid efp-grid-6">
+                <div class="efp-field span-3">
+                    <label for="c_store_code"><i class="ti ti-barcode"></i>Store Code *</label>
                     <input type="text" id="c_store_code" name="c_store_code" data-message="Enter valid Store Code"
                         max-length="20" value="{{ old('c_store_code', $franchise->c_store_code) }}" required
                         class="form-control mandatory">
-                    <div class="text-danger mt-1 fs-2"></div>
+                    <div class="text-danger efp-err"></div>
                     @error('c_store_code')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-7">
-                    <label for="c_store_name" class="form-label">Store Name *</label>
+                <div class="efp-field span-3">
+                    <label for="c_store_name"><i class="ti ti-building-store"></i>Store Name *</label>
                     <input type="text" id="c_store_name" name="c_store_name" data-message="Please enter Name"
                         maxlength="100" value="{{ old('c_store_name', $franchise->c_store_name) }}" required
                         class="form-control mandatory">
                     @error('c_store_name')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-6">
-                    <label for="c_owner_name" class="form-label">Owner Name *</label>
-
+                <div class="efp-field">
+                    <label for="c_owner_name"><i class="ti ti-user"></i>Owner Name *</label>
                     <input type="text" id="c_owner_name" name="c_owner_name"
                         value="{{ old('c_owner_name', $franchise->c_owner_name) }}" maxlength="100"
                         class="form-control mandatory" placeholder="Franchise owner name">
-
                     @error('c_owner_name')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-12">
-                    <label for="c_store_address" class="form-label">Address</label>
+                <div class="efp-field">
+                    <label for="c_store_address"><i class="ti ti-map-pin"></i>Address</label>
                     <input type="text" id="c_store_address" name="c_store_address" maxlength="255"
                         value="{{ old('c_store_address', $franchise->c_store_address) }}" class="form-control">
                     @error('c_store_address')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="row g-4 mb-4">
-
-
-
-                    <div class="col-md-4">
-                        <label for="n_state_id" class="form-label">State *</label>
-
-                        <select id="n_state_id" name="n_state_id" class="form-select" required>
-                            <option value="">Select State</option>
-
-                            @foreach($states as $state)
-                            <option value="{{ $state->n_state_id }}"
-                                {{ old('n_state_id', $franchise->n_state_id) == $state->n_state_id ? 'selected' : '' }}>
-                                {{ $state->name }}
-                            </option>
-                            @endforeach
-                        </select>
-
-                        @error('n_state_id')
-                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-
-                    <div class="col-md-4">
-                        <label for="n_district_id" class="form-label">District *</label>
-
-                        <select id="n_district_id" name="n_district_id" class="form-select" required>
-                            <option value="">Select District</option>
-
-                            @foreach($districts as $district)
-                            <option value="{{ $district->id }}"
-                                {{ old('n_district_id', $franchise->n_district_id) == $district->id ? 'selected' : '' }}>
-                                {{ $district->district_name }}
-                            </option>
-                            @endforeach
-                        </select>
-
-                        @error('n_district_id')
-                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-
-                    {{-- Panchayath --}}
-                    <div class="col-md-4">
-                        <label for="c_panchayath" class="form-label">Panchayath *</label>
-
-                        <input type="text" id="c_panchayath" name="c_panchayath" class="form-control" maxlength="150"
-                            required placeholder="Enter Panchayath"
-                            value="{{ old('c_panchayath', $franchise->panchayath?->panchayath_name) }}">
-
-                        @error('c_panchayath')
-                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-
-                    {{-- GPS Location --}}
-                    <div class="field-group-title mt-5">
-                        <i class="ti ti-map-pin fs-5"></i>
-                        Franchise GPS Location
-                    </div>
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-6"> <label for="latitude" class="form-label"> Latitude * </label> <input
-                                type="text" id="latitude" name="latitude"
-                                value="{{ old('latitude', $franchise->latitude) }}" class="form-control"
-                                placeholder="Latitude" readonly required> @error('latitude') <div
-                                class="text-danger mt-1 fs-2"> {{ $message }} </div> @enderror </div>
-                        <div class="col-md-6"> <label for="longitude" class="form-label"> Longitude * </label> <input
-                                type="text" id="longitude" name="longitude"
-                                value="{{ old('longitude', $franchise->longitude) }}" class="form-control"
-                                placeholder="Longitude" readonly required> @error('longitude') <div
-                                class="text-danger mt-1 fs-2"> {{ $message }} </div> @enderror </div>
-                    </div>
-                    <div class="mb-4 d-flex align-items-center gap-2 flex-wrap"> <button type="button"
-                            id="getLocationBtn" class="btn btn-outline-success"> <i class="ti ti-map-pin-search"></i>
-                            Get Location from Address </button> <button type="button" id="selectLocationBtn"
-                            class="btn btn-outline-primary"> <i class="ti ti-map-pin"></i> Select Location on Map
-                        </button> <span id="locationStatus" class="ms-2 text-muted location-status">
-                            @if($franchise->latitude && $franchise->longitude) ✓ Existing franchise location loaded
-                            @else Select or detect the franchise location @endif </span> </div>
-                    <div id="franchiseMap"
-                        style="{{ $franchise->latitude && $franchise->longitude ? '' : 'display:none;' }}"> </div>
+                <div class="efp-field span-2">
+                    <label for="n_state_id"><i class="ti ti-map-2"></i>State *</label>
+                    <select id="n_state_id" name="n_state_id" class="form-select" required>
+                        <option value="">Select State</option>
+                        @foreach($states as $state)
+                        <option value="{{ $state->n_state_id }}"
+                            {{ old('n_state_id', $franchise->n_state_id) == $state->n_state_id ? 'selected' : '' }}>
+                            {{ $state->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                    @error('n_state_id')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <!-- Section 2: Contact & Operational Details -->
-                <div class="field-group-title mt-5">
-                    <i class="ti ti-address-book fs-5"></i> Contact & Status
+                <div class="efp-field span-2">
+                    <label for="n_district_id"><i class="ti ti-map"></i>District *</label>
+                    <select id="n_district_id" name="n_district_id" class="form-select" required>
+                        <option value="">Select District</option>
+                        @foreach($districts as $district)
+                        <option value="{{ $district->id }}"
+                            {{ old('n_district_id', $franchise->n_district_id) == $district->id ? 'selected' : '' }}>
+                            {{ $district->district_name }}
+                        </option>
+                        @endforeach
+                    </select>
+                    @error('n_district_id')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <div class="row g-4 mb-5">
-                    <div class="col-md-6">
-                        <label for="c_store_email" class="form-label">Email</label>
-                        <input type="email" id="c_store_email" name="c_store_email"
-                            value="{{ old('c_store_email', $franchise->c_store_email) }}" class="form-control">
-                        @error('c_store_email')
-                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                        @enderror
-                    </div>
+                <div class="efp-field span-2">
+                    <label for="c_panchayath"><i class="ti ti-building-community"></i>Panchayath *</label>
+                    <input type="text" id="c_panchayath" name="c_panchayath" class="form-control" maxlength="150"
+                        required placeholder="Enter Panchayath"
+                        value="{{ old('c_panchayath', $franchise->panchayath?->panchayath_name) }}">
+                    @error('c_panchayath')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
 
-                    <div class="col-md-6">
-                        <label for="n_store_phone" class="form-label">Phone</label>
-                        <input type="text" id="n_store_phone" name="n_store_phone" max-length="10"
-                            value="{{ old('n_store_phone', $franchise->n_store_phone) }}" class="form-control">
-                        @error('n_store_phone')
-                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-12">
-                        <label for="c_store_status" class="form-label">Status *</label>
-                        <select id="c_store_status" name="c_store_status" data-message="Please select Status" required
-                            class="form-select mandatory">
-                            <option value="Y"
-                                {{ old('c_store_status', $franchise->c_store_status) === 'Y' ? 'selected' : '' }}>
-                                Active</option>
-                            <option value="N"
-                                {{ old('c_store_status', $franchise->c_store_status) === 'N' ? 'selected' : '' }}>
-                                Inactive</option>
-                        </select>
-                        @error('c_store_status')
-                        <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                        @enderror
-                    </div>
+            <!-- GPS Location -->
+            <div class="efp-section" id="sec-gps"><i class="ti ti-map-pin"></i>Franchise GPS Location</div>
+            <div class="efp-grid efp-grid-6">
+                <div class="efp-field span-3">
+                    <label for="latitude"><i class="ti ti-current-location"></i>Latitude *</label>
+                    <input type="text" id="latitude" name="latitude"
+                        value="{{ old('latitude', $franchise->latitude) }}" class="form-control"
+                        placeholder="Latitude" readonly required>
+                    @error('latitude')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <!-- Footer Action Bar -->
-                <div class="pt-4 border-top d-flex gap-3">
-                    <button type="submit" id="btn_create" class="btn buttonSpc">
-                        <i class="ti ti-refresh fs-4"></i> Update Record
+                <div class="efp-field span-3">
+                    <label for="longitude"><i class="ti ti-current-location"></i>Longitude *</label>
+                    <input type="text" id="longitude" name="longitude"
+                        value="{{ old('longitude', $franchise->longitude) }}" class="form-control"
+                        placeholder="Longitude" readonly required>
+                    @error('longitude')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="efp-actions">
+                    <button type="button" id="getLocationBtn" class="efp-btn efp-btn-secondary">
+                        <i class="ti ti-map-pin-search"></i> Get Location from Address
                     </button>
-                    <a href="{{ route('admin.franchises.index') }}" class="btn btn-cancel-action">Cancel</a>
+                    <button type="button" id="selectLocationBtn" class="efp-btn efp-btn-secondary">
+                        <i class="ti ti-map-pin"></i> Select Location on Map
+                    </button>
+                    <span id="locationStatus" class="ms-2 text-muted location-status">
+                        @if($franchise->latitude && $franchise->longitude) ✓ Existing franchise location loaded
+                        @else Select or detect the franchise location @endif
+                    </span>
                 </div>
+
+                <div id="franchiseMap"
+                    style="{{ $franchise->latitude && $franchise->longitude ? '' : 'display:none;' }}"> </div>
+            </div>
+
+            <!-- Section 2: Contact & Operational Details -->
+            <div class="efp-section" id="sec-contact"><i class="ti ti-address-book"></i>Contact & Status</div>
+            <div class="efp-grid efp-grid-6">
+                <div class="efp-field span-2">
+                    <label for="c_store_email"><i class="ti ti-mail"></i>Email</label>
+                    <input type="email" id="c_store_email" name="c_store_email"
+                        value="{{ old('c_store_email', $franchise->c_store_email) }}" class="form-control">
+                    @error('c_store_email')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="efp-field span-2">
+                    <label for="n_store_phone"><i class="ti ti-phone"></i>Phone</label>
+                    <input type="text" id="n_store_phone" name="n_store_phone" max-length="10"
+                        value="{{ old('n_store_phone', $franchise->n_store_phone) }}" class="form-control">
+                    @error('n_store_phone')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="efp-field span-2">
+                    <label for="c_store_status"><i class="ti ti-circle-half-2"></i>Status *</label>
+                    <select id="c_store_status" name="c_store_status" data-message="Please select Status" required
+                        class="form-select mandatory">
+                        <option value="Y"
+                            {{ old('c_store_status', $franchise->c_store_status) === 'Y' ? 'selected' : '' }}>
+                            Active</option>
+                        <option value="N"
+                            {{ old('c_store_status', $franchise->c_store_status) === 'N' ? 'selected' : '' }}>
+                            Inactive</option>
+                    </select>
+                    @error('c_store_status')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="efp-foot">
+                <span class="efp-hint-secure"><i class="ti ti-asterisk"></i>Fields marked * are required</span>
+                <a href="{{ route('admin.franchises.index') }}" class="efp-btn efp-btn-secondary">Cancel</a>
+                <button type="submit" id="btn_create" class="efp-btn efp-btn-primary">
+                    <i class="ti ti-refresh"></i>Update Record
+                </button>
+            </div>
         </form>
     </div>
 </div>
-
 
 @endsection
 

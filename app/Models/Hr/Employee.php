@@ -112,6 +112,12 @@ class Employee extends Model
         return $this->hasMany(EmployeeHistory::class);
     }
 
+    /** Every separation, newest first (re-hired people can have several). */
+    public function exits()
+    {
+        return $this->hasMany(EmployeeExit::class)->orderByDesc('id');
+    }
+
     public function secondaryContact()
     {
         return $this->hasOne(EmployeeSecondaryContact::class);

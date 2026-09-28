@@ -59,7 +59,7 @@
 }
 
 .widget-icon.green-emerald {
-    background-color: #059669;
+    background-color: #7CA243;
 }
 
 .widget-icon.purple {
@@ -96,25 +96,25 @@
 .card-title {
     font-size: 20px;
     font-weight: 700;
-    color: #0f5132;
+    color: #5E8D3D;
 }
 
 .buttonSpc {
-    background: linear-gradient(135deg, #0f5132 0%, #059669 100%) !important;
+    background: linear-gradient(135deg, #5E8D3D 0%, #7CA243 100%) !important;
     color: #ffffff !important;
     border: none !important;
     border-radius: 8px !important;
     padding: 10px 20px !important;
     font-weight: 600 !important;
     font-size: 14px !important;
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    box-shadow: 0 4px 12px rgba(94, 141, 61, 0.2);
     transition: all 0.2s ease;
 }
 
 .buttonSpc:hover {
-    background: linear-gradient(135deg, #0b3e26 0%, #047857 100%) !important;
+    background: linear-gradient(135deg, #1F5C2E 0%, #1F5C2E 100%) !important;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+    box-shadow: 0 6px 16px rgba(94, 141, 61, 0.3);
 }
 
 /* Filter Form Styling */
@@ -139,8 +139,8 @@
 }
 
 .form-control:focus {
-    border-color: #059669;
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    border-color: #7CA243;
+    box-shadow: 0 0 0 3px rgba(94, 141, 61, 0.12);
 }
 
 .btn {
@@ -224,7 +224,7 @@
 /* Approved - Green */
 .badge-status.approved {
     background-color: #d1fae5;
-    color: #047857;
+    color: #1F5C2E;
 }
 
 /* Dispatched - Blue */
@@ -689,7 +689,7 @@ use Illuminate\Support\Facades\Crypt;
             <form action="{{ route('admin.salesorders.salesUpdateStore') }}" method="POST">
                 @csrf
 
-                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #5E8D3D, #1F5C2E);">
                     <h5 class="modal-title text-white" id="salesUpdateModalLabel">
                         Sales Order Update Form
                     </h5>

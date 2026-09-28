@@ -6,6 +6,7 @@ use App\Exports\IncentiveSalesReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\AuditRecord;
+use App\Models\CategoryMaster;
 use App\Models\CustomerMaster;
 use App\Models\DesignationMaster;
 use App\Models\District;
@@ -18,7 +19,6 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderstatusUpdation;
 use App\Models\State;
 use App\Models\StoreMaster;
-use App\Models\CategoryMaster;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -457,13 +457,12 @@ class SalesController extends Controller
             $allowedEmployeeIds = [
                 (int) $user->n_employee_id,
             ];
-        }elseif ($isTeleCaller) {
+        } elseif ($isTeleCaller) {
 
             $allowedEmployeeIds = [
                 (int) $user->n_employee_id,
             ];
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -546,7 +545,7 @@ class SalesController extends Controller
             ])
             ->whereNull('sales_orders.deleted_at');
 
-            /*
+        /*
         |--------------------------------------------------------------------------
         | FCO / FCA/Tele Caller Access Restriction
         |--------------------------------------------------------------------------
@@ -566,15 +565,14 @@ class SalesController extends Controller
         |--------------------------------------------------------------------------
         */
 
-       /*  elseif ($allowedEmployeeIds !== null) {
+        /*  elseif ($allowedEmployeeIds !== null) {
 
-            $query->whereIn(
-                'sales_orders.farm_care_advisor_id',
-                $allowedEmployeeIds
-            );
-        }
+             $query->whereIn(
+                 'sales_orders.farm_care_advisor_id',
+                 $allowedEmployeeIds
+             );
+         }
  */
-
 
         /*
         |--------------------------------------------------------------------------
@@ -674,6 +672,25 @@ class SalesController extends Controller
             $query->where(
                 'sales_orders.payment_status',
                 $request->payment_status
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mode of Payment
+        |--------------------------------------------------------------------------
+        |
+        | Dashboard "Payment Overview" cards link here with
+        | ?c_mode_of_payment=<mode> (plus payment_status above) to jump
+        | straight to the matching orders.
+        |
+        */
+
+        if ($request->filled('c_mode_of_payment')) {
+
+            $query->where(
+                'sales_orders.c_mode_of_payment',
+                $request->c_mode_of_payment
             );
         }
 
@@ -1287,124 +1304,178 @@ class SalesController extends Controller
         return array_unique($employeeIds);
     }
 
+    /**
+     * Get Farm Care Advisors allowed in the Add Sales Order advisor dropdown.
+     *
+     * SUPER_ADMIN / GIPRA_ADMIN: all active FCA employees.
+     * FCO: only FCA employees anywhere below the logged-in FCO in reporting_to hierarchy.
+     * FCA: only the logged-in FCA.
+     * Other roles: preserve the previous active-employee list.
+     */
+    private function getFarmCareAdvisorsForSalesOrder()
+    {
+        $user = Auth::user();
+
+        $query = EmployeeMaster::query()
+            ->join(
+                'designation_masters as dm',
+                'dm.n_designation_id',
+                '=',
+                'employee_masters.n_designation_id'
+            )
+            ->where('employee_masters.c_status', 'Y')
+            ->where('dm.identifier', 'FCA')
+            ->whereNull('employee_masters.deleted_at')
+            ->select(
+                'employee_masters.n_employee_id',
+                'employee_masters.c_employee_name'
+            )
+            ->orderBy('employee_masters.c_employee_name');
+
+        if ($this->isFco()) {
+            $allowedIds = $this->getSubordinateEmployeeIds(
+                (int) $user->n_employee_id
+            );
+
+            $query->whereIn(
+                'employee_masters.n_employee_id',
+                $allowedIds
+            );
+        } elseif ($this->isFca()) {
+            $query->where(
+                'employee_masters.n_employee_id',
+                $user->n_employee_id
+            );
+        } elseif (! $user || ! $user->roles()->whereIn('identifier', [
+            'SUPER_ADMIN',
+            'GIPRA_ADMIN',
+        ])->exists()) {
+            // Preserve the existing behaviour for roles other than Admin/FCO/FCA.
+            return EmployeeMaster::where('c_status', 'Y')
+                ->whereNull('deleted_at')
+                ->orderBy('c_employee_name')
+                ->get([
+                    'n_employee_id',
+                    'c_employee_name',
+                ]);
+        }
+
+        return $query->get();
+    }
+
+    private function getAllowedFarmCareAdvisorIdsForSalesOrder(): array
+    {
+        return $this->getFarmCareAdvisorsForSalesOrder()
+            ->pluck('n_employee_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
     public function create()
     {
 
-        $employees = Admin::join('employee_masters as em', 'em.n_employee_id', 'admins.n_employee_id')
-            ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
-            ->where('em.c_status', 'Y')
-            ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
-            ->groupBy(
-                'em.n_employee_id',
-                'em.c_employee_name',
-                'dm.identifier'
-            )
-            ->get();
-        $productCategories=CategoryMaster::where('c_status','y')->where('n_parent_category_id',NULL)->get();
-       // $products = ProductMaster::where('c_status', 'Y')->get();
+        $employees = $this->getFarmCareAdvisorsForSalesOrder();
+        $productCategories = CategoryMaster::where('c_status', 'y')->where('n_parent_category_id', null)->get();
+        // $products = ProductMaster::where('c_status', 'Y')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $states = State::where('status', 1)->get();
         $districts = District::get();
         $customers = CustomerMaster::orderBy('c_customer_name')->get();
         $customerCode = CustomerMaster::generateCustomerCode();
-//dd($TeleorderNo);
+        // dd($TeleorderNo);
 
-       /*  $user = Admin::leftJoin(
-            'employee_masters',
-            'admins.n_employee_id',
-            '=',
-            'employee_masters.n_employee_id'
-        )
-        ->leftJoin(
-            'roles',
-            'roles.id',
-            '=',
-            'admins.n_role_id'
-        )
-        ->leftJoin(
-            'designation_masters',
-            'designation_masters.n_designation_id',
-            '=',
-            'employee_masters.n_designation_id'
-        )
-        ->where('admins.n_role_id', Auth::user()->n_role_id)
-        ->select(
-            'employee_masters.*',
-            'designation_masters.identifier'
-        )
-        ->first(); */
-    $user=Auth::user();
+        /*  $user = Admin::leftJoin(
+             'employee_masters',
+             'admins.n_employee_id',
+             '=',
+             'employee_masters.n_employee_id'
+         )
+         ->leftJoin(
+             'roles',
+             'roles.id',
+             '=',
+             'admins.n_role_id'
+         )
+         ->leftJoin(
+             'designation_masters',
+             'designation_masters.n_designation_id',
+             '=',
+             'employee_masters.n_designation_id'
+         )
+         ->where('admins.n_role_id', Auth::user()->n_role_id)
+         ->select(
+             'employee_masters.*',
+             'designation_masters.identifier'
+         )
+         ->first(); */
+        $user = Auth::user();
 
-    /*
-    |--------------------------------------------------------------------------
-    | Default Values
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Default Values
+        |--------------------------------------------------------------------------
+        */
 
-    $isFarmCareAdvisor = false;
-    $farmCareAdvisorId = null;
+        $isFarmCareAdvisor = false;
+        $farmCareAdvisorId = null;
 
-    $isFarmCareOfficer = false;
-    $farmCareOfficerId = null;
+        $isFarmCareOfficer = false;
+        $farmCareOfficerId = null;
 
-    $isAdmin = false;
-    $isAdminId = null;
+        $isAdmin = false;
+        $isAdminId = null;
 
-    $isTelecaller = false;
-    $isTelecallerId = null;
+        $isTelecaller = false;
+        $isTelecallerId = null;
 
+        /*
+        |--------------------------------------------------------------------------
+        | Role Check
+        |--------------------------------------------------------------------------
+        */
 
+        if ($user) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Role Check
-    |--------------------------------------------------------------------------
-    */
+            // FCA
+            if ($user->roles->first()->identifier === 'FCA') {
 
-    if ($user) {
+                $isFarmCareAdvisor = true;
+                $farmCareAdvisorId = $user->n_employee_id;
+            }
 
-        // FCA
-        if ($user->roles->first()->identifier=== 'FCA') {
+            // FCO
+            if ($user->roles->first()->identifier === 'FCO') {
 
-            $isFarmCareAdvisor = true;
-            $farmCareAdvisorId = $user->n_employee_id;
+                $isFarmCareOfficer = true;
+                $farmCareOfficerId = $user->n_employee_id;
+            }
+
+            // SUPER ADMIN / GIPRA ADMIN
+            if (in_array(
+                $user->roles->first()->identifier,
+                ['SUPER_ADMIN', 'GIPRA_ADMIN']
+            )) {
+
+                $isAdmin = true;
+                $isAdminId = $user->n_employee_id;
+            }
+
+            // TeleCaller
+            if (in_array(
+                $user->roles->first()->identifier,
+                ['TC']
+            )) {
+
+                $isTelecaller = true;
+                $isTelecallerId = $user->n_employee_id;
+            }
         }
 
-         // FCO
-        if ($user->roles->first()->identifier === 'FCO') {
-
-            $isFarmCareOfficer = true;
-            $farmCareOfficerId = $user->n_employee_id;
-        }
-
-        // SUPER ADMIN / GIPRA ADMIN
-        if (in_array(
-            $user->roles->first()->identifier,
-            ['SUPER_ADMIN', 'GIPRA_ADMIN']
-        )) {
-
-            $isAdmin = true;
-            $isAdminId = $user->n_employee_id;
-        }
-
-        // TeleCaller
-        if (in_array(
-            $user->roles->first()->identifier,
-            ['TC']
-        )) {
-
-            $isTelecaller = true;
-            $isTelecallerId = $user->n_employee_id;
-        }
-    }
-
-
-         $viewmode = 'off';
-
+        $viewmode = 'off';
 
         return view('admin.sales.create', compact(
             'employees',
-           // 'products',
+            // 'products',
             'franchises',
             'states',
             'viewmode',
@@ -1413,7 +1484,7 @@ class SalesController extends Controller
             'isFarmCareAdvisor',
             'isAdmin',
             'isTelecaller',
-            //'TeleorderNo',
+            // 'TeleorderNo',
             'customerCode',
             'isFarmCareOfficer',
             'productCategories',
@@ -1428,12 +1499,9 @@ class SalesController extends Controller
         return response()->json(['districts' => $districts]);
     }
 
-
-
-
     public function store(Request $request)
     {
-         // dd($request->all());
+        // dd($request->all());
         $user = Auth::user();
         $existingOrder = null;
 
@@ -1491,12 +1559,12 @@ class SalesController extends Controller
                     'exists:employee_masters,n_employee_id',
                     Rule::requiredIf(
                         $user && $user->roles()
-                            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'FCA'])
+                            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'FCO', 'FCA'])
                             ->exists()
                     ),
                 ],
 
-                 'c_customer_type' => 'required|string|max:255',
+                'c_customer_type' => 'required|string|max:255',
 
                 // 'c_customer_name' => 'required|string|max:255',
 
@@ -1511,47 +1579,49 @@ class SalesController extends Controller
                 | Customer Mode
                 |--------------------------------------------------------------------------
                 */
-                    'n_customer_id' => [
-                            'nullable',
-                        ],
+                'n_customer_id' => [
+                    'nullable',
+                ],
 
-                    'c_customer_code' => [
-                        'nullable',
-                    ],
+                'c_customer_code' => [
+                    'nullable',
+                ],
 
-                    'c_customer_name' => 'required|string|max:255',
+                'c_customer_name' => 'required|string|max:255',
 
-                    'n_mobile' => [
-                        'required',
-                        'regex:/^[6-9]\d{9}$/',
+                'n_mobile' => [
+                    'required',
+                    'regex:/^[6-9]\d{9}$/',
 
-                    ],
+                ],
 
-                    'n_whatsapp' => [
-                        'required',
-                        'regex:/^[6-9]\d{9}$/',
-                    ],
+                'n_whatsapp' => [
+                    'required',
+                    'regex:/^[6-9]\d{9}$/',
+                ],
 
-                    'c_email' => [
-                        'required',
-                        'email',
-                        'max:255',
+                'c_email' => [
+                    'required',
+                    'email',
+                    'max:255',
 
-                    ],
+                ],
 
-                    'c_address' => 'required|string',
+                'c_address' => 'required|string',
 
-                    'c_post_office'=> 'required|string',
+                'c_post_office' => 'required|string',
 
-                    'n_state_id' => 'required|exists:states,n_state_id',
+                'n_state_id' => 'required|exists:states,n_state_id',
 
-                    'n_district_id' => 'required|exists:districts,id',
+                'n_district_id' => 'required|exists:districts,id',
 
-                    'c_thaluk'=> 'required|string',
+                'c_panchayath' => 'nullable|string|max:255',
 
-                    'c_pincode' => 'required|digits:6',
+                'c_thaluk' => 'required|string',
 
-                    'c_status' => 'required|in:Y,N',
+                'c_pincode' => 'required|digits:6',
+
+                'c_status' => 'required|in:Y,N',
 
                 /*
                 |--------------------------------------------------------------------------
@@ -1735,14 +1805,40 @@ class SalesController extends Controller
         );
 
         if ($validator->fails()) {
-           /*  return back()
-                ->withErrors($validator)
-                ->withInput(); */
-                 dd($validator->errors()->toArray());
+            /*  return back()
+                 ->withErrors($validator)
+                 ->withInput(); */
+            dd($validator->errors()->toArray());
         }
 
         $validated = $validator->validated();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Farm Care Advisor authorization
+        |--------------------------------------------------------------------------
+        | Never rely only on the dropdown. An FCO/Admin must only be able to
+        | submit an FCA ID that is actually allowed for the logged-in user.
+        |--------------------------------------------------------------------------
+        */
+        if ($user && $user->roles()->whereIn('identifier', [
+            'SUPER_ADMIN',
+            'GIPRA_ADMIN',
+            'FCO',
+            'FCA',
+        ])->exists()) {
+            $allowedAdvisorIds = $this->getAllowedFarmCareAdvisorIdsForSalesOrder();
+            $selectedAdvisorId = (int) ($validated['farm_care_advisor_id'] ?? 0);
+
+            if (! in_array($selectedAdvisorId, $allowedAdvisorIds, true)) {
+                abort(403, 'You are not authorized to select this Farm Care Advisor.');
+            }
+
+            // FCA orders always belong to the logged-in FCA.
+            if ($this->isFca()) {
+                $validated['farm_care_advisor_id'] = (int) $user->n_employee_id;
+            }
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -1758,14 +1854,12 @@ class SalesController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        if ($validated['c_customer_type'] == 'new') {
+            $customer = $this->customerSave($validated);
 
-        if($validated['c_customer_type']=='new'){
-            $customer=$this->customerSave($validated);
+        } else {
 
-        }
-        else{
-
-            if(isset($validated['n_customer_id'])){
+            if (isset($validated['n_customer_id'])) {
                 $customer = CustomerMaster::findOrFail(
                     $validated['n_customer_id']
                 );
@@ -1779,17 +1873,8 @@ class SalesController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($user->roles()->where('identifier', 'FCA')->exists()) {
-
-            $employee = EmployeeMaster::where(
-                'c_employee_email',
-                $user->c_username
-            )->first();
-
-            if ($employee) {
-                $validated['farm_care_advisor_id'] =
-                    $employee->n_employee_id;
-            }
+        if ($this->isFca()) {
+            $validated['farm_care_advisor_id'] = (int) $user->n_employee_id;
         }
 
         /*
@@ -2000,18 +2085,18 @@ class SalesController extends Controller
 
                         ]; */
 
-        if($user->roles->first()?->identifier=="TC"){
-            $OrderNo = SalesOrder::generateTeleOrderNo();
-        }elseif($user->roles->first()?->identifier=="SUPER_ADMIN"){
-            $OrderNo = SalesOrder::generateFCOrderNo();
-        }elseif($user->roles->first()?->identifier=="FCO"){
-            $OrderNo = SalesOrder::generateFCOOrderNo();
-        }else{
-         $OrderNo = $validated['c_order_no'] ?? '';
-        }
-        if ($request->filled('order_type')) {
-            $orderData['order_type'] = $request->order_type;
-        }
+            if ($user->roles->first()?->identifier == 'TC') {
+                $OrderNo = SalesOrder::generateTeleOrderNo();
+            } elseif ($user->roles->first()?->identifier == 'SUPER_ADMIN') {
+                $OrderNo = SalesOrder::generateFCOrderNo();
+            } elseif ($user->roles->first()?->identifier == 'FCO') {
+                $OrderNo = SalesOrder::generateFCOOrderNo();
+            } else {
+                $OrderNo = $validated['c_order_no'] ?? '';
+            }
+            if ($request->filled('order_type')) {
+                $orderData['order_type'] = $request->order_type;
+            }
             $orderData = [
 
                 'c_order_no' => $OrderNo,
@@ -2020,7 +2105,7 @@ class SalesController extends Controller
 
                 'farm_care_advisor_id' => $validated['farm_care_advisor_id'] ?? null,
 
-                'c_customer_type'=>$validated['c_customer_type'],
+                'c_customer_type' => $validated['c_customer_type'],
 
                 'n_customer_id' => $customer->n_customer_id,
 
@@ -2032,7 +2117,7 @@ class SalesController extends Controller
 
                 // 'n_customer_mobile' => $validated['n_customer_mobile'],
 
-                //'order_type' => $request->order_type,
+                // 'order_type' => $request->order_type,
 
                 'n_state_id' => $validated['n_state_id'],
 
@@ -2077,7 +2162,7 @@ class SalesController extends Controller
 
                 'n_net_sales_amount' => $validated['n_net_sales_amount'] ?? 0,
 
-                'created_by'=>Auth::user()->n_employee_id,
+                'created_by' => Auth::user()->n_employee_id,
             ];
             // print_r($order);
 
@@ -2096,16 +2181,16 @@ class SalesController extends Controller
 
                     OrderProduct::create([
                         'n_order_id' => $id,
-                        'n_category_id'=>$product['n_category_id'],
-                        'n_sub_category_id'=>$product['n_sub_category_id'],
+                        'n_category_id' => $product['n_category_id'],
+                        'n_sub_category_id' => $product['n_sub_category_id'],
                         'product_id' => $product['product_id'],
                         'product_price' => $product['product_price'],
-                        'c_hsn_code' => isset($product['c_hsn_code']) ? $product['c_hsn_code'] :'',
+                        'c_hsn_code' => isset($product['c_hsn_code']) ? $product['c_hsn_code'] : '',
                         'qty' => $product['qty'],
-                        'c_unit' => isset($product['c_unit']) ? $product['c_unit'] :'',
+                        'c_unit' => isset($product['c_unit']) ? $product['c_unit'] : '',
                         'n_gst_percentage' => $product['n_gst_percentage'],
                         'gst_amount' => $product['gst_amount'],
-                        'discount' =>isset($product['discount']) ? $product['discount'] :'',
+                        'discount' => isset($product['discount']) ? $product['discount'] : '',
                         'discounted_price' => $product['discounted_price'] ?? 0.00,
                         'product_total' => $product['product_total'],
                     ]);
@@ -2141,16 +2226,16 @@ class SalesController extends Controller
 
                             $productData = OrderProduct::create([
                                 'n_order_id' => $salesOrder->n_sl_no,
-                                'n_category_id'=>$product['n_category_id'],
-                                'n_sub_category_id'=>$product['n_sub_category_id'],
+                                'n_category_id' => $product['n_category_id'],
+                                'n_sub_category_id' => $product['n_sub_category_id'],
                                 'product_id' => $product['product_id'],
                                 'product_price' => $product['product_price'],
-                                'c_hsn_code' => isset($product['c_hsn_code']) ? $product['c_hsn_code'] :'',
+                                'c_hsn_code' => isset($product['c_hsn_code']) ? $product['c_hsn_code'] : '',
                                 'qty' => $product['qty'],
-                                'c_unit' => isset($product['c_unit']) ? $product['c_unit'] :'',
+                                'c_unit' => isset($product['c_unit']) ? $product['c_unit'] : '',
                                 'n_gst_percentage' => $product['n_gst_percentage'],
                                 'gst_amount' => $product['gst_amount'],
-                                'discount' =>isset($product['discount']) ? $product['discount'] :'',
+                                'discount' => isset($product['discount']) ? $product['discount'] : '',
                                 'discounted_price' => $product['discounted_price'] ?? 0.00,
                                 'product_total' => $product['product_total'],
                             ]);
@@ -2181,38 +2266,42 @@ class SalesController extends Controller
         }
     }
 
-    public function customerSave($validated){
+    public function customerSave($validated)
+    {
 
-                   $customer= CustomerMaster::create([
+        $customer = CustomerMaster::create([
 
-                        'c_customer_code' => CustomerMaster::generateCustomerCode(),
+            'c_customer_code' => CustomerMaster::generateCustomerCode(),
 
-                        'c_customer_name' => $validated['c_customer_name'],
+            'c_customer_name' => $validated['c_customer_name'],
 
-                        'n_mobile' => $validated['n_mobile'],
+            'n_mobile' => $validated['n_mobile'],
 
-                        'n_whatsapp' => $validated['n_whatsapp'] ?? null,
+            'n_whatsapp' => $validated['n_whatsapp'] ?? null,
 
-                        'c_email' => $validated['c_email'] ?? null,
+            'c_email' => $validated['c_email'] ?? null,
 
-                        'c_address' => $validated['c_address'] ?? null,
+            'c_address' => $validated['c_address'] ?? null,
 
-                        'c_post_office' => $validated['c_post_office'] ?? null,
+            'c_post_office' => $validated['c_post_office'] ?? null,
 
-                        'n_state_id' => $validated['n_state_id'] ?? null,
+            'n_state_id' => $validated['n_state_id'] ?? null,
 
-                        'n_district_id' => $validated['n_district_id'] ?? null,
+            'n_district_id' => $validated['n_district_id'] ?? null,
 
-                        'c_thaluk' => $validated['c_thaluk'] ?? null,
+            'c_panchayath' => $validated['c_panchayath'] ?? null,
 
-                        'c_pincode' => $validated['c_pincode'] ?? null,
+            'c_thaluk' => $validated['c_thaluk'] ?? null,
 
-                        'c_status' => $validated['c_status'],
+            'c_pincode' => $validated['c_pincode'] ?? null,
 
-                        'created_by' => auth()->user()->n_employee_id,
+            'c_status' => $validated['c_status'],
 
-                    ]);
-                    return $customer;
+            'created_by' => auth()->user()->n_employee_id,
+
+        ]);
+
+        return $customer;
 
     }
 
@@ -2388,11 +2477,11 @@ class SalesController extends Controller
     {
         $id = Crypt::decryptString($id);
 
-        $employees = EmployeeMaster::where('c_status', 'Y')->get();
+        $employees = $this->getFarmCareAdvisorsForSalesOrder();
         $products = ProductMaster::where('c_status', 'Y')->get();
-        $productCategories=CategoryMaster::where('c_status','y')->where('n_parent_category_id',NULL)->get();
+        $productCategories = CategoryMaster::where('c_status', 'y')->where('n_parent_category_id', null)->get();
         $districts = District::get();
-        $franchisePanchayaths=Panchayath::get();
+        $franchisePanchayaths = Panchayath::get();
 
         $sale = SalesOrder::with([
             'orderProducts',
@@ -2452,7 +2541,6 @@ class SalesController extends Controller
         $AdminId = null;
         $isAdmin = false;
 
-
         if (
             isset($designation) &&
             in_array($designation->identifier, ['SUPER_ADMIN', 'GIPRA_ADMIN'])
@@ -2486,7 +2574,7 @@ class SalesController extends Controller
     // public function edit(Request $request, $id)
     // {
     //     $id = Crypt::decryptString($id);
-    //     $employees = EmployeeMaster::where('c_status', 'Y')->get();
+    //     $employees = $this->getFarmCareAdvisorsForSalesOrder();
     //     $products = ProductMaster::where('c_status', 'Y')->get();
     //     $sale = SalesOrder::with([
     //         'orderProducts',
@@ -2525,11 +2613,11 @@ class SalesController extends Controller
     {
         $id = Crypt::decryptString($id);
 
-        $employees = EmployeeMaster::where('c_status', 'Y')->get();
+        $employees = $this->getFarmCareAdvisorsForSalesOrder();
         $products = ProductMaster::where('c_status', 'Y')->get();
-        $productCategories=CategoryMaster::where('c_status','y')->where('n_parent_category_id',NULL)->get();
+        $productCategories = CategoryMaster::where('c_status', 'y')->where('n_parent_category_id', null)->get();
         $districts = District::get();
-        $franchisePanchayaths=Panchayath::get();
+        $franchisePanchayaths = Panchayath::get();
 
         /* $sale = SalesOrder::with([
             'orderProducts',
@@ -2553,107 +2641,104 @@ class SalesController extends Controller
 
         $viewmode = 'off';
 
-        $user=Auth::user();
+        $user = Auth::user();
 
         $farmCareAdvisorId = null;
         $isFarmCareAdvisor = false;
-       /*  $user = Admin::leftJoin('employee_masters','admins.n_employee_id','employee_masters.n_employee_id')
-                        ->leftJoin('roles','roles.n_designation_id','employee_masters.n_designation_id')
-                        ->where('admins.n_role_id',Auth::user()->n_role_id)
-                        ->select('employee_masters.*')
-                        ->get(); */
+        /*  $user = Admin::leftJoin('employee_masters','admins.n_employee_id','employee_masters.n_employee_id')
+                         ->leftJoin('roles','roles.n_designation_id','employee_masters.n_designation_id')
+                         ->where('admins.n_role_id',Auth::user()->n_role_id)
+                         ->select('employee_masters.*')
+                         ->get(); */
 
-       /*  $user = Admin::leftJoin(
-            'employee_masters',
-            'admins.n_employee_id',
-            '=',
-            'employee_masters.n_employee_id'
-        )
-        ->leftJoin(
-            'roles',
-            'roles.id',
-            '=',
-            'admins.n_role_id'
-        )
-        ->leftJoin(
-            'designation_masters',
-            'designation_masters.n_designation_id',
-            '=',
-            'employee_masters.n_designation_id'
-        )
-        ->where('admins.n_role_id', Auth::user()->n_role_id)
-        ->select(
-            'employee_masters.*',
-            'designation_masters.identifier'
-        )
-        ->first(); */
-//dd($user);
+        /*  $user = Admin::leftJoin(
+             'employee_masters',
+             'admins.n_employee_id',
+             '=',
+             'employee_masters.n_employee_id'
+         )
+         ->leftJoin(
+             'roles',
+             'roles.id',
+             '=',
+             'admins.n_role_id'
+         )
+         ->leftJoin(
+             'designation_masters',
+             'designation_masters.n_designation_id',
+             '=',
+             'employee_masters.n_designation_id'
+         )
+         ->where('admins.n_role_id', Auth::user()->n_role_id)
+         ->select(
+             'employee_masters.*',
+             'designation_masters.identifier'
+         )
+         ->first(); */
+        // dd($user);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Default Values
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Default Values
+        |--------------------------------------------------------------------------
+        */
 
-    $isFarmCareAdvisor = false;
-    $farmCareAdvisorId = null;
+        $isFarmCareAdvisor = false;
+        $farmCareAdvisorId = null;
 
-    $isFarmCareOfficer = false;
-    $farmCareOfficerId = null;
+        $isFarmCareOfficer = false;
+        $farmCareOfficerId = null;
 
-    $isAdmin = false;
-    $isAdminId = null;
+        $isAdmin = false;
+        $isAdminId = null;
 
-    $isTelecaller = false;
-    $isTelecallerId = null;
+        $isTelecaller = false;
+        $isTelecallerId = null;
 
+        /*
+        |--------------------------------------------------------------------------
+        | Role Check
+        |--------------------------------------------------------------------------
+        */
 
+        if ($user) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Role Check
-    |--------------------------------------------------------------------------
-    */
+            // FCA
+            if ($user->roles->first()->identifier === 'FCA') {
 
-    if ($user) {
+                $isFarmCareAdvisor = true;
+                $farmCareAdvisorId = $user->n_employee_id;
+            }
 
-        // FCA
-        if ($user->roles->first()->identifier === 'FCA') {
+            // FCA
+            if ($user->roles->first()->identifier === 'FCO') {
 
-            $isFarmCareAdvisor = true;
-            $farmCareAdvisorId = $user->n_employee_id;
+                $isFarmCareOfficer = true;
+                $farmCareOfficerId = $user->n_employee_id;
+            }
+
+            // SUPER ADMIN / GIPRA ADMIN
+            if (in_array(
+                $user->roles->first()->identifier,
+                ['SUPER_ADMIN', 'GIPRA_ADMIN']
+            )) {
+
+                $isAdmin = true;
+                $isAdminId = $user->n_employee_id;
+            }
+
+            // TeleCaller
+            if (in_array(
+                $user->roles->first()->identifier,
+                ['TC']
+            )) {
+
+                $isTelecaller = true;
+                $isTelecallerId = $user->n_employee_id;
+            }
         }
 
-         // FCA
-        if ($user->roles->first()->identifier === 'FCO') {
-
-            $isFarmCareOfficer = true;
-            $farmCareOfficerId = $user->n_employee_id;
-        }
-
-        // SUPER ADMIN / GIPRA ADMIN
-        if (in_array(
-            $user->roles->first()->identifier,
-            ['SUPER_ADMIN', 'GIPRA_ADMIN']
-        )) {
-
-            $isAdmin = true;
-            $isAdminId = $user->n_employee_id;
-        }
-
-        // TeleCaller
-        if (in_array(
-            $user->roles->first()->identifier,
-            ['TC']
-        )) {
-
-            $isTelecaller = true;
-            $isTelecallerId = $user->n_employee_id;
-        }
-    }
-
-//dd($isFarmCareAdvisor);
-
+        // dd($isFarmCareAdvisor);
 
         $sale = SalesOrder::with([
             'orderProducts',
@@ -2662,8 +2747,8 @@ class SalesController extends Controller
             'orderProducts.product',
             'customer',
         ])->findOrFail($id);
-      // dd($sale);
-        $employees = EmployeeMaster::where('c_status', 'Y')->get();
+        // dd($sale);
+        $employees = $this->getFarmCareAdvisorsForSalesOrder();
         $products = ProductMaster::where('c_status', 'Y')->get();
         $franchise = StoreMaster::where(
             'n_store_id',
@@ -2755,147 +2840,188 @@ class SalesController extends Controller
         ]);
     }
 
+    /**
+     * Find the franchise(s) nearest to a customer based purely on the
+     * administrative location entered under "Address Details" (Panchayath /
+     * District / State) - never on the browser's current GPS location, since
+     * a sales order is very often entered from a location other than the
+     * customer's own area (e.g. an office or a different franchise).
+     *
+     * Matching narrows from the most specific area to the least specific:
+     *   1. Exact Panchayath match
+     *   2. Same District (if no franchise is registered in that Panchayath)
+     *   3. Same State (if no franchise is registered in that District)
+     */
     public function nearestFranchise(Request $request)
     {
-        $latitude = $request->latitude;
-        $longitude = $request->longitude;
+        $panchayathId = $request->panchayath_id;
+        $districtId = $request->district_id;
+        $stateId = $request->state_id;
 
-        $franchise = StoreMaster::select('n_store_id', 'c_store_name', 'latitude', 'longitude')
-            ->selectRaw(
-                '(
-                    6371 * acos(
-                        cos(radians(?)) *
-                        cos(radians(9.0195400)) *
-                        cos(radians(76.9250100) - radians(?)) +
-                        sin(radians(?)) *
-                        sin(radians(latitude))
-                    )
-                ) AS distance',
-                [
-                    $latitude,
-                    $longitude,
-                    $latitude,
-                ]
-            )
-            ->where('c_store_status', 'Y')
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->orderBy('distance', 'asc')
-            ->first();
+        // Fill in district/state from the panchayath itself when they weren't
+        // passed in explicitly, so a bare panchayath_id is still enough.
+        if ($panchayathId) {
+            $panchayath = Panchayath::find($panchayathId);
 
-        if (! $franchise) {
+            if ($panchayath) {
+                $districtId = $districtId ?: $panchayath->district_id;
+                $stateId = $stateId ?: ($panchayath->state_id ?? null);
+            }
+        }
+
+        if (! $panchayathId && ! $districtId && ! $stateId) {
             return response()->json([
                 'success' => false,
-                'message' => 'No franchise found.',
+                'message' => 'Please select at least a State to find a franchise.',
+            ]);
+        }
+
+        $baseQuery = StoreMaster::where('c_store_status', 'Y');
+        $matchedOn = null;
+        $franchises = collect();
+
+        if ($panchayathId) {
+            $franchises = (clone $baseQuery)
+                ->where('n_panchayath_id', $panchayathId)
+                ->orderBy('c_store_name', 'ASC')
+                ->get(['n_store_id', 'c_store_name', 'c_store_code']);
+
+            if ($franchises->isNotEmpty()) {
+                $matchedOn = 'panchayath';
+            }
+        }
+
+        if ($franchises->isEmpty() && $districtId) {
+            $franchises = (clone $baseQuery)
+                ->where('n_district_id', $districtId)
+                ->orderBy('c_store_name', 'ASC')
+                ->get(['n_store_id', 'c_store_name', 'c_store_code']);
+
+            if ($franchises->isNotEmpty()) {
+                $matchedOn = 'district';
+            }
+        }
+
+        if ($franchises->isEmpty() && $stateId) {
+            $franchises = (clone $baseQuery)
+                ->where('n_state_id', $stateId)
+                ->orderBy('c_store_name', 'ASC')
+                ->get(['n_store_id', 'c_store_name', 'c_store_code']);
+
+            if ($franchises->isNotEmpty()) {
+                $matchedOn = 'state';
+            }
+        }
+
+        if ($franchises->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No franchise found for the selected location.',
             ]);
         }
 
         return response()->json([
             'success' => true,
-            'franchises' => $franchise,
-            'distance' => round($franchise->distance, 2),
+            'franchises' => $franchises,
+            'matched_on' => $matchedOn,
         ]);
     }
 
+    public function getSubcategories(Request $request, $categoryId)
+    {
+        $subcategories = CategoryMaster::where('n_parent_category_id', $categoryId)
+            ->where('c_status', 'Y')
+            ->select(
+                'n_category_id',
+                'n_parent_category_id',
+                'c_category_name',
+            )
+            ->get();
 
-public function getSubcategories(Request $request , $categoryId)
-{
-   $subcategories = CategoryMaster::where('n_parent_category_id', $categoryId)
+        return response()->json([
+            'subcategories' => $subcategories,
+        ]);
+    }
+
+    /* public function getProducts(Request $request , $subcategoryId)
+    {
+       $products = ProductMaster::where('n_category_id', $subcategoryId)
         ->where('c_status', 'Y')
-        ->select(
-            'n_category_id',
-            'n_parent_category_id',
-            'c_category_name',
-        )
-        ->get();
-
-    return response()->json([
-        'subcategories' => $subcategories
-    ]);
-}
-
-/* public function getProducts(Request $request , $subcategoryId)
-{
-   $products = ProductMaster::where('n_category_id', $subcategoryId)
-    ->where('c_status', 'Y')
-    ->select('n_product_id','c_product_name')
-    ->distinct()
-    ->orderBy('c_product_name')
-    ->get();
-
-    return response()->json([
-        'products' => $products
-    ]);
-} */
-
-public function getProducts(Request $request, $subcategoryId)
-{
-    $products = ProductMaster::where('n_category_id', $subcategoryId)
-        ->where('c_status', 'Y')
-        ->selectRaw('MIN(n_product_id) as n_product_id, c_product_name')
-        ->groupBy('c_product_name')
+        ->select('n_product_id','c_product_name')
+        ->distinct()
         ->orderBy('c_product_name')
         ->get();
 
-    return response()->json([
-        'products' => $products
-    ]);
-}
+        return response()->json([
+            'products' => $products
+        ]);
+    } */
 
-public function getAttributesFromProductname(Request $request , $productId)
-{
-   $productAttributes=ProductMaster::where('n_product_id', $productId)
-        ->where('c_status', 'Y')
-        ->select(
-            'n_product_id',
-            'c_hsn_code',
-            'n_gst_percentage',
-            'n_mrp'
-        )
-        ->first();
+    public function getProducts(Request $request, $subcategoryId)
+    {
+        $products = ProductMaster::where('n_category_id', $subcategoryId)
+            ->where('c_status', 'Y')
+            ->selectRaw('MIN(n_product_id) as n_product_id, c_product_name')
+            ->groupBy('c_product_name')
+            ->orderBy('c_product_name')
+            ->get();
 
-    return response()->json(
-        $productAttributes
-    );
-}
+        return response()->json([
+            'products' => $products,
+        ]);
+    }
 
+    public function getAttributesFromProductname(Request $request, $productId)
+    {
+        $productAttributes = ProductMaster::where('n_product_id', $productId)
+            ->where('c_status', 'Y')
+            ->select(
+                'n_product_id',
+                'c_hsn_code',
+                'n_gst_percentage',
+                'n_mrp'
+            )
+            ->first();
 
+        return response()->json(
+            $productAttributes
+        );
+    }
 
-public function getProductPackSize(Request $request, $productName)
-{
+    public function getProductPackSize(Request $request, $productName)
+    {
 
-    $units = ProductMaster::where('c_product_name', $productName)
-        ->where('c_status', 'Y')
-        ->whereNotNull('c_unit')
-        ->where('c_unit', '!=', '')
-        ->select(
-            'c_unit',
-        )
-        ->get();
+        $units = ProductMaster::where('c_product_name', $productName)
+            ->where('c_status', 'Y')
+            ->whereNotNull('c_unit')
+            ->where('c_unit', '!=', '')
+            ->select(
+                'c_unit',
+            )
+            ->get();
 
-    return response()->json([
-        'units' => $units
-    ]);
-}
+        return response()->json([
+            'units' => $units,
+        ]);
+    }
 
-public function getProductAttributes(Request $request, $productName,$packSize){
+    public function getProductAttributes(Request $request, $productName, $packSize)
+    {
 
-       $productAttributes=ProductMaster::where('c_product_name', $productName)
-        ->where('c_unit', $packSize)
-        ->where('c_status', 'Y')
-        ->whereNotNull('c_unit')
-        ->select(
-            'n_product_id',
-            'c_hsn_code',
-            'n_gst_percentage',
-            'n_mrp'
-        )
-        ->first();
+        $productAttributes = ProductMaster::where('c_product_name', $productName)
+            ->where('c_unit', $packSize)
+            ->where('c_status', 'Y')
+            ->whereNotNull('c_unit')
+            ->select(
+                'n_product_id',
+                'c_hsn_code',
+                'n_gst_percentage',
+                'n_mrp'
+            )
+            ->first();
 
-    return response()->json(
-        $productAttributes
-    );
-}
-
-
+        return response()->json(
+            $productAttributes
+        );
+    }
 }

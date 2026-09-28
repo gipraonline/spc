@@ -68,7 +68,7 @@ class StoreController extends Controller
         }
 
         $stores = $stores
-            ->orderBy('n_store_id', 'desc')
+            ->orderBy('n_store_id', 'asc')
             ->paginate(15);
 
         // ALWAYS load states

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Hr;
 
-
 use App\Models\Hr\Department;
 use App\Models\Hr\LeaveRequest;
 use App\Models\Hr\LeaveType;
@@ -131,7 +130,7 @@ class LeaveController extends Controller
         abort_unless($employee && $this->currentRole() !== 'super_admin', 403);
 
         $data = $request->validate([
-            'leave_type_id' => 'required|exists:leave_types,id',
+            'leave_type_id' => 'required|exists:spc_hr.leave_types,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'nullable|string|max:255',

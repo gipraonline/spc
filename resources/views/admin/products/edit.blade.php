@@ -3,8 +3,8 @@
 @section('content')
 <style>
 :root {
-    --primary-green: #1b3e86;
-    --accent-orange: #F7941E;
+    --primary-green: #5E8D3D;
+    --accent-orange: #7CA243;
     --bg-light: #fbfbfb;
     --text-dark: #2d3436;
     --border-color: #e9ecef;
@@ -66,7 +66,7 @@
 .form-select:focus {
     border-color: var(--primary-green);
     background-color: #fff;
-    box-shadow: 0 0 0 4px rgba(57, 181, 74, 0.08);
+    box-shadow: 0 0 0 4px rgba(94, 141, 61, 0.08);
 }
 
 /* Incentive Split Styling */
@@ -122,11 +122,11 @@
     font-weight: 700;
     color: #fff;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(57, 181, 74, 0.2);
+    box-shadow: 0 4px 12px rgba(94, 141, 61, 0.2);
 }
 
 .btn-update-item:hover {
-    background: #1b3e86;
+    background: #1F5C2E;
     transform: translateY(-2px);
 }
 

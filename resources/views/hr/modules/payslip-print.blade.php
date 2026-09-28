@@ -6,7 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root{
-            --brand:#146C4E; --brand-strong:#0A3D2C; --brand-soft:#E4F3EB;
+            --brand:#4E7A33; --brand-strong:#1F3D14; --brand-soft:#E4F3EB;
             --line:rgba(18,58,40,0.14); --text:#22352C; --text-dim:#61756B;
             --sans:'Outfit',-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
             --head:'Kanit',sans-serif;

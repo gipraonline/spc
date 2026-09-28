@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign in · SPC Universal HR</title>
+    <title>Sign in · SPC Universal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
     :root{
-      --brand:#146C4E; --brand-ink:#0A3D2C; --brand-bright:#1FA97A;
+      --brand:#4E7A33; --brand-ink:#1F3D14; --brand-bright:#5E8D3D;
       --brand-soft:#E4F3EB; --brand-softer:#F2F9F5;
       --text:#22352C; --text-muted:#61756B;
       --font-head:'Kanit',sans-serif; --font-body:'Outfit',sans-serif;
@@ -19,24 +19,27 @@
     body{
       margin:0;font-family:var(--font-body);color:var(--text);min-height:100vh;
       background:
-        radial-gradient(900px 500px at 105% -12%, rgba(31,169,122,0.14), transparent 60%),
+        radial-gradient(900px 500px at 105% -12%, rgba(94,141,61,0.14), transparent 60%),
         radial-gradient(700px 460px at -12% 110%, rgba(20,108,78,0.10), transparent 58%),
         linear-gradient(160deg,#F4FAF6 0%,#EAF4EE 55%,#F6FBF8 100%);
       -webkit-font-smoothing:antialiased;
       display:flex;flex-direction:column;
     }
     .deco{position:fixed;border-radius:34%;pointer-events:none;z-index:0;}
-    .deco-1{width:180px;height:180px;top:-56px;right:14%;background:linear-gradient(135deg,rgba(43,192,141,.2),rgba(43,192,141,.05));transform:rotate(18deg);}
-    .deco-2{width:110px;height:110px;bottom:12%;left:-38px;background:linear-gradient(135deg,rgba(31,169,122,.16),transparent);transform:rotate(-12deg);}
-    .deco-3{width:64px;height:64px;top:22%;left:38%;border:1.5px solid rgba(31,169,122,.22);border-radius:50%;}
-    .deco-4{width:16px;height:16px;top:64%;right:30%;background:#2BC08D;border-radius:50%;opacity:.5;}
+    .deco-1{width:180px;height:180px;top:-56px;right:14%;background:linear-gradient(135deg,rgba(124,162,67,.2),rgba(124,162,67,.05));transform:rotate(18deg);}
+    .deco-2{width:110px;height:110px;bottom:12%;left:-38px;background:linear-gradient(135deg,rgba(94,141,61,.16),transparent);transform:rotate(-12deg);}
+    .deco-3{width:64px;height:64px;top:22%;left:38%;border:1.5px solid rgba(94,141,61,.22);border-radius:50%;}
+    .deco-4{width:16px;height:16px;top:64%;right:30%;background:#7CA243;border-radius:50%;opacity:.5;}
 
     .top-brand{display:flex;align-items:center;gap:12px;padding:26px 42px 0;position:relative;z-index:2;}
     .top-brand img{height:25px;width:auto;max-width:150px;object-fit:contain;filter:brightness(0) invert(1) drop-shadow(0 4px 10px rgba(10,61,44,.35));}
     .top-brand .logo-tile{
       height:46px;padding:0 15px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-      background:linear-gradient(135deg,#0E5239,#08301F);box-shadow:0 12px 24px -10px rgba(8,48,31,.55);
+      background:linear-gradient(135deg,#3E6B2A,#12290F);box-shadow:0 12px 24px -10px rgba(8,48,31,.55);
     }
+    /* Wordmark tile variant for when no image logo is available */
+    .top-brand .logo-word{font-family:var(--font-head);font-size:15px;font-weight:700;color:#fff;letter-spacing:.04em;}
+    .top-brand .logo-word i{color:#A8CB6A;margin-right:6px;}
     .top-brand b{display:block;font-family:var(--font-head);font-size:16px;font-weight:600;color:var(--brand-ink);line-height:1.2;}
     .top-brand span{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--brand-bright);}
 
@@ -45,8 +48,8 @@
     .pitch{max-width:520px;}
     .pitch-pill{
       display:inline-flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
-      color:var(--brand);background:#fff;border:1px solid rgba(31,169,122,.3);border-radius:99px;padding:8px 15px;
-      box-shadow:0 8px 20px -12px rgba(31,169,122,.4);margin-bottom:22px;
+      color:var(--brand);background:#fff;border:1px solid rgba(94,141,61,.3);border-radius:99px;padding:8px 15px;
+      box-shadow:0 8px 20px -12px rgba(94,141,61,.4);margin-bottom:22px;
     }
     .pitch-pill i{font-size:11px;}
     .pitch h1{font-family:var(--font-head);font-weight:600;font-size:38px;line-height:1.16;color:var(--brand-ink);margin:0 0 16px;letter-spacing:.005em;}
@@ -70,9 +73,11 @@
     }
     .card-logo{
       width:128px;height:60px;border-radius:18px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
-      background:linear-gradient(135deg,#0E5239,#08301F);box-shadow:0 16px 30px -12px rgba(8,48,31,.6), inset 0 1.5px 0 rgba(255,255,255,.18);
+      background:linear-gradient(135deg,#3E6B2A,#12290F);box-shadow:0 16px 30px -12px rgba(8,48,31,.6), inset 0 1.5px 0 rgba(255,255,255,.18);
     }
     .card-logo img{height:30px;width:auto;max-width:98px;object-fit:contain;filter:brightness(0) invert(1);}
+    .card-logo .logo-word{font-family:var(--font-head);font-size:17px;font-weight:700;color:#fff;letter-spacing:.04em;}
+    .card-logo .logo-word i{color:#A8CB6A;margin-right:7px;}
     .card h2{font-family:var(--font-head);font-weight:600;font-size:22px;color:var(--brand-ink);text-align:center;margin:0 0 4px;}
     .card .card-sub{text-align:center;font-size:12.5px;color:var(--text-muted);margin:0 0 24px;}
 
@@ -84,7 +89,7 @@
       padding:11.5px 14px 11.5px 40px;border:1px solid rgba(18,58,40,.16);border-radius:12px;background:#FBFDFC;outline:none;
       transition:border-color .15s,background .15s,box-shadow .15s;
     }
-    .input-wrap input:focus{border-color:var(--brand-bright);background:#fff;box-shadow:0 0 0 3.5px rgba(31,169,122,.14);}
+    .input-wrap input:focus{border-color:var(--brand-bright);background:#fff;box-shadow:0 0 0 3.5px rgba(94,141,61,.14);}
     .input-wrap input::placeholder{color:#A5B8AD;}
 
     .row-between{display:flex;align-items:center;justify-content:space-between;margin:2px 0 18px;}
@@ -94,19 +99,19 @@
 
     .btn-primary{
       width:100%;display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      background:linear-gradient(135deg,#1FA97A,#0E6B4B);color:#fff;border:none;border-radius:13px;
+      background:linear-gradient(135deg,#5E8D3D,#1F5C2E);color:#fff;border:none;border-radius:13px;
       padding:13px 18px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.01em;
-      box-shadow:0 16px 30px -12px rgba(31,169,122,.6), inset 0 1.5px 0 rgba(255,255,255,.25);
+      box-shadow:0 16px 30px -12px rgba(94,141,61,.6), inset 0 1.5px 0 rgba(255,255,255,.25);
       transition:filter .15s,transform .1s;
     }
     .btn-primary:hover{filter:brightness(1.07);}
     .btn-primary:active{transform:translateY(1px);}
     .demo-hint{
       display:flex;align-items:center;justify-content:center;gap:7px;font-size:11.5px;color:var(--brand-ink);
-      background:var(--brand-softer);border:1px dashed rgba(31,169,122,.45);border-radius:10px;padding:8px 10px;margin:14px 0 12px;
+      background:var(--brand-softer);border:1px dashed rgba(94,141,61,.45);border-radius:10px;padding:8px 10px;margin:14px 0 12px;
     }
     .demo-hint i{color:var(--brand-bright);}
-    .demo-hint code{font-family:ui-monospace,monospace;font-weight:600;background:#fff;padding:1px 6px;border-radius:6px;border:1px solid rgba(31,169,122,.3);}
+    .demo-hint code{font-family:ui-monospace,monospace;font-weight:600;background:#fff;padding:1px 6px;border-radius:6px;border:1px solid rgba(94,141,61,.3);}
     .card-foot{margin-top:18px;text-align:center;font-size:11px;color:#9AB0A5;}
     .card-foot a{color:var(--brand);font-weight:600;text-decoration:none;}
 
@@ -145,7 +150,7 @@
     <div class="deco deco-4"></div>
 
     <div class="top-brand">
-        <div class="logo-tile"><img src="{{ asset('images/spc-logo.png') }}" alt="SPC Universal"></div>
+        <div class="logo-tile"><span class="logo-word"><i class="fa-solid fa-layer-group"></i>SPC</span></div>
         <div>
             <b>SPC Universal</b>
             <span>HR Management Suite</span>
@@ -179,7 +184,7 @@
             @endif
 
             <div class="card">
-                <div class="card-logo"><img src="{{ asset('images/spc-logo.png') }}" alt="SPC"></div>
+                <div class="card-logo"><span class="logo-word"><i class="fa-solid fa-layer-group"></i>SPC</span></div>
                 <h2>SPC Portal</h2>
                 <p class="card-sub">Secure HR Access &middot; Management System</p>
                 <form method="POST" action="{{ route('hr.login.submit') }}">

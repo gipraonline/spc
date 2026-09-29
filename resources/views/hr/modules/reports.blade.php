@@ -93,12 +93,12 @@
                     </div>
                     @php
                         $maxPayroll = max(1, $payrollByDept->max('gross'));
-                        $barTones = ['#1FA97A','#2BC08D','#5CCFA6','#8CDfC1','#B8E8D6'];
+                        $barTones = ['#5E8D3D','#7CA243','#5CCFA6','#8CDfC1','#B8E8D6'];
                     @endphp
                     @foreach($payrollByDept as $d)
                         <div class="bar-row">
                             <span class="bar-label">{{ $d->department }}</span>
-                            <div class="bar-track"><div class="bar-fill" style="width:{{ round($d->gross / $maxPayroll * 100) }}%;background:linear-gradient(90deg,#0E6B4B,{{ $barTones[$loop->index % 5] }});"></div></div>
+                            <div class="bar-track"><div class="bar-fill" style="width:{{ round($d->gross / $maxPayroll * 100) }}%;background:linear-gradient(90deg,#1F5C2E,{{ $barTones[$loop->index % 5] }});"></div></div>
                             <span class="bar-value">₹{{ number_format($d->gross,0) }}</span>
                         </div>
                     @endforeach

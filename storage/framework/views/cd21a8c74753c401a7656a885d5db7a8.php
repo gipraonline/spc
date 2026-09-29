@@ -93,6 +93,50 @@ endif;
 unset($__errorArgs, $__bag); ?>
             </div>
 
+            <div class="mb-4">
+                <label class="form-label fw-semibold">
+                    HR Portal Access
+                </label>
+
+                <?php $hrAccess = old('hr_access', $role->hr_access); ?>
+                <select name="hr_access" class="form-select">
+                    <option value="" <?php echo e($hrAccess ? '' : 'selected'); ?>>
+                        Not set (based on reporting structure)
+                    </option>
+                    <option value="super_admin" <?php echo e($hrAccess === 'super_admin' ? 'selected' : ''); ?>>
+                        Super Admin
+                    </option>
+                    <option value="hr_admin" <?php echo e($hrAccess === 'hr_admin' ? 'selected' : ''); ?>>
+                        HR Admin
+                    </option>
+                    <option value="manager" <?php echo e($hrAccess === 'manager' ? 'selected' : ''); ?>>
+                        Reporting Manager
+                    </option>
+                    <option value="employee" <?php echo e($hrAccess === 'employee' ? 'selected' : ''); ?>>
+                        Employee
+                    </option>
+                </select>
+
+                <small class="text-muted d-block mt-1">
+                    The level of access anyone holding this role gets inside the HR module. Leave as
+                    "Not set" to fall back to whether they have direct reports in SPC.
+                </small>
+
+                <?php $__errorArgs = ['hr_access'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                <small class="text-danger">
+                    <?php echo e($message); ?>
+
+                </small>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+            </div>
+
             <hr>
 
             

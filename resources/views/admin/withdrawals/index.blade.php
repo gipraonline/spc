@@ -10,7 +10,7 @@
     --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-border: rgba(255, 255, 255, 0.4);
     --premium-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
-    --accent-success: #10b981;
+    --accent-success: #A8CB6A;
     --accent-warning: #f59e0b;
     --accent-danger: #ef4444;
     --text-dark: #1e293b;
@@ -708,7 +708,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .text-success {
-    color: #10b981;
+    color: #A8CB6A;
 }
 
 .bg-indigo {

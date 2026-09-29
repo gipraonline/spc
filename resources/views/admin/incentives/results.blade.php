@@ -3,9 +3,9 @@
 @section('content')
 <style>
     :root {
-        --primary-green: #1b3e86;
-        --accent-orange: #1b3e86;
-        --deep-blue: #1b3e86;
+        --primary-green: #5E8D3D;
+        --accent-orange: #5E8D3D;
+        --deep-blue: #5E8D3D;
         --bg-light: #f8f9fa;
         --border-radius: 12px;
         --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);

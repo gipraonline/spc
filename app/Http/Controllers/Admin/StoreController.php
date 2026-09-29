@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\TableExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\Panchayath;
@@ -35,7 +37,11 @@ class StoreController extends Controller
         return redirect()->route('admin.franchises.index');
     }
 
-    public function index(Request $request)
+    /**
+     * Franchise list query with the search / state / district / panchayath
+     * filters. Shared by the list page and the Excel export.
+     */
+    private function filteredStores()
     {
         $search = session('store_search');
         $stateId = session('store_state_id');
@@ -67,8 +73,55 @@ class StoreController extends Controller
             $stores->where('n_district_id', $districtId);
         }
 
+        return $stores;
+    }
+
+    public function export()
+    {
+        $stores = $this->filteredStores()
+            ->orderBy('n_store_id', 'asc')
+            ->get();
+
+        $rows = [];
+        $i = 0;
+        foreach ($stores as $st) {
+            $rows[] = [
+                ++$i,
+                $st->c_store_code,
+                $st->c_store_name,
+                $st->c_owner_name,
+                $st->n_store_phone,
+                $st->c_store_email,
+                $st->c_store_address,
+                $st->state?->name,
+                $st->district?->district_name,
+                $st->panchayath?->panchayath_name,
+                $st->latitude,
+                $st->longitude,
+                $st->c_store_status === 'Y' ? 'Active' : 'Inactive',
+            ];
+        }
+
+        return Excel::download(
+            new TableExport(
+                ['Sl No', 'Franchise Code', 'Franchise Name', 'Owner', 'Phone', 'Email', 'Address',
+                    'State', 'District', 'Panchayath', 'Latitude', 'Longitude', 'Status'],
+                $rows,
+                ['B', 'E', 'K', 'L']
+            ),
+            'franchises-'.now()->format('Ymd-His').'.xlsx'
+        );
+    }
+
+    public function index(Request $request)
+    {
+        $stateId = session('store_state_id');
+        $districtId = session('store_district_id');
+
+        $stores = $this->filteredStores();
+
         $stores = $stores
-            ->orderBy('n_store_id', 'desc')
+            ->orderBy('n_store_id', 'asc')
             ->paginate(15);
 
         // ALWAYS load states

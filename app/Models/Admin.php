@@ -36,7 +36,9 @@ class Admin extends Authenticatable
     ];
 
     protected $casts = [
-        'initial_password' => 'encrypted',
+        // Fail-safe encrypted cast: legacy rows written under a previous
+        // APP_KEY read as null instead of throwing DecryptException.
+        'initial_password' => \App\Casts\EncryptedNullable::class,
         'initial_password_expires_at' => 'datetime',
     ];
 

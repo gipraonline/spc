@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Hr;
 
-
 use App\Models\Hr\AuditLog;
 use App\Models\Hr\User;
 use Illuminate\Http\Request;

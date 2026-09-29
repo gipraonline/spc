@@ -88,6 +88,11 @@
             'add-sale',
             'follow-up',
 
+            //Employee Records
+            'profile',
+            'history',
+
+
             // Dashboard Cards
             'employees-card',
             'stores-card',

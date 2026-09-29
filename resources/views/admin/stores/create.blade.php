@@ -1,227 +1,379 @@
 @extends('layouts.app')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 
 <style>
-#map {
-    width: 100%;
-    height: 450px;
-    margin-top: 20px;
-    border-radius: 15px;
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
+/* ===== Add / Edit Franchise — same visual language as the Employee Records module ===== */
+.employee-page.efp {
+    --brand: #4E7A33;
+    --brand-strong: #0E5239;
+    --brand-ink: #1F3D14;
+    --brand-bright: #5E8D3D;
+    --brand-glow: rgba(94, 141, 61, .35);
+    --brand-soft: #E4F3EB;
+    --brand-softer: #F2F9F5;
+    --line: rgba(18, 58, 40, 0.13);
+    --line-soft: rgba(18, 58, 40, 0.07);
+    --text: #22352C;
+    --text-muted: #61756B;
+    --bad: #C23A3A;
+    --shadow-sm: 0 1px 2px rgba(10, 61, 44, .05);
+    --font-head: 'Kanit', sans-serif;
+    --font-body: 'Outfit', sans-serif;
+    padding: 24px clamp(16px, 3vw, 32px) 8px;
+    font-family: var(--font-body);
+    color: var(--text);
 }
 
-.leaflet-control-geocoder {
-    width: 300px;
-}
-
-.leaflet-control-geocoder-form input {
-    width: 250px;
-}
-
-/* Premium Design Tokens */
-:root {
-    --primary-green: #1b3e86;
-    --accent-orange: #F7941E;
-    --deep-slate: #1e293b;
-    --glass-bg: #fdfdfe;
-    --input-border: #e2e8f0;
-    --border-radius-lg: 18px;
-    --card-shadow: 0 15px 35px rgba(0, 0, 0, 0.04), 0 5px 15px rgba(0, 0, 0, 0.02);
-}
-
-/* Architectural Layout */
-.premium-form-card {
-    background: #ffffff;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--card-shadow);
-    overflow: hidden;
-    position: relative;
-}
-
-/* Signature Accent Line */
-.premium-form-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: linear-gradient(90deg, var(--primary-green) 0%, #51cf66 100%);
-    z-index: 10;
-}
-
-.card-header-premium {
-    padding: 2.2rem 2.5rem 1.2rem;
-    background: #fff;
-    border-bottom: none;
-}
-
-.page-main-title {
-    font-weight: 800;
-    font-size: 1.4rem;
-    color: var(--deep-slate);
-    letter-spacing: -0.8px;
-}
-
-/* Sectional Typography */
-.field-group-title {
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: var(--primary-green);
-    letter-spacing: 1.5px;
-    margin-bottom: 1.4rem;
+/* Page heading */
+.efp .employee-page-heading { margin-bottom: 18px; }
+.efp .employee-page-heading h2 {
+    margin: 0;
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 21px;
+    color: var(--brand-ink);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+}
+.efp .employee-page-heading h2 i {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+.efp .employee-page-heading p { margin: 5px 0 0; color: var(--text-muted); font-size: 13px; }
+
+/* Split card */
+.efp-card {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
 }
 
-.field-group-title::after {
-    content: '';
-    height: 1px;
-    flex: 1;
-    background: linear-gradient(90deg, #f1f5f9 0%, transparent 100%);
-}
-
-/* Modern Inputs */
-.form-label {
-    font-weight: 700;
-    color: #475569;
-    font-size: 0.85rem;
-    margin-bottom: 0.6rem;
-}
-
-.form-control,
-.form-select {
-    border-radius: 12px;
-    padding: 0.85rem 1.1rem;
-
-    background-color: #f8fafc;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 500;
-    color: var(--deep-slate);
-}
-
-.form-control:focus,
-.form-select:focus {
-    border-color: var(--primary-green);
-    background-color: #ffffff;
-    box-shadow: 0 8px 20px rgba(57, 181, 74, 0.08);
-    transform: translateY(-1px);
-}
-
-/* Validation Messages */
-.text-danger.fs-2 {
-    font-weight: 600;
-    font-size: 0.75rem !important;
-    padding-left: 4px;
-    letter-spacing: 0.2px;
-}
-
-/* Action Buttons */
-.btn-create-action {
-    background: var(--primary-green);
-    border: none;
-    padding: 14px 40px;
-    border-radius: 12px;
-    font-weight: 800;
+/* Left panel */
+.efp-side {
+    background: linear-gradient(160deg, #0E5239 0%, #1F5C2E 55%, #4E7A33 125%);
     color: #fff;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 20px rgba(57, 181, 74, 0.15);
+    padding: 28px 22px;
+}
+.efp-side-inner { position: sticky; top: 24px; }
+.efp-side-ico {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-left: 4px;
+}
+.efp-side h3 {
+    margin: 16px 4px 6px;
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #fff;
+    word-break: break-word;
+}
+.efp-side p { margin: 0 4px; font-size: 13px; line-height: 1.55; color: rgba(255, 255, 255, .78); }
+.efp-steps { margin-top: 22px; display: grid; gap: 2px; }
+.efp-step {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, .9);
+    text-decoration: none;
+}
+.efp-step:hover { background: rgba(255, 255, 255, .09); color: #fff; }
+.efp-step .num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .16);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+/* Form body */
+.efp-body { padding: 26px 30px 0; background: #fff; min-width: 0; margin: 0; }
+.efp-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--brand-softer);
+    border: 1px solid var(--line-soft);
+    color: var(--brand-ink);
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin-bottom: 22px;
+}
+.efp-note i { color: var(--brand); font-size: 16px; margin-top: 1px; }
+.efp-alert {
+    background: #FBE7E4;
+    border: 1px solid rgba(194, 58, 58, .25);
+    color: #942B2B;
+    border-radius: 12px;
+    padding: 11px 14px 11px 18px;
+    font-size: 12.5px;
+    margin-bottom: 22px;
+}
+.efp-alert ul { margin: 0; padding-left: 16px; }
+
+.efp-section {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-family: var(--font-head);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--brand);
+    margin: 4px 0 14px;
+    scroll-margin-top: 20px;
 }
+.efp-section i { font-size: 16px; }
+.efp-section::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
 
-.btn-create-action:hover {
-    background: #1b3e86;
-    box-shadow: 0 12px 25px rgba(57, 181, 74, 0.25);
-    transform: translateY(-2px);
+.efp-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
+    margin-bottom: 26px;
 }
+.efp-field { min-width: 0; }
+.efp-field.full { grid-column: 1 / -1; }
+.efp-field > label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #3B5246;
+    margin-bottom: 6px;
+}
+.efp-field > label i { color: var(--brand); font-size: 15px; }
 
-.btn-cancel-action {
+.efp-field .form-control,
+.efp-field .form-select {
+    height: 42px;
+    border: 1px solid var(--line);
     border-radius: 12px;
-    padding: 14px 30px;
-    font-weight: 700;
-    border: 2px solid #f1f5f9;
-    color: #64748b;
-    transition: all 0.2s ease;
+    padding: 0 12px;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 400;
+    color: var(--text);
+    background-color: #FBFDFC;
+    box-shadow: none;
+    transition: border-color .2s, box-shadow .2s, background-color .2s;
+}
+.efp-field .form-select { padding-right: 34px; }
+.efp-field textarea.form-control { height: auto; min-height: 92px; padding: 10px 12px; resize: vertical; }
+.efp-field .form-control::placeholder { color: #98A9A0; }
+.efp-field .form-control:focus,
+.efp-field .form-select:focus {
+    border-color: var(--brand-bright);
+    background-color: #fff;
+    box-shadow: 0 0 0 3.5px rgba(94, 141, 61, .14);
+    outline: 0;
+}
+.efp-field .form-control:disabled,
+.efp-field .form-control[readonly] {
+    background-color: #F1F5F2;
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+.efp-field .form-control.is-invalid,
+.efp-field .form-select.is-invalid { border-color: var(--bad); }
+.efp-hint { display: block; margin-top: 5px; font-size: 11.5px; color: var(--text-muted); }
+.efp-err { margin-top: 5px; font-size: 12px; }
+
+/* Footer */
+.efp-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 16px 0 22px;
+    border-top: 1px solid var(--line-soft);
+}
+.efp-hint-secure {
+    margin-right: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.efp-btn {
+    height: 41px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid transparent;
+    line-height: 1;
+}
+.efp-btn-secondary { background: var(--brand-softer); color: var(--brand); border-color: var(--line); }
+.efp-btn-secondary:hover { background: var(--brand-soft); color: var(--brand-strong); }
+.efp-btn-primary {
+    background: linear-gradient(135deg, #5E8D3D, #1F5C2E);
+    color: #fff;
+    box-shadow: 0 10px 20px -10px var(--brand-glow);
+}
+.efp-btn-primary:hover { filter: brightness(1.07); color: #fff; }
+
+@media (max-width: 992px) {
+    .efp-card { grid-template-columns: 1fr; }
+    .efp-side { padding: 22px 20px; }
+    .efp-side-inner { position: static; }
+    .efp-steps { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+}
+@media (max-width: 640px) {
+    .efp-grid { grid-template-columns: 1fr; }
+    .efp-body { padding: 20px 18px 0; }
 }
 
-.btn-cancel-action:hover {
-    background: #f1f5f9;
-    color: #475569;
+/* 6-column grid so 2 / 3 / 6 wide fields can share rows */
+.efp-grid-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.efp-grid-6 > * { grid-column: span 6; }
+.efp-grid-6 > .span-3 { grid-column: span 3; }
+.efp-grid-6 > .span-2 { grid-column: span 2; }
+.efp-err:empty { display: none; }
+.efp-field-action { display: flex; align-items: flex-end; }
+.efp-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.efp .location-status { font-size: 12.5px; font-weight: 500; }
+
+/* Leaflet map containers (ids used by the page scripts) */
+#map,
+#franchiseMap {
+    width: 100%;
+    height: 400px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.leaflet-control-geocoder { width: 300px; }
+.leaflet-control-geocoder-form input { width: 250px; }
+
+@media (max-width: 1200px) {
+    .efp-grid-6 > .span-2 { grid-column: span 3; }
+}
+@media (max-width: 640px) {
+    .efp-grid-6 > *,
+    .efp-grid-6 > .span-2,
+    .efp-grid-6 > .span-3 { grid-column: 1 / -1; }
 }
 </style>
-
 @endpush
 
 @section('content')
-
-<div class="card premium-form-card mb-4">
-    <div class="card-header-premium">
-        <h5 class="page-main-title mb-0">Add Franchise</h5>
+<div class="employee-page efp">
+    <div class="employee-page-heading">
+        <h2><i class="ti ti-building-store"></i>Add Franchise</h2>
+        <p>Fill in the details below to add a new franchise.</p>
     </div>
 
-    <div class="card-body p-4 p-md-5 pt-md-4">
-        <form id="frm_create" method="POST" action="{{ route('admin.franchises.store') }}">
+    <div class="efp-card">
+        <aside class="efp-side">
+            <div class="efp-side-inner">
+                <div class="efp-side-ico"><i class="ti ti-building-store"></i></div>
+                <h3>Set up a franchise</h3>
+                <p>Create the franchise record with its owner, location and contact details.</p>
+                <div class="efp-steps">
+                    <a href="#sec-identity" class="efp-step"><span class="num">1</span>Identity & location</a>
+                    <a href="#sec-gps" class="efp-step"><span class="num">2</span>Franchise GPS location</a>
+                    <a href="#sec-contact" class="efp-step"><span class="num">3</span>Contact & availability</a>
+                </div>
+            </div>
+        </aside>
+
+        <form id="frm_create" method="POST" action="{{ route('admin.franchises.store') }}" class="efp-body">
             @csrf
 
-            <!-- Section 1: Record Identity -->
-            <div class="field-group-title">
-                <i class="ti ti-id-badge-2 fs-5"></i> Identity & Location
-            </div>
+            <div class="efp-note"><i class="ti ti-info-circle"></i>Use Select Location to pin the franchise on the map and fill in its latitude and longitude.</div>
 
-            <div class="row g-4 mb-4">
-                <div class="col-md-5">
-                    <label for="c_store_code" class="form-label">Franchise Code *</label>
+            <!-- Section 1: Record Identity -->
+            <div class="efp-section" id="sec-identity"><i class="ti ti-id-badge-2"></i>Identity & Location</div>
+            <div class="efp-grid efp-grid-6">
+                <div class="efp-field span-3">
+                    <label for="c_store_code"><i class="ti ti-barcode"></i>Franchise Code *</label>
                     <input type="text" id="c_store_code" data-message="Enter valid Store Code" name="c_store_code"
                         value="{{ old('c_store_code') }}" max-length="20" class="form-control mandatory"
                         placeholder="e.g. SPC-001">
                     @error('c_store_code')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-7">
-                    <label for="c_store_name" class="form-label">Franchise Name *</label>
+                <div class="efp-field span-3">
+                    <label for="c_store_name"><i class="ti ti-building-store"></i>Franchise Name *</label>
                     <input type="text" id="c_store_name" data-message="Please enter Name" name="c_store_name"
                         value="{{ old('c_store_name') }}" maxlength="100" pattern="[A-Za-z0-9\s\-]+"
                         class="form-control mandatory" placeholder="Legal Franchise name">
                     @error('c_store_name')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
-                {{-- Owner Name --}}
-                <div class="col-md-6">
-                    <label for="c_owner_name" class="form-label">Owner Name *</label>
+
+                <div class="efp-field">
+                    <label for="c_owner_name"><i class="ti ti-user"></i>Owner Name *</label>
                     <input type="text" id="c_owner_name" name="c_owner_name" value="{{ old('c_owner_name') }}"
                         maxlength="100" class="form-control mandatory" placeholder="Enter Owner Name">
-
                     @error('c_owner_name')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-12">
-                    <label for="c_store_address" class="form-label">Address</label>
+
+                <div class="efp-field">
+                    <label for="c_store_address"><i class="ti ti-map-pin"></i>Address</label>
                     <input type="text" id="c_store_address" name="c_store_address" value="{{ old('c_store_address') }}"
                         maxlength="255" class="form-control" placeholder="Street, Building, Area...">
                     @error('c_store_address')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
-            </div>
 
-            <!-- <div class="row g-4 mb-4">
-
-                <div class="col-md-6">
-                    <label for="n_state_id" class="form-label">State *</label>
+                <div class="efp-field span-2">
+                    <label for="n_state_id"><i class="ti ti-map-2"></i>State *</label>
                     <select id="n_state_id" name="n_state_id" class="form-select mandatory">
                         <option value="">Select State</option>
                         @foreach($states as $state)
@@ -231,151 +383,84 @@
                         </option>
                         @endforeach
                     </select>
-
                     @error('n_state_id')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-6">
-                    <label for="n_district_id" class="form-label">District *</label>
+                <div class="efp-field span-2">
+                    <label for="n_district_id"><i class="ti ti-map"></i>District *</label>
                     <select id="n_district_id" name="n_district_id" class="form-select mandatory">
                         <option value="">Select District</option>
                     </select>
-
                     @error('n_district_id')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-            </div> -->
-            <div class="row g-4 mb-4">
-
-                {{-- State --}}
-                <div class="col-md-4">
-                    <label for="n_state_id" class="form-label">
-                        State *
-                    </label>
-
-                    <select id="n_state_id" name="n_state_id" class="form-select mandatory">
-
-                        <option value="">Select State</option>
-
-                        @foreach($states as $state)
-                        <option value="{{ $state->n_state_id }}"
-                            {{ old('n_state_id') == $state->n_state_id ? 'selected' : '' }}>
-                            {{ $state->name }}
-                        </option>
-                        @endforeach
-
-                    </select>
-
-                    @error('n_state_id')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
-                </div>
-
-
-                {{-- District --}}
-                <div class="col-md-4">
-                    <label for="n_district_id" class="form-label">
-                        District *
-                    </label>
-
-                    <select id="n_district_id" name="n_district_id" class="form-select mandatory">
-
-                        <option value="">Select District</option>
-
-                    </select>
-
-                    @error('n_district_id')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
-                    @enderror
-                </div>
-
-
-                {{-- Panchayath --}}
-                <div class="col-md-4">
-                    <label for="c_panchayath" class="form-label">Panchayath *</label>
-
+                <div class="efp-field span-2">
+                    <label for="c_panchayath"><i class="ti ti-building-community"></i>Panchayath *</label>
                     <input type="text" id="c_panchayath" name="c_panchayath" value="{{ old('c_panchayath') }}"
                         maxlength="100" class="form-control mandatory" placeholder="Enter Panchayath">
-
                     @error('c_panchayath')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
+            </div>
 
-                {{-- GPS Location --}}
-                <div class="field-group-title mt-5">
-                    <i class="ti ti-map-pin fs-5"></i>
-                    Franchise GPS Location
-                </div>
-
-                <div class="col-md-4">
-                    <label for="n_district_id" class="form-label">
-                        Latitude
-                    </label>
-
-                    <input type="text" id="latitude" id="latitude" name="latitude" value="{{ old('latitude') }}"
+            <!-- GPS Location -->
+            <div class="efp-section" id="sec-gps"><i class="ti ti-map-pin"></i>Franchise GPS Location</div>
+            <div class="efp-grid efp-grid-6">
+                <div class="efp-field span-2">
+                    <label for="latitude"><i class="ti ti-current-location"></i>Latitude</label>
+                    <input type="text" id="latitude" name="latitude" value="{{ old('latitude') }}"
                         maxlength="255" class="form-control mandatory" placeholder="Enter Latitude">
-
-
                     @error('latitude')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-4">
-                    <label for="longitude" class="form-label">
-                        Longitude
-                    </label>
-
-                    <input type="text" id="longitude" id="longitude" name="longitude" value="{{ old('longitude') }}"
+                <div class="efp-field span-2">
+                    <label for="longitude"><i class="ti ti-current-location"></i>Longitude</label>
+                    <input type="text" id="longitude" name="longitude" value="{{ old('longitude') }}"
                         maxlength="255" class="form-control mandatory" placeholder="Enter Longitude">
-
-
                     @error('longitude')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" id="openMapBtn" class="btn btn-primary" onclick="openMap()">
-                        Select Location
+                <div class="efp-field-action span-2">
+                    <button type="button" id="openMapBtn" class="efp-btn efp-btn-secondary" onclick="openMap()">
+                        <i class="ti ti-map-pin"></i>Select Location
                     </button>
                 </div>
-                <div id="map" style="height:400px; margin-top:20px; display:none;">
-                </div>
-            </div>
 
+                <div id="map" style="display:none;"></div>
+            </div>
 
             <!-- Section 2: Communication -->
-            <div class="field-group-title mt-5">
-                <i class="ti ti-mail-forward fs-5"></i> Contact & Availability
-            </div>
-
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <label for="c_store_email" class="form-label">Email</label>
+            <div class="efp-section" id="sec-contact"><i class="ti ti-mail-forward"></i>Contact & Availability</div>
+            <div class="efp-grid efp-grid-6">
+                <div class="efp-field span-2">
+                    <label for="c_store_email"><i class="ti ti-mail"></i>Email</label>
                     <input type="email" id="c_store_email" name="c_store_email" value="{{ old('c_store_email') }}"
                         class="form-control" placeholder="branch@spc.com">
                     @error('c_store_email')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-4">
-                    <label for="n_store_phone" class="form-label">Phone</label>
+                <div class="efp-field span-2">
+                    <label for="n_store_phone"><i class="ti ti-phone"></i>Phone</label>
                     <input type="text" id="n_store_phone" name="n_store_phone" value="{{ old('n_store_phone') }}"
                         max-length="10" class="form-control" placeholder="Contact number">
                     @error('n_store_phone')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-4">
-                    <label for="c_store_status" class="form-label">Status *</label>
+                <div class="efp-field span-2">
+                    <label for="c_store_status"><i class="ti ti-circle-half-2"></i>Status *</label>
                     <select id="c_store_status" data-message="Please select Status" name="c_store_status"
                         class="form-select mandatory">
                         <option value="">Select Status</option>
@@ -383,18 +468,17 @@
                         <option value="N" {{ old('c_store_status') === 'N' ? 'selected' : '' }}>Inactive</option>
                     </select>
                     @error('c_store_status')
-                    <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                    <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
 
-            <!-- Enhanced Action Bar -->
-            <div class="pt-4 border-top d-flex gap-3">
-                <button type="submit" id="btn_create" class="btn buttonSpc btn-create-action">
-                    <i class="ti ti-plus fs-4"></i> Create Franchise
+            <div class="efp-foot">
+                <span class="efp-hint-secure"><i class="ti ti-asterisk"></i>Fields marked * are required</span>
+                <a href="{{ route('admin.franchises.index') }}" class="efp-btn efp-btn-secondary">Cancel</a>
+                <button type="submit" id="btn_create" class="efp-btn efp-btn-primary">
+                    <i class="ti ti-plus"></i>Create Franchise
                 </button>
-                <a href="{{ route('admin.franchises.index') }}" class="btn btn-outline-secondary"
-                    style="--bs-btn-padding-y: 15px;">Cancel</a>
             </div>
         </form>
     </div>

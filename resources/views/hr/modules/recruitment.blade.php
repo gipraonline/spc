@@ -74,7 +74,7 @@
                 @foreach(['applied'=>'Applied','shortlisted'=>'Shortlisted','interviewed'=>'Interviewed','offered'=>'Offered','hired'=>'Hired'] as $stage => $label)
                     <div class="pipe-col">
                         <div class="pipe-head">
-                            <span class="ph-dot" style="background:{{ ['applied'=>'#8FA79B','shortlisted'=>'#1FA97A','interviewed'=>'#1D6FA5','offered'=>'#A16207','hired'=>'#0E5239'][$stage] }};"></span>
+                            <span class="ph-dot" style="background:{{ ['applied'=>'#8FA79B','shortlisted'=>'#5E8D3D','interviewed'=>'#1D6FA5','offered'=>'#A16207','hired'=>'#0E5239'][$stage] }};"></span>
                             <h4>{{ $label }}</h4>
                             <span>{{ ($pipeline[$stage] ?? collect())->count() }}</span>
                         </div>

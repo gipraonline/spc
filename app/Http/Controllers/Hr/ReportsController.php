@@ -25,10 +25,10 @@ class ReportsController extends Controller
         $appraisalTotal = \App\Models\Hr\Appraisal::count();
         $appraisalDone = \App\Models\Hr\Appraisal::where('status', 'completed')->count();
 
-        $latestRun = \App\Models\PayrollRun::orderByDesc('year')->orderByDesc('month')->first();
+        $latestRun = \App\Models\Hr\PayrollRun::orderByDesc('year')->orderByDesc('month')->first();
         $payrollByDept = collect();
         if ($latestRun) {
-            $payrollByDept = \App\Models\Payslip::where('payroll_run_id', $latestRun->id)
+            $payrollByDept = \App\Models\Hr\Payslip::where('payroll_run_id', $latestRun->id)
                 ->join('employees', 'employees.id', '=', 'payslips.employee_id')
                 ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
                 ->selectRaw('COALESCE(departments.name, "Unassigned") as department, sum(payslips.gross_pay) as gross')
@@ -49,14 +49,14 @@ class ReportsController extends Controller
             'appraisalDone' => $appraisalDone,
             'latestRun' => $latestRun,
             'payrollByDept' => $payrollByDept,
-            'presentToday' => \App\Models\Attendance::whereDate('attendance_date', $today)->whereIn('status', ['present', 'late'])->count(),
-            'lateToday' => \App\Models\Attendance::whereDate('attendance_date', $today)->where('status', 'late')->count(),
-            'wfhToday' => \App\Models\WfhRequest::where('status', 'approved')
+            'presentToday' => \App\Models\Hr\Attendance::whereDate('attendance_date', $today)->whereIn('status', ['present', 'late'])->count(),
+            'lateToday' => \App\Models\Hr\Attendance::whereDate('attendance_date', $today)->where('status', 'late')->count(),
+            'wfhToday' => \App\Models\Hr\WfhRequest::where('status', 'approved')
                 ->whereDate('start_date', '<=', $today)->whereDate('end_date', '>=', $today)->count(),
-            'onLeaveToday' => \App\Models\LeaveRequest::where('status', 'approved')
+            'onLeaveToday' => \App\Models\Hr\LeaveRequest::where('status', 'approved')
                 ->whereDate('start_date', '<=', $today)->whereDate('end_date', '>=', $today)->count(),
-            'leavePending' => \App\Models\LeaveRequest::where('status', 'pending')->count(),
-            'openRequisitions' => \App\Models\JobRequisition::where('status', 'open')->count(),
+            'leavePending' => \App\Models\Hr\LeaveRequest::where('status', 'pending')->count(),
+            'openRequisitions' => \App\Models\Hr\JobRequisition::where('status', 'open')->count(),
             'reportType' => $request->string('report_type')->toString() ?: 'headcount',
         ]));
     }

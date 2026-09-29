@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers\Hr;
 
-
 use App\Models\Hr\Attendance;
-use App\Models\Hr\AuditLog;
 use App\Models\Hr\Department;
 use App\Models\Hr\Designation;
 use App\Models\Hr\Employee;
 use App\Models\Hr\EmployeeDocument;
 use App\Models\Hr\EmployeeHistory;
 use App\Models\Hr\Notification;
-use App\Models\Hr\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -35,7 +31,7 @@ class EmployeeRecordsController extends Controller
                 $q = $request->string('q');
                 $query->where(function ($w) use ($q) {
                     $w->where('employee_code', 'like', "%{$q}%")
-                      ->orWhereHas('user', fn ($u) => $u->where('name', 'like', "%{$q}%"));
+                        ->orWhereHas('user', fn ($u) => $u->where('name', 'like', "%{$q}%"));
                 });
             }
 
@@ -217,9 +213,9 @@ class EmployeeRecordsController extends Controller
         // requires Super Admin, via System & Access.
         if ($isHr) {
             $hrData = $request->validate([
-                'department_id' => 'nullable|exists:departments,id',
-                'designation_id' => 'nullable|exists:designations,id',
-                'reporting_manager_id' => 'nullable|exists:employees,id|different:'.$employee->id,
+                'department_id' => 'nullable|exists:spc_hr.departments,id',
+                'designation_id' => 'nullable|exists:spc_hr.designations,id',
+                'reporting_manager_id' => 'nullable|exists:spc_hr.employees,id|different:'.$employee->id,
                 'employment_status' => 'nullable|in:active,on_notice,exited',
                 'portal_role' => 'nullable|in:employee,manager',
             ]);

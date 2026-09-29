@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('incentives:calculate-daily')->dailyAt('00:10');
+Schedule::command('hr:finalize-exits')->dailyAt('00:20');

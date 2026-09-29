@@ -47,6 +47,36 @@
                 @enderror
             </div>
 
+            <div class="mb-3">
+                <label class="form-label">HR Portal Access</label>
+
+                <select name="hr_access" class="form-select">
+                    <option value="" {{ old('hr_access') ? '' : 'selected' }}>
+                        Not set (based on reporting structure)
+                    </option>
+                    <option value="super_admin" {{ old('hr_access') === 'super_admin' ? 'selected' : '' }}>
+                        Super Admin
+                    </option>
+                    <option value="hr_admin" {{ old('hr_access') === 'hr_admin' ? 'selected' : '' }}>
+                        HR Admin
+                    </option>
+                    <option value="manager" {{ old('hr_access') === 'manager' ? 'selected' : '' }}>
+                        Reporting Manager
+                    </option>
+                    <option value="employee" {{ old('hr_access') === 'employee' ? 'selected' : '' }}>
+                        Employee
+                    </option>
+                </select>
+
+                <small class="text-muted d-block mt-1">
+                    The level of access anyone holding this role gets inside the HR module.
+                </small>
+
+                @error('hr_access')
+                <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+
             <button type="submit" class="btn buttonSpc">
                 Save Role
             </button>

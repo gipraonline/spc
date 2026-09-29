@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Hr;
 
 use App\Models\Hr\Appraisal;
 use App\Models\Hr\AppraisalCycle;
+use App\Services\Hr\PerformanceInsightsService;
 use Illuminate\Http\Request;
 
 class AppraisalController extends Controller
 {
-    public function index()
+    public function index(Request $request, PerformanceInsightsService $insights)
     {
         $module = $this->abortUnlessModuleAllowed('appraisal');
         $employee = $this->currentEmployee();
@@ -36,9 +37,32 @@ class AppraisalController extends Controller
             $toReview = $query->orderByDesc('id')->get();
         }
 
+        // Selected cycle drives the date range for sales / attendance / incentives.
+        // Default: the active cycle, else the most recent one, else the last 90 days.
+        $selectedCycle = $cycles->firstWhere('id', (int) $request->query('cycle'))
+            ?? $cycles->firstWhere('status', 'active')
+            ?? $cycles->first();
+        [$from, $to] = $insights->period($selectedCycle);
+
+        // Scope is decided here, by role, and nowhere else: an employee only
+        // ever receives their own numbers; team/org data is never loaded for them.
+        $mine = $employee ? $insights->forEmployee($employee, $from, $to) : null;
+        $team = ($role === 'manager' && $employee)
+            ? $insights->forTeam($employee, $from, $to, $selectedCycle?->id)
+            : null;
+        $org = $this->isHrOrAbove()
+            ? $insights->forOrganisation($from, $to, $selectedCycle?->id, $role === 'super_admin')
+            : null;
+
         return view('hr.modules.appraisal', array_merge($this->baseViewData(), [
             'module' => $module,
             'moduleKey' => 'appraisal',
+            'selectedCycle' => $selectedCycle,
+            'periodFrom' => $from,
+            'periodTo' => $to,
+            'mine' => $mine,
+            'team' => $team,
+            'org' => $org,
             'cycles' => $cycles,
             'ownAppraisals' => $ownAppraisals,
             'currentAppraisal' => $currentAppraisal,
@@ -51,6 +75,7 @@ class AppraisalController extends Controller
         $this->abortUnlessModuleAllowed('appraisal');
         $employee = $this->currentEmployee();
         abort_unless($employee && $appraisal->employee_id === $employee->id, 403);
+        abort_unless(in_array($appraisal->status, ['not_started', 'self_review'], true), 403, 'This appraisal is already with your manager or completed.');
 
         $data = $request->validate([
             'self_assessment' => 'required|string|max:2000',
@@ -76,6 +101,9 @@ class AppraisalController extends Controller
     {
         $this->abortUnlessModuleAllowed('appraisal');
         abort_unless($this->isManagerOrAbove(), 403);
+        if ($this->currentRole() === 'manager') {
+            abort_unless($appraisal->manager_id === $this->currentEmployee()?->id, 403, 'You can only review your own direct reports.');
+        }
 
         $data = $request->validate([
             'manager_review' => 'required|string|max:2000',

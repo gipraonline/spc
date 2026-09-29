@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DesignationController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\FranchiseSalesReportController;
+use App\Http\Controllers\Hr\EmployeeExitController;
 use App\Http\Controllers\Admin\FieldLogController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadsController;
@@ -17,6 +19,7 @@ use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UnifiedDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -31,9 +34,18 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])
+    // Combined Sales + HR landing dashboard (replaces the separate
+    // "/dashboard" Sales-only screen and "/hr" HR-only screen as the
+    // single place both sets of KPIs, charts and approvals live).
+    // The old Sales-only dashboard is kept below at /dashboard-sales-only
+    // as an untouched fallback.
+    Route::get('/dashboard', [UnifiedDashboardController::class, 'index'])
         ->middleware(['verified', 'permission:dashboard.view'])
         ->name('dashboard');
+
+    Route::get('/dashboard-sales-only', [DashboardController::class, 'index'])
+        ->middleware(['verified', 'permission:dashboard.view'])
+        ->name('dashboard.sales-only');
 
     Route::get('/dashboard-test', [DashboardController::class, 'test'])
         ->middleware('verified')
@@ -46,6 +58,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/view-store-report', [DashboardController::class, 'viewStoreReport'])
         ->middleware('verified')
         ->name('view.store.report');
+
+    // Unified notification bell (sales / order / other) — HR notifications
+    // are merged in from the /hr module but keep their own read route.
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])
+        ->name('notifications.index');
+
+    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'read'])
+        ->name('notifications.read');
 
     Route::put('/change-password', [ProfileController::class, 'updatePassword'])
         ->name('password.update');
@@ -87,6 +107,18 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:designations.create')
             ->name('designations.store');
 
+        Route::get('designations/{designation}/edit', [DesignationController::class, 'edit'])
+            ->middleware('permission:designations.edit')
+            ->name('designations.edit');
+
+        Route::put('designations/{designation}', [DesignationController::class, 'update'])
+            ->middleware('permission:designations.edit')
+            ->name('designations.update');
+
+        Route::delete('designations/{designation}', [DesignationController::class, 'destroy'])
+            ->middleware('permission:designations.delete')
+            ->name('designations.destroy');
+
         /*
         |--------------------------------------------------------------------------
         | Employees
@@ -124,6 +156,36 @@ Route::middleware(['auth', 'admin'])
         Route::get('employees/clear-search', [EmployeeController::class, 'clearSearch'])
             ->middleware('permission:employees.view')
             ->name('employees.clearSearch');
+
+        Route::get('employees/export', [EmployeeController::class, 'export'])
+            ->middleware('permission:employees.export|employees.view')
+            ->name('employees.export');
+
+        /*
+        | Employee History — career timeline, performance, and resignation /
+        | termination records. `hr.auth` signs the SPC user into the HR module
+        | (same email) and the controller only lets HR Admin / Super Admin in.
+        */
+        Route::middleware(['permission:employees.history', 'hr.auth'])->group(function () {
+            Route::get('employees/{employeeMaster}/history', [EmployeeExitController::class, 'history'])
+                ->withTrashed()
+                ->name('employees.history');
+
+            Route::get('employees/history/{employee}/print', [EmployeeExitController::class, 'file'])
+                ->name('employees.history.file');
+
+            Route::post('employees/history/{employee}/exit', [EmployeeExitController::class, 'store'])
+                ->name('employees.history.exit.store');
+
+            Route::post('employees/history/exits/{exit}', [EmployeeExitController::class, 'update'])
+                ->name('employees.history.exit.update');
+
+            Route::post('employees/history/{employee}/reinstate', [EmployeeExitController::class, 'reinstate'])
+                ->name('employees.history.exit.reinstate');
+
+            Route::get('employees-exit-register', [EmployeeExitController::class, 'register'])
+                ->name('employees.history.register');
+        });
 
         Route::get('/employees/reporting-managers/{designation}', [EmployeeController::class, 'getReportingManagers']);
 
@@ -167,6 +229,10 @@ Route::middleware(['auth', 'admin'])
         Route::get('franchises/clear-search', [StoreController::class, 'clearSearch'])
             ->middleware('permission:franchises.view')
             ->name('franchises.clearSearch');
+
+        Route::get('franchises/export', [StoreController::class, 'export'])
+            ->middleware('permission:franchises.export|franchises.view')
+            ->name('franchises.export');
 
         Route::get('districts/{stateId}', [StoreController::class, 'getDistricts'])
             ->middleware('permission:franchises.create')
@@ -212,7 +278,7 @@ Route::middleware(['auth', 'admin'])
             ->name('products.destroy');
 
         Route::get('products/export', [ProductController::class, 'export'])
-            ->middleware('permission:products.export')
+            ->middleware('permission:products.export|products.view')
             ->name('products.export');
 
         Route::get('check-product-code', [ProductController::class, 'checkCode'])
@@ -267,7 +333,7 @@ Route::middleware(['auth', 'admin'])
             ->name('products.destroy');
 
         Route::get('products/export', [ProductController::class, 'export'])
-            ->middleware('permission:products.export')
+            ->middleware('permission:products.export|products.view')
             ->name('products.export');
 
         Route::get('check-product-code', [ProductController::class, 'checkCode'])
@@ -492,6 +558,10 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:customers.view')
             ->name('customers.clearSearch');
 
+        Route::get('customers/export', [CustomerController::class, 'export'])
+            ->middleware('permission:customers.export|customers.view')
+            ->name('customers.export');
+
         Route::get('districts/{state}', [CustomerController::class, 'getDistricts'])
             ->name('admin.districts');
 
@@ -655,6 +725,20 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('payment-management/export', [PaymentManagementController::class, 'export'])
             ->name('payment-management.export');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Franchise-wise Sales Summary
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('reports/franchise-sales', [FranchiseSalesReportController::class, 'index'])
+            ->middleware('permission:franchise-sales-report.view|sales-orders.view')
+            ->name('reports.franchise-sales.index');
+
+        Route::get('reports/franchise-sales/export', [FranchiseSalesReportController::class, 'export'])
+            ->middleware('permission:franchise-sales-report.export|sales-orders.view')
+            ->name('reports.franchise-sales.export');
 
     });
 

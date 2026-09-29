@@ -29,16 +29,30 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
+    // Forgot password — email OTP: request code -> verify code -> new password
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->middleware('throttle:10,1')
         ->name('password.email');
 
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+    Route::get('forgot-password/verify', [PasswordResetLinkController::class, 'verifyForm'])
+        ->name('password.otp');
+
+    Route::post('forgot-password/verify', [PasswordResetLinkController::class, 'verify'])
+        ->middleware('throttle:15,1')
+        ->name('password.otp.verify');
+
+    Route::post('forgot-password/resend', [PasswordResetLinkController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('password.otp.resend');
+
+    Route::get('reset-password', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
+        ->middleware('throttle:10,1')
         ->name('password.store');
 });
 

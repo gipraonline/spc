@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\TableExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerMaster;
 use App\Models\District;
@@ -146,7 +148,12 @@ class CustomerController extends Controller
     //         ));
     //     }
 
-    public function index()
+    /**
+     * Customer list query with the search / status filters and the FCA / FCO
+     * visibility restrictions. Shared by the list page and the Excel export so
+     * an export never contains more than the user can see on screen.
+     */
+    private function filteredCustomers()
     {
         $isFarmCareAdvisor = $this->isFca();
         $isFarmCareOfficer = $this->isFco();
@@ -216,6 +223,57 @@ class CustomerController extends Controller
         if (! empty($status)) {
             $query->where('c_status', $status);
         }
+
+        return $query;
+    }
+
+    public function export()
+    {
+        $customers = $this->filteredCustomers()
+            ->orderBy('n_customer_id', 'desc')
+            ->get();
+
+        $rows = [];
+        $i = 0;
+        foreach ($customers as $c) {
+            $rows[] = [
+                ++$i,
+                $c->c_customer_code,
+                $c->c_customer_name,
+                $c->n_mobile,
+                $c->n_whatsapp,
+                $c->c_email,
+                $c->c_address,
+                $c->c_post_office,
+                $c->c_thaluk,
+                $c->district?->district_name,
+                $c->state?->name,
+                $c->c_pincode,
+                match ($c->c_status) {
+                    'Y' => 'Active',
+                    'N' => 'Inactive',
+                    default => (string) $c->c_status,
+                },
+                $c->created_at?->format('d-m-Y'),
+            ];
+        }
+
+        return Excel::download(
+            new TableExport(
+                ['Sl No', 'Customer Code', 'Customer Name', 'Mobile', 'WhatsApp', 'Email', 'Address', 'Post Office',
+                    'Thaluk', 'District', 'State', 'Pincode', 'Status', 'Created On'],
+                $rows,
+                ['B', 'D', 'E', 'L']
+            ),
+            'customers-'.now()->format('Ymd-His').'.xlsx'
+        );
+    }
+
+    public function index()
+    {
+        $isFarmCareAdvisor = $this->isFca();
+
+        $query = $this->filteredCustomers();
 
         $customers = $query
             ->orderBy('n_customer_id', 'desc')

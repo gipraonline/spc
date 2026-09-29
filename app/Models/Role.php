@@ -10,6 +10,7 @@ class Role extends SpatieRole
         'name',
         'identifier',
         'guard_name',
+        'hr_access',
     ];
 
     public function menus()

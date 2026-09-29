@@ -3,8 +3,8 @@
 @section('content')
 <style>
 :root {
-    --primary-green: #1b3e86;
-    --accent-orange: #F7941E;
+    --primary-green: #5E8D3D;
+    --accent-orange: #7CA243;
     --bg-light: #fbfbfb;
     --text-dark: #2d3436;
     --border-color: #e9ecef;
@@ -40,7 +40,7 @@
 .form-section-title {
     font-size: 15px;
     font-weight: 800;
-    color: #1b3e86;
+    color: #5E8D3D;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 1.5rem;
@@ -69,7 +69,7 @@
 .form-control:focus,
 .form-select:focus {
     border-color: var(--primary-green);
-    box-shadow: 0 0 0 4px rgba(57, 181, 74, 0.1);
+    box-shadow: 0 0 0 4px rgba(94, 141, 61, 0.1);
     background-color: #fff;
 }
 
@@ -120,7 +120,7 @@
 .btn-create-custom:hover {
     background: #ce2a2a;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(57, 181, 74, 0.3);
+    box-shadow: 0 4px 12px rgba(94, 141, 61, 0.3);
 }
 
 .btn-cancel-custom {

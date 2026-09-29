@@ -3,8 +3,8 @@
 @section('content')
 <style>
 :root {
-    --primary-green: #1b3e86;
-    --accent-orange: #1b3e86;
+    --primary-green: #5E8D3D;
+    --accent-orange: #5E8D3D;
     --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
     --border-radius: 12px;
 }
@@ -45,7 +45,7 @@
 .form-select:focus {
     border-color: var(--primary-green);
     background-color: #fff;
-    box-shadow: 0 0 0 4px rgba(57, 181, 74, 0.08);
+    box-shadow: 0 0 0 4px rgba(94, 141, 61, 0.08);
 }
 
 .btn-calculate {
@@ -56,13 +56,13 @@
     font-weight: 700;
     color: #fff;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(57, 181, 74, 0.2);
+    box-shadow: 0 4px 10px rgba(94, 141, 61, 0.2);
 }
 
 .btn-calculate:hover {
-    background: #1b3e86;
+    background: #1F5C2E;
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(57, 181, 74, 0.3);
+    box-shadow: 0 6px 15px rgba(94, 141, 61, 0.3);
 }
 
 /* Stats Cards */
@@ -119,7 +119,7 @@
 }
 
 .bg-emerald {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, #A8CB6A, #7CA243);
     color: #fff;
 }
 

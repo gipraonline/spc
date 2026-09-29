@@ -4,7 +4,7 @@
 
 <style>
 :root {
-    --primary-green: #1b3e86;
+    --primary-green: #5E8D3D;
     --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
     --border-radius: 12px;
 }

@@ -12,18 +12,29 @@ use Illuminate\Support\Facades\Hash;
 class AdminUserController extends Controller
 {
     public function index()
-    {
-        $users = Admin::with('roles')
-            ->latest()
-            ->paginate(10);
+{
+    $currentUser = auth('web')->user();
 
-        $hasActivePasswords = Admin::whereNotNull('initial_password')
-            ->whereNotNull('initial_password_expires_at')
-            ->where('initial_password_expires_at', '>=', now())
-            ->exists();
+    $query = Admin::with('roles');
 
-        return view('admin.users.index', compact('users', 'hasActivePasswords'));
+    // Only Gipra Admin can see Gipra Admin users
+    if (! $currentUser->hasRole('Gipra Admin')) {
+        $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'Gipra Admin');
+        });
     }
+
+    $users = $query
+        ->latest()
+        ->paginate(10);
+
+    $hasActivePasswords = Admin::whereNotNull('initial_password')
+        ->whereNotNull('initial_password_expires_at')
+        ->where('initial_password_expires_at', '>=', now())
+        ->exists();
+
+    return view('admin.users.index', compact('users', 'hasActivePasswords'));
+}
 
     public function create()
     {

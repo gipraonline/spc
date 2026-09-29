@@ -31,6 +31,8 @@ class SalesOrder extends Model
         'n_state_id',
         'n_district_id',
         'n_panchayath_id',
+        'latitude',
+        'longitude',
         'c_mode_of_payment',
         'c_order_status',
         'nearest_franchise_id',

@@ -4,11 +4,11 @@
 <style>
 /* Premium Design Tokens */
 :root {
-    --primary-green: #1b3e86;
-    --accent-orange: #1b3e86;
+    --primary-green: #5E8D3D;
+    --accent-orange: #5E8D3D;
     --deep-slate: #1e293b;
     --border-radius-lg: 18px;
-    --input-shadow: 0 8px 20px rgba(57, 181, 74, 0.05);
+    --input-shadow: 0 8px 20px rgba(94, 141, 61, 0.05);
     --card-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
 }
 
@@ -55,23 +55,11 @@
     margin-bottom: 0.8rem;
 }
 
-<<<<<<< HEAD .form-control,
+.form-control,
 .form-select {
     border-radius: 12px;
     padding: 0.9rem 1.2rem;
-
-    =======.form-control,
-    .form-select {
-        border-radius: 12px;
-        padding: 0.9rem 1.2rem;
-
-        background-color: #f8fafc;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-weight: 600;
-        color: var(--deep-slate);
-    }
-
-    >>>>>>>6ece91f46f5b9050b27e04fd4893f79c9f9e0960 background-color: #f8fafc;
+    background-color: #f8fafc;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
     color: var(--deep-slate);
@@ -94,15 +82,15 @@
     font-weight: 800;
     color: #fff;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 20px rgba(57, 181, 74, 0.15);
+    box-shadow: 0 10px 20px rgba(94, 141, 61, 0.15);
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
 .btn-create-action:hover {
-    background: #1b3e86;
-    box-shadow: 0 12px 25px rgba(57, 181, 74, 0.25);
+    background: #1F5C2E;
+    box-shadow: 0 12px 25px rgba(94, 141, 61, 0.25);
     transform: translateY(-2px);
 }
 
@@ -163,6 +151,41 @@
 
                 <input type="number" name="hierarchy_level" class="form-control" value="{{ old('hierarchy_level') }}"
                     min="1" placeholder="Example: 1">
+                @error('hierarchy_level')
+                <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="parent_designation_id" class="form-label">Reports To</label>
+                <select id="parent_designation_id" name="parent_designation_id" class="form-select">
+                    <option value="">— None (top of the hierarchy) —</option>
+                    @foreach($parentOptions as $option)
+                        <option value="{{ $option->n_designation_id }}"
+                            {{ (string) old('parent_designation_id') === (string) $option->n_designation_id ? 'selected' : '' }}>
+                            {{ $option->c_designation }} (Level {{ $option->hierarchy_level }})
+                        </option>
+                    @endforeach
+                </select>
+                @error('parent_designation_id')
+                <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="department_id" class="form-label">HR Department</label>
+                <select id="department_id" name="department_id" class="form-select">
+                    <option value="">— None —</option>
+                    @foreach($hrDepartments as $dep)
+                        <option value="{{ $dep->id }}"
+                            {{ (string) old('department_id') === (string) $dep->id ? 'selected' : '' }}>
+                            {{ $dep->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('department_id')
+                <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="mb-5">

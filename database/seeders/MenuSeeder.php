@@ -3,60 +3,164 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Menu;
+use Illuminate\Support\Facades\DB;
 
+/**
+ * Sidebar menu structure:
+ *
+ *   Administration (untouched)
+ *   Home · Activity · HR · Field Operations · Sales · Finance · Settings
+ *
+ * Safe to run any number of times:
+ *  - Groups are matched by name, items by route_name (no hard-coded IDs).
+ *  - Existing items only get their group + order updated, so names, icons,
+ *    status and role assignments (role_menu) are never overwritten.
+ *  - Missing items are created. New rows have no role assigned yet — tick
+ *    them for the right roles in Role Management.
+ *  - "Administration" and its items are not touched.
+ *
+ * Run:  php artisan db:seed --class=MenuSeeder
+ */
 class MenuSeeder extends Seeder
 {
-    public function run()
+    /** Group name => [icon, sort_order]  (Administration stays at 100) */
+    private array $groups = [
+        'Home'             => ['home',               101],
+        'Activity'         => ['activity',           102],
+        'HR'               => ['users',              103],
+        'Field Operations' => ['map-pin',            104],
+        'Sales'            => ['shopping-cart',      105],
+        'Finance'          => ['wallet',             106],
+        'Settings'         => ['sliders-horizontal', 107],
+    ];
+
+    /**
+     * Group => list of [route_name, name, icon]  (order = position in group)
+     */
+    private function items(): array
     {
-        $menus = [
+        return [
+            'Home' => [
+                ['dashboard',              'Dashboard',     'layout-dashboard'],
+                ['hr.profile.index',       'My Profile',    'user'],
+                ['hr.announcements.index', 'Announcements', 'megaphone'],
+            ],
 
-            ['name'=>'Dashboard','route_name'=>'dashboard','icon'=>'layout-dashboard','sort_order'=>1],
+            'Activity' => [
+                ['hr.attendance.index', 'Attendance',     'clock'],
+                ['hr.wfh.index',        'Work From Home', 'home'],
+                ['hr.leave.index',      'Leave',          'calendar-days'],
+                ['hr.support.index',    'HR Support',     'help-circle'],
+                ['hr.appraisal.index',  'Performance',    'trophy'],
+            ],
 
-            ['name'=>'Designations','route_name'=>'admin.designations.index','icon'=>'award','sort_order'=>2],
+            'HR' => [
+                ['admin.employees.index',    'Employee Records', 'user-round'],
+                ['admin.franchises.index',   'Franchises',       'warehouse'],
+                ['hr.recruitment.index',     'Recruitment',      'user-plus'],
+                ['hr.reports.index',         'HR Reports',       'bar-chart-3'],
+                ['admin.designations.index', 'Designations',     'briefcase'],
+            ],
 
-            ['name'=>'Stores','route_name'=>'admin.stores.index','icon'=>'store','sort_order'=>3],
+            'Field Operations' => [
+                ['admin.admin-log.index', 'Field Activity', 'clock'],
+                ['admin.field-log.index', 'Field Log',      'clipboard-check'],
+            ],
 
-            ['name'=>'Employees','route_name'=>'admin.employees.index','icon'=>'users','sort_order'=>4],
+            'Sales' => [
+                ['admin.leads.index',              'Leads',              'target'],
+                ['admin.salesorders.index',        'Sales Orders',       'shopping-cart'],
+                ['admin.customers.index',          'Customers',          'users'],
+                ['admin.payment-management.index', 'Payment Management', 'receipt'],
+                ['admin.products.index',           'Products',           'package'],
+            ],
 
-            ['name'=>'Products','route_name'=>'admin.products.index','icon'=>'package','sort_order'=>5],
+            'Finance' => [
+                ['hr.payroll.index',   'Payroll',        'wallet'],
+                ['hr.pf.index',        'PF & Gratuity',  'piggy-bank'],
+                ['hr.incentive.index', 'Incentives',     'medal'],
+            ],
 
-            ['name'=>'Bulk Upload','route_name'=>'admin.sales.bulk-upload','icon'=>'upload-cloud','sort_order'=>6],
-
-            ['name'=>'Draft Sales','route_name'=>'admin.sales.drafts','icon'=>'file-edit','sort_order'=>7],
-
-            ['name'=>'Sales Report','route_name'=>'admin.sales.uploads.report','icon'=>'line-chart','sort_order'=>8],
-
-            ['name'=>'Verified Sales','route_name'=>'sales.report','icon'=>'file-check','sort_order'=>9],
-
-            ['name'=>'Sale Returns','route_name'=>'admin.sales.returns-report','icon'=>'rotate-ccw','sort_order'=>10],
-
-            ['name'=>'Return Upload','route_name'=>'admin.returns.bulk-upload','icon'=>'upload','sort_order'=>11],
-
-            ['name'=>'Return Drafts','route_name'=>'admin.returns.drafts','icon'=>'file-minus','sort_order'=>12],
-
-            ['name'=>'Incentive Batches','route_name'=>'admin.incentives.batch','icon'=>'bar-chart-3','sort_order'=>13],
-
-            ['name'=>'Payouts','route_name'=>'admin.withdrawals.index','icon'=>'banknote-arrow-down','sort_order'=>14],
-
-            ['name'=>'Payout Reports','route_name'=>'admin.payout-reports.index','icon'=>'receipt','sort_order'=>15],
-
-            ['name'=>'KYC Submissions','route_name'=>'admin.kyc.index','icon'=>'book-user','sort_order'=>16],
-
-            ['name'=>'Incentives','route_name'=>'admin.sales.index','icon'=>'hand-coins','sort_order'=>17],
-
-            ['name'=>'Operation Incentives','route_name'=>'admin.incentives.operation-incentives','icon'=>'trending-up','sort_order'=>18],
-
-            ['name'=>'Incentive Summary','route_name'=>'admin.incentives.incentive-summary-report','icon'=>'award','sort_order'=>19],
-
-            ['name'=>'Store Incentives','route_name'=>'admin.incentives.index','icon'=>'baggage-claim','sort_order'=>20],
+            'Settings' => [
+                ['hr.organization.index', 'Organization', 'building-2'],
+                ['hr.settings.index',     'HR Settings',  'settings'],
+                ['hr.system.index',       'HR System',    'shield'],
+            ],
         ];
+    }
 
-        foreach ($menus as $menu) {
-            Menu::updateOrCreate(
-                ['route_name' => $menu['route_name']],
-                $menu
-            );
-        }
+    public function run(): void
+    {
+        DB::transaction(function () {
+            $now = now();
+
+            // The old "HR Management" group becomes "HR" (keeps its id).
+            if (! DB::table('menus')->whereNull('parent_id')->where('name', 'HR')->exists()) {
+                DB::table('menus')->whereNull('parent_id')
+                    ->where('name', 'HR Management')
+                    ->update(['name' => 'HR', 'updated_at' => $now]);
+            }
+
+            // 1) Groups
+            $parentIds = [];
+            foreach ($this->groups as $name => [$icon, $sort]) {
+                $row = DB::table('menus')->whereNull('parent_id')->where('name', $name)->first();
+
+                if ($row) {
+                    DB::table('menus')->where('id', $row->id)->update([
+                        'icon'       => $row->icon ?: $icon,
+                        'sort_order' => $sort,
+                        'updated_at' => $now,
+                    ]);
+                    $parentIds[$name] = $row->id;
+                } else {
+                    $parentIds[$name] = DB::table('menus')->insertGetId([
+                        'name'       => $name,
+                        'route_name' => null,
+                        'icon'       => $icon,
+                        'parent_id'  => null,
+                        'sort_order' => $sort,
+                        'status'     => 1,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]);
+                }
+            }
+
+            // Keep the (empty) Commission group after the new groups.
+            DB::table('menus')->whereNull('parent_id')->where('name', 'Commission')
+                ->update(['sort_order' => 108, 'updated_at' => $now]);
+
+            // 2) Items
+            foreach ($this->items() as $group => $items) {
+                foreach ($items as $i => [$route, $name, $icon]) {
+                    $position = $i + 1;
+
+                    $existing = DB::table('menus')
+                        ->where('route_name', $route)
+                        ->whereNotNull('parent_id')
+                        ->first();
+
+                    if ($existing) {
+                        DB::table('menus')->where('id', $existing->id)->update([
+                            'parent_id'  => $parentIds[$group],
+                            'sort_order' => $position,
+                            'updated_at' => $now,
+                        ]);
+                    } else {
+                        DB::table('menus')->insert([
+                            'name'       => $name,
+                            'route_name' => $route,
+                            'icon'       => $icon,
+                            'parent_id'  => $parentIds[$group],
+                            'sort_order' => $position,
+                            'status'     => 1,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]);
+                    }
+                }
+            }
+        });
     }
 }

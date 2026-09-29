@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\TableExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Models\DesignationMaster;
 use App\Models\EmployeeEditLog;
 use App\Models\EmployeeMaster;
+use App\Models\Hr\Department as HrDepartment;
+use App\Models\Hr\Employee as HrEmployee;
+use App\Models\Hr\EmployeeExit;
 use App\Models\KycSubmission;
+use App\Services\Hr\EmployeeExitService;
+use App\Services\Hr\EmployeeHrSyncService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +27,7 @@ class EmployeeController extends Controller
         session([
             'employee_search' => $request->employee_search,
             'designation_filter' => $request->n_designation_id,
+            'employee_status_filter' => $request->employee_status,
         ]);
 
         return redirect()->route('admin.employees.index');
@@ -30,19 +38,31 @@ class EmployeeController extends Controller
         session()->forget([
             'employee_search',
             'designation_filter',
+            'employee_status_filter',
         ]);
 
         return redirect()->route('admin.employees.index');
     }
 
-    public function index(Request $request)
+    /**
+     * Employee list query (session filters + the logged-in user's own branch of
+     * the org chart). Shared by the list page and the Excel export.
+     *
+     * @return array{0: \Illuminate\Database\Eloquent\Builder, 1: string, 2: ?DesignationMaster, 3: ?array}
+     */
+    private function filteredEmployees(): array
     {
-        $query = EmployeeMaster::with(['designation'])
-            ->whereNull('deleted_at');
-
         // Get filters from session
         $search = session('employee_search');
         $designation = session('designation_filter');
+        $statusFilter = session('employee_status_filter') === 'former' ? 'former' : 'current';
+
+        // "Former" = deleted employees (resigned / terminated). They stay
+        // reachable so their history can still be opened.
+        $query = EmployeeMaster::with(['designation']);
+        $statusFilter === 'former'
+            ? $query->onlyTrashed()
+            : $query->whereNull('deleted_at');
 
         /*
          * Get logged-in user's role identifier from Spatie.
@@ -65,12 +85,17 @@ class EmployeeController extends Controller
         }
 
         /*
-         * Get employees only from designations below
-         * the logged-in user's designation.
+         * Get employees only from designations in the logged-in user's
+         * own branch of the org chart (their designation's descendants),
+         * not just anyone at a lower hierarchy_level.
          */
+        $branchDesignationIds = $userDesignation
+            ? $userDesignation->descendantIds()
+            : null;
+
         if ($userDesignation) {
-            $query->whereHas('designation', function ($q) use ($userDesignation) {
-                $q->where('hierarchy_level', '>', $userDesignation->hierarchy_level)
+            $query->whereHas('designation', function ($q) use ($branchDesignationIds) {
+                $q->whereIn('n_designation_id', $branchDesignationIds)
                     ->where('c_status', 'Y');
             });
         }
@@ -85,39 +110,75 @@ class EmployeeController extends Controller
 
         /*
          * Apply designation filter only if it belongs
-         * to the logged-in user's allowed hierarchy.
+         * to the logged-in user's allowed branch.
          */
         if (! empty($designation) && $userDesignation) {
-            $query->whereHas('designation', function ($q) use ($designation, $userDesignation) {
+            $query->whereHas('designation', function ($q) use ($designation, $branchDesignationIds) {
                 $q->where('n_designation_id', $designation)
-                    ->where(
-                        'hierarchy_level',
-                        '>',
-                        $userDesignation->hierarchy_level
-                    );
+                    ->whereIn('n_designation_id', $branchDesignationIds);
             });
         }
+
+        return [$query, $statusFilter, $userDesignation, $branchDesignationIds];
+    }
+
+    public function export()
+    {
+        [$query, $statusFilter] = $this->filteredEmployees();
+
+        $employees = $query
+            ->with(['designation', 'reportingManager'])
+            ->orderBy('c_employee_code')
+            ->get();
+
+        $rows = [];
+        $i = 0;
+        foreach ($employees as $e) {
+            $rows[] = [
+                ++$i,
+                $e->c_employee_code,
+                $e->c_employee_name,
+                $e->designation?->c_designation,
+                $e->c_employee_email,
+                $e->n_employee_phone,
+                $e->city,
+                $e->reportingManager?->c_employee_name,
+                $e->date_of_joining ? \Carbon\Carbon::parse($e->date_of_joining)->format('d-m-Y') : null,
+                $statusFilter === 'former' ? 'Former' : ($e->c_status === 'Y' ? 'Active' : 'Inactive'),
+            ];
+        }
+
+        return Excel::download(
+            new TableExport(
+                ['Sl No', 'Employee Code', 'Name', 'Designation', 'Email', 'Phone', 'City', 'Reporting To',
+                    'Date of Joining', 'Status'],
+                $rows,
+                ['B', 'F']
+            ),
+            ($statusFilter === 'former' ? 'former-employees-' : 'employees-').now()->format('Ymd-His').'.xlsx'
+        );
+    }
+
+    public function index(Request $request)
+    {
+        [$query, $statusFilter, $userDesignation, $branchDesignationIds] = $this->filteredEmployees();
 
         $employees = $query->paginate(10);
 
         /*
          * Designation dropdown:
-         * Show only designations below the logged-in user.
+         * Show only designations in the logged-in user's own branch.
          */
         $designations = DesignationMaster::where('c_status', 'Y')
-            ->when($userDesignation, function ($q) use ($userDesignation) {
-                $q->where(
-                    'hierarchy_level',
-                    '>',
-                    $userDesignation->hierarchy_level
-                );
+            ->when($userDesignation, function ($q) use ($branchDesignationIds) {
+                $q->whereIn('n_designation_id', $branchDesignationIds);
             })
             ->orderBy('hierarchy_level')
             ->get();
 
         /*
          * Employee autocomplete:
-         * Show only employees from allowed designations.
+         * Show only employees from the allowed branch.
          */
         $employeesForSearch = EmployeeMaster::select(
             'n_employee_id',
@@ -125,13 +186,9 @@ class EmployeeController extends Controller
             'c_employee_code'
         )
             ->where('c_status', 'Y')
-            ->when($userDesignation, function ($q) use ($userDesignation) {
-                $q->whereHas('designation', function ($designationQuery) use ($userDesignation) {
-                    $designationQuery->where(
-                        'hierarchy_level',
-                        '>',
-                        $userDesignation->hierarchy_level
-                    );
+            ->when($userDesignation, function ($q) use ($branchDesignationIds) {
+                $q->whereHas('designation', function ($designationQuery) use ($branchDesignationIds) {
+                    $designationQuery->whereIn('n_designation_id', $branchDesignationIds);
                 });
             })
             ->orderBy('c_employee_name')
@@ -142,7 +199,8 @@ class EmployeeController extends Controller
             compact(
                 'employees',
                 'designations',
-                'employeesForSearch'
+                'employeesForSearch',
+                'statusFilter'
             )
         );
     }
@@ -225,6 +283,7 @@ class EmployeeController extends Controller
         return view(
             'admin.employees.create',
             compact('designations', 'employees')
+                + ['hrDepartments' => HrDepartment::orderBy('name')->get()]
         );
     }
 
@@ -259,6 +318,16 @@ class EmployeeController extends Controller
             'bank_name' => 'nullable|string|max:255',
 
             'branch_name' => 'nullable|string|max:255',
+
+            // HR-facing fields — the SPC employee form is now the single
+            // place these are captured; EmployeeHrSyncService pushes them
+            // into the HR module.
+            'date_of_birth' => 'nullable|date|before:today',
+            'gender' => 'nullable|in:male,female,other',
+            'personal_email' => 'nullable|email|max:255',
+            'city' => 'nullable|string|max:100',
+            'department_id' => 'nullable|integer',
+            'date_of_joining' => 'nullable|date',
 
         ], [
 
@@ -301,6 +370,20 @@ class EmployeeController extends Controller
                 'n_designation_id' => $validated['n_designation_id'] ?? null,
                 'reporting_to' => $validated['reporting_to'] ?? null,
                 'c_status' => $validated['c_status'],
+
+                // HR-facing fields
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+                'personal_email' => $validated['personal_email'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'department_id' => $validated['department_id'] ?? null,
+                'date_of_joining' => $validated['date_of_joining'] ?? null,
+                'bank_name' => $validated['bank_name'] ?? null,
+                'bank_account_number' => $validated['account_number'] ?? null,
+                'bank_ifsc' => $validated['ifsc_code'] ?? null,
+                // HR access tier (employee/manager/hr_admin/super_admin) is no
+                // longer picked here — EmployeeHrSyncService derives it from
+                // this person's actual SPC role and reporting structure.
             ]);
 
             // Bank Details
@@ -316,6 +399,22 @@ class EmployeeController extends Controller
             // ]);
 
             DB::commit();
+
+            // Mirror this employee into the HR module (spc_hr database) so
+            // it shows up there without a separate "Add Employee" step.
+            // This is deliberately outside the SPC transaction above (it's
+            // a different database) and deliberately non-fatal: if the HR
+            // database is unreachable, the SPC employee is still created,
+            // and the sync will catch up next time this record is saved.
+            try {
+                EmployeeHrSyncService::sync($employee);
+            } catch (\Throwable $e) {
+                report($e);
+
+                return redirect()
+                    ->route('admin.employees.index')
+                    ->with('warning', 'Employee created, but could not be synced to the HR module: '.$e->getMessage());
+            }
 
             return redirect()
                 ->route('admin.employees.index')
@@ -344,7 +443,8 @@ class EmployeeController extends Controller
             ->where('status', 'Active')
             ->first();
 
-        return view('admin.employees.edit', compact('employees', 'employee', 'designations', 'kyc'));
+        return view('admin.employees.edit', compact('employees', 'employee', 'designations', 'kyc')
+            + ['hrDepartments' => HrDepartment::orderBy('name')->get()]);
     }
 
     public function update(Request $request, EmployeeMaster $employee)
@@ -372,6 +472,13 @@ class EmployeeController extends Controller
 
             'branch_name' => 'nullable|string|max:255',
 
+            'date_of_birth' => 'nullable|date|before:today',
+            'gender' => 'nullable|in:male,female,other',
+            'personal_email' => 'nullable|email|max:255',
+            'city' => 'nullable|string|max:100',
+            'department_id' => 'nullable|integer',
+            'date_of_joining' => 'nullable|date',
+
             'password' => [
                 'nullable',
                 'confirmed',
@@ -396,6 +503,8 @@ class EmployeeController extends Controller
 
         try {
 
+            $previousStatus = $employee->c_status;
+
             EmployeeEditLog::create([
                 'n_employee_id' => $employee->n_employee_id,
                 'n_pre_designation_id' => $employee->n_designation_id,
@@ -411,6 +520,18 @@ class EmployeeController extends Controller
                 'n_designation_id' => $request->n_designation_id,
                 'reporting_to' => $request->reporting_to,
                 'c_status' => $request->c_status,
+
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+                'personal_email' => $validated['personal_email'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'department_id' => $validated['department_id'] ?? null,
+                'date_of_joining' => $validated['date_of_joining'] ?? $employee->date_of_joining,
+                'bank_name' => $validated['bank_name'] ?? null,
+                'bank_account_number' => $validated['account_number'] ?? null,
+                'bank_ifsc' => $validated['ifsc_code'] ?? null,
+                // HR access tier is derived automatically by
+                // EmployeeHrSyncService — see the note in store().
             ]);
 
             // Update password only if entered
@@ -435,9 +556,23 @@ class EmployeeController extends Controller
 
             DB::commit();
 
+            try {
+                EmployeeHrSyncService::sync($employee->fresh());
+                $this->recordStatusChange($employee->fresh(), $previousStatus, $request->c_status);
+            } catch (\Throwable $e) {
+                report($e);
+
+                return redirect()
+                    ->route('admin.employees.index')
+                    ->with('warning', 'Employee updated, but could not be synced to the HR module: '.$e->getMessage());
+            }
+
             return redirect()
                 ->route('admin.employees.index')
-                ->with('success', 'Employee updated successfully.');
+                ->with('success', 'Employee updated successfully.'
+                    .($previousStatus === 'Y' && $request->c_status === 'N'
+                        ? ' Their history was saved — open History to add the resignation / termination details.'
+                        : ''));
 
         } catch (\Exception $e) {
 
@@ -452,6 +587,7 @@ class EmployeeController extends Controller
     public function destroy($id)
     {
         $employee = EmployeeMaster::findOrFail($id);
+        $previousStatus = $employee->c_status;
 
         // Update employee status to 'D' (Deleted)
 
@@ -463,39 +599,78 @@ class EmployeeController extends Controller
 
         $employee->delete();
 
+        // Keep the person's history: mark them exited in the HR module and
+        // make sure an exit record exists (HR completes the details later
+        // from Employee History > "Former employees").
+        try {
+            EmployeeHrSyncService::sync($employee);
+            $this->recordStatusChange($employee, $previousStatus, 'D');
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         return redirect()->route('admin.employees.index')
-            ->with('success', 'Employee deleted successfully.');
+            ->with('success', 'Employee deleted successfully. Their history is kept under Status > Former employees.');
+    }
+
+    /**
+     * Keep HR history in step with SPC status changes made on this screen:
+     * going inactive/deleted creates (or completes) the exit record;
+     * coming back to Active reinstates and keeps the earlier exit on file.
+     */
+    protected function recordStatusChange(EmployeeMaster $employee, ?string $old, ?string $new): void
+    {
+        if ($old === $new) {
+            return;
+        }
+
+        $hr = HrEmployee::where('employee_master_id', $employee->n_employee_id)->first();
+
+        if (! $hr) {
+            return;
+        }
+
+        $by = EmployeeHrSyncService::actingHrUserId();
+
+        if ($new !== 'Y') {
+            // Inactive or deleted. Idempotent: does nothing if an exit
+            // record already exists (e.g. inactive first, deleted later).
+            $onNotice = EmployeeExit::where('employee_id', $hr->id)->where('status', 'on_notice')->first();
+
+            $onNotice
+                ? EmployeeExitService::finalize($onNotice, $by)
+                : EmployeeExitService::ensureExitRecord($hr, $by);
+        } elseif ($old !== 'Y' && $new === 'Y') {
+            EmployeeExitService::reinstate($hr, $by, 'Re-activated from SPC Employee Records', 'exited');
+        }
     }
 
     public function getReportingManagers($designationId)
     {
         $designation = DesignationMaster::findOrFail($designationId);
 
-        /*  $employees = EmployeeMaster::join(
-                 'designation_masters',
-                 'employee_masters.n_designation_id',
-                 '=',
-                 'designation_masters.n_designation_id'
-             )
-             ->where('designation_masters.hierarchy_level', '<', $designation->hierarchy_level)
-             ->where('employee_masters.c_status', 'Y')
-             ->select(
-                 'employee_masters.n_employee_id',
-                 'employee_masters.c_employee_name',
-                 'designation_masters.c_designation'
-             )
-             ->orderBy('designation_masters.hierarchy_level')
-             ->get(); */
+        /*
+         * Reporting managers are now the employees holding the exact
+         * parent designation in this designation's own branch of the org
+         * chart (parent_designation_id), not just "anyone one hierarchy
+         * level up" — which used to pull in people from unrelated
+         * branches (e.g. Finance or Marketing) at the same level.
+         */
+        if (! $designation->parent_designation_id) {
+            return response()->json([]);
+        }
+
         $reportingEmployees = EmployeeMaster::join(
             'designation_masters',
             'employee_masters.n_designation_id',
             '=',
             'designation_masters.n_designation_id'
         )
-            ->where('designation_masters.hierarchy_level', $designation->hierarchy_level - 1)
+            ->where('designation_masters.n_designation_id', $designation->parent_designation_id)
+            ->where('employee_masters.c_status', 'Y')
             ->select()
             ->get();
-//dd($designation);
+
         return response()->json($reportingEmployees);
     }
 }

@@ -3,61 +3,82 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Auth\Events\PasswordReset;
+use App\Models\Admin;
+use App\Services\PasswordResetOtpService as Otp;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
+/**
+ * Step 3 of "Forgot password": choose a new password.
+ * Only reachable after the emailed code has been verified.
+ */
 class NewPasswordController extends Controller
 {
-    /**
-     * Display the password reset view.
-     */
-    public function create(Request $request): View
+    private const SESSION_KEY = 'password_reset';
+
+    public function __construct(private Otp $otp)
     {
-        return view('auth.reset-password', ['request' => $request]);
     }
 
-    /**
-     * Handle an incoming new password request.
-     *
-     * @throws ValidationException
-     */
+    public function create(Request $request): View|RedirectResponse
+    {
+        if (! $this->verifiedAdmin($request)) {
+            return $this->startOver();
+        }
+
+        return view('auth.reset-password');
+    }
+
     public function store(Request $request): RedirectResponse
     {
+        $admin = $this->verifiedAdmin($request);
+
+        if (! $admin) {
+            return $this->startOver();
+        }
+
         $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
+        ], [
+            'password.required' => 'Please enter a new password.',
+            'password.confirmed' => 'The two passwords do not match.',
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
+        if (Hash::check($request->input('password'), (string) $admin->c_password)) {
+            return back()->withErrors(['password' => 'Your new password must be different from your current one.']);
+        }
 
-                event(new PasswordReset($user));
-            }
-        );
+        $this->otp->complete($admin, $request->input('password'));
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
-        return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        $request->session()->forget(self::SESSION_KEY);
+
+        return redirect()->route('login')
+            ->with('status', 'Your password has been reset. Please sign in with your new password.');
+    }
+
+    /** The admin who has just proved they own the email, or null. */
+    private function verifiedAdmin(Request $request): ?Admin
+    {
+        $flow = $request->session()->get(self::SESSION_KEY);
+
+        if (empty($flow['verified']) || empty($flow['admin_id'])) {
+            return null;
+        }
+
+        if (! $this->otp->isVerified((int) $flow['admin_id'])) {
+            return null;
+        }
+
+        return Admin::find($flow['admin_id']);
+    }
+
+    private function startOver(): RedirectResponse
+    {
+        return redirect()->route('password.request')->withErrors([
+            'email' => 'Your verification has expired. Please start again.',
+        ]);
     }
 }

@@ -4,7 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Hr\AnnouncementController;
 use App\Http\Controllers\Hr\AppraisalController;
 use App\Http\Controllers\Hr\AttendanceController;
-use App\Http\Controllers\Hr\AuthController;
+use App\Http\Controllers\Hr\DocumentVerificationController;
 use App\Http\Controllers\Hr\EmployeeExitController;
 use App\Http\Controllers\Hr\EmployeeRecordsController;
 use App\Http\Controllers\Hr\IncentiveController;
@@ -35,8 +35,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('hr')->name('hr.')->group(function () {
 
-    Route::get('/login', [AuthController::class, 'show'])->name('login.show');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+    Route::redirect('/login', '/login');
     // Single logout for the whole app: same action the SPC side uses,
     // so there's exactly one place that tears down the session.
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
@@ -46,55 +45,59 @@ Route::prefix('hr')->name('hr.')->group(function () {
 
     Route::middleware(['hr.auth'])->group(function () {
 
-     // Attendance
-Route::middleware(['permission:attendance.view'])->group(function () {
+        // Attendance
+        Route::middleware(['permission:attendance.view'])->group(function () {
 
-    Route::get('/modules/attendance', [AttendanceController::class, 'index'])
-        ->name('attendance.index');
+            Route::get('/modules/attendance', [AttendanceController::class, 'index'])
+                ->name('attendance.index');
 
-    Route::get('/modules/attendance/report', [AttendanceController::class, 'report'])
-        ->name('attendance.report');
+            Route::get('/modules/attendance/report', [AttendanceController::class, 'report'])
+                ->name('attendance.report');
 
-    Route::post('/modules/attendance/punch', [AttendanceController::class, 'punch'])
-        ->name('attendance.punch');
+            Route::post('/modules/attendance/punch', [AttendanceController::class, 'punch'])
+                ->name('attendance.punch');
 
-    Route::post('/modules/attendance/check-in', [AttendanceController::class, 'checkIn'])
-        ->name('attendance.check-in');
+            Route::post('/modules/attendance/check-in', [AttendanceController::class, 'checkIn'])
+                ->name('attendance.check-in');
 
-    Route::post('/modules/attendance/check-out', [AttendanceController::class, 'checkOut'])
-        ->name('attendance.check-out');
+            Route::post('/modules/attendance/check-out', [AttendanceController::class, 'checkOut'])
+                ->name('attendance.check-out');
 
-    Route::post('/modules/attendance/{employee}/mark', [AttendanceController::class, 'mark'])
-        ->name('attendance.mark');
+            Route::post('/modules/attendance/{employee}/mark', [AttendanceController::class, 'mark'])
+                ->name('attendance.mark');
 
-    Route::post('/modules/attendance/regularize', [AttendanceController::class, 'regularize'])
-        ->name('attendance.regularize');
+            Route::post('/modules/attendance/regularize', [AttendanceController::class, 'regularize'])
+                ->name('attendance.regularize');
 
-    Route::post('/modules/attendance/regularize/{regularization}/decide', [AttendanceController::class, 'decide'])
-        ->name('attendance.decide');
-});
+            Route::post('/modules/attendance/regularize/{regularization}/decide', [AttendanceController::class, 'decide'])
+                ->name('attendance.decide');
+        });
 
-       // Leave
-Route::middleware(['permission:leave.view'])->group(function () {
+        // Leave
+        Route::middleware(['permission:leave.view'])->group(function () {
 
-    Route::get('/modules/leave', [LeaveController::class, 'index'])
-        ->name('leave.index');
+            Route::get('/modules/leave', [LeaveController::class, 'index'])
+                ->name('leave.index');
 
-    Route::post('/modules/leave/apply', [LeaveController::class, 'apply'])
-        ->name('leave.apply');
+            Route::post('/modules/leave/apply', [LeaveController::class, 'apply'])
+                ->name('leave.apply');
 
-    Route::post('/modules/leave/{leaveRequest}/decide', [LeaveController::class, 'decide'])
-        ->name('leave.decide');
-});
+            Route::post('/modules/leave/{leaveRequest}/decide', [LeaveController::class, 'decide'])
+                ->name('leave.decide');
+        });
         // Payroll
         Route::middleware(['permission:payroll.view'])->group(function () {
             Route::get('/modules/payroll', [PayrollController::class, 'index'])->name('payroll.index');
             Route::post('/modules/payroll/run', [PayrollController::class, 'runPayroll'])->name('payroll.run');
             Route::post('/modules/payroll/{employee}/salary', [PayrollController::class, 'updateSalary'])->name('payroll.salary.update');
             Route::get('/modules/payroll/payslip/{payslip}', [PayrollController::class, 'payslip'])->name('payroll.payslip');
+            Route::post('/modules/payroll/runs/{run}/discard', [PayrollController::class, 'discard'])->name('payroll.discard');
+            Route::post('/modules/payroll/runs/{run}/paid', [PayrollController::class, 'markPaid'])->name('payroll.paid');
+            Route::get('/modules/payroll/runs/{run}/register', [PayrollController::class, 'register'])->name('payroll.register');
+            Route::get('/modules/payroll/runs/{run}/bank-file', [PayrollController::class, 'bankFile'])->name('payroll.bank-file');
         });
 
-       // Recruitment
+        // Recruitment
         Route::middleware(['permission:recruitment.view'])->group(function () {
             Route::get('/modules/recruitment', [RecruitmentController::class, 'index'])
                 ->name('recruitment.index');
@@ -109,7 +112,7 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('recruitment.checklist.toggle');
         });
 
-      // Employee Records
+        // Employee Records
         Route::middleware(['permission:employee-records.view'])->group(function () {
             Route::get('/modules/employee-records', [EmployeeRecordsController::class, 'index'])
                 ->name('records.index');
@@ -155,14 +158,25 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('records.document.download');
         });
 
+        // Document Verification — HR Admin / Super Admin only
+        Route::middleware(['hr.admin'])->group(function () {
+            Route::get('/modules/document-verification', [DocumentVerificationController::class, 'index'])
+                ->name('verification.index');
+
+            Route::get('/modules/document-verification/{document}/preview', [DocumentVerificationController::class, 'preview'])
+                ->name('verification.preview');
+
+            Route::post('/modules/document-verification/{document}/decide', [DocumentVerificationController::class, 'decide'])
+                ->name('verification.decide');
+        });
+
         // My Profile
         Route::middleware(['permission:my-profile.view'])->group(function () {
             Route::get('/my-profile', [EmployeeRecordsController::class, 'myProfile'])
                 ->name('profile.index');
         });
 
-
-            // Performance / Appraisal
+        // Performance / Appraisal
         Route::middleware(['permission:performance.view'])->group(function () {
             Route::get('/modules/appraisal', [AppraisalController::class, 'index'])
                 ->name('appraisal.index');
@@ -172,15 +186,18 @@ Route::middleware(['permission:leave.view'])->group(function () {
 
             Route::post('/modules/appraisal/{appraisal}/review', [AppraisalController::class, 'submitManagerReview'])
                 ->name('appraisal.review');
+
+            Route::post('/modules/appraisal/targets', [AppraisalController::class, 'saveTargets'])
+                ->name('appraisal.targets.save');
         });
 
-      // PF & Gratuity
+        // PF & Gratuity
         Route::middleware(['permission:pf-gratuity.view'])->group(function () {
             Route::get('/modules/pf-gratuity', [PfGratuityController::class, 'index'])
                 ->name('pf.index');
         });
 
-       // Incentives
+        // Incentives
         Route::middleware(['permission:incentives.view'])->group(function () {
             Route::get('/modules/incentive', [IncentiveController::class, 'index'])
                 ->name('incentive.index');
@@ -190,6 +207,15 @@ Route::middleware(['permission:leave.view'])->group(function () {
 
             Route::post('/modules/incentive/payouts/{payout}/approve', [IncentiveController::class, 'approvePayout'])
                 ->name('incentive.payout.approve');
+
+            Route::post('/modules/incentive/calculate', [IncentiveController::class, 'calculate'])
+                ->name('incentive.calculate');
+
+            Route::post('/modules/incentive/rules/{rule}/toggle', [IncentiveController::class, 'toggleRule'])
+                ->name('incentive.rule.toggle');
+
+            Route::delete('/modules/incentive/rules/{rule}', [IncentiveController::class, 'destroyRule'])
+                ->name('incentive.rule.destroy');
         });
 
         // HR Reports
@@ -198,27 +224,19 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('reports.index');
         });
 
-      // System & Access
+        // System & Access
         Route::get('/modules/system', [SystemController::class, 'index'])
             ->middleware('permission:hr-system.view')
             ->name('system.index');
 
-        Route::post('/modules/system/users', [SystemController::class, 'storeUser'])
-            ->middleware('permission:hr-system.create')
-            ->name('system.user.store');
-
-        Route::post('/modules/system/users/{user}', [SystemController::class, 'updateUser'])
-            ->middleware('permission:hr-system.edit')
-            ->name('system.user.update');
-
-      // Work From Home
+        // Work From Home
         Route::middleware(['permission:work-from-home.view'])->group(function () {
             Route::get('/modules/wfh', [WfhController::class, 'index'])->name('wfh.index');
             Route::post('/modules/wfh', [WfhController::class, 'store'])->name('wfh.store');
             Route::post('/modules/wfh/{wfhRequest}/decide', [WfhController::class, 'decide'])->name('wfh.decide');
         });
 
-       // Announcements
+        // Announcements
         Route::middleware(['permission:announcements.view'])->group(function () {
             Route::get('/modules/announcements', [AnnouncementController::class, 'index'])
                 ->name('announcements.index');
@@ -227,7 +245,7 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('announcements.store');
         });
 
-       // HR Support
+        // HR Support
         Route::middleware(['permission:hr-support.view'])->group(function () {
             Route::get('/modules/support', [SupportController::class, 'index'])
                 ->name('support.index');
@@ -239,7 +257,7 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('support.update');
         });
 
-      // Settings
+        // Settings
         Route::get('/modules/settings', [SettingsController::class, 'index'])
             ->middleware('permission:hr-settings.view')
             ->name('settings.index');
@@ -248,7 +266,19 @@ Route::middleware(['permission:leave.view'])->group(function () {
             ->middleware('permission:hr-settings.edit')
             ->name('settings.update');
 
-       // Organization (Departments, Designations, Holidays)
+        Route::post('/modules/settings/leave-types', [SettingsController::class, 'updateLeaveTypes'])
+            ->middleware('permission:hr-settings.edit')
+            ->name('settings.leave-types.update');
+
+        Route::delete('/modules/settings/leave-types/{leaveType}', [SettingsController::class, 'destroyLeaveType'])
+            ->middleware('permission:hr-settings.edit')
+            ->name('settings.leave-types.destroy');
+
+        Route::post('/modules/settings/leave-types/new', [SettingsController::class, 'storeLeaveType'])
+            ->middleware('permission:hr-settings.edit')
+            ->name('settings.leave-types.store');
+
+        // Organization (Departments, Designations, Holidays)
 
         Route::get('/modules/organization', [OrganizationController::class, 'index'])
             ->middleware('permission:organization.view')
@@ -282,14 +312,10 @@ Route::middleware(['permission:leave.view'])->group(function () {
             ->middleware('permission:organization.delete')
             ->name('organization.holiday.destroy');
 
-
         // Notifications
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
-    
-    
-    
-    
-        });
+
+    });
 });

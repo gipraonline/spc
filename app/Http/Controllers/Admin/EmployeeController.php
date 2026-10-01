@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\TableExport;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Models\DesignationMaster;
 use App\Models\EmployeeEditLog;
@@ -14,11 +13,14 @@ use App\Models\Hr\EmployeeExit;
 use App\Models\KycSubmission;
 use App\Services\Hr\EmployeeExitService;
 use App\Services\Hr\EmployeeHrSyncService;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -44,11 +46,56 @@ class EmployeeController extends Controller
         return redirect()->route('admin.employees.index');
     }
 
+    /** Role identifiers treated as HR (see every employee). */
+    private const HR_ROLE_IDENTIFIERS = ['HRM', 'HR_TEAM'];
+
     /**
-     * Employee list query (session filters + the logged-in user's own branch of
-     * the org chart). Shared by the list page and the Excel export.
+     * How much of the employee list the signed-in user may see.
      *
-     * @return array{0: \Illuminate\Database\Eloquent\Builder, 1: string, 2: ?DesignationMaster, 3: ?array}
+     * @return array{0: 'all'|'direct', 1: ?int} mode, and (for 'direct')
+     *                                           the user's own employee id
+     */
+    private function employeeScope(): array
+    {
+        $user = auth()->user();
+
+        if ($user->hasAnyRole(['Super Admin', 'Gipra Admin'])) {
+            return ['all', null];
+        }
+
+        $isHr = $user->roles->contains(
+            fn ($role) => $role->hr_access === 'hr_admin'
+                || in_array($role->identifier, self::HR_ROLE_IDENTIFIERS, true)
+        );
+
+        if ($isHr) {
+            return ['all', null];
+        }
+
+        return ['direct', $user->n_employee_id ? (int) $user->n_employee_id : null];
+    }
+
+    /** 403 unless the signed-in user may see/manage this employee. */
+    private function authorizeEmployeeAccess(EmployeeMaster $employee): void
+    {
+        [$mode, $ownId] = $this->employeeScope();
+
+        if ($mode === 'all') {
+            return;
+        }
+
+        abort_unless(
+            $ownId && (int) $employee->reporting_to === $ownId,
+            403,
+            'You can only access employees who report to you.'
+        );
+    }
+
+    /**
+     * Employee list query (session filters + what the logged-in user may
+     * see — see employeeScope()). Shared by the list page and the Excel export.
+     *
+     * @return array{0: Builder, 1: string}
      */
     private function filteredEmployees(): array
     {
@@ -65,39 +112,19 @@ class EmployeeController extends Controller
             : $query->whereNull('deleted_at');
 
         /*
-         * Get logged-in user's role identifier from Spatie.
-         *
-         * Example:
-         * Farm Care Officer -> FCO
-         * National Sales Head -> NSH
+         * Who may see whom:
+         *   - Super Admin / Gipra Admin / HR  -> every employee, including
+         *     higher grades.
+         *   - Everyone else (FCO, managers, ...) -> only the employees who
+         *     report directly to them (reporting_to = their employee id),
+         *     not everyone in the designations below them.
          */
-        $role = auth()->user()->roles->first();
+        [$scopeMode, $scopeEmployeeId] = $this->employeeScope();
 
-        $userDesignation = null;
-
-        if ($role) {
-            $userDesignation = DesignationMaster::where(
-                'identifier',
-                $role->identifier
-            )
-                ->where('c_status', 'Y')
-                ->first();
-        }
-
-        /*
-         * Get employees only from designations in the logged-in user's
-         * own branch of the org chart (their designation's descendants),
-         * not just anyone at a lower hierarchy_level.
-         */
-        $branchDesignationIds = $userDesignation
-            ? $userDesignation->descendantIds()
-            : null;
-
-        if ($userDesignation) {
-            $query->whereHas('designation', function ($q) use ($branchDesignationIds) {
-                $q->whereIn('n_designation_id', $branchDesignationIds)
-                    ->where('c_status', 'Y');
-            });
+        if ($scopeMode === 'direct') {
+            $scopeEmployeeId
+                ? $query->where('reporting_to', $scopeEmployeeId)
+                : $query->whereRaw('1 = 0');
         }
 
         // Search by employee code or employee name
@@ -108,18 +135,12 @@ class EmployeeController extends Controller
             });
         }
 
-        /*
-         * Apply designation filter only if it belongs
-         * to the logged-in user's allowed branch.
-         */
-        if (! empty($designation) && $userDesignation) {
-            $query->whereHas('designation', function ($q) use ($designation, $branchDesignationIds) {
-                $q->where('n_designation_id', $designation)
-                    ->whereIn('n_designation_id', $branchDesignationIds);
-            });
+        // Designation filter (already limited to the allowed employees above).
+        if (! empty($designation)) {
+            $query->where('n_designation_id', $designation);
         }
 
-        return [$query, $statusFilter, $userDesignation, $branchDesignationIds];
+        return [$query, $statusFilter];
     }
 
     public function export()
@@ -143,7 +164,7 @@ class EmployeeController extends Controller
                 $e->n_employee_phone,
                 $e->city,
                 $e->reportingManager?->c_employee_name,
-                $e->date_of_joining ? \Carbon\Carbon::parse($e->date_of_joining)->format('d-m-Y') : null,
+                $e->date_of_joining ? Carbon::parse($e->date_of_joining)->format('d-m-Y') : null,
                 $statusFilter === 'former' ? 'Former' : ($e->c_status === 'Y' ? 'Active' : 'Inactive'),
             ];
         }
@@ -161,36 +182,36 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
-        [$query, $statusFilter, $userDesignation, $branchDesignationIds] = $this->filteredEmployees();
+        [$query, $statusFilter] = $this->filteredEmployees();
 
         $employees = $query->paginate(10);
 
+        [$scopeMode, $scopeEmployeeId] = $this->employeeScope();
+
+        // Employees this user is allowed to see (for the dropdown + search).
+        $allowedEmployees = EmployeeMaster::query()
+            ->whereNull('deleted_at')
+            ->when($scopeMode === 'direct', function ($q) use ($scopeEmployeeId) {
+                $scopeEmployeeId
+                    ? $q->where('reporting_to', $scopeEmployeeId)
+                    : $q->whereRaw('1 = 0');
+            });
+
         /*
-         * Designation dropdown:
-         * Show only designations in the logged-in user's own branch.
+         * Designation dropdown: every active designation for Super Admin /
+         * HR; only the designations of one's direct reports otherwise.
          */
         $designations = DesignationMaster::where('c_status', 'Y')
-            ->when($userDesignation, function ($q) use ($branchDesignationIds) {
-                $q->whereIn('n_designation_id', $branchDesignationIds);
+            ->when($scopeMode === 'direct', function ($q) use ($allowedEmployees) {
+                $q->whereIn('n_designation_id', (clone $allowedEmployees)->select('n_designation_id'));
             })
             ->orderBy('hierarchy_level')
             ->get();
 
-        /*
-         * Employee autocomplete:
-         * Show only employees from the allowed branch.
-         */
-        $employeesForSearch = EmployeeMaster::select(
-            'n_employee_id',
-            'c_employee_name',
-            'c_employee_code'
-        )
+        // Employee autocomplete: only the allowed employees.
+        $employeesForSearch = (clone $allowedEmployees)
+            ->select('n_employee_id', 'c_employee_name', 'c_employee_code')
             ->where('c_status', 'Y')
-            ->when($userDesignation, function ($q) use ($branchDesignationIds) {
-                $q->whereHas('designation', function ($designationQuery) use ($branchDesignationIds) {
-                    $designationQuery->whereIn('n_designation_id', $branchDesignationIds);
-                });
-            })
             ->orderBy('c_employee_name')
             ->get();
 
@@ -432,6 +453,7 @@ class EmployeeController extends Controller
 
     public function edit(EmployeeMaster $employee)
     {
+        $this->authorizeEmployeeAccess($employee);
 
         $designations = DesignationMaster::where('c_status', 'Y')->get();
         $employees = EmployeeMaster::where('c_status', 'Y')
@@ -449,53 +471,55 @@ class EmployeeController extends Controller
 
     public function update(Request $request, EmployeeMaster $employee)
     {
+        $this->authorizeEmployeeAccess($employee);
+
         $validator = Validator::make(
-            $request->all(),[
-            'c_employee_name' => 'required|string|max:255',
-            'c_employee_address' => 'nullable|string|max:500',
+            $request->all(), [
+                'c_employee_name' => 'required|string|max:255',
+                'c_employee_address' => 'nullable|string|max:500',
 
-            'c_employee_email' => 'nullable|email|max:255|',
+                'c_employee_email' => 'nullable|email|max:255|',
 
-            'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
+                'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
 
-            'n_designation_id' => 'required|exists:designation_masters,n_designation_id',
+                'n_designation_id' => 'required|exists:designation_masters,n_designation_id',
 
-            'reporting_to' => 'nullable|exists:employee_masters,n_employee_id',
+                'reporting_to' => 'nullable|exists:employee_masters,n_employee_id',
 
-            'c_status' => 'required|in:Y,N',
+                'c_status' => 'required|in:Y,N',
 
-            'account_number' => 'nullable|digits_between:8,18',
+                'account_number' => 'nullable|digits_between:8,18',
 
-            'ifsc_code' => 'nullable|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
+                'ifsc_code' => 'nullable|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
 
-            'bank_name' => 'nullable|string|max:255',
+                'bank_name' => 'nullable|string|max:255',
 
-            'branch_name' => 'nullable|string|max:255',
+                'branch_name' => 'nullable|string|max:255',
 
-            'date_of_birth' => 'nullable|date|before:today',
-            'gender' => 'nullable|in:male,female,other',
-            'personal_email' => 'nullable|email|max:255',
-            'city' => 'nullable|string|max:100',
-            'department_id' => 'nullable|integer',
-            'date_of_joining' => 'nullable|date',
+                'date_of_birth' => 'nullable|date|before:today',
+                'gender' => 'nullable|in:male,female,other',
+                'personal_email' => 'nullable|email|max:255',
+                'city' => 'nullable|string|max:100',
+                'department_id' => 'nullable|integer',
+                'date_of_joining' => 'nullable|date',
 
-            'password' => [
-                'nullable',
-                'confirmed',
-                Password::min(8)->letters()->numbers()->symbols(),
-            ],
-        ], [
-            'c_employee_email.unique' => 'This email already exists.',
-            'n_employee_phone.regex' => 'Please enter a valid 10-digit mobile number.',
-            'ifsc_code.regex' => 'Please enter a valid IFSC code.',
-            'account_number.digits_between' => 'Account number must be between 8 and 18 digits.',
-        ]);
+                'password' => [
+                    'nullable',
+                    'confirmed',
+                    Password::min(8)->letters()->numbers()->symbols(),
+                ],
+            ], [
+                'c_employee_email.unique' => 'This email already exists.',
+                'n_employee_phone.regex' => 'Please enter a valid 10-digit mobile number.',
+                'ifsc_code.regex' => 'Please enter a valid IFSC code.',
+                'account_number.digits_between' => 'Account number must be between 8 and 18 digits.',
+            ]);
 
         if ($validator->fails()) {
-           /*  return back()
-                ->withErrors($validator)
-                ->withInput(); */
-                 dd($validator->errors()->toArray());
+            /*  return back()
+                 ->withErrors($validator)
+                 ->withInput(); */
+            dd($validator->errors()->toArray());
         }
 
         $validated = $validator->validated();
@@ -587,6 +611,7 @@ class EmployeeController extends Controller
     public function destroy($id)
     {
         $employee = EmployeeMaster::findOrFail($id);
+        $this->authorizeEmployeeAccess($employee);
         $previousStatus = $employee->c_status;
 
         // Update employee status to 'D' (Deleted)

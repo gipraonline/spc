@@ -12,6 +12,12 @@ class SalaryStructure extends Model
 
     public $timestamps = false;
 
+    protected $casts = [
+        'pf_applicable' => 'boolean',
+        'esi_applicable' => 'boolean',
+        'pt_applicable' => 'boolean',
+    ];
+
     public function employee()
     {
         return $this->belongsTo(Employee::class);

@@ -353,7 +353,10 @@ class DashboardController extends Controller
 
         $totalOrders = $orders->count();
 
+        // Deleted orders must never count (SalesOrder has no SoftDeletes
+        // trait, so the filter has to be explicit).
         $salesTrendQuery = SalesOrder::query()
+            ->whereNull('sales_orders.deleted_at')
             ->whereBetween('sales_orders.created_at', [
                 now()->subDays(30)->startOfDay(),
                 now()->endOfDay(),
@@ -387,10 +390,20 @@ class DashboardController extends Controller
                 'sales_orders.farm_care_advisor_id',
                 array_unique($employeeIds)
             );
+
+            // Every other non-admin role (staff, managers, etc.): same scope
+            // as the order cards above — own sales + direct reports only.
+        } elseif (! $isAdminDashboard) {
+
+            $salesTrendQuery->whereIn(
+                'sales_orders.farm_care_advisor_id',
+                $scopedEmployeeIds
+            );
         }
 
-        // Super Admin, Gipra Admin, National Sales Head,
-        // Regional Sales Head, Team Lead → no filter = all sales
+        // Admin dashboard roles (Super Admin, Gipra Admin, National Sales Head,
+        // Regional Sales Head, Team Lead, or dashboard.view-all-orders)
+        // → no filter = all sales
 
         $salesTrend = $salesTrendQuery
             ->selectRaw('DATE(sales_orders.created_at) as date, SUM(sales_orders.n_net_sales_amount) as total')

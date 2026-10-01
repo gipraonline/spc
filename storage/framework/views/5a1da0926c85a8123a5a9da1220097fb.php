@@ -1134,6 +1134,31 @@
 
 <?php $__env->startSection('content'); ?>
 <?php
+<<<<<<< HEAD
+// Per-designation card visibility (Admin > Designations > Edit).
+// null = unrestricted; array = only these card keys are shown.
+$visibleCards = $visibleCards ?? null;
+$show = fn (string $key): bool => $visibleCards === null || in_array($key, $visibleCards, true);
+
+$showQaSales = $show('qa_sales_orders');
+$showQaCustomers = $show('qa_customers');
+$showQaHr = $hasHrAccess && $show('hr_quick_actions');
+$showQaStrip = $showQaSales || $showQaCustomers || $showQaHr;
+
+$showKpiSales = $show('kpi_customers') || $show('kpi_todays_sales') || $show('kpi_total_sales');
+$showKpiHr = $hasHrAccess && $show('hr_kpis') && (isset($hrKpis) || isset($myHrSnapshot));
+$showKpiSection = $showKpiSales || $showKpiHr;
+
+$showMain = $show('order_lifecycle') || $show('payment_overview');
+$showRailApprovals = $show('hr_pending_approvals') && isset($hrPendingApprovals);
+$showRailDistribution = $show('hr_distribution') && isset($deptDistribution);
+$showRailSnapshot = $show('hr_snapshot') && !isset($hrPendingApprovals) && !isset($deptDistribution) && isset($myHrSnapshot);
+$showRailHoliday = $show('hr_next_holiday') && !empty($upcomingHoliday);
+$showRail = $hasHrAccess && ($showRailApprovals || $showRailDistribution || $showRailSnapshot || $showRailHoliday);
+?>
+<?php
+=======
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
 $hour = (int) now()->format('G');
 $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening' );
     $firstName=explode(' ', $user->name ?? ' there')[0]; ?>  <div class="u-hero">
@@ -1195,7 +1220,11 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
     </div>
 
     
+<<<<<<< HEAD
+    <?php if($hasHrAccess && $show('hr_notices') && isset($tickerAnnouncements) && $tickerAnnouncements->isNotEmpty()): ?>
+=======
     <?php if($hasHrAccess && isset($tickerAnnouncements) && $tickerAnnouncements->isNotEmpty()): ?>
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
     <div class="u-ticker">
         <span class="u-ticker-label"><i class="fa-solid fa-bullhorn"></i> Notices</span>
         <div class="u-ticker-items">
@@ -1211,6 +1240,22 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
     <?php endif; ?>
 
     
+<<<<<<< HEAD
+    <?php if($showQaStrip): ?>
+    <div class="u-qa-strip">
+        <span class="u-qa-eyebrow">Quick actions</span>
+        <?php if($showQaSales): ?>
+        <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="u-qa-btn"><i class="fa-solid fa-cart-shopping"></i>
+            Sales Orders</a>
+        <?php endif; ?>
+        <?php if($showQaCustomers): ?>
+        <a href="<?php echo e(route('admin.customers.index')); ?>" class="u-qa-btn"><i class="fa-solid fa-users"></i> Customers</a>
+        <?php endif; ?>
+        <?php if($showQaHr): ?>
+        <?php if($showQaSales || $showQaCustomers): ?>
+        <div class="u-qa-divider"></div>
+        <?php endif; ?>
+=======
     <div class="u-qa-strip">
         <span class="u-qa-eyebrow">Quick actions</span>
         <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="u-qa-btn"><i class="fa-solid fa-cart-shopping"></i>
@@ -1218,6 +1263,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         <a href="<?php echo e(route('admin.customers.index')); ?>" class="u-qa-btn"><i class="fa-solid fa-users"></i> Customers</a>
         <?php if($hasHrAccess): ?>
         <div class="u-qa-divider"></div>
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
         <?php if(isset($quickActionsHr)): ?>
         <?php $__currentLoopData = $quickActionsHr; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $qa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <a href="<?php echo e($qa['url']); ?>" class="u-qa-btn hr"><i class="fa-solid fa-arrow-up-right-from-square"></i>
@@ -1233,11 +1279,23 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         <?php endif; ?>
         <?php endif; ?>
     </div>
+<<<<<<< HEAD
+    <?php endif; ?>
+
+    
+    <?php if($showKpiSection): ?>
+    <div class="u-section">
+        <?php if($showKpiSales): ?>
+        <div class="u-eyebrow"><span class="dot"></span> Sales at a glance</div>
+        <div class="u-kpi-grid">
+            <?php if($show('kpi_customers')): ?>
+=======
 
     
     <div class="u-section">
         <div class="u-eyebrow"><span class="dot"></span> Sales at a glance</div>
         <div class="u-kpi-grid">
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
             <div class="u-kpi-card">
                 <div class="u-kpi-ico"><i class="fa-solid fa-users"></i></div>
                 <div>
@@ -1245,6 +1303,11 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                     <div class="u-kpi-value"><?php echo e(number_format($totalCustomers)); ?></div>
                 </div>
             </div>
+<<<<<<< HEAD
+            <?php endif; ?>
+            <?php if($show('kpi_todays_sales')): ?>
+=======
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
             <div class="u-kpi-card">
                 <div class="u-kpi-ico"><i class="fa-solid fa-calendar-day"></i></div>
                 <div>
@@ -1252,6 +1315,11 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                     <div class="u-kpi-value">₹<?php echo e(number_format($todaysSalesValue, 2)); ?></div>
                 </div>
             </div>
+<<<<<<< HEAD
+            <?php endif; ?>
+            <?php if($show('kpi_total_sales')): ?>
+=======
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
             <div class="u-kpi-card">
                 <div class="u-kpi-ico"><i class="fa-solid fa-chart-line"></i></div>
                 <div>
@@ -1259,10 +1327,19 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                     <div class="u-kpi-value">₹<?php echo e(number_format($totalSalesValue, 2)); ?></div>
                 </div>
             </div>
+<<<<<<< HEAD
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if($showKpiHr && isset($hrKpis)): ?>
+        <div class="u-eyebrow hr" style="<?php echo e($showKpiSales ? 'margin-top:18px;' : ''); ?>"><span class="dot"></span> HR at a glance</div>
+=======
         </div>
 
         <?php if($hasHrAccess && isset($hrKpis)): ?>
         <div class="u-eyebrow hr" style="margin-top:18px;"><span class="dot"></span> HR at a glance</div>
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
         <div class="u-kpi-grid">
             <?php $__currentLoopData = $hrKpis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kpi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="u-kpi-card hr-kpi">
@@ -1274,8 +1351,13 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
             </div>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
+<<<<<<< HEAD
+        <?php elseif($showKpiHr && isset($myHrSnapshot)): ?>
+        <div class="u-eyebrow hr" style="<?php echo e($showKpiSales ? 'margin-top:18px;' : ''); ?>"><span class="dot"></span> My HR at a glance</div>
+=======
         <?php elseif($hasHrAccess && isset($myHrSnapshot)): ?>
         <div class="u-eyebrow hr" style="margin-top:18px;"><span class="dot"></span> My HR at a glance</div>
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
         <div class="u-kpi-grid">
             <div class="u-kpi-card hr-kpi">
                 <div class="u-kpi-ico"><i class="fa-solid fa-user-check"></i></div>
@@ -1296,8 +1378,15 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         </div>
         <?php endif; ?>
     </div>
+<<<<<<< HEAD
+    <?php endif; ?>
 
     
+    <?php if($show('sales_graphs')): ?>
+=======
+
+    
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
     <div class="u-section">
         <div class="u-section-head">
             <h3><i class="fa-solid fa-chart-column"></i> Sales Graphs</h3>
@@ -1312,12 +1401,25 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
             </div>
         </div>
     </div>
+<<<<<<< HEAD
+    <?php endif; ?>
+
+    
+    <?php if($showMain || $showRail): ?>
+    <div class="row g-4">
+        <?php if($showMain): ?>
+        <div class="<?php echo e($showRail ? 'col-lg-8' : 'col-12'); ?>">
+
+            
+            <?php if($show('order_lifecycle')): ?>
+=======
 
     
     <div class="row g-4">
         <div class="col-lg-8">
 
             
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
             <div class="u-section">
                 <div class="u-section-head">
                     <h3><i class="fa-solid fa-truck-fast"></i> Order Lifecycle</h3>
@@ -1367,7 +1469,14 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 </div>
             </div>
 
+<<<<<<< HEAD
+            <?php endif; ?>
+
             
+            <?php if($show('payment_overview')): ?>
+=======
+            
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
             <div class="u-section" style="margin-bottom:0;">
                 <div class="u-section-head">
                     <h3><i class="fa-solid fa-money-check-dollar"></i> Payment Overview</h3>
@@ -1418,6 +1527,19 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                     <?php endif; ?>
                 </div>
             </div>
+<<<<<<< HEAD
+            <?php endif; ?>
+
+        </div>
+        <?php endif; ?>
+
+        
+        <?php if($showRail): ?>
+        <div class="<?php echo e($showMain ? 'col-lg-4' : 'col-12'); ?>">
+            <div class="u-rail">
+
+                <?php if($showRailApprovals): ?>
+=======
 
         </div>
 
@@ -1427,6 +1549,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
             <div class="u-rail">
 
                 <?php if(isset($hrPendingApprovals)): ?>
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
                 <div class="u-rail-card">
                     <h4><i class="fa-solid fa-clipboard-check"></i> Pending Approvals <span
                             class="u-rail-badge"><?php echo e($hrPendingApprovals->count()); ?></span></h4>
@@ -1460,7 +1583,11 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 </div>
                 <?php endif; ?>
 
+<<<<<<< HEAD
+                <?php if($showRailDistribution): ?>
+=======
                 <?php if(isset($deptDistribution)): ?>
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
                 <div class="u-rail-card">
                     <h4><i class="fa-solid fa-chart-pie"></i> Employee Distribution</h4>
                     <?php $__empty_1 = true; $__currentLoopData = $deptDistribution['departments']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
@@ -1478,7 +1605,11 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 </div>
                 <?php endif; ?>
 
+<<<<<<< HEAD
+                <?php if($showRailSnapshot): ?>
+=======
                 <?php if(!isset($hrPendingApprovals) && !isset($deptDistribution) && isset($myHrSnapshot)): ?>
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
                 <div class="u-rail-card">
                     <h4><i class="fa-solid fa-id-badge"></i> My HR Snapshot</h4>
                     <div class="u-mini-kpi-row">
@@ -1497,7 +1628,11 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 </div>
                 <?php endif; ?>
 
+<<<<<<< HEAD
+                <?php if($showRailHoliday): ?>
+=======
                 <?php if($upcomingHoliday): ?>
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
                 <div class="u-rail-card">
                     <h4><i class="fa-solid fa-umbrella-beach"></i> Next Holiday</h4>
                     <div class="u-holiday-inline">
@@ -1518,15 +1653,29 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         </div>
         <?php endif; ?>
     </div>
+<<<<<<< HEAD
+    <?php endif; ?>
 
     <?php $__env->stopSection(); ?>
 
+    
+    <?php if(($visibleCards ?? null) === null || in_array('sales_graphs', $visibleCards, true)): ?>
+=======
+
+    <?php $__env->stopSection(); ?>
+
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
     <?php $__env->startPush('scripts'); ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Sales trend — 7 day line chart
+<<<<<<< HEAD
+        var trendEl = document.getElementById('uSalesTrendChart');
+        if (trendEl) new Chart(trendEl, {
+=======
         new Chart(document.getElementById('uSalesTrendChart'), {
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
             type: 'line',
             data: {
                 labels: <?php echo json_encode($salesTrendLabels, 15, 512) ?>,
@@ -1571,7 +1720,12 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         });
 
         // Order status — doughnut chart
+<<<<<<< HEAD
+        var mixEl = document.getElementById('uOrderStatusChart');
+        if (mixEl) new Chart(mixEl, {
+=======
         new Chart(document.getElementById('uOrderStatusChart'), {
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
             type: 'doughnut',
             data: {
                 labels: <?php echo json_encode($orderStatusChart['labels'], 15, 512) ?>,
@@ -1612,4 +1766,9 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
     });
     </script>
     <?php $__env->stopPush(); ?>
+<<<<<<< HEAD
+    <?php endif; ?>
+
+=======
+>>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/dashboard-unified.blade.php ENDPATH**/ ?>

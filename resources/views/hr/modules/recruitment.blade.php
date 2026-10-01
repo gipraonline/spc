@@ -51,7 +51,7 @@
         @endif
 
         @if($requisitions->isNotEmpty())
-            <form method="GET" action="{{ url('/modules/recruitment') }}" style="margin:24px 0 0;max-width:440px;" onchange="this.submit()">
+            <form method="GET" action="{{ url('/hr/modules/recruitment') }}" style="margin:24px 0 0;max-width:440px;" onchange="this.submit()">
                 <div class="field">
                     <label><i class="fa-solid fa-filter" style="color:var(--brand);margin-right:6px;font-size:11px;"></i>Candidate pipeline for</label>
                     <select name="requisition">

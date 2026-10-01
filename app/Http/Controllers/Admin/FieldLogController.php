@@ -5,10 +5,44 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\FieldLog;
 use App\Models\FieldLogTask;
+use App\Support\Geo;
 use Illuminate\Http\Request;
 
 class FieldLogController extends Controller
 {
+    /**
+     * Read the browser-supplied GPS fix from the request.
+     * Returns [lat, lng, accuracy_m] (all null when none was shared).
+     * When config('spc.field_log_require_gps') is on, a missing fix is a validation error.
+     */
+    private function gpsFromRequest(Request $request, string $errorKey): array
+    {
+        $request->validate([
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'accuracy' => 'nullable|numeric|min:0|max:100000',
+        ]);
+
+        $lat = $request->input('latitude');
+        $lng = $request->input('longitude');
+
+        if (! Geo::valid($lat, $lng)) {
+            if (config('spc.field_log_require_gps')) {
+                abort(back()->withErrors([
+                    $errorKey => 'Location is required. Please allow location access in your browser and try again.',
+                ])->withInput());
+            }
+
+            return [null, null, null];
+        }
+
+        return [
+            round((float) $lat, 7),
+            round((float) $lng, 7),
+            $request->filled('accuracy') ? (int) round((float) $request->input('accuracy')) : null,
+        ];
+    }
+
     /**
      * Field Log page
      */
@@ -73,12 +107,17 @@ class FieldLogController extends Controller
             ]);
         }
 
+        [$lat, $lng, $accuracy] = $this->gpsFromRequest($request, 'checkin');
+
         // Create today's field log
         $fieldLog = FieldLog::create([
             'user_id' => auth()->id(),
             'work_date' => today(),
             'check_in_time' => now(),
             'check_in_remark' => $request->check_in_remark,
+            'check_in_latitude' => $lat,
+            'check_in_longitude' => $lng,
+            'check_in_accuracy_m' => $accuracy,
             'status' => 'Checked In',
         ]);
 
@@ -95,7 +134,9 @@ class FieldLogController extends Controller
 
         return back()->with(
             'success',
-            'Checked In Successfully'
+            $lat === null
+                ? 'Checked In Successfully (location was not captured).'
+                : 'Checked In Successfully'
         );
     }
 
@@ -222,9 +263,14 @@ class FieldLogController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        [$lat, $lng, $accuracy] = $this->gpsFromRequest($request, 'checkout');
+
         $fieldLog->update([
             'check_out_time' => now(),
             'check_out_remark' => $request->check_out_remark,
+            'check_out_latitude' => $lat,
+            'check_out_longitude' => $lng,
+            'check_out_accuracy_m' => $accuracy,
             'status' => 'Checked Out',
         ]);
 

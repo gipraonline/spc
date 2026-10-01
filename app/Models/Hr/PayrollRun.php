@@ -12,6 +12,11 @@ class PayrollRun extends Model
 
     public $timestamps = false;
 
+    protected $casts = [
+        'processed_at' => 'datetime',
+        'paid_at' => 'datetime',
+    ];
+
     public function payslips()
     {
         return $this->hasMany(Payslip::class);

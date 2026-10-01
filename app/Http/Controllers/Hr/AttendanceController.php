@@ -6,8 +6,11 @@ namespace App\Http\Controllers\Hr;
 use App\Models\Hr\Attendance;
 use App\Models\Hr\AttendanceRegularization;
 use App\Models\Hr\Employee;
+use App\Models\Hr\SystemSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class AttendanceController extends Controller
 {
@@ -343,10 +346,10 @@ class AttendanceController extends Controller
             return back()->with('status', 'You have already checked in today.');
         }
 
-        $lateMinutes = max(0, Carbon::parse($today.' 09:00:00')->diffInMinutes($now, false));
+        [$status, $lateMinutes] = $this->lateStatus($now, $today);
         $attendance->update([
             'check_in' => $now,
-            'status' => $lateMinutes > 0 ? 'late' : 'present',
+            'status' => $status,
             'late_minutes' => $lateMinutes,
         ]);
 
@@ -406,9 +409,9 @@ class AttendanceController extends Controller
 
         if ($data['status'] === 'present') {
             $checkIn = $attendance->check_in ?: now();
-            $lateMinutes = max(0, Carbon::parse($today.' 09:00:00')->diffInMinutes(Carbon::parse($checkIn), false));
+            [$status, $lateMinutes] = $this->lateStatus(Carbon::parse($checkIn), $today);
             $attendance->update([
-                'status' => $lateMinutes > 0 ? 'late' : 'present',
+                'status' => $status,
                 'check_in' => $checkIn,
                 'late_minutes' => $lateMinutes,
             ]);
@@ -425,6 +428,30 @@ class AttendanceController extends Controller
         return back()->with('status', $employee->user->name.' marked '.ucfirst($data['status']).' for today.');
     }
 
+    /**
+     * Grace period (minutes after 09:00) from HR Settings → attendance_grace_minutes.
+     */
+    private function graceMinutes(): int
+    {
+        $value = SystemSetting::where('setting_key', 'attendance_grace_minutes')->value('setting_value');
+
+        return is_numeric($value) ? max(0, (int) $value) : 0;
+    }
+
+    /**
+     * Status + late minutes for a check-in. Arriving within the grace period
+     * counts as on time (present, 0 late minutes); beyond it the employee is
+     * "late" and late_minutes is the full time after 09:00.
+     *
+     * @return array{0: string, 1: int}
+     */
+    private function lateStatus(Carbon $checkIn, string $date): array
+    {
+        $late = (int) floor(max(0, Carbon::parse($date.' 09:00:00')->diffInMinutes($checkIn, false)));
+
+        return $late > $this->graceMinutes() ? ['late', $late] : ['present', 0];
+    }
+
     public function regularize(Request $request)
     {
         $this->abortUnlessModuleAllowed('attendance');
@@ -432,22 +459,64 @@ class AttendanceController extends Controller
         $role = $this->currentRole();
         abort_unless($employee && $role !== 'super_admin', 403);
 
-        $data = $request->validate([
-            'attendance_date' => 'required|date',
-            'requested_check_in' => 'nullable',
-            'requested_check_out' => 'nullable',
+        $today = now()->toDateString();
+
+        $rules = [
+            'attendance_date' => 'required|date_format:Y-m-d|before_or_equal:'.$today,
+            'requested_check_in' => 'nullable|date_format:H:i',
+            'requested_check_out' => 'nullable|date_format:H:i',
             'reason' => 'required|string|max:255',
+        ];
+        if ($request->filled('requested_check_in')) {
+            $rules['requested_check_out'] .= '|after:requested_check_in';
+        }
+
+        $data = $request->validate($rules, [
+            'requested_check_out.after' => 'Check-out time must be later than the check-in time.',
+            'attendance_date.before_or_equal' => 'You cannot regularize a future date.',
         ]);
 
-        $attendance = Attendance::firstOrCreate(
-            ['employee_id' => $employee->id, 'attendance_date' => $data['attendance_date']],
-            ['status' => 'absent', 'late_minutes' => 0, 'early_exit_minutes' => 0]
-        );
+        $date = $data['attendance_date'];
+        $existing = Attendance::where('employee_id', $employee->id)->where('attendance_date', $date)->first();
+
+        // A time left blank keeps whatever punch already exists — nothing is
+        // silently invented (the old code filled in 09:00 / 18:00).
+        $checkIn = $request->filled('requested_check_in')
+            ? Carbon::parse($date.' '.$data['requested_check_in'].':00')
+            : ($existing && $existing->check_in ? Carbon::parse($existing->check_in) : null);
+
+        $checkOut = $request->filled('requested_check_out')
+            ? Carbon::parse($date.' '.$data['requested_check_out'].':00')
+            : ($existing && $existing->check_out ? Carbon::parse($existing->check_out) : null);
+
+        if (! $checkIn) {
+            throw ValidationException::withMessages(['requested_check_in' => 'Enter a check-in time — there is no punch on that day to keep.']);
+        }
+
+        if ($checkOut && $checkOut->lessThanOrEqualTo($checkIn)) {
+            throw ValidationException::withMessages(['requested_check_out' => 'Check-out time must be later than the check-in time.']);
+        }
+
+        if ($date === $today && ($checkIn->isFuture() || ($checkOut && $checkOut->isFuture()))) {
+            throw ValidationException::withMessages(['requested_check_in' => 'Times for today cannot be in the future.']);
+        }
+
+        if ($existing && AttendanceRegularization::where('attendance_id', $existing->id)->where('status', 'pending')->exists()) {
+            throw ValidationException::withMessages(['attendance_date' => 'A regularization for this date is already pending.']);
+        }
+
+        $attendance = $existing ?: Attendance::create([
+            'employee_id' => $employee->id,
+            'attendance_date' => $date,
+            'status' => 'absent',
+            'late_minutes' => 0,
+            'early_exit_minutes' => 0,
+        ]);
 
         AttendanceRegularization::create([
             'attendance_id' => $attendance->id,
-            'requested_check_in' => $data['attendance_date'].' '.($data['requested_check_in'] ?: '09:00').':00',
-            'requested_check_out' => $data['attendance_date'].' '.($data['requested_check_out'] ?: '18:00').':00',
+            'requested_check_in' => $checkIn,
+            'requested_check_out' => $checkOut,
             'reason' => $data['reason'],
             'status' => 'pending',
             'created_at' => now(),
@@ -461,30 +530,71 @@ class AttendanceController extends Controller
         $this->abortUnlessModuleAllowed('attendance');
         abort_unless($this->isManagerOrAbove(), 403);
 
-        $regularization->loadMissing('attendance.employee');
-        $currentEmployee = $this->currentEmployee();
-        if ($currentEmployee && $regularization->attendance && $regularization->attendance->employee_id === $currentEmployee->id) {
-            abort(403, 'You cannot approve your own regularization.');
-        }
-
         $data = $request->validate(['action' => 'required|in:approve,reject']);
+        $approve = $data['action'] === 'approve';
 
-        if ($data['action'] === 'approve') {
-            $regularization->attendance()->update([
-                'check_in' => $regularization->requested_check_in,
-                'check_out' => $regularization->requested_check_out,
-                'status' => 'present',
-                'late_minutes' => 0,
-                'early_exit_minutes' => 0,
+        $actorUser = $this->currentUser();
+        $actorEmployee = $this->currentEmployee();
+        $role = $this->currentRole();
+
+        $problem = DB::connection('spc_hr')->transaction(function () use ($regularization, $approve, $actorUser, $actorEmployee, $role) {
+            $reg = AttendanceRegularization::whereKey($regularization->id)->lockForUpdate()->firstOrFail();
+            $reg->load('attendance.employee');
+            $attendance = $reg->attendance;
+            abort_unless($attendance, 404);
+
+            abort_if(
+                ($actorEmployee && $attendance->employee_id === $actorEmployee->id)
+                    || ($attendance->employee && $attendance->employee->user_id === $actorUser->id),
+                403,
+                'You cannot approve your own regularization.'
+            );
+
+            // Managers only decide for direct reports (same scope as the pending list).
+            if ($role === 'manager') {
+                abort_unless(
+                    $actorEmployee && $actorEmployee->directReports()->whereKey($attendance->employee_id)->exists(),
+                    403,
+                    'This request is not from one of your direct reports.'
+                );
+            }
+
+            if ($reg->status !== 'pending') {
+                return 'This regularization has already been '.$reg->status.'.';
+            }
+
+            if ($approve) {
+                $date = Carbon::parse($attendance->attendance_date)->toDateString();
+                $checkIn = $reg->requested_check_in ? Carbon::parse($reg->requested_check_in) : null;
+                $checkOut = $reg->requested_check_out ? Carbon::parse($reg->requested_check_out) : null;
+
+                [$status, $late] = $checkIn ? $this->lateStatus($checkIn, $date) : ['present', 0];
+                $early = $checkOut
+                    ? (int) floor(max(0, $checkOut->diffInMinutes(Carbon::parse($date.' 18:00:00'), false)))
+                    : 0;
+
+                $attendance->update([
+                    'check_in' => $checkIn,
+                    'check_out' => $checkOut,
+                    'status' => $status,
+                    'late_minutes' => $late,
+                    'early_exit_minutes' => $early,
+                ]);
+            }
+
+            $reg->update([
+                'status' => $approve ? 'approved' : 'rejected',
+                'approved_by' => $actorUser->id,
+                'approved_at' => now(),
             ]);
+
+            return null;
+        });
+
+        if ($problem) {
+            throw ValidationException::withMessages(['regularization' => $problem]);
         }
 
-        $regularization->update([
-            'status' => $data['action'] === 'approve' ? 'approved' : 'rejected',
-            'approved_by' => $this->currentUser()->id,
-            'approved_at' => now(),
-        ]);
-
-        return back()->with('status', 'Regularization request '.($data['action'] === 'approve' ? 'approved.' : 'rejected.'));
+        return back()->with('status', 'Regularization request '.($approve ? 'approved.' : 'rejected.'));
     }
 }

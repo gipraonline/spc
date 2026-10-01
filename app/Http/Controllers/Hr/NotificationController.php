@@ -37,7 +37,14 @@ class NotificationController extends Controller
             $notification->update(['read_at' => now()]);
         }
 
-        return redirect($notification->link ?? route('hr.notifications.index'));
+        $link = $notification->link;
+
+        // Safety net for links stored before the /hr prefix was added.
+        if ($link && str_starts_with($link, '/modules/')) {
+            $link = '/hr'.$link;
+        }
+
+        return redirect($link ?: route('hr.notifications.index'));
     }
 
     /**

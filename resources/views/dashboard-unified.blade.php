@@ -68,7 +68,8 @@
     letter-spacing: .01em;
     position: relative;
     z-index: 1;
-    color: #fff; /* beat the layout's global dark heading color */
+    color: #fff;
+    /* beat the layout's global dark heading color */
 }
 
 .u-hero h2 .u-wave {
@@ -480,14 +481,37 @@
 }
 
 /* per-status accent colors (used by --oc) */
-.u-order-total { --oc: #1F5C2E; }
-.u-order-pending { --oc: #C07E08; }
-.u-order-approved { --oc: #12805C; }
-.u-order-dispatched { --oc: #1D6FA5; }
-.u-order-shipped { --oc: #6D3FBF; }
-.u-order-delivered { --oc: #0F8A6D; }
-.u-order-completed { --oc: #4E7A33; }
-.u-order-returned { --oc: #C03434; }
+.u-order-total {
+    --oc: #1F5C2E;
+}
+
+.u-order-pending {
+    --oc: #C07E08;
+}
+
+.u-order-approved {
+    --oc: #12805C;
+}
+
+.u-order-dispatched {
+    --oc: #1D6FA5;
+}
+
+.u-order-shipped {
+    --oc: #6D3FBF;
+}
+
+.u-order-delivered {
+    --oc: #0F8A6D;
+}
+
+.u-order-completed {
+    --oc: #4E7A33;
+}
+
+.u-order-returned {
+    --oc: #C03434;
+}
 
 /* (per-status gradient fills removed — the light widget design with
    the --oc accent color handles status colors now, keeping text readable) */
@@ -1038,12 +1062,29 @@
 }
 
 /* stagger the KPI cards left-to-right */
-.u-kpi-grid .u-kpi-card:nth-child(1) { animation-delay: .18s; }
-.u-kpi-grid .u-kpi-card:nth-child(2) { animation-delay: .24s; }
-.u-kpi-grid .u-kpi-card:nth-child(3) { animation-delay: .3s; }
-.u-kpi-grid .u-kpi-card:nth-child(4) { animation-delay: .36s; }
-.u-kpi-grid .u-kpi-card:nth-child(5) { animation-delay: .42s; }
-.u-kpi-grid .u-kpi-card:nth-child(6) { animation-delay: .48s; }
+.u-kpi-grid .u-kpi-card:nth-child(1) {
+    animation-delay: .18s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(2) {
+    animation-delay: .24s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(3) {
+    animation-delay: .3s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(4) {
+    animation-delay: .36s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(5) {
+    animation-delay: .42s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(6) {
+    animation-delay: .48s;
+}
 
 .u-card {
     animation: uRise .55s ease .3s backwards;
@@ -1087,20 +1128,22 @@
 
 @push('scripts')
 <script>
-(function () {
+(function() {
     /* Count-up numbers — pure sugar: falls back to the server-rendered
        value if JS is off, and respects reduced motion. */
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!reduce && 'IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function (entries) {
-            entries.forEach(function (e) {
+        var io = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
                 if (!e.isIntersecting) return;
                 io.unobserve(e.target);
                 countUp(e.target);
             });
-        }, { threshold: .4 });
+        }, {
+            threshold: .4
+        });
 
-        document.querySelectorAll('.u-kpi-value').forEach(function (el) {
+        document.querySelectorAll('.u-kpi-value').forEach(function(el) {
             io.observe(el);
         });
     }
@@ -1115,7 +1158,8 @@
         if (!isFinite(end) || end === 0) return;
         var suffix = m[3] || '';
         var decimals = (m[2].indexOf('.') >= 0) ? 2 : 0;
-        var dur = 900, t0 = null;
+        var dur = 900,
+            t0 = null;
 
         function frame(t) {
             if (!t0) t0 = t;
@@ -1135,6 +1179,29 @@
 @endpush
 
 @section('content')
+@php
+// Per-designation card visibility (Admin > Designations > Edit).
+// null = unrestricted; array = only these card keys are shown.
+$visibleCards = $visibleCards ?? null;
+$show = fn (string $key): bool => $visibleCards === null || in_array($key, $visibleCards, true);
+
+$showQaSales = $show('qa_sales_orders');
+$showQaCustomers = $show('qa_customers');
+$showQaHr = $hasHrAccess && $show('hr_quick_actions');
+$showQaStrip = $showQaSales || $showQaCustomers || $showQaHr;
+
+$showKpiSales = $show('kpi_customers') || $show('kpi_todays_sales') || $show('kpi_total_sales');
+$showKpiHr = $hasHrAccess && $show('hr_kpis') && (isset($hrKpis) || isset($myHrSnapshot));
+$showKpiSection = $showKpiSales || $showKpiHr;
+
+$showMain = $show('order_lifecycle') || $show('payment_overview');
+$showRailApprovals = $show('hr_pending_approvals') && isset($hrPendingApprovals);
+$showRailDistribution = $show('hr_distribution') && isset($deptDistribution);
+$showRailSnapshot = $show('hr_snapshot') && !isset($hrPendingApprovals) && !isset($deptDistribution) &&
+isset($myHrSnapshot);
+$showRailHoliday = $show('hr_next_holiday') && !empty($upcomingHoliday);
+$showRail = $hasHrAccess && ($showRailApprovals || $showRailDistribution || $showRailSnapshot || $showRailHoliday);
+@endphp
 @php
 $hour = (int) now()->format('G');
 $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening' );
@@ -1199,7 +1266,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
     {{-- =========================================================
      NOTICES — same spot as the HR dashboard: right under the hero
 ========================================================= --}}
-    @if($hasHrAccess && isset($tickerAnnouncements) && $tickerAnnouncements->isNotEmpty())
+    @if($hasHrAccess && $show('hr_notices') && isset($tickerAnnouncements) && $tickerAnnouncements->isNotEmpty())
     <div class="u-ticker">
         <span class="u-ticker-label"><i class="fa-solid fa-bullhorn"></i> Notices</span>
         <div class="u-ticker-items">
@@ -1218,13 +1285,20 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
      2. QUICK ACTIONS — first thing scanned, so the most-used
      links are reachable in one click before anything else
 ========================================================= --}}
+    @if($showQaStrip)
     <div class="u-qa-strip">
         <span class="u-qa-eyebrow">Quick actions</span>
+        @if($showQaSales)
         <a href="{{ route('admin.salesorders.index') }}" class="u-qa-btn"><i class="fa-solid fa-cart-shopping"></i>
             Sales Orders</a>
+        @endif
+        @if($showQaCustomers)
         <a href="{{ route('admin.customers.index') }}" class="u-qa-btn"><i class="fa-solid fa-users"></i> Customers</a>
-        @if($hasHrAccess)
+        @endif
+        @if($showQaHr)
+        @if($showQaSales || $showQaCustomers)
         <div class="u-qa-divider"></div>
+        @endif
         @if(isset($quickActionsHr))
         @foreach($quickActionsHr as $qa)
         <a href="{{ $qa['url'] }}" class="u-qa-btn hr"><i class="fa-solid fa-arrow-up-right-from-square"></i>
@@ -1240,14 +1314,18 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         @endif
         @endif
     </div>
+    @endif
 
     {{-- =========================================================
      3. KPI OVERVIEW — Sales and HR clearly labeled and grouped
      separately so each set reads as its own story
 ========================================================= --}}
+    @if($showKpiSection)
     <div class="u-section">
+        @if($showKpiSales)
         <div class="u-eyebrow"><span class="dot"></span> Sales at a glance</div>
         <div class="u-kpi-grid">
+            @if($show('kpi_customers'))
             <div class="u-kpi-card">
                 <div class="u-kpi-ico"><i class="fa-solid fa-users"></i></div>
                 <div>
@@ -1255,6 +1333,8 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                     <div class="u-kpi-value">{{ number_format($totalCustomers) }}</div>
                 </div>
             </div>
+            @endif
+            @if($show('kpi_todays_sales'))
             <div class="u-kpi-card">
                 <div class="u-kpi-ico"><i class="fa-solid fa-calendar-day"></i></div>
                 <div>
@@ -1262,6 +1342,8 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                     <div class="u-kpi-value">₹{{ number_format($todaysSalesValue, 2) }}</div>
                 </div>
             </div>
+            @endif
+            @if($show('kpi_total_sales'))
             <div class="u-kpi-card">
                 <div class="u-kpi-ico"><i class="fa-solid fa-chart-line"></i></div>
                 <div>
@@ -1269,10 +1351,13 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                     <div class="u-kpi-value">₹{{ number_format($totalSalesValue, 2) }}</div>
                 </div>
             </div>
+            @endif
         </div>
+        @endif
 
-        @if($hasHrAccess && isset($hrKpis))
-        <div class="u-eyebrow hr" style="margin-top:18px;"><span class="dot"></span> HR at a glance</div>
+        @if($showKpiHr && isset($hrKpis))
+        <div class="u-eyebrow hr" style="{{ $showKpiSales ? 'margin-top:18px;' : '' }}"><span class="dot"></span> HR at
+            a glance</div>
         <div class="u-kpi-grid">
             @foreach($hrKpis as $kpi)
             <div class="u-kpi-card hr-kpi">
@@ -1284,8 +1369,9 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
             </div>
             @endforeach
         </div>
-        @elseif($hasHrAccess && isset($myHrSnapshot))
-        <div class="u-eyebrow hr" style="margin-top:18px;"><span class="dot"></span> My HR at a glance</div>
+        @elseif($showKpiHr && isset($myHrSnapshot))
+        <div class="u-eyebrow hr" style="{{ $showKpiSales ? 'margin-top:18px;' : '' }}"><span class="dot"></span> My HR
+            at a glance</div>
         <div class="u-kpi-grid">
             <div class="u-kpi-card hr-kpi">
                 <div class="u-kpi-ico"><i class="fa-solid fa-user-check"></i></div>
@@ -1305,11 +1391,13 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         </div>
         @endif
     </div>
+    @endif
 
     {{-- =========================================================
      4. ANALYTICS — the two graphs, together as one "read the
      trend" moment before the detail grids below
 ========================================================= --}}
+    @if($show('sales_graphs'))
     <div class="u-section">
         <div class="u-section-head">
             <h3><i class="fa-solid fa-chart-column"></i> Sales Graphs</h3>
@@ -1324,6 +1412,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
             </div>
         </div>
     </div>
+    @endif
 
     {{-- =========================================================
      5. MAIN CONTENT (left, operational detail) +
@@ -1331,10 +1420,13 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         holiday all together where they're easy to check without
         scrolling through order/payment detail first)
 ========================================================= --}}
+    @if($showMain || $showRail)
     <div class="row g-4">
-        <div class="col-lg-8">
+        @if($showMain)
+        <div class="{{ $showRail ? 'col-lg-8' : 'col-12' }}">
 
             {{-- ORDER LIFECYCLE --}}
+            @if($show('order_lifecycle'))
             <div class="u-section">
                 <div class="u-section-head">
                     <h3><i class="fa-solid fa-truck-fast"></i> Order Lifecycle</h3>
@@ -1342,49 +1434,60 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 </div>
                 <div class="u-order-grid">
                     <a href="{{ route('admin.salesorders.index') }}" class="text-decoration-none">
-                        <div class="u-order-card u-order-total"><span class="i"><i class="fa-solid fa-layer-group"></i></span><span
+                        <div class="u-order-card u-order-total"><span class="i"><i
+                                    class="fa-solid fa-layer-group"></i></span><span
                                 class="n">{{ number_format($totalOrders) }}</span><span class="l">Total Orders</span>
                         </div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'pending']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-pending"><span class="i"><i class="fa-solid fa-hourglass-half"></i></span><span class="n">{{ $pendingOrders }}</span><span
-                                class="l">Pending</span></div>
+                        <div class="u-order-card u-order-pending"><span class="i"><i
+                                    class="fa-solid fa-hourglass-half"></i></span><span
+                                class="n">{{ $pendingOrders }}</span><span class="l">Pending</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'approved']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-approved"><span class="i"><i class="fa-solid fa-circle-check"></i></span><span class="n">{{ $approvedOrders }}</span><span
-                                class="l">Approved</span></div>
+                        <div class="u-order-card u-order-approved"><span class="i"><i
+                                    class="fa-solid fa-circle-check"></i></span><span
+                                class="n">{{ $approvedOrders }}</span><span class="l">Approved</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'dispatched']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-dispatched"><span class="i"><i class="fa-solid fa-box-open"></i></span><span class="n">{{ $dispatchedOrders }}</span><span
-                                class="l">Dispatched</span></div>
+                        <div class="u-order-card u-order-dispatched"><span class="i"><i
+                                    class="fa-solid fa-box-open"></i></span><span
+                                class="n">{{ $dispatchedOrders }}</span><span class="l">Dispatched</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'shipped']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-shipped"><span class="i"><i class="fa-solid fa-truck"></i></span><span class="n">{{ $shippedOrders }}</span><span
-                                class="l">Shipped</span></div>
+                        <div class="u-order-card u-order-shipped"><span class="i"><i
+                                    class="fa-solid fa-truck"></i></span><span
+                                class="n">{{ $shippedOrders }}</span><span class="l">Shipped</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'delivered']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-delivered"><span class="i"><i class="fa-solid fa-house-circle-check"></i></span><span class="n">{{ $deliveredOrders }}</span><span
-                                class="l">Delivered</span></div>
+                        <div class="u-order-card u-order-delivered"><span class="i"><i
+                                    class="fa-solid fa-house-circle-check"></i></span><span
+                                class="n">{{ $deliveredOrders }}</span><span class="l">Delivered</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'completed']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-completed"><span class="i"><i class="fa-solid fa-flag-checkered"></i></span><span class="n">{{ $completedOrders }}</span><span
-                                class="l">Completed</span></div>
+                        <div class="u-order-card u-order-completed"><span class="i"><i
+                                    class="fa-solid fa-flag-checkered"></i></span><span
+                                class="n">{{ $completedOrders }}</span><span class="l">Completed</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'returned']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-returned"><span class="i"><i class="fa-solid fa-rotate-left"></i></span><span class="n">{{ $returnedOrders }}</span><span
-                                class="l">Returned</span></div>
+                        <div class="u-order-card u-order-returned"><span class="i"><i
+                                    class="fa-solid fa-rotate-left"></i></span><span
+                                class="n">{{ $returnedOrders }}</span><span class="l">Returned</span></div>
                     </a>
                 </div>
             </div>
 
+            @endif
+
             {{-- PAYMENT OVERVIEW --}}
+            @if($show('payment_overview'))
             <div class="u-section" style="margin-bottom:0;">
                 <div class="u-section-head">
                     <h3><i class="fa-solid fa-money-check-dollar"></i> Payment Overview</h3>
@@ -1434,16 +1537,18 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                     @endforelse
                 </div>
             </div>
+            @endif
 
         </div>
+        @endif
 
         {{-- RIGHT RAIL — everything HR-actionable, grouped for a quick
          glance without needing to scroll through Sales detail --}}
-        @if($hasHrAccess)
-        <div class="col-lg-4">
+        @if($showRail)
+        <div class="{{ $showMain ? 'col-lg-4' : 'col-12' }}">
             <div class="u-rail">
 
-                @if(isset($hrPendingApprovals))
+                @if($showRailApprovals)
                 <div class="u-rail-card">
                     <h4><i class="fa-solid fa-clipboard-check"></i> Pending Approvals <span
                             class="u-rail-badge">{{ $hrPendingApprovals->count() }}</span></h4>
@@ -1477,7 +1582,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 </div>
                 @endif
 
-                @if(isset($deptDistribution))
+                @if($showRailDistribution)
                 <div class="u-rail-card">
                     <h4><i class="fa-solid fa-chart-pie"></i> Employee Distribution</h4>
                     @forelse($deptDistribution['departments'] as $d)
@@ -1495,7 +1600,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 </div>
                 @endif
 
-                @if(!isset($hrPendingApprovals) && !isset($deptDistribution) && isset($myHrSnapshot))
+                @if($showRailSnapshot)
                 <div class="u-rail-card">
                     <h4><i class="fa-solid fa-id-badge"></i> My HR Snapshot</h4>
                     <div class="u-mini-kpi-row">
@@ -1513,7 +1618,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 </div>
                 @endif
 
-                @if($upcomingHoliday)
+                @if($showRailHoliday)
                 <div class="u-rail-card">
                     <h4><i class="fa-solid fa-umbrella-beach"></i> Next Holiday</h4>
                     <div class="u-holiday-inline">
@@ -1533,15 +1638,20 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         </div>
         @endif
     </div>
+    @endif
 
     @endsection
 
+    {{-- Chart library + chart data are only sent to the browser when the
+         Sales Graphs card is visible for this user's designation. --}}
+    @if(($visibleCards ?? null) === null || in_array('sales_graphs', $visibleCards, true))
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Sales trend — 7 day line chart
-        new Chart(document.getElementById('uSalesTrendChart'), {
+        var trendEl = document.getElementById('uSalesTrendChart');
+        if (trendEl) new Chart(trendEl, {
             type: 'line',
             data: {
                 labels: @json($salesTrendLabels),
@@ -1586,7 +1696,8 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         });
 
         // Order status — doughnut chart
-        new Chart(document.getElementById('uOrderStatusChart'), {
+        var mixEl = document.getElementById('uOrderStatusChart');
+        if (mixEl) new Chart(mixEl, {
             type: 'doughnut',
             data: {
                 labels: @json($orderStatusChart['labels']),
@@ -1627,3 +1738,4 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
     });
     </script>
     @endpush
+    @endif

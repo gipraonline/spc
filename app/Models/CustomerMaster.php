@@ -47,7 +47,7 @@ public function district()
 }
 public static function generateCustomerCode()
 {
-    $lastCustomer = self::orderByDesc('n_customer_id')->first();
+    $lastCustomer = self::withTrashed()->orderByDesc('n_customer_id')->lockForUpdate()->first();
 
     if (!$lastCustomer || !$lastCustomer->c_customer_code) {
         return 'CUS0001';

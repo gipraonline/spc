@@ -15,7 +15,9 @@ class EnsureUserSelected
      * a user that no longer exists), first try the single sign-on bridge: a
      * visitor who is already logged into the SPC portal with a matching HR
      * account (same email) is signed straight in, no second login required.
-     * Only if neither is available do we send them to the HR sign-in page.
+     * There is no separate HR sign-in page: if the visitor is not logged into
+     * SPC they go to the SPC login, and if they are logged in but have no
+     * (or a suspended) HR account they are sent back to the dashboard.
      */
     public function handle(Request $request, Closure $next)
     {
@@ -32,15 +34,17 @@ class EnsureUserSelected
         }
 
         if (! $user) {
-            return redirect()->route('hr.login.show');
+            return Auth::check()
+                ? redirect()->route('dashboard')->with('error', 'No HR account is linked to your login.')
+                : redirect()->route('login');
         }
 
         if (! $user->is_active) {
             $request->session()->forget('user_id');
-            $request->session()->regenerate();
 
-            return redirect()->route('hr.login.show')
-                ->withErrors(['email' => 'This account has been suspended. Contact your Super Admin.']);
+            return Auth::check()
+                ? redirect()->route('dashboard')->with('error', 'This HR account has been suspended. Contact your Super Admin.')
+                : redirect()->route('login')->withErrors(['email' => 'This account has been suspended. Contact your Super Admin.']);
         }
 
         return $next($request);

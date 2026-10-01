@@ -4,6 +4,7 @@ namespace App\Services\Hr;
 
 use App\Models\Hr\AppraisalCycle;
 use App\Models\Hr\Employee;
+use App\Models\Hr\SalesTarget;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -31,7 +32,7 @@ class PerformanceInsightsService
     private const EARNED_PAYOUT_STATUSES = ['approved', 'included_in_payroll', 'paid'];
 
     /* ------------------------------------------------------------------ */
-    /*  Period                                                             */
+    /*  Period */
     /* ------------------------------------------------------------------ */
 
     /** [from, to] for a cycle (clipped to today), or the last 90 days. */
@@ -72,19 +73,27 @@ class PerformanceInsightsService
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Role entry points                                                  */
+    /*  Role entry points */
     /* ------------------------------------------------------------------ */
 
     /** One employee's own numbers. */
-    public function forEmployee(Employee $employee, Carbon $from, Carbon $to): array
+    public function forEmployee(Employee $employee, Carbon $from, Carbon $to, ?int $cycleId = null): array
     {
         $masterIds = $employee->employee_master_id ? [(int) $employee->employee_master_id] : [];
+        $sales = $this->salesSummary($masterIds, $from, $to);
+        $leads = $this->leadsSummary($masterIds, $from, $to);
+        $fieldDays = $this->fieldDays($masterIds, $from, $to);
 
         return [
+            'targets' => $this->targetProgress($employee->id, $cycleId, [
+                'net_sales' => $sales['net_sales'], 'orders' => $sales['orders'],
+                'new_leads' => $leads['total'], 'field_days' => $fieldDays,
+            ]),
+            'field_days' => $fieldDays,
             'sales_linked' => ! empty($masterIds),
-            'sales' => $this->salesSummary($masterIds, $from, $to),
+            'sales' => $sales,
             'trend' => $this->monthlyTrend($masterIds),
-            'leads' => $this->leadsSummary($masterIds, $from, $to),
+            'leads' => $leads,
             'attendance' => $this->attendanceSummary([$employee->id], $from, $to),
             'incentives' => $this->incentiveSummary([$employee->id], $from, $to),
             'ratings' => $this->ratingHistory($employee->id),
@@ -115,7 +124,12 @@ class PerformanceInsightsService
                 ->pluck('status', 'employee_id')->all()
             : [];
 
-        $rows = $members->map(function (Employee $m) use ($salesByMaster, $attendanceById, $ratingById, $statusById) {
+        $salesTargets = $cycleId
+            ? DB::connection('spc_hr')->table('sales_targets')->where('appraisal_cycle_id', $cycleId)->where('metric', 'net_sales')
+                ->whereIn('employee_id', $hrIds)->pluck('target_value', 'employee_id')->map(fn ($v) => (float) $v)->all()
+            : [];
+
+        $rows = $members->map(function (Employee $m) use ($salesByMaster, $attendanceById, $ratingById, $statusById, $salesTargets) {
             $s = $salesByMaster[$m->employee_master_id] ?? null;
 
             return [
@@ -123,6 +137,8 @@ class PerformanceInsightsService
                 'code' => $m->employee_code,
                 'orders' => (int) ($s->orders ?? 0),
                 'net_sales' => (float) ($s->net_sales ?? 0),
+                'sales_target' => $salesTargets[$m->id] ?? null,
+                'target_pct' => isset($salesTargets[$m->id]) && $salesTargets[$m->id] > 0 ? round((float) ($s->net_sales ?? 0) / $salesTargets[$m->id] * 100) : null,
                 'attendance_rate' => $attendanceById[$m->id]['rate'] ?? null,
                 'latest_rating' => $ratingById[$m->id] ?? null,
                 'appraisal_status' => $statusById[$m->id] ?? null,
@@ -205,7 +221,7 @@ class PerformanceInsightsService
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Sales (default / "spc" connection)                                 */
+    /*  Sales (default / "spc" connection) */
     /* ------------------------------------------------------------------ */
 
     /** Base query. $ids === null means "everyone". */
@@ -350,7 +366,62 @@ class PerformanceInsightsService
     }
 
     /* ------------------------------------------------------------------ */
-    /*  HR data ("spc_hr" connection)                                      */
+    /*  Targets */
+    /* ------------------------------------------------------------------ */
+
+    /** Distinct days on which the advisor(s) checked in to the field log. */
+    protected function fieldDays(?array $masterIds, Carbon $from, Carbon $to): int
+    {
+        if ($masterIds !== null && empty($masterIds)) {
+            return 0;
+        }
+
+        try {
+            return (int) DB::table('field_logs as f')
+                ->join('admins as a', 'a.n_role_id', '=', 'f.user_id')
+                ->whereBetween('f.work_date', [$from->toDateString(), $to->toDateString()])
+                ->when($masterIds !== null, fn ($q) => $q->whereIn('a.n_employee_id', $masterIds))
+                ->selectRaw('COUNT(DISTINCT f.user_id, f.work_date) as n')->value('n');
+        } catch (\Throwable $e) {
+            report($e);
+
+            return 0;
+        }
+    }
+
+    /**
+     * Targets set for this employee/cycle next to what they have achieved.
+     *
+     * @param  array<string, float|int>  $actuals  metric => actual value
+     * @return array<int, array{metric:string,label:string,money:bool,target:float,actual:float,pct:int}>
+     */
+    public function targetProgress(int $employeeId, ?int $cycleId, array $actuals): array
+    {
+        if (! $cycleId) {
+            return [];
+        }
+
+        return SalesTarget::where('employee_id', $employeeId)->where('appraisal_cycle_id', $cycleId)
+            ->get()
+            ->filter(fn ($t) => isset(SalesTarget::METRICS[$t->metric]) && (float) $t->target_value > 0)
+            ->map(function ($t) use ($actuals) {
+                $actual = (float) ($actuals[$t->metric] ?? 0);
+
+                return [
+                    'metric' => $t->metric,
+                    'label' => SalesTarget::METRICS[$t->metric]['short'],
+                    'money' => SalesTarget::METRICS[$t->metric]['money'],
+                    'target' => (float) $t->target_value,
+                    'actual' => $actual,
+                    'pct' => (int) round($actual / (float) $t->target_value * 100),
+                ];
+            })
+            ->sortBy(fn ($r) => array_search($r['metric'], array_keys(SalesTarget::METRICS)))
+            ->values()->all();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  HR data ("spc_hr" connection) */
     /* ------------------------------------------------------------------ */
 
     /** $employeeIds === null means "everyone". */

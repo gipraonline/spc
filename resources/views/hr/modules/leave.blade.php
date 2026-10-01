@@ -11,23 +11,40 @@
     'heroStats' => $role !== 'super_admin' ? [
         ['label' => 'My requests', 'icon' => 'fa-regular fa-paper-plane', 'value' => $ownRequests->count()],
         ['label' => 'To approve', 'icon' => 'fa-solid fa-hourglass-half', 'value' => $pendingApprovals->count()],
-        ['label' => 'Days left', 'icon' => 'fa-solid fa-scale-balanced', 'value' => rtrim(rtrim(number_format($balances->sum('remaining'),1),'0'),'.').'d'],
+        ['label' => 'Days left', 'icon' => 'fa-solid fa-scale-balanced', 'value' => rtrim(rtrim(number_format($leaveSummary->where('paid', true)->sum('remaining'),1),'0'),'.').'d'],
     ] : [
         ['label' => 'To approve', 'icon' => 'fa-solid fa-hourglass-half', 'value' => $pendingApprovals->count()],
     ],
 ])
 
 <div class="content">
-    @if($role !== 'super_admin' && $balances->isNotEmpty())
-    @php $entitled = fn($b) => $b->opening_balance + $b->accrued + $b->carried_forward; @endphp
-    <div class="stat-tiles" style="grid-template-columns:repeat({{ min($balances->count(), 4) }},1fr);">
-        @foreach($balances as $b)
-        @php $pct = $entitled($b) > 0 ? round($b->remaining / $entitled($b) * 100) : 0; @endphp
-        <div class="ring-card">
-            <div class="ring" style="--pct:{{ $pct }};"><b>{{ rtrim(rtrim(number_format($b->remaining,1),'0'),'.') }}</b></div>
-            <h4>{{ $b->leaveType->name }}</h4>
-            <small>{{ $pct }}% of {{ rtrim(rtrim(number_format($entitled($b),1),'0'),'.') }}d left</small>
+    @if($role !== 'super_admin' && $leaveSummary->isNotEmpty())
+    @php $fmt = fn($n) => rtrim(rtrim(number_format($n, 1), '0'), '.') ?: '0'; @endphp
+    <div class="stat-tiles" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));">
+        @foreach($leaveSummary as $row)
+        @if($row['unlimited'])
+        <div class="ring-card" data-leave-card="{{ $row['type']->id }}">
+            <div class="ring" style="--pct:100;"><b style="font-size:22px;">&infin;</b></div>
+            <h4>{{ $row['type']->name }}</h4>
+            <small>Unlimited &middot; {{ $fmt($row['used']) }}d taken{{ $row['pending'] > 0 ? ' · '.$fmt($row['pending']).'d pending' : '' }}</small>
         </div>
+        @else
+        @php
+            // Headline = what you can still apply for: balance left minus days
+            // already waiting for approval on pending requests.
+            $avail = $row['available'];
+            $pct = $row['entitled'] > 0 ? round($avail / $row['entitled'] * 100) : 0;
+        @endphp
+        <div class="ring-card" data-leave-card="{{ $row['type']->id }}" style="{{ $row['entitled'] <= 0 ? 'opacity:.6;' : '' }}">
+            <div class="ring" style="--pct:{{ $pct }};"><b>{{ $fmt($avail) }}</b></div>
+            <h4>{{ $row['type']->name }}</h4>
+            @if($row['entitled'] <= 0)
+                <small>No days allocated</small>
+            @else
+                <small>{{ $fmt($avail) }} of {{ $fmt($row['entitled']) }}d left{{ $row['pending'] > 0 ? ' · '.$fmt($row['pending']).'d awaiting approval' : '' }}</small>
+            @endif
+        </div>
+        @endif
         @endforeach
     </div>
     @endif
@@ -47,17 +64,23 @@
                 <div class="field-grid">
                     <div class="field">
                         <label>Leave type</label>
-                        <select name="leave_type_id" required>
-                            @foreach($leaveTypes as $lt)
-                            <option value="{{ $lt->id }}">{{ $lt->name }}</option>
+                        <select name="leave_type_id" id="leaveTypeSel" required>
+                            @foreach($leaveSummary as $row)
+                            <option value="{{ $row['type']->id }}" data-unlimited="{{ $row['unlimited'] ? 1 : 0 }}" data-available="{{ $row['unlimited'] ? '' : $row['available'] }}" @disabled(! $row['unlimited'] && $row['available'] <= 0)>
+                                {{ $row['type']->name }} &mdash;
+                                @if($row['unlimited']) unlimited
+                                @else {{ $fmt($row['available']) }}d available
+                                @endif
+                            </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="field"><label>From</label><input type="date" name="start_date" required></div>
-                    <div class="field"><label>To</label><input type="date" name="end_date" required></div>
+                    <div class="field"><label>From</label><input type="date" name="start_date" id="leaveFrom" required></div>
+                    <div class="field"><label>To</label><input type="date" name="end_date" id="leaveTo" required></div>
                     <div class="field full"><label>Reason</label><textarea name="reason"
                             placeholder="Brief reason"></textarea></div>
                 </div>
+                <p id="leaveHint" class="card-note" style="margin:12px 0 0;display:none;font-weight:600;"></p>
                 <div class="form-actions"><button type="submit" class="btn-primary">Submit leave request</button></div>
             </form>
         </div>
@@ -269,4 +292,42 @@
     </div>
     @endif
 </div>
+<script>
+(function () {
+    const sel = document.getElementById('leaveTypeSel');
+    const from = document.getElementById('leaveFrom');
+    const to = document.getElementById('leaveTo');
+    const hint = document.getElementById('leaveHint');
+    if (!sel || !from || !to || !hint) return;
+
+    const fmt = n => (Math.round(n * 10) / 10).toString();
+
+    function update() {
+        if (!from.value || !to.value) { hint.style.display = 'none'; return; }
+        const days = Math.round((new Date(to.value) - new Date(from.value)) / 86400000) + 1;
+        if (!(days >= 1)) { hint.style.display = 'none'; return; }
+
+        const opt = sel.options[sel.selectedIndex];
+        const name = opt.text.split('\u2014')[0].trim();
+        hint.style.display = 'block';
+
+        if (opt.dataset.unlimited === '1') {
+            hint.style.color = 'var(--brand-strong)';
+            hint.textContent = days + ' day' + (days === 1 ? '' : 's') + ' of ' + name + ' \u2014 no limit applies.';
+            return;
+        }
+
+        const left = parseFloat(opt.dataset.available) - days;
+        if (left < 0) {
+            hint.style.color = 'var(--bad)';
+            hint.textContent = days + ' day' + (days === 1 ? '' : 's') + ' requested but only ' + fmt(parseFloat(opt.dataset.available)) + ' of ' + name + ' available.';
+        } else {
+            hint.style.color = 'var(--brand-strong)';
+            hint.textContent = days + ' day' + (days === 1 ? '' : 's') + ' of ' + name + ' \u2014 you\u2019ll have ' + fmt(left) + ' left after this.';
+        }
+    }
+
+    [sel, from, to].forEach(el => el.addEventListener('change', update));
+})();
+</script>
 @endsection

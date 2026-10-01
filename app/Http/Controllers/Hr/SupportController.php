@@ -65,7 +65,7 @@ class SupportController extends Controller
         ]));
 
         foreach (User::whereIn('role', ['hr_admin', 'super_admin'])->pluck('id') as $userId) {
-            Notification::notify($userId, 'support_ticket', 'New '.$data['category'].' ticket: '.$data['subject'], '/modules/support');
+            Notification::notify($userId, 'support_ticket', 'New '.$data['category'].' ticket: '.$data['subject'], '/hr/modules/support');
         }
 
         return back()->with('status', 'Ticket raised — HR will follow up.');
@@ -92,7 +92,7 @@ class SupportController extends Controller
                 $ticket->employee->user->id,
                 'support_update',
                 'Your ticket "'.$ticket->subject.'" is now '.str_replace('_', ' ', $data['status']).'.',
-                '/modules/support'
+                '/hr/modules/support'
             );
         }
 

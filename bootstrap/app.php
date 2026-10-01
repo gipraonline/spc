@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\Hr\EnsureHrAdmin;
 use App\Http\Middleware\Hr\EnsureUserSelected;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,6 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
+        // Runs after the session/auth are resolved, on every web request.
+        $middleware->appendToGroup('web', EnsureAccountIsActive::class);
+
         $middleware->alias([
             'admin' => AdminMiddleware::class,
 
@@ -34,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // HR Module's own session-based auth gate (separate from the SPC module's auth).
             'hr.auth' => EnsureUserSelected::class,
+            'hr.admin' => EnsureHrAdmin::class,
         ]);
 
     })

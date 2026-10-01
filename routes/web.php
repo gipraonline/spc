@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\FranchiseSalesReportController;
 use App\Http\Controllers\Hr\EmployeeExitController;
 use App\Http\Controllers\Admin\FieldLogController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\CoverageMapController;
+use App\Http\Controllers\Admin\LeadCockpitController;
 use App\Http\Controllers\Admin\LeadsController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PaymentManagementController;
@@ -373,6 +375,14 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:leads.view')
             ->name('leads.index');
 
+        Route::get('leads/cockpit', [LeadCockpitController::class, 'index'])
+            ->middleware('permission:leads.cockpit')
+            ->name('leads.cockpit');
+
+        Route::get('coverage-map', [CoverageMapController::class, 'index'])
+            ->middleware('permission:coverage-map.view')
+            ->name('coverage-map.index');
+
         Route::get('leads/create', [LeadsController::class, 'create'])
             ->middleware('permission:leads.create')
             ->name('leads.create');
@@ -414,6 +424,13 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:sales-orders.view')
             ->name('salesorders.index');
 
+        // Payment / booklet proof images (private storage, permission-gated)
+        Route::get('salesorders/proof/{type}/{filename}', [SalesController::class, 'proof'])
+            ->middleware('permission:sales-orders.view|sales-orders.view-details|sales-orders.create|sales-orders.edit|sales-orders.approval')
+            ->where('type', 'payment_images|booklet_images')
+            ->where('filename', '[A-Za-z0-9_.\-]+')
+            ->name('salesorders.proof');
+
         Route::get('salesorders/create', [SalesController::class, 'create'])
             ->middleware('permission:sales-orders.create')
             ->name('salesorders.create');
@@ -430,9 +447,11 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:sales-orders.approval')
             ->name('salesorders.approval.save');
 
-        Route::put('salesorders/followup', [SalesController::class, 'salesUpdateSave'])
-            ->middleware('permission:sales-orders.follow-up')
-            ->name('salesorders.salesUpdateStore');
+       Route::put('salesorders/followup', [SalesController::class, 'salesUpdateStore'])
+    ->middleware('permission:sales-orders.follow-up')
+    ->name('salesorders.salesUpdateStore.put');   
+    
+    
 
         Route::get('salesorders/edit/{id}', [SalesController::class, 'edit'])
             ->middleware('permission:sales-orders.edit')
@@ -492,16 +511,16 @@ Route::middleware(['auth', 'admin'])
             ->name('telecallers.store');
 
         Route::get('telecallers/show/{id}', [SalesController::class, 'show'])
-            ->middleware('permission:tele-callers.view-details')
-            ->name('salesorders.show');
+    ->middleware('permission:tele-callers.view-details')
+    ->name('telecallers.show');  
 
         Route::put('telecallers/approval', [SalesController::class, 'approve'])
             ->middleware('permission:tele-callers.approval')
             ->name('telecallers.approval.save');
 
-        Route::put('telecallers/followup', [SalesController::class, 'salesUpdateSave'])
-            ->middleware('permission:tele-callers.follow-up')
-            ->name('telecallers.salesUpdateStore');
+        Route::put('telecallers/followup', [SalesController::class, 'salesUpdateStore'])
+    ->middleware('permission:tele-callers.follow-up')
+    ->name('telecallers.salesUpdateStore');
 
         Route::get('telecallers/edit/{id}', [SalesController::class, 'edit'])
             ->middleware('permission:tele-callers.edit')
@@ -528,8 +547,8 @@ Route::middleware(['auth', 'admin'])
             ->name('customers.index');
 
         Route::post('salesorders/followup', [SalesController::class, 'salesUpdateStore'])
-            ->middleware('permission:sales-orders.follow-up')
-            ->name('salesorders.salesUpdateStore');
+    ->middleware('permission:sales-orders.follow-up')
+    ->name('salesorders.salesUpdateStore');
         Route::get('customers/create', [CustomerController::class, 'create'])
             ->middleware('permission:customers.create')
             ->name('customers.create');

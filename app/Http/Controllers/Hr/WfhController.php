@@ -141,7 +141,7 @@ class WfhController extends Controller
                 $employee->reportingManager->user->id,
                 'wfh_request',
                 $employee->user->name.' requested WFH from '.Carbon::parse($data['start_date'])->format('d M').'.',
-                '/modules/wfh'
+                '/hr/modules/wfh'
             );
         }
 
@@ -167,7 +167,7 @@ class WfhController extends Controller
                 $wfhRequest->employee->user->id,
                 'wfh_decision',
                 'Your WFH request was '.($data['action'] === 'approve' ? 'approved' : 'rejected').'.',
-                '/modules/wfh'
+                '/hr/modules/wfh'
             );
         }
 

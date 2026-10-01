@@ -8,7 +8,6 @@ use App\Models\Admin;
 use App\Models\AuditRecord;
 use App\Models\CategoryMaster;
 use App\Models\CustomerMaster;
-use App\Models\DesignationMaster;
 use App\Models\District;
 use App\Models\EmployeeMaster;
 use App\Models\OrderProduct;
@@ -19,12 +18,18 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderstatusUpdation;
 use App\Models\State;
 use App\Models\StoreMaster;
+use App\Support\Geo;
 use Carbon\Carbon;
 use DB;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -542,6 +547,7 @@ class SalesController extends Controller
                 'employee',
                 'franchise',
                 'customer',
+                'approval',
             ])
             ->whereNull('sales_orders.deleted_at');
 
@@ -1371,125 +1377,136 @@ class SalesController extends Controller
             ->all();
     }
 
+    /**
+     * Decrypt an encrypted id coming from the URL / a hidden field.
+     * A tampered or expired value is a 404, not a 500.
+     */
+    private function decryptId(?string $encrypted): int
+    {
+        try {
+            return (int) Crypt::decryptString((string) $encrypted);
+        } catch (\Throwable $e) {
+            abort(404);
+        }
+    }
+
+    /**
+     * Role flags shared by the create / edit / show screens.
+     * The Blade view relies on ALL of these being defined.
+     */
+    private function roleFlags(): array
+    {
+        $user = Auth::user();
+        $identifiers = $user ? $user->roles->pluck('identifier')->all() : [];
+        $employeeId = $user?->n_employee_id;
+
+        $is = fn (array $ids) => (bool) array_intersect($ids, $identifiers);
+
+        $isFca = $is(['FCA']);
+        $isFco = $is(['FCO']);
+        $isAdmin = $is(['SUPER_ADMIN', 'GIPRA_ADMIN']);
+        $isTc = $is(['TC']);
+
+        return [
+            'isFarmCareAdvisor' => $isFca,
+            'farmCareAdvisorId' => $isFca ? $employeeId : null,
+            'isFarmCareOfficer' => $isFco,
+            'farmCareOfficerId' => $isFco ? $employeeId : null,
+            'isAdmin' => $isAdmin,
+            'isAdminId' => $isAdmin ? $employeeId : null,
+            'isTelecaller' => $isTc,
+            'isTelecallerId' => $isTc ? $employeeId : null,
+        ];
+    }
+
+    /**
+     * Load a (non-deleted) sales order and make sure the logged-in user is
+     * allowed to touch it. Mirrors the visibility rules of index():
+     *  - FCA / TC : only their own orders
+     *  - FCO      : own orders + orders of everyone below them
+     *  - others   : unrestricted (permissions are enforced by the routes)
+     */
+    private function findAccessibleOrder(int $id, array $with = []): SalesOrder
+    {
+        $order = SalesOrder::with($with)
+            ->whereNull('sales_orders.deleted_at')
+            ->findOrFail($id);
+
+        $user = Auth::user();
+        $employeeId = (int) ($user?->n_employee_id ?? 0);
+
+        if ($this->isFco()) {
+            $allowed = $this->getSubordinateEmployeeIds($employeeId);
+        } elseif ($this->isFca() || $this->isTC()) {
+            $allowed = [$employeeId];
+        } else {
+            return $order;
+        }
+
+        abort_unless(
+            in_array((int) $order->created_by, $allowed, true)
+            || in_array((int) $order->farm_care_advisor_id, $allowed, true),
+            403,
+            'You are not allowed to access this Sales Order.'
+        );
+
+        return $order;
+    }
+
+    /**
+     * Order number by the role of the logged-in user:
+     *  TC                       -> TL-n   (tele caller)
+     *  SUPER_ADMIN/GIPRA_ADMIN  -> FS-n   (admin orders)
+     *  FCO                      -> FCO-n
+     *  FCA                      -> the booklet serial no. typed on the form
+     */
+    private function generateOrderNoForUser(?string $typedOrderNo = null): ?string
+    {
+        if ($this->isTC()) {
+            return SalesOrder::generateTeleOrderNo();
+        }
+
+        if ($this->isFca()) {
+            return $typedOrderNo ?: null;
+        }
+
+        if ($this->isFco()) {
+            return SalesOrder::generateFCOOrderNo();
+        }
+
+        $isAdmin = Auth::user()?->roles()
+            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN'])
+            ->exists();
+
+        if ($isAdmin) {
+            return SalesOrder::generateFCOrderNo();
+        }
+
+        return $typedOrderNo ?: null;
+    }
+
     public function create()
     {
-
         $employees = $this->getFarmCareAdvisorsForSalesOrder();
-        $productCategories = CategoryMaster::where('c_status', 'y')->where('n_parent_category_id', null)->get();
-        // $products = ProductMaster::where('c_status', 'Y')->get();
+        $productCategories = CategoryMaster::where('c_status', 'y')->whereNull('n_parent_category_id')->get();
         $franchises = StoreMaster::where('c_store_status', 'Y')->get();
         $states = State::where('status', 1)->get();
         $districts = District::get();
         $customers = CustomerMaster::orderBy('c_customer_name')->get();
         $customerCode = CustomerMaster::generateCustomerCode();
-        // dd($TeleorderNo);
-
-        /*  $user = Admin::leftJoin(
-             'employee_masters',
-             'admins.n_employee_id',
-             '=',
-             'employee_masters.n_employee_id'
-         )
-         ->leftJoin(
-             'roles',
-             'roles.id',
-             '=',
-             'admins.n_role_id'
-         )
-         ->leftJoin(
-             'designation_masters',
-             'designation_masters.n_designation_id',
-             '=',
-             'employee_masters.n_designation_id'
-         )
-         ->where('admins.n_role_id', Auth::user()->n_role_id)
-         ->select(
-             'employee_masters.*',
-             'designation_masters.identifier'
-         )
-         ->first(); */
-        $user = Auth::user();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Default Values
-        |--------------------------------------------------------------------------
-        */
-
-        $isFarmCareAdvisor = false;
-        $farmCareAdvisorId = null;
-
-        $isFarmCareOfficer = false;
-        $farmCareOfficerId = null;
-
-        $isAdmin = false;
-        $isAdminId = null;
-
-        $isTelecaller = false;
-        $isTelecallerId = null;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Role Check
-        |--------------------------------------------------------------------------
-        */
-
-        if ($user) {
-
-            // FCA
-            if ($user->roles->first()->identifier === 'FCA') {
-
-                $isFarmCareAdvisor = true;
-                $farmCareAdvisorId = $user->n_employee_id;
-            }
-
-            // FCO
-            if ($user->roles->first()->identifier === 'FCO') {
-
-                $isFarmCareOfficer = true;
-                $farmCareOfficerId = $user->n_employee_id;
-            }
-
-            // SUPER ADMIN / GIPRA ADMIN
-            if (in_array(
-                $user->roles->first()->identifier,
-                ['SUPER_ADMIN', 'GIPRA_ADMIN']
-            )) {
-
-                $isAdmin = true;
-                $isAdminId = $user->n_employee_id;
-            }
-
-            // TeleCaller
-            if (in_array(
-                $user->roles->first()->identifier,
-                ['TC']
-            )) {
-
-                $isTelecaller = true;
-                $isTelecallerId = $user->n_employee_id;
-            }
-        }
 
         $viewmode = 'off';
 
-        return view('admin.sales.create', compact(
+        return view('admin.sales.create', array_merge($this->roleFlags(), compact(
             'employees',
-            // 'products',
             'franchises',
             'states',
             'viewmode',
             'customers',
-            'farmCareAdvisorId',
-            'isFarmCareAdvisor',
-            'isAdmin',
-            'isTelecaller',
-            // 'TeleorderNo',
             'customerCode',
-            'isFarmCareOfficer',
             'productCategories',
             'districts'
-        ));
+        )));
     }
 
     public function districtFilter(Request $request)
@@ -1499,324 +1516,209 @@ class SalesController extends Controller
         return response()->json(['districts' => $districts]);
     }
 
+    /**
+     * PUT route target. The create/edit form posts here when editing so the
+     * `sales-orders.edit` / `tele-callers.edit` permission is what guards it.
+     */
+    public function update(Request $request)
+    {
+        abort_unless($request->filled('id'), 404);
+
+        return $this->store($request);
+    }
+
     public function store(Request $request)
     {
-        // dd($request->all());
         $user = Auth::user();
         $existingOrder = null;
 
         if ($request->filled('id')) {
-
-            $existingOrder = SalesOrder::where(
-                'n_sl_no',
-                $request->id
-            )->first();
-
-            if (! $existingOrder) {
-                return back()
-                    ->withInput()
-                    ->with('error', 'Sales order not found.');
-            }
+            $existingOrder = $this->findAccessibleOrder(
+                (int) $request->input('id'),
+                ['orderProducts', 'customer']
+            );
         }
 
+        $existingId = $existingOrder?->n_sl_no;
+
+        $isCreatorRoleWithAdvisor = $user && $user->roles()
+            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'FCO', 'FCA'])
+            ->exists();
+
+        $isAdminRole = $user && $user->roles()
+            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN'])
+            ->exists();
+
+        $paymentModes = $this->isTC()
+            ? ['Cash on Delivery', 'Paid to Franchise']
+            : ['Cash on Delivery', 'UPI', 'Bank Deposit', 'Paid to Franchise'];
+
+        $proofModes = ['UPI', 'Bank Deposit'];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Is a payment proof image mandatory?
+        |--------------------------------------------------------------------------
+        | Only for UPI / Bank Deposit, and only when there is no stored image
+        | that is being kept (create, no image yet, or the image is being removed).
+        */
         $paymentImageRequired = false;
 
-        if (in_array($request->c_mode_of_payment, [
-            'UPI',
-            'Bank Deposit',
-        ])) {
-
-            // CREATE
-            if ($existingOrder === null) {
-                $paymentImageRequired = true;
-            }
-
-            // UPDATE
-            elseif (
-                empty($existingOrder->payment_image) ||
-                $request->input('remove_payment_image') == '1'
-            ) {
-                $paymentImageRequired = true;
-            }
+        if (in_array($request->input('c_mode_of_payment'), $proofModes, true)) {
+            $paymentImageRequired = $existingOrder === null
+                || empty($existingOrder->payment_image)
+                || $request->input('remove_payment_image') == '1';
         }
 
-        $validator = Validator::make(
-            $request->all(),
-            [
-
-                'd_date' => 'required|date',
-
-                'c_order_no' => [
-                    'nullable',
-                    'string',
-                    'max:100',
-                    Rule::unique('sales_orders', 'c_order_no')
-                        ->ignore($request->id, 'n_sl_no'),
-                ],
-
-                'farm_care_advisor_id' => [
-                    'integer',
-                    'exists:employee_masters,n_employee_id',
-                    Rule::requiredIf(
-                        $user && $user->roles()
-                            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'FCO', 'FCA'])
-                            ->exists()
-                    ),
-                ],
-
-                'c_customer_type' => 'required|string|max:255',
-
-                // 'c_customer_name' => 'required|string|max:255',
-
-                // 'c_customer_email' => 'nullable|email|max:255',
-
-                // 'c_customer_address' => 'nullable|string|max:1000',
-
-                // 'n_customer_mobile' => 'required|digits_between:10,15',
-
-                /*
-                |--------------------------------------------------------------------------
-                | Customer Mode
-                |--------------------------------------------------------------------------
-                */
-                'n_customer_id' => [
-                    'nullable',
-                ],
-
-                'c_customer_code' => [
-                    'nullable',
-                ],
-
-                'c_customer_name' => 'required|string|max:255',
-
-                'n_mobile' => [
-                    'required',
-                    'regex:/^[6-9]\d{9}$/',
-
-                ],
-
-                'n_whatsapp' => [
-                    'required',
-                    'regex:/^[6-9]\d{9}$/',
-                ],
-
-                'c_email' => [
-                    'required',
-                    'email',
-                    'max:255',
-
-                ],
-
-                'c_address' => 'required|string',
-
-                'c_post_office' => 'required|string',
-
-                'n_state_id' => 'required|exists:states,n_state_id',
-
-                'n_district_id' => 'required|exists:districts,id',
-
-                'c_panchayath' => 'nullable|string|max:255',
-
-                'c_thaluk' => 'required|string',
-
-                'c_pincode' => 'required|digits:6',
-
-                /*
-                | Order location (filled from the address via "Get Location
-                | from Address" / map pin). Optional, but never half-filled.
-                */
-                'latitude' => 'nullable|required_with:longitude|numeric|between:-90,90',
-
-                'longitude' => 'nullable|required_with:latitude|numeric|between:-180,180',
-
-                'c_status' => 'required|in:Y,N',
-
-                /*
-                |--------------------------------------------------------------------------
-                | Payment Mode
-                |--------------------------------------------------------------------------
-                */
-
-                'c_mode_of_payment' => 'required|string',
-
-                'order_type' => [
-                    'nullable',
-                    'string',
-                    Rule::requiredIf(
-                        $user && $user->roles()
-                            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN'])
-                            ->exists()
-                    ),
-                ],
-
-                /*
-                |--------------------------------------------------------------------------
-                | Franchise Details
-                |--------------------------------------------------------------------------
-                */
-
-                'n_state_id' => [
-                    'integer',
-                    'nullable',
-                    'exists:states,n_state_id',
-
-                ],
-
-                'n_district_id' => [
-                    'nullable',
-                    'integer',
-                    'exists:districts,id',
-
-                ],
-
-                'n_panchayath_id' => [
-                    'nullable',
-                    'integer',
-                    'exists:panchayaths,id',
-
-                ],
-
-                'nearest_franchise_id' => [
-                    'nullable',
-                ],
-
-                /*
-                |--------------------------------------------------------------------------
-                | Totals
-                |--------------------------------------------------------------------------
-                */
-
-                'n_total_sales_amount' => 'nullable|numeric|min:0',
-                'n_product_discount_total' => 'nullable|numeric|min:0',
-                'n_total_gst' => 'nullable|numeric|min:0',
-                'n_total_discount' => 'nullable|numeric|min:0',
-                'n_net_sales_amount' => 'nullable|numeric|min:0',
-
-                /*
-                |--------------------------------------------------------------------------
-                | Payment
-                |--------------------------------------------------------------------------
-                */
-
-                'payment_status' => 'required_unless:c_mode_of_payment,Paid to Franchise',
-
-                'c_transaction_id' => [
-                    'nullable',
-                    'string',
-                    'max:255',
-
-                    Rule::requiredIf(function () use ($request) {
-                        return in_array($request->c_mode_of_payment, [
-                            'UPI',
-                            'Bank Deposit',
-                        ]);
-                    }),
-
-                    Rule::unique('sales_orders', 'c_transaction_id')
-                        ->ignore(
-                            $request->filled('id') ? $request->id : null,
-                            'n_sl_no'
-                        ),
-                ],
-
-                /*
-                |--------------------------------------------------------------------------
-                | Payment Image
-                |--------------------------------------------------------------------------
-                */
-
-                'payment_image' => [
-                    'nullable',
-                    'image',
-                    'mimes:jpg,jpeg,png,webp',
-                    'max:5120',
-                    Rule::requiredIf($paymentImageRequired),
-                ],
-                // ← payment_image closes HERE
-
-                /*
-                |--------------------------------------------------------------------------
-                | Remove Payment Image
-                |--------------------------------------------------------------------------
-                */
-
-                'remove_payment_image' => [
-                    'nullable',
-                    'in:0,1',
-                ],
-
-                /*
-                |--------------------------------------------------------------------------
-                | Booklet Proof
-                |--------------------------------------------------------------------------
-                */
-
-                'booklet_image' => [
-                    'nullable',
-                    'image',
-                    'mimes:jpg,jpeg,png,webp',
-                    'max:5120',
-                ],
-
-                /*
-                |--------------------------------------------------------------------------
-                | Products
-                |--------------------------------------------------------------------------
-                */
-
-                'products' => 'required|array|min:1',
-                'products.*.n_category_id' => 'required|integer',
-                'products.*.n_sub_category_id' => 'required|integer',
-                'products.*.product_id' => 'required|integer|distinct',
-                'products.*.product_price' => 'required|numeric|min:0',
-                'products.*.c_hsn_code' => 'nullable|numeric|min:0',
-                'products.*.qty' => 'required|integer|min:1',
-                'products.*.c_unit' => 'nullable|string',
-                'products.*.product_total' => 'required|numeric|min:0',
-                'products.*.discount' => 'nullable|numeric|min:0',
-                'products.*.n_gst_percentage' => 'nullable|numeric|min:0',
-                'products.*.gst_amount' => 'nullable|numeric|min:0',
-                'products.*.discounted_price' => 'nullable|numeric|min:0',
-
-            ], // ← validation rules close HERE
-
-            [
-                // Customer
-
-                'c_customer_code.unique' => 'Customer Code already exists.',
-                'c_customer_code.regex' => 'Customer Code may contain only letters, numbers, hyphens and underscores.',
-
-                'c_customer_name.required' => 'Customer Name is required.',
-
-                'n_mobile.required' => 'Mobile Number is required.',
-                'n_mobile.regex' => 'Please enter a valid 10-digit mobile number.',
-                'n_mobile.unique' => 'Mobile Number already exists.',
-
-                'n_whatsapp.regex' => 'Please enter a valid WhatsApp number.',
-
-                'c_email.email' => 'Please enter a valid email address.',
-
-                'c_email.unique' => 'Email already exists.',
-
-                'c_pincode.digits' => 'Pincode should be 6 digits.',
-
-                'c_status.required' => 'Please select customer status.',
-
-                // ← validation messages are the THIRD argument
-
-                'payment_image.required' => 'Payment proof image is required for UPI or Bank Deposit.',
-
-                'payment_image.max' => 'Payment proof image must not exceed 5 MB.',
-
-                'booklet_image.max' => 'Booklet proof image must not exceed 5 MB.',
-            ]
-        );
+        $rules = [
+            'd_date' => 'required|date',
+
+            'c_order_no' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::requiredIf($this->isFca()),
+                Rule::unique('sales_orders', 'c_order_no')->ignore($existingId, 'n_sl_no'),
+            ],
+
+            'farm_care_advisor_id' => [
+                'nullable',
+                'integer',
+                'exists:employee_masters,n_employee_id',
+                Rule::requiredIf($isCreatorRoleWithAdvisor),
+            ],
+
+            /* Customer */
+            'c_customer_type' => 'required|in:new,existing',
+
+            'n_customer_id' => [
+                'nullable',
+                'integer',
+                'exists:customer_masters,n_customer_id,deleted_at,NULL',
+                Rule::requiredIf($request->input('c_customer_type') === 'existing'),
+            ],
+
+            'c_customer_name' => 'required|string|max:255',
+            'n_mobile' => ['required', 'regex:/^[6-9]\d{9}$/'],
+            'n_whatsapp' => ['required', 'regex:/^[6-9]\d{9}$/'],
+            'c_email' => ['required', 'email', 'max:255'],
+            'c_address' => 'required|string|max:1000',
+            'c_post_office' => 'required|string|max:255',
+            'customer_state_id' => 'required|integer|exists:states,n_state_id',
+            'customer_district_id' => 'required|integer|exists:districts,id',
+            'c_thaluk' => 'required|string|max:255',
+            'c_pincode' => 'required|digits:6',
+            'c_status' => 'required|in:Y,N',
+
+            /* Order location (address -> map pin). Optional, never half-filled. */
+            'latitude' => 'nullable|required_with:longitude|numeric|between:-90,90',
+            'longitude' => 'nullable|required_with:latitude|numeric|between:-180,180',
+
+            /* Payment */
+            'c_mode_of_payment' => ['required', Rule::in($paymentModes)],
+
+            'order_type' => [
+                'nullable',
+                'string',
+                'in:company,franchise',
+                Rule::requiredIf($isAdminRole),
+            ],
+
+            /* Franchise / order location (NOT the customer's address) */
+            'n_state_id' => ['required_unless:order_type,company', 'nullable', 'integer', 'exists:states,n_state_id'],
+            'n_district_id' => ['required_unless:order_type,company', 'nullable', 'integer', 'exists:districts,id'],
+            'n_panchayath_id' => ['nullable', 'integer', 'exists:panchayaths,id'],
+            'nearest_franchise_id' => ['required_unless:order_type,company', 'nullable', 'integer', 'exists:store_masters,n_store_id'],
+
+            'payment_status' => ['required_unless:c_mode_of_payment,Paid to Franchise', 'nullable', 'in:pending,paid'],
+
+            'c_transaction_id' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::requiredIf(in_array($request->input('c_mode_of_payment'), $proofModes, true)),
+                Rule::unique('sales_orders', 'c_transaction_id')->ignore($existingId, 'n_sl_no'),
+            ],
+
+            'payment_image' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+                Rule::requiredIf($paymentImageRequired),
+            ],
+            'remove_payment_image' => ['nullable', 'in:0,1'],
+
+            'booklet_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'remove_booklet_image' => ['nullable', 'in:0,1'],
+
+            /* Products */
+            'products' => 'required|array|min:1',
+            'products.*.n_category_id' => 'required|integer',
+            'products.*.n_sub_category_id' => 'nullable|integer',
+            'products.*.product_id' => 'required|integer|distinct|exists:product_masters,n_product_id',
+            'products.*.product_price' => 'required|numeric|min:0',
+            'products.*.c_hsn_code' => 'nullable|string|max:50',
+            'products.*.qty' => 'required|integer|min:1',
+            'products.*.c_unit' => 'nullable|string|max:50',
+            'products.*.discount' => 'nullable|numeric|min:0',
+            'products.*.n_gst_percentage' => 'nullable|numeric|min:0|max:100',
+        ];
+
+        $messages = [
+            'c_customer_code.unique' => 'Customer Code already exists.',
+            'c_order_no.required' => 'Booklet Serial No is required.',
+            'c_order_no.unique' => 'This Booklet Serial No / Order No is already used.',
+            'farm_care_advisor_id.required' => 'Please select a Farm Care Advisor.',
+            'n_customer_id.required' => 'Please search and select an existing customer, or choose "New Customer".',
+            'c_customer_name.required' => 'Customer Name is required.',
+            'n_mobile.required' => 'Mobile Number is required.',
+            'n_mobile.regex' => 'Please enter a valid 10-digit mobile number.',
+            'n_whatsapp.required' => 'WhatsApp Number is required.',
+            'n_whatsapp.regex' => 'Please enter a valid 10-digit WhatsApp number.',
+            'c_email.required' => 'Email is required.',
+            'c_email.email' => 'Please enter a valid email address.',
+            'c_pincode.digits' => 'Pincode should be 6 digits.',
+            'c_status.required' => 'Please select customer status.',
+            'customer_state_id.required' => 'Please select the customer\'s State.',
+            'customer_district_id.required' => 'Please select the customer\'s District.',
+            'n_state_id.required_unless' => 'Please select the franchise State.',
+            'n_district_id.required_unless' => 'Please select the franchise District.',
+            'nearest_franchise_id.required_unless' => 'Please select the Nearest Franchise.',
+            'order_type.required' => 'Please choose the Order Type (Company / Franchise).',
+            'c_mode_of_payment.required' => 'Please choose a Mode of Payment.',
+            'c_mode_of_payment.in' => 'The selected Mode of Payment is not allowed.',
+            'payment_status.required_unless' => 'Please select the Payment Status.',
+            'c_transaction_id.required' => 'Transaction ID is required for UPI / Bank Deposit.',
+            'c_transaction_id.unique' => 'This Transaction ID is already used on another order.',
+            'payment_image.required' => 'Payment proof image is required for UPI or Bank Deposit.',
+            'payment_image.max' => 'Payment proof image must not exceed 5 MB.',
+            'booklet_image.max' => 'Booklet proof image must not exceed 5 MB.',
+            'products.required' => 'Add at least one product.',
+            'products.min' => 'Add at least one product.',
+            'products.*.product_id.distinct' => 'The same product is added more than once.',
+            'products.*.product_id.required' => 'Please select a product in every row.',
+            'products.*.n_category_id.required' => 'Please select a category in every product row.',
+        ];
+
+        $attributes = [
+            'd_date' => 'date',
+            'products.*.qty' => 'quantity',
+            'products.*.product_price' => 'price',
+            'products.*.product_id' => 'product',
+            'products.*.discount' => 'discount',
+            'c_address' => 'address',
+            'c_post_office' => 'post office',
+            'c_thaluk' => 'thaluk',
+            'c_pincode' => 'pincode',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages, $attributes);
 
         if ($validator->fails()) {
-            /*  return back()
-                 ->withErrors($validator)
-                 ->withInput(); */
-            dd($validator->errors()->toArray());
+            return back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $validated = $validator->validated();
@@ -1827,565 +1729,308 @@ class SalesController extends Controller
         |--------------------------------------------------------------------------
         | Never rely only on the dropdown. An FCO/Admin must only be able to
         | submit an FCA ID that is actually allowed for the logged-in user.
-        |--------------------------------------------------------------------------
         */
-        if ($user && $user->roles()->whereIn('identifier', [
-            'SUPER_ADMIN',
-            'GIPRA_ADMIN',
-            'FCO',
-            'FCA',
-        ])->exists()) {
+        if ($isCreatorRoleWithAdvisor) {
             $allowedAdvisorIds = $this->getAllowedFarmCareAdvisorIdsForSalesOrder();
             $selectedAdvisorId = (int) ($validated['farm_care_advisor_id'] ?? 0);
 
-            if (! in_array($selectedAdvisorId, $allowedAdvisorIds, true)) {
+            // On update, an already-assigned advisor is always acceptable
+            $isCurrentAdvisor = $existingOrder
+                && (int) $existingOrder->farm_care_advisor_id === $selectedAdvisorId;
+
+            if (! $isCurrentAdvisor && ! in_array($selectedAdvisorId, $allowedAdvisorIds, true)) {
                 abort(403, 'You are not authorized to select this Farm Care Advisor.');
             }
-
-            // FCA orders always belong to the logged-in FCA.
-            if ($this->isFca()) {
-                $validated['farm_care_advisor_id'] = (int) $user->n_employee_id;
-            }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | User
-        |--------------------------------------------------------------------------
-        */
-
-        $user = Auth::user();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Customer
-        |--------------------------------------------------------------------------
-        */
-
-        if ($validated['c_customer_type'] == 'new') {
-            $customer = $this->customerSave($validated);
-
-        } else {
-
-            if (isset($validated['n_customer_id'])) {
-                $customer = CustomerMaster::findOrFail(
-                    $validated['n_customer_id']
-                );
-
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Farm Care Advisor
-        |--------------------------------------------------------------------------
-        */
-
+        // FCA orders always belong to the logged-in FCA
         if ($this->isFca()) {
             $validated['farm_care_advisor_id'] = (int) $user->n_employee_id;
         }
 
         /*
-           |--------------------------------------------------------------------------
-           | Existing Images
-           |--------------------------------------------------------------------------
-           */
-
-        $paymentImageName = $existingOrder
-            ? $existingOrder->payment_image
-            : null;
-
-        $bookletImageName = $existingOrder
-            ? $existingOrder->booklet_image
-            : null;
-
-        /*
         |--------------------------------------------------------------------------
-        | Payment Image Upload
+        | Recalculate product lines and totals on the server
         |--------------------------------------------------------------------------
+        | Same formula as the screen: taxable = qty*price - discount,
+        | GST = taxable * GST%, line total = taxable + GST. Never trust the
+        | totals posted by the browser.
         */
+        $lines = [];
+        $sumGross = $sumDiscount = $sumTaxable = $sumGst = 0.0;
 
-        // if ($request->hasFile('payment_image')) {
+        foreach ($validated['products'] as $product) {
+            $price = (float) $product['product_price'];
+            $qty = (int) $product['qty'];
+            $gstPct = (float) ($product['n_gst_percentage'] ?? 0);
 
-        //     $image = $request->file('payment_image');
+            $gross = round($price * $qty, 2);
+            $discount = min(round((float) ($product['discount'] ?? 0), 2), $gross);
+            $taxable = round($gross - $discount, 2);
+            $gst = round($taxable * $gstPct / 100, 2);
 
-        //     $uploadPath = public_path(
-        //         'uploads/payment_images'
-        //     );
+            $lines[] = [
+                'n_category_id' => $product['n_category_id'],
+                'n_sub_category_id' => $product['n_sub_category_id'] ?? null,
+                'product_id' => $product['product_id'],
+                'product_price' => $price,
+                'c_hsn_code' => $product['c_hsn_code'] ?? null,
+                'qty' => $qty,
+                'c_unit' => $product['c_unit'] ?? null,
+                'discount' => $discount,
+                'n_gst_percentage' => $gstPct,
+                'gst_amount' => $gst,
+                'discounted_price' => $taxable,
+                'product_total' => round($taxable + $gst, 2),
+            ];
 
-        //     if (! is_dir($uploadPath)) {
-        //         mkdir($uploadPath, 0755, true);
-        //     }
-
-        //     $paymentImageName =
-        //         uniqid('payment_').'.'.
-        //         $image->getClientOriginalExtension();
-
-        //     $image->move(
-        //         $uploadPath,
-        //         $paymentImageName
-        //     );
-
-        //     /*
-        //     | Delete old image on update
-        //     */
-
-        //     if (
-        //         $existingOrder &&
-        //         $existingOrder->payment_image
-        //     ) {
-
-        //         $oldFile = public_path(
-        //             'uploads/payment_images/'.
-        //             $existingOrder->payment_image
-        //         );
-
-        //         if (file_exists($oldFile)) {
-        //             @unlink($oldFile);
-        //         }
-        //     }
-        // }
-
-        /*
-         |--------------------------------------------------------------------------
-         | Payment Image Upload / Remove
-         |--------------------------------------------------------------------------
-         */
-
-        // User selected a new image
-        if ($request->hasFile('payment_image')) {
-
-            $image = $request->file('payment_image');
-
-            $uploadPath = public_path('uploads/payment_images');
-
-            if (! is_dir($uploadPath)) {
-                mkdir($uploadPath, 0755, true);
-            }
-
-            // Delete old image first
-            if (isset($existingOrder->payment_image) && $existingOrder->payment_image) {
-
-                $oldFile = public_path(
-                    'uploads/payment_images/'.$existingOrder->payment_image
-                );
-
-                if (file_exists($oldFile)) {
-                    @unlink($oldFile);
-                }
-            }
-
-            // Create and save new image
-            $paymentImageName =
-                uniqid('payment_').'.'.
-                $image->getClientOriginalExtension();
-
-            $image->move(
-                $uploadPath,
-                $paymentImageName
-            );
-
-            // User clicked Remove Image
-        } elseif (
-            $request->input('remove_payment_image') == '1'
-            && isset($existingOrder)
-            && $existingOrder->payment_image
-        ) {
-
-            $oldFile = public_path(
-                'uploads/payment_images/'.$existingOrder->payment_image
-            );
-
-            if (file_exists($oldFile)) {
-                @unlink($oldFile);
-            }
-
-            $paymentImageName = null;
+            $sumGross += $gross;
+            $sumDiscount += $discount;
+            $sumTaxable += $taxable;
+            $sumGst += $gst;
         }
 
-        // Otherwise:
-        // $paymentImageName keeps the existing image value
+        /*
+        |--------------------------------------------------------------------------
+        | Payment fields
+        |--------------------------------------------------------------------------
+        */
+        $isPaidToFranchise = $validated['c_mode_of_payment'] === 'Paid to Franchise';
+
+        $transactionId = $isPaidToFranchise ? null : ($validated['c_transaction_id'] ?? null);
+        $paymentStatus = $isPaidToFranchise ? null : ($validated['payment_status'] ?? null);
 
         /*
         |--------------------------------------------------------------------------
-        | Booklet Proof Upload
+        | Order number
         |--------------------------------------------------------------------------
         */
+        $newFiles = [];        // files written by this request (deleted again if the save fails)
+        $oldFilesToDelete = []; // replaced / removed files (deleted only after the save succeeded)
+        $oldSnapshot = $existingOrder ? $existingOrder->toArray() : null;
 
-        if ($request->hasFile('booklet_image')) {
+        DB::beginTransaction();
 
-            $image = $request->file('booklet_image');
-
-            $uploadPath = public_path(
-                'uploads/booklet_images'
-            );
-
-            if (! is_dir($uploadPath)) {
-                mkdir($uploadPath, 0755, true);
+        try {
+            /*
+            |----------------------------------------------------------------------
+            | Order No: generated once on create, never regenerated on edit
+            |----------------------------------------------------------------------
+            */
+            if ($existingOrder && $this->isFca()) {
+                // FCA types the booklet serial number by hand
+                $orderNo = $validated['c_order_no'] ?? $existingOrder->c_order_no;
+            } elseif ($existingOrder && ! empty($existingOrder->c_order_no)) {
+                // Never regenerate an existing number
+                $orderNo = $existingOrder->c_order_no;
+            } else {
+                // New order, or an old order that was saved without a number
+                $orderNo = $this->generateOrderNoForUser($validated['c_order_no'] ?? null);
             }
-
-            $bookletImageName =
-                uniqid('booklet_').'.'.
-                $image->getClientOriginalExtension();
-
-            $image->move(
-                $uploadPath,
-                $bookletImageName
-            );
 
             /*
-            | Delete old booklet image on update
+            |----------------------------------------------------------------------
+            | Customer
+            |----------------------------------------------------------------------
             */
-
-            if (
-                isset($existingOrder) &&
-                $existingOrder->booklet_image
+            if ($validated['c_customer_type'] === 'existing') {
+                $customer = CustomerMaster::findOrFail($validated['n_customer_id']);
+            } elseif (
+                $existingOrder
+                && $existingOrder->customer
+                && $existingOrder->c_customer_type === 'new'
             ) {
-
-                $oldFile = public_path(
-                    'uploads/booklet_images/'.
-                    $existingOrder->booklet_image
-                );
-
-                if (file_exists($oldFile)) {
-                    @unlink($oldFile);
-                }
+                // Editing an order that was created with a new customer:
+                // update that customer instead of creating a duplicate.
+                $customer = $existingOrder->customer;
+                $customer->update($this->customerAttributes($validated));
+            } else {
+                $customer = $this->customerSave($validated);
             }
-        }
-        /*
-            |--------------------------------------------------------------------------
-            | Payment Status
-            |--------------------------------------------------------------------------
+
+            /*
+            |----------------------------------------------------------------------
+            | Proof images
+            |----------------------------------------------------------------------
             */
+            $paymentImageName = $existingOrder?->payment_image;
+            $bookletImageName = $existingOrder?->booklet_image;
 
-        if (isset($validated['c_mode_of_payment']) && $validated['c_mode_of_payment'] === 'Paid to Franchise') {
-
-            $transactionId = null;
-
-            $paymentStatus = null;
-
-            if (! $existingOrder) {
+            if ($request->hasFile('payment_image')) {
+                if ($paymentImageName) {
+                    $oldFilesToDelete[] = ['payment_images', $paymentImageName];
+                }
+                $paymentImageName = $this->storeProofFile($request->file('payment_image'), 'payment_images', 'payment_');
+                $newFiles[] = ['payment_images', $paymentImageName];
+            } elseif ($request->input('remove_payment_image') == '1' && $paymentImageName) {
+                $oldFilesToDelete[] = ['payment_images', $paymentImageName];
                 $paymentImageName = null;
             }
 
-        } else {
-            $transactionId = $validated['c_transaction_id'];
-            $paymentStatus = $validated['payment_status'];
-        }
-
-        try {
+            if ($request->hasFile('booklet_image')) {
+                if ($bookletImageName) {
+                    $oldFilesToDelete[] = ['booklet_images', $bookletImageName];
+                }
+                $bookletImageName = $this->storeProofFile($request->file('booklet_image'), 'booklet_images', 'booklet_');
+                $newFiles[] = ['booklet_images', $bookletImageName];
+            } elseif ($request->input('remove_booklet_image') == '1' && $bookletImageName) {
+                $oldFilesToDelete[] = ['booklet_images', $bookletImageName];
+                $bookletImageName = null;
+            }
 
             /*
-                        $order = [
-                            //'c_bill_no' => $validated['c_bill_no'],
-                            'd_date' => $validated['d_date'],
-                            'farm_care_advisor_id' => $validated['farm_care_advisor_id'],
-                            'c_customer_name' => $validated['c_customer_name'],
-                            'c_customer_email' => $validated['c_customer_email'],
-                            'c_customer_address' => $validated['c_customer_address'],
-                            'n_customer_mobile' => $validated['n_customer_mobile'],
-                            'n_state_id' => $validated['n_state_id'],
-                            'n_district_id' => $validated['n_district_id'],
-                            'n_panchayath_id' => $validated['n_panchayath_id'],
-                            'nearest_franchise_id' => $validated['nearest_franchise_id'],
-                            'c_mode_of_payment' => $validated['c_mode_of_payment'],
-
-
-                        ]; */
-
-            if ($user->roles->first()?->identifier == 'TC') {
-                $OrderNo = SalesOrder::generateTeleOrderNo();
-            } elseif ($user->roles->first()?->identifier == 'SUPER_ADMIN') {
-                $OrderNo = SalesOrder::generateFCOrderNo();
-            } elseif ($user->roles->first()?->identifier == 'FCO') {
-                $OrderNo = SalesOrder::generateFCOOrderNo();
-            } else {
-                $OrderNo = $validated['c_order_no'] ?? '';
-            }
-            if ($request->filled('order_type')) {
-                $orderData['order_type'] = $request->order_type;
-            }
+            |----------------------------------------------------------------------
+            | Order
+            |----------------------------------------------------------------------
+            */
             $orderData = [
-
-                'c_order_no' => $OrderNo,
-
+                'c_order_no' => $orderNo,
                 'd_date' => $validated['d_date'],
-
-                'farm_care_advisor_id' => $validated['farm_care_advisor_id'] ?? null,
-
+                'farm_care_advisor_id' => $validated['farm_care_advisor_id'] ?? ($existingOrder->farm_care_advisor_id ?? null),
                 'c_customer_type' => $validated['c_customer_type'],
-
                 'n_customer_id' => $customer->n_customer_id,
-
-                // 'c_customer_name' => $validated['c_customer_name'],
-
-                // 'c_customer_email' => $validated['c_customer_email'] ?? null,
-
-                // 'c_customer_address' => $validated['c_customer_address'] ?? null,
-
-                // 'n_customer_mobile' => $validated['n_customer_mobile'],
-
-                // 'order_type' => $request->order_type,
-
-                'n_state_id' => $validated['n_state_id'],
-
-                'n_district_id' => $validated['n_district_id'],
-
-                'n_panchayath_id' => $validated['n_panchayath_id'],
-
+                'order_type' => $validated['order_type'] ?? ($existingOrder->order_type ?? null),
+                'n_state_id' => $validated['n_state_id'] ?? null,
+                'n_district_id' => $validated['n_district_id'] ?? null,
+                'n_panchayath_id' => $validated['n_panchayath_id'] ?? null,
+                'nearest_franchise_id' => $validated['nearest_franchise_id'] ?? null,
                 'latitude' => $validated['latitude'] ?? null,
-
                 'longitude' => $validated['longitude'] ?? null,
-
                 'c_mode_of_payment' => $validated['c_mode_of_payment'],
-
-                // IMPORTANT
-                'c_order_status' => $validated['c_order_status'] ?? 'Pending',
-
-                'nearest_franchise_id' => $validated['nearest_franchise_id'],
-
-                /*
-               | Payment
-               */
-
-                'payment_status' => $validated['payment_status'],
-
+                'payment_status' => $paymentStatus,
                 'c_transaction_id' => $transactionId,
-
                 'payment_image' => $paymentImageName,
-
-                /*
-               | Booklet
-               */
-
                 'booklet_image' => $bookletImageName,
-
-                /*
-               | Order Summary
-               */
-
-                'n_total_sales_amount' => $validated['n_total_sales_amount'] ?? 0,
-
-                'n_product_discount_total' => $validated['n_product_discount_total'] ?? 0,
-
-                'n_total_gst' => $validated['n_total_gst'] ?? 0,
-
-                'n_total_discount' => $validated['n_total_discount'] ?? 0,
-
-                'n_net_sales_amount' => $validated['n_net_sales_amount'] ?? 0,
-
-                'created_by' => Auth::user()->n_employee_id,
+                'n_total_sales_amount' => round($sumGross, 2),
+                'n_product_discount_total' => round($sumDiscount, 2),
+                'n_total_gst' => round($sumGst, 2),
+                'n_total_discount' => $existingOrder->n_total_discount ?? 0,
+                'n_net_sales_amount' => round($sumTaxable + $sumGst, 2),
             ];
-            // print_r($order);
 
-            if ($request->filled('id')) {
+            if ($existingOrder) {
+                // Status, invoice no. and the original creator are NOT touched on edit
+                $existingOrder->fill($orderData)->save();
+                $order = $existingOrder;
 
-                $id = $request->id;
-
-                // UPDATE
-                SalesOrder::where('n_sl_no', $id)->update($orderData);
-
-                // Delete old products
-                OrderProduct::where('n_order_id', $id)->delete();
-
-                // Insert updated products
-                foreach ($validated['products'] as $product) {
-
-                    OrderProduct::create([
-                        'n_order_id' => $id,
-                        'n_category_id' => $product['n_category_id'],
-                        'n_sub_category_id' => $product['n_sub_category_id'],
-                        'product_id' => $product['product_id'],
-                        'product_price' => $product['product_price'],
-                        'c_hsn_code' => isset($product['c_hsn_code']) ? $product['c_hsn_code'] : '',
-                        'qty' => $product['qty'],
-                        'c_unit' => isset($product['c_unit']) ? $product['c_unit'] : '',
-                        'n_gst_percentage' => $product['n_gst_percentage'],
-                        'gst_amount' => $product['gst_amount'],
-                        'discount' => isset($product['discount']) ? $product['discount'] : '',
-                        'discounted_price' => $product['discounted_price'] ?? 0.00,
-                        'product_total' => $product['product_total'],
-                    ]);
-                }
-
-                // Get the UPDATED order
-                $existingOrder = SalesOrder::with([
-                    'orderProducts',
-                    'customer',
-                ])->findOrFail($id);
-
-                // Debug here
-                // dd($existingOrder);
-
-                // Audit
-                $auditRecord = $this->auditRecord(
-                    $existingOrder,
-                    '',
-                    'SalesOrderUpdate'
-                );
-
+                OrderProduct::where('n_order_id', $order->n_sl_no)->delete();
                 $message = 'Sales Order updated successfully.';
-
             } else {
-
-                // INSERT
-
-                $salesOrder = SalesOrder::create($orderData);
-
-                if (isset($validated['products'])) {
-                    foreach ($validated['products'] as $product) {
-                        try {
-
-                            $productData = OrderProduct::create([
-                                'n_order_id' => $salesOrder->n_sl_no,
-                                'n_category_id' => $product['n_category_id'],
-                                'n_sub_category_id' => $product['n_sub_category_id'],
-                                'product_id' => $product['product_id'],
-                                'product_price' => $product['product_price'],
-                                'c_hsn_code' => isset($product['c_hsn_code']) ? $product['c_hsn_code'] : '',
-                                'qty' => $product['qty'],
-                                'c_unit' => isset($product['c_unit']) ? $product['c_unit'] : '',
-                                'n_gst_percentage' => $product['n_gst_percentage'],
-                                'gst_amount' => $product['gst_amount'],
-                                'discount' => isset($product['discount']) ? $product['discount'] : '',
-                                'discounted_price' => $product['discounted_price'] ?? 0.00,
-                                'product_total' => $product['product_total'],
-                            ]);
-                        } catch (\Exception $e) {
-                            dd($e->getMessage());
-                        }
-                    }
-                }
-
-                $auditRecord = $this->auditRecord('', $orderData, 'SalesOrdercreate');
+                $order = SalesOrder::create($orderData + [
+                    'c_order_status' => 'Pending',
+                    'created_by' => $user->n_employee_id,
+                ]);
                 $message = 'Sales Order created successfully.';
             }
 
-            // DB::commit();
+            foreach ($lines as $line) {
+                OrderProduct::create($line + ['n_order_id' => $order->n_sl_no]);
+            }
 
-            return redirect()
-                ->route('admin.salesorders.index')
-                ->with('success', $message);
+            $fresh = SalesOrder::with(['orderProducts', 'customer'])->find($order->n_sl_no);
 
-        } catch (\Exception $e) {
+            $this->auditRecord(
+                $oldSnapshot,
+                $fresh,
+                $existingOrder ? 'SalesOrderUpdate' : 'SalesOrdercreate',
+                $order->n_sl_no,
+                $existingOrder ? 'Updated' : 'Created'
+            );
 
-            // DB::rollBack();
-            dd($e->getMessage());
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            foreach ($newFiles as [$type, $name]) {
+                $this->deleteProofFile($type, $name);
+            }
+
+            Log::error('Sales order save failed', [
+                'order_id' => $existingId,
+                'user_id' => $user?->getKey(),
+                'error' => $e->getMessage(),
+            ]);
 
             return back()
                 ->withInput()
-                ->with('error', $e->getMessage());
+                ->with('error', 'The Sales Order could not be saved. '.(
+                    config('app.debug') ? $e->getMessage() : 'Please check the details and try again.'
+                ));
         }
+
+        foreach ($oldFilesToDelete as [$type, $name]) {
+            $this->deleteProofFile($type, $name);
+        }
+
+        return redirect()
+            ->route($request->routeIs('admin.telecallers.*') ? 'admin.telecallers.index' : 'admin.salesorders.index')
+            ->with('success', $message);
+    }
+
+    private function customerAttributes(array $v): array
+    {
+        return [
+            'c_customer_name' => $v['c_customer_name'],
+            'n_mobile' => $v['n_mobile'],
+            'n_whatsapp' => $v['n_whatsapp'] ?? null,
+            'c_email' => $v['c_email'] ?? null,
+            'c_address' => $v['c_address'] ?? null,
+            'c_post_office' => $v['c_post_office'] ?? null,
+            'n_state_id' => $v['customer_state_id'] ?? null,
+            'n_district_id' => $v['customer_district_id'] ?? null,
+            'c_thaluk' => $v['c_thaluk'] ?? null,
+            'c_pincode' => $v['c_pincode'] ?? null,
+            'c_status' => $v['c_status'] ?? 'Y',
+        ];
     }
 
     public function customerSave($validated)
     {
-
-        $customer = CustomerMaster::create([
-
+        return CustomerMaster::create($this->customerAttributes($validated) + [
             'c_customer_code' => CustomerMaster::generateCustomerCode(),
-
-            'c_customer_name' => $validated['c_customer_name'],
-
-            'n_mobile' => $validated['n_mobile'],
-
-            'n_whatsapp' => $validated['n_whatsapp'] ?? null,
-
-            'c_email' => $validated['c_email'] ?? null,
-
-            'c_address' => $validated['c_address'] ?? null,
-
-            'c_post_office' => $validated['c_post_office'] ?? null,
-
-            'n_state_id' => $validated['n_state_id'] ?? null,
-
-            'n_district_id' => $validated['n_district_id'] ?? null,
-
-            'c_panchayath' => $validated['c_panchayath'] ?? null,
-
-            'c_thaluk' => $validated['c_thaluk'] ?? null,
-
-            'c_pincode' => $validated['c_pincode'] ?? null,
-
-            'c_status' => $validated['c_status'],
-
             'created_by' => auth()->user()->n_employee_id,
-
         ]);
-
-        return $customer;
-
     }
 
-    public function auditRecord($oldRecord, $newRecord, $moduleName)
+    /**
+     * Write an audit row. $oldRecord / $newRecord may be models, arrays or null.
+     * (AuditRecord casts both columns to array, so they must NOT be json_encode()d here.)
+     */
+    public function auditRecord($oldRecord, $newRecord, $moduleName, $recordId = null, $action = 'Updated')
     {
-        /* $existingOrder = SalesOrder::with([
-            'orderProducts',
-            'customer',
-        ])->findOrFail($id);
- */
-        if ($oldRecord) {
+        $toArray = fn ($r) => $r instanceof Arrayable
+            ? $r->toArray()
+            : (is_array($r) ? $r : null);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Json encode existing order
-            |--------------------------------------------------------------------------
-            */
-            if (isset($oldRecord)) {
-                $oldRecordjson = json_encode($oldRecord);
-            } else {
-                $oldRecord = null;
+        $old = $toArray($oldRecord);
+        $new = $toArray($newRecord);
 
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Get NEW data after update
-            |--------------------------------------------------------------------------
-            */
-            if (isset($newRecord)) {
-                $newRecord = json_encode($newRecord);
-            } else {
-                $newRecord = null;
-
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Save Audit Record
-            |--------------------------------------------------------------------------
-            */
-
-            AuditRecord::create([
-
-                'user_id' => auth()->user()->n_role_id,
-
-                'module' => $moduleName,
-
-                'action' => 'Updated',
-
-                'record_id' => $oldRecord->n_sl_no,
-
-                'old_values' => $oldRecordjson,
-
-                'new_values' => $newRecord,
-
-                'ip_address' => request()->ip(),
-
-                'user_agent' => request()->userAgent(),
-            ]);
-
+        if ($old === null && $new === null) {
+            return null;
         }
+
+        return AuditRecord::create([
+            'user_id' => auth()->user()?->n_role_id,
+            'module' => $moduleName,
+            'action' => $action,
+            'record_id' => $recordId ?? ($old['n_sl_no'] ?? $new['n_sl_no'] ?? null),
+            'old_values' => $old,
+            'new_values' => $new,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
     }
 
     public function salesUpdateStore(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'n_sale_id' => 'required',
             'd_followup_date' => 'required|date',
             'c_order_status' => 'nullable|string|max:100',
             'remarks' => 'required|string',
+        ], [
+            'd_followup_date.required' => 'Please select the follow-up date.',
+            'remarks.required' => 'Remarks are required.',
         ]);
 
         if ($validator->fails()) {
@@ -2394,428 +2039,125 @@ class SalesController extends Controller
                 ->withInput();
         }
 
-        $n_sale_id = Crypt::decryptString($request->n_sale_id);
+        $sale = $this->findAccessibleOrder($this->decryptId($request->n_sale_id));
 
-        $sale = SalesOrder::findOrFail($n_sale_id);
+        DB::transaction(function () use ($request, $sale) {
+            SalesOrderstatusUpdation::create([
+                'n_sale_id' => $sale->n_sl_no,
+                'd_followup_date' => $request->d_followup_date,
+                'c_order_status' => $request->c_order_status,
+                'remarks' => $request->remarks,
+                'n_created_by' => auth()->user()->n_role_id,
+            ]);
 
-        $salesOrderUpdate = SalesOrderstatusUpdation::create([
-            'n_sale_id' => $sale->n_sl_no,
-            'd_followup_date' => $request->d_followup_date,
-            'c_order_status' => $request->c_order_status,
-            'remarks' => $request->remarks,
-            'n_created_by' => auth()->user()->n_role_id,
-        ]);
-
-        // Optional: update current order status
-        if ($request->filled('c_order_status')) {
-
-            $sale->c_order_status = $request->c_order_status;
-
-            $sale->save();
-        }
+            if ($request->filled('c_order_status')) {
+                $sale->c_order_status = $request->c_order_status;
+                $sale->save();
+            }
+        });
 
         return redirect()
             ->back()
-            ->with('success', 'Orer Status Updation saved successfully.');
+            ->with('success', 'Order status updated successfully.');
     }
 
     public function approve(Request $request)
     {
         $request->validate([
-            'status' => 'required',
-            'remarks' => 'required',
+            'sales_id' => 'required',
+            'status' => 'required|in:Approved,Rejected',
+            'remarks' => 'required|string',
         ]);
 
-        $id = Crypt::decryptString($request->sales_id);
+        $id = $this->decryptId($request->sales_id);
 
-        SalesApproval::updateOrCreate(
-            ['sales_order_id' => $id],
-            [
-                'status' => $request->status,
-                'remarks' => $request->remarks,
-                'approved_by' => auth()->user()->n_role_id,
-                'approved_at' => now(),
-            ]
-        );
+        DB::transaction(function () use ($request, $id) {
+            $salesOrder = $this->findAccessibleOrder($id);
 
-        $salesOrder = SalesOrder::findOrFail($id);
+            SalesApproval::updateOrCreate(
+                ['sales_order_id' => $salesOrder->n_sl_no],
+                [
+                    'status' => $request->status,
+                    'remarks' => $request->remarks,
+                    'approved_by' => auth()->user()->n_role_id,
+                    'approved_at' => now(),
+                ]
+            );
 
-        /*
-|--------------------------------------------------------------------------
-| Generate Invoice Number
-|--------------------------------------------------------------------------
-|
-| Generate ONLY when the order is approved.
-|
-*/
+            // Invoice number is generated ONLY on approval, and only once.
+            if (strtolower($request->status) === 'approved' && is_null($salesOrder->invoice_no)) {
+                $lastInvoice = SalesOrder::whereNotNull('invoice_no')
+                    ->where('invoice_no', 'like', 'INV%')
+                    ->orderByRaw('CAST(SUBSTRING(invoice_no, 4) AS UNSIGNED) DESC')
+                    ->lockForUpdate()
+                    ->value('invoice_no');
 
-        if (
-            strtolower($request->status) === 'approved'
-            && is_null($salesOrder->invoice_no)
-        ) {
+                $nextNumber = $lastInvoice ? ((int) substr($lastInvoice, 3)) + 1 : 1;
 
-            $lastInvoice = SalesOrder::whereNotNull('invoice_no')
-                ->where('invoice_no', 'like', 'INV%')
-                ->orderByRaw(
-                    'CAST(SUBSTRING(invoice_no, 4) AS UNSIGNED) DESC'
-                )
-                ->value('invoice_no');
-
-            if ($lastInvoice) {
-
-                // FCA15 → 15
-                $lastNumber = (int) substr($lastInvoice, 3);
-
-                $nextNumber = $lastNumber + 1;
-
-            } else {
-
-                // First invoice
-                $nextNumber = 1;
+                $salesOrder->invoice_no = 'INV'.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+                $salesOrder->save();
             }
-
-            $salesOrder->invoice_no = 'INV'.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-
-            $salesOrder->save();
-        }
+        });
 
         return redirect()
             ->back()
             ->with('success', 'Approval completed successfully.');
-
     }
+
+    /**
+     * Shared data for the create.blade.php view when it is showing / editing an existing order.
+     */
+    private function orderScreenData(SalesOrder $sale, string $viewmode): array
+    {
+        $franchise = StoreMaster::where('n_store_id', $sale->nearest_franchise_id)->first();
+
+        return array_merge($this->roleFlags(), [
+            'sale' => $sale,
+            'employees' => $this->getFarmCareAdvisorsForSalesOrder(),
+            'products' => ProductMaster::where('c_status', 'Y')->get(),
+            'productCategories' => CategoryMaster::where('c_status', 'y')->whereNull('n_parent_category_id')->get(),
+            'states' => State::with('districts')->where('status', '1')->get(),
+            'districts' => District::get(),
+            'franchisePanchayaths' => Panchayath::where('district_id', $sale->n_district_id)->get(),
+            'franchises' => StoreMaster::where('c_store_status', 'Y')->get(),
+            'customers' => CustomerMaster::orderBy('c_customer_name')->get(),
+            'franchisePanchayathId' => $franchise->n_panchayath_id ?? null,
+            'viewmode' => $viewmode,
+        ]);
+    }
+
+    private const ORDER_RELATIONS = [
+        'orderProducts',
+        'orderProducts.category',
+        'orderProducts.subCategory',
+        'orderProducts.product',
+        'customer',
+        'approval',
+    ];
 
     public function show(Request $request, $id)
     {
-        $id = Crypt::decryptString($id);
+        $sale = $this->findAccessibleOrder($this->decryptId($id), self::ORDER_RELATIONS);
 
-        $employees = $this->getFarmCareAdvisorsForSalesOrder();
-        $products = ProductMaster::where('c_status', 'Y')->get();
-        $productCategories = CategoryMaster::where('c_status', 'y')->where('n_parent_category_id', null)->get();
-        $districts = District::get();
-        $franchisePanchayaths = Panchayath::get();
-
-        $sale = SalesOrder::with([
-            'orderProducts',
-            'orderProducts.category',
-            'orderProducts.subCategory',
-            'orderProducts.product',
-            'customer',
-        ])->findOrFail($id);
-
-        $franchise = StoreMaster::where(
-            'n_store_id',
-            $sale->nearest_franchise_id
-        )->first();
-
-        $franchisePanchayathId = $franchise->n_panchayath_id ?? null;
-
-        // --------------------------------------------------
-        // FCA midnight restriction
-        // --------------------------------------------------
-        // if (! $this->isFcaToday($sale)) {
-        //     abort(403, 'FCA cannot view this Sales Order after midnight.');
-        // }
-
-        $states = State::with('districts')
-            ->where('status', '1')
-            ->get();
-
-        $customers = CustomerMaster::orderBy('c_customer_name')->get();
-
-        $franchises = StoreMaster::where('c_store_status', 'Y')->get();
-
-        $viewmode = 'on';
-
-        $user = Admin::join(
-            'model_has_roles as mr',
-            'mr.model_id',
-            'admins.n_role_id'
-        )
-            ->join('roles', 'roles.id', 'mr.role_id')
-            ->where('admins.n_role_id', Auth::user()->n_role_id)
-            ->first();
-
-        $farmCareAdvisorId = null;
-        $isFarmCareAdvisor = false;
-
-        $designation = DesignationMaster::where(
-            'n_designation_id',
-            Auth::user()->n_designation_id
-        )->first();
-
-        if ($designation && $designation->identifier == 'FCA') {
-
-            $isFarmCareAdvisor = true;
-            $farmCareAdvisorId = Auth::user()->n_employee_id;
-        }
-
-        $AdminId = null;
-        $isAdmin = false;
-
-        if (
-            isset($designation) &&
-            in_array($designation->identifier, ['SUPER_ADMIN', 'GIPRA_ADMIN'])
-        ) {
-            $isAdmin = true;
-            $AdminId = $user->n_employee_id;
-        }
-
-        return view(
-            'admin.sales.create',
-            compact(
-                'sale',
-                'employees',
-                'products',
-                'productCategories',
-                'states',
-                'districts',
-                'franchisePanchayaths',
-                'franchises',
-                'franchisePanchayathId',
-                'viewmode',
-                'user',
-                'farmCareAdvisorId',
-                'customers',
-                'isFarmCareAdvisor',
-                'isAdmin'
-            )
-        );
+        return view('admin.sales.create', $this->orderScreenData($sale, 'on'));
     }
-
-    // public function edit(Request $request, $id)
-    // {
-    //     $id = Crypt::decryptString($id);
-    //     $employees = $this->getFarmCareAdvisorsForSalesOrder();
-    //     $products = ProductMaster::where('c_status', 'Y')->get();
-    //     $sale = SalesOrder::with([
-    //         'orderProducts',
-    //         'customer',
-    //     ])->findOrFail($id);
-    //     $customers = CustomerMaster::orderBy('c_customer_name')->get();
-    //     $states = State::with('districts')->where('status', '1')->get();
-    //     $franchises = StoreMaster::where('c_store_status', 'Y')->get();
-    //     $viewmode = 'off';
-    //     $user = Auth::user();
-    //     $sale = SalesOrder::with([
-    //         'orderProducts',
-    //         'customer',
-    //     ])->findOrFail($id);
-
-    //     $farmCareAdvisorId = null;
-    //     $isFarmCareAdvisor = false;
-
-    //     $designation = DesignationMaster::where(
-    //         'n_designation_id',
-    //         $user->n_designation_id
-    //     )->first();
-
-    //     if ($designation && $designation->identifier == 'FCA') {
-
-    //         $isFarmCareAdvisor = true;
-    //         $farmCareAdvisorId = $user->n_employee_id;
-
-    //     }
-
-    //     return view('admin.sales.create', compact('sale', 'employees', 'products', 'states', 'franchises', 'viewmode', 'farmCareAdvisorId',
-    //         'isFarmCareAdvisor', 'customers'));
-    // }
 
     public function edit(Request $request, $id)
     {
-        $id = Crypt::decryptString($id);
+        $sale = $this->findAccessibleOrder($this->decryptId($id), self::ORDER_RELATIONS);
 
-        $employees = $this->getFarmCareAdvisorsForSalesOrder();
-        $products = ProductMaster::where('c_status', 'Y')->get();
-        $productCategories = CategoryMaster::where('c_status', 'y')->where('n_parent_category_id', null)->get();
-        $districts = District::get();
-        $franchisePanchayaths = Panchayath::get();
-
-        /* $sale = SalesOrder::with([
-            'orderProducts',
-            'customer',
-        ])->findOrFail($id); */
-        // dd($sale );
-        // --------------------------------------------------
-        // FCA midnight restriction
-        // --------------------------------------------------
-        /*  if (! $this->isFcaToday($sale)) {
-             abort(403, 'FCA cannot edit this Sales Order after midnight.');
-         } */
-
-        $customers = CustomerMaster::orderBy('c_customer_name')->get();
-
-        $states = State::with('districts')
-            ->where('status', '1')
-            ->get();
-
-        $franchises = StoreMaster::where('c_store_status', 'Y')->get();
-
-        $viewmode = 'off';
-
-        $user = Auth::user();
-
-        $farmCareAdvisorId = null;
-        $isFarmCareAdvisor = false;
-        /*  $user = Admin::leftJoin('employee_masters','admins.n_employee_id','employee_masters.n_employee_id')
-                         ->leftJoin('roles','roles.n_designation_id','employee_masters.n_designation_id')
-                         ->where('admins.n_role_id',Auth::user()->n_role_id)
-                         ->select('employee_masters.*')
-                         ->get(); */
-
-        /*  $user = Admin::leftJoin(
-             'employee_masters',
-             'admins.n_employee_id',
-             '=',
-             'employee_masters.n_employee_id'
-         )
-         ->leftJoin(
-             'roles',
-             'roles.id',
-             '=',
-             'admins.n_role_id'
-         )
-         ->leftJoin(
-             'designation_masters',
-             'designation_masters.n_designation_id',
-             '=',
-             'employee_masters.n_designation_id'
-         )
-         ->where('admins.n_role_id', Auth::user()->n_role_id)
-         ->select(
-             'employee_masters.*',
-             'designation_masters.identifier'
-         )
-         ->first(); */
-        // dd($user);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Default Values
-        |--------------------------------------------------------------------------
-        */
-
-        $isFarmCareAdvisor = false;
-        $farmCareAdvisorId = null;
-
-        $isFarmCareOfficer = false;
-        $farmCareOfficerId = null;
-
-        $isAdmin = false;
-        $isAdminId = null;
-
-        $isTelecaller = false;
-        $isTelecallerId = null;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Role Check
-        |--------------------------------------------------------------------------
-        */
-
-        if ($user) {
-
-            // FCA
-            if ($user->roles->first()->identifier === 'FCA') {
-
-                $isFarmCareAdvisor = true;
-                $farmCareAdvisorId = $user->n_employee_id;
-            }
-
-            // FCA
-            if ($user->roles->first()->identifier === 'FCO') {
-
-                $isFarmCareOfficer = true;
-                $farmCareOfficerId = $user->n_employee_id;
-            }
-
-            // SUPER ADMIN / GIPRA ADMIN
-            if (in_array(
-                $user->roles->first()->identifier,
-                ['SUPER_ADMIN', 'GIPRA_ADMIN']
-            )) {
-
-                $isAdmin = true;
-                $isAdminId = $user->n_employee_id;
-            }
-
-            // TeleCaller
-            if (in_array(
-                $user->roles->first()->identifier,
-                ['TC']
-            )) {
-
-                $isTelecaller = true;
-                $isTelecallerId = $user->n_employee_id;
-            }
-        }
-
-        // dd($isFarmCareAdvisor);
-
-        $sale = SalesOrder::with([
-            'orderProducts',
-            'orderProducts.category',
-            'orderProducts.subCategory',
-            'orderProducts.product',
-            'customer',
-        ])->findOrFail($id);
-        // dd($sale);
-        $employees = $this->getFarmCareAdvisorsForSalesOrder();
-        $products = ProductMaster::where('c_status', 'Y')->get();
-        $franchise = StoreMaster::where(
-            'n_store_id',
-            $sale->nearest_franchise_id
-        )->first();
-
-        $franchisePanchayathId = $franchise->n_panchayath_id ?? null;
-
-        return view(
-            'admin.sales.create',
-            compact(
-                'sale',
-                'employees',
-                'productCategories',
-                'products',
-                'states',
-                'districts',
-                'franchisePanchayaths',
-                'franchises',
-                'viewmode',
-                'farmCareAdvisorId',
-                'isFarmCareAdvisor',
-                'customers',
-                'franchisePanchayathId',
-                'isAdmin'
-            )
-        );
+        return view('admin.sales.create', $this->orderScreenData($sale, 'off'));
     }
-
-    // public function destroy(Request $request, $id)
-    // {
-    //     $id = Crypt::decryptString($id);
-    //     $sale = SalesOrder::where('n_sl_no', $id);
-    //     $sale->update(['deleted_at' => date('Y-m-d')]);
-
-    //     return redirect()->route('admin.sales.index')->with('success', 'Sales entry deleted successfully.');
-    // }
 
     public function destroy(Request $request, $id)
     {
-        $id = Crypt::decryptString($id);
+        $sale = $this->findAccessibleOrder($this->decryptId($id));
 
-        $sale = SalesOrder::where('n_sl_no', $id)->firstOrFail();
-
-        // FCA can delete only today's Sales Orders
-        /* if (! $this->isFcaToday($sale)) {
-            abort(403, 'FCA cannot delete this Sales Order after midnight.');
-        } */
-
-        $sale->update([
-            'deleted_at' => now(),
-        ]);
+        $sale->deleted_at = now();
+        $sale->save();
 
         return redirect()
-            ->route('admin.salesorders.index')
+            ->route($request->routeIs('admin.telecallers.*') ? 'admin.telecallers.index' : 'admin.salesorders.index')
             ->with('success', 'Sales entry deleted successfully.');
     }
 
@@ -2866,6 +2208,31 @@ class SalesController extends Controller
      */
     public function nearestFranchise(Request $request)
     {
+        // Preferred: rank by real distance when the order location is known.
+        if (Geo::valid($request->latitude, $request->longitude)) {
+            $ranked = Geo::rank(
+                (float) $request->latitude,
+                (float) $request->longitude,
+                StoreMaster::where('c_store_status', 'Y')->whereNotNull('latitude')->whereNotNull('longitude')->get(),
+                (float) config('spc.nearest_franchise_max_km', 50),
+                3
+            );
+
+            if (! empty($ranked)) {
+                return response()->json([
+                    'success' => true,
+                    'matched_on' => 'distance',
+                    'franchises' => collect($ranked)->map(fn ($r) => [
+                        'n_store_id' => $r['item']->n_store_id,
+                        'c_store_name' => $r['item']->c_store_name,
+                        'c_store_code' => $r['item']->c_store_code,
+                        'distance_km' => $r['km'],
+                    ])->values(),
+                ]);
+            }
+            // nothing within range: fall through to the panchayath / district / state match below
+        }
+
         $panchayathId = $request->panchayath_id;
         $districtId = $request->district_id;
         $stateId = $request->state_id;
@@ -3035,5 +2402,76 @@ class SalesController extends Controller
         return response()->json(
             $productAttributes
         );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment / booklet proof images
+    |--------------------------------------------------------------------------
+    | Stored on the private "local" disk (storage/app/private/sales/...), never
+    | under public/, and streamed only through proof() below so the sales-order
+    | permissions apply. File names and extensions are generated server-side
+    | from the detected MIME type, never from the client's filename.
+    */
+
+    private const PROOF_TYPES = ['payment_images', 'booklet_images'];
+
+    private const PROOF_MIME_EXT = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
+
+    private function storeProofFile(UploadedFile $file, string $type, string $prefix): string
+    {
+        abort_unless(in_array($type, self::PROOF_TYPES, true), 500);
+
+        $ext = self::PROOF_MIME_EXT[$file->getMimeType()] ?? null;
+        abort_unless($ext, 422, 'Unsupported image type.');
+
+        $name = $prefix.Str::random(32).'.'.$ext;
+
+        Storage::disk('local')->putFileAs('sales/'.$type, $file, $name);
+
+        return $name;
+    }
+
+    private function deleteProofFile(string $type, ?string $name): void
+    {
+        if (! $name || ! in_array($type, self::PROOF_TYPES, true)) {
+            return;
+        }
+
+        $name = basename($name);
+
+        Storage::disk('local')->delete('sales/'.$type.'/'.$name);
+
+        // Legacy location (files uploaded before the move to private storage)
+        $legacy = public_path('uploads/'.$type.'/'.$name);
+        if (is_file($legacy)) {
+            @unlink($legacy);
+        }
+    }
+
+    public function proof(string $type, string $filename)
+    {
+        abort_unless(in_array($type, self::PROOF_TYPES, true), 404);
+
+        $filename = basename($filename);
+        $disk = Storage::disk('local');
+        $path = 'sales/'.$type.'/'.$filename;
+
+        if ($disk->exists($path)) {
+            return response()->file($disk->path($path), [
+                'X-Content-Type-Options' => 'nosniff',
+                'Cache-Control' => 'private, max-age=300',
+            ]);
+        }
+
+        // Legacy fallback until `php artisan files:secure-legacy` has been run
+        $legacy = public_path('uploads/'.$type.'/'.$filename);
+        abort_unless(is_file($legacy), 404);
+
+        return response()->file($legacy, ['X-Content-Type-Options' => 'nosniff']);
     }
 }

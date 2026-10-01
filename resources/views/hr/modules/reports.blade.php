@@ -125,7 +125,7 @@
                         <div class="appr-line"><i class="fa-solid fa-circle-check" style="color:var(--brand-bright);"></i><b>{{ $appraisalDone }}</b> completed</div>
                         <div class="appr-line"><i class="fa-regular fa-clock" style="color:#C9A227;"></i><b>{{ $appraisalTotal - $appraisalDone }}</b> pending</div>
                         <div class="appr-line"><i class="fa-solid fa-users" style="color:var(--brand);"></i><b>{{ $appraisalTotal }}</b> total appraisals</div>
-                        <a href="{{ url('/modules/appraisal') }}" class="appr-link">Open Performance module <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="{{ url('/hr/modules/appraisal') }}" class="appr-link">Open Performance module <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </div>

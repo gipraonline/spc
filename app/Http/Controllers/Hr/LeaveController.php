@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Hr;
 
 use App\Models\Hr\Department;
+use App\Models\Hr\LeaveBalance;
 use App\Models\Hr\LeaveRequest;
 use App\Models\Hr\LeaveType;
+use App\Services\Hr\LeaveBalanceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class LeaveController extends Controller
 {
@@ -16,11 +20,15 @@ class LeaveController extends Controller
         $employee = $this->currentEmployee();
         $role = $this->currentRole();
 
-        $leaveTypes = LeaveType::orderBy('id')->get();
+        $balanceService = app(LeaveBalanceService::class);
 
-        $balances = $employee
-            ? $employee->leaveBalances()->where('year', now()->year)->with('leaveType')->get()
+        // Every leave type this employee can use, each with what's left
+        // (unpaid leave is unlimited and shows days taken instead).
+        $leaveSummary = ($employee && $role !== 'super_admin')
+            ? $balanceService->summaryFor($employee, now()->year)
             : collect();
+
+        $leaveTypes = $leaveSummary->pluck('type');
 
         $ownRequests = ($employee && $role !== 'super_admin')
             ? $employee->leaveRequests()->with('leaveType')->orderByDesc('id')->limit(10)->get()
@@ -108,7 +116,7 @@ class LeaveController extends Controller
             'module' => $module,
             'moduleKey' => 'leave',
             'leaveTypes' => $leaveTypes,
-            'balances' => $balances,
+            'leaveSummary' => $leaveSummary,
             'ownRequests' => $ownRequests,
             'pendingApprovals' => $pendingApprovals,
             'allLeaveRequests' => $allLeaveRequests,
@@ -136,7 +144,19 @@ class LeaveController extends Controller
             'reason' => 'nullable|string|max:255',
         ]);
 
-        $days = Carbon::parse($data['start_date'])->diffInDays(Carbon::parse($data['end_date'])) + 1;
+        $start = Carbon::parse($data['start_date'])->startOfDay();
+        $end = Carbon::parse($data['end_date'])->startOfDay();
+        $days = $start->diffInDays($end) + 1;
+
+        $type = LeaveType::findOrFail($data['leave_type_id']);
+
+        if (! app(LeaveBalanceService::class)->isEligible($employee, $type)) {
+            throw ValidationException::withMessages(['leave_type_id' => $type->name.' is not applicable to you.']);
+        }
+
+        if ($problem = $this->leaveProblem($employee->id, $type, $start, $end, $days, null, false)) {
+            throw ValidationException::withMessages(['start_date' => $problem]);
+        }
 
         LeaveRequest::create([
             'employee_id' => $employee->id,
@@ -158,24 +178,145 @@ class LeaveController extends Controller
         abort_unless($this->isManagerOrAbove(), 403);
 
         $data = $request->validate(['action' => 'required|in:approve,reject']);
+        $approve = $data['action'] === 'approve';
 
-        $leaveRequest->update([
-            'status' => $data['action'] === 'approve' ? 'approved' : 'rejected',
-            'approved_by' => $this->currentUser()->id,
-            'approved_at' => now(),
-        ]);
+        $actorUser = $this->currentUser();
+        $actorEmployee = $this->currentEmployee();
+        $role = $this->currentRole();
 
-        if ($data['action'] === 'approve') {
-            $balance = $leaveRequest->employee->leaveBalances()
-                ->where('leave_type_id', $leaveRequest->leave_type_id)
-                ->where('year', now()->year)
-                ->first();
+        // Everything below runs in one transaction on a row lock, so two
+        // simultaneous clicks (or a double submit) cannot both pass the
+        // "still pending" check and double-count the balance.
+        $problem = DB::connection('spc_hr')->transaction(function () use ($leaveRequest, $approve, $actorUser, $actorEmployee, $role) {
+            $req = LeaveRequest::whereKey($leaveRequest->id)->lockForUpdate()->firstOrFail();
+            $req->load(['employee', 'leaveType']);
 
-            if ($balance) {
-                $balance->increment('used', $leaveRequest->days);
+            // Nobody decides their own leave — not managers, HR or super admin.
+            abort_if(
+                ($actorEmployee && $req->employee_id === $actorEmployee->id)
+                    || ($req->employee && $req->employee->user_id === $actorUser->id),
+                403,
+                'You cannot approve or reject your own leave.'
+            );
+
+            // Managers only decide for their direct reports (same scope as the
+            // pending-approvals list). HR Admin / Super Admin may decide for anyone else.
+            if ($role === 'manager') {
+                abort_unless(
+                    $actorEmployee && $actorEmployee->directReports()->whereKey($req->employee_id)->exists(),
+                    403,
+                    'This leave request is not from one of your direct reports.'
+                );
             }
+
+            if ($req->status !== 'pending') {
+                return 'This leave request has already been '.$req->status.'.';
+            }
+
+            if ($approve) {
+                $start = Carbon::parse($req->start_date)->startOfDay();
+                $end = Carbon::parse($req->end_date)->startOfDay();
+
+                if ($problem = $this->leaveProblem($req->employee_id, $req->leaveType, $start, $end, (float) $req->days, $req->id, true)) {
+                    return $problem;
+                }
+
+                if ($req->leaveType && $req->leaveType->is_paid) {
+                    LeaveBalance::where('employee_id', $req->employee_id)
+                        ->where('leave_type_id', $req->leave_type_id)
+                        ->where('year', $start->year)
+                        ->increment('used', $req->days);
+                }
+            }
+
+            $req->update([
+                'status' => $approve ? 'approved' : 'rejected',
+                'approved_by' => $actorUser->id,
+                'approved_at' => now(),
+            ]);
+
+            return null;
+        });
+
+        if ($problem) {
+            throw ValidationException::withMessages(['leave' => $problem]);
         }
 
-        return back()->with('status', 'Leave request '.($data['action'] === 'approve' ? 'approved.' : 'rejected.'));
+        return back()->with('status', 'Leave request '.($approve ? 'approved.' : 'rejected.'));
+    }
+
+    /**
+     * Returns a human-readable reason the leave cannot be taken, or null if OK.
+     *
+     * - overlap: no clash with another pending/approved request of the same
+     *   employee (on approval only already-approved ones count, since the
+     *   request itself and other pendings are still open).
+     * - balance: paid leave types need a balance row for the leave year and
+     *   enough remaining days. On apply, days already promised to other pending
+     *   requests of the same type are reserved; on approval only the recorded
+     *   usage counts. Unpaid types have no balance to check.
+     */
+    private function leaveProblem(int $employeeId, ?LeaveType $type, Carbon $start, Carbon $end, float $days, ?int $ignoreId, bool $forApproval): ?string
+    {
+        if (! $type) {
+            return 'Unknown leave type.';
+        }
+
+        $overlap = LeaveRequest::where('employee_id', $employeeId)
+            ->whereIn('status', $forApproval ? ['approved'] : ['pending', 'approved'])
+            ->whereDate('start_date', '<=', $end->toDateString())
+            ->whereDate('end_date', '>=', $start->toDateString())
+            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            ->orderBy('start_date')
+            ->first();
+
+        if ($overlap) {
+            return 'These dates overlap an existing '.$overlap->status.' leave ('
+                .Carbon::parse($overlap->start_date)->format('d M Y').' – '
+                .Carbon::parse($overlap->end_date)->format('d M Y').').';
+        }
+
+        if (! $type->is_paid) {
+            return null;
+        }
+
+        if ($start->year !== $end->year) {
+            return 'Leave spanning two calendar years must be applied for separately for each year.';
+        }
+
+        // Make sure this employee has their balance row for the year (created
+        // from the entitlement set in HR Settings) before checking it.
+        if ($employee = \App\Models\Hr\Employee::find($employeeId)) {
+            app(LeaveBalanceService::class)->ensureFor($employee, $start->year);
+        }
+
+        $balanceQuery = LeaveBalance::where('employee_id', $employeeId)
+            ->where('leave_type_id', $type->id)
+            ->where('year', $start->year);
+
+        $balance = $forApproval ? $balanceQuery->lockForUpdate()->first() : $balanceQuery->first();
+
+        if (! $balance) {
+            return 'No '.$type->name.' balance is allocated for '.$start->year.'.';
+        }
+
+        $available = $balance->remaining;
+
+        if (! $forApproval) {
+            $reserved = (float) LeaveRequest::where('employee_id', $employeeId)
+                ->where('leave_type_id', $type->id)
+                ->where('status', 'pending')
+                ->whereYear('start_date', $start->year)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->sum('days');
+            $available -= $reserved;
+        }
+
+        if ($days > $available + 0.0001) {
+            return 'Insufficient '.$type->name.' balance: '.rtrim(rtrim(number_format(max(0, $available), 2), '0'), '.')
+                .' day(s) available, '.rtrim(rtrim(number_format($days, 2), '0'), '.').' requested.';
+        }
+
+        return null;
     }
 }

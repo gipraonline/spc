@@ -23,7 +23,7 @@
 
         @if($directory->isNotEmpty())
             <div class="employee-directory-card">
-                <form method="GET" action="{{ url('/modules/employee-records') }}" class="employee-toolbar">
+                <form method="GET" action="{{ url('/hr/modules/employee-records') }}" class="employee-toolbar">
                     <div class="employee-search">
                         <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass" style="font-size:12px;"></i></span>
                         <input type="text" name="q" value="{{ $search }}" placeholder="Search name, ID or email">
@@ -268,7 +268,7 @@
 
     function openEditEmployee(btn){
         const d = JSON.parse(btn.dataset.emp);
-        empSelect('editEmpForm').action = '{{ url('/modules/employee-records') }}/' + d.id;
+        empSelect('editEmpForm').action = '{{ url('/hr/modules/employee-records') }}/' + d.id;
         empSelect('editEmpTitle').textContent = 'Edit — ' + (d.name || d.employee_code);
         empSelect('editEmpSub').textContent = d.employee_code + ' · ' + (d.email || '');
         empSelect('ee_name').value = d.name || '';
@@ -306,7 +306,7 @@
         st.classList.toggle('ok', d.status === 'Active');
         st.classList.toggle('warn', d.status === 'On notice');
         st.classList.toggle('off', d.status === 'Exited');
-        empSelect('ve_openFull').href = '{{ url('/modules/employee-records') }}?employee=' + d.id + '#employee-profile';
+        empSelect('ve_openFull').href = '{{ url('/hr/modules/employee-records') }}?employee=' + d.id + '#employee-profile';
         document.getElementById('viewEmployeeModal').showModal();
     }
 
@@ -327,7 +327,7 @@
     function exportEmployees() {
         const params = new URLSearchParams(new FormData(document.querySelector('.employee-toolbar')));
         params.set('export', 'csv');
-        window.location.href = '{{ url('/modules/employee-records') }}?' + params.toString();
+        window.location.href = '{{ url('/hr/modules/employee-records') }}?' + params.toString();
     }
     </script>
 @endsection

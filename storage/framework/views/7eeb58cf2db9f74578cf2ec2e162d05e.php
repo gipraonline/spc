@@ -39,7 +39,7 @@
     // Fallback HR links (only used when the DB menu has no HR group)
     $hrLucide = [
         'attendance' => 'clock', 'leave' => 'calendar-days', 'payroll' => 'wallet',
-        'recruitment' => 'user-plus', 'employee-records' => 'users', 'appraisal' => 'trophy',
+        'recruitment' => 'user-plus', 'employee-records' => 'users', 'document-verification' => 'file-check', 'appraisal' => 'trophy',
         'pf-gratuity' => 'piggy-bank', 'incentive' => 'medal', 'reports' => 'bar-chart-3',
         'system' => 'shield', 'wfh' => 'home', 'announcements' => 'megaphone',
         'support' => 'help-circle', 'settings' => 'settings', 'organization' => 'building-2',

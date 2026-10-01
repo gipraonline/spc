@@ -775,7 +775,7 @@
 
     /* Card header: "Product 1" + remove button */
     .so-wrap #productTable tbody tr::before {
-        content: "Product " counter(prow);
+        content: "Product "counter(prow);
         grid-column: 1 / span 9;
         grid-row: 1;
         align-self: center;
@@ -804,22 +804,67 @@
     }
 
     /* Row A – what is being sold */
-    .so-wrap #productTable tbody td:nth-child(1) { grid-column: 1 / span 3; grid-row: 2; }
-    .so-wrap #productTable tbody td:nth-child(2) { grid-column: 4 / span 3; grid-row: 2; }
-    .so-wrap #productTable tbody td:nth-child(3) { grid-column: 7 / span 3; grid-row: 2; }
-    .so-wrap #productTable tbody td:nth-child(4) { grid-column: 10 / span 3; grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(1) {
+        grid-column: 1 / span 3;
+        grid-row: 2;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(2) {
+        grid-column: 4 / span 3;
+        grid-row: 2;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(3) {
+        grid-column: 7 / span 3;
+        grid-row: 2;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(4) {
+        grid-column: 10 / span 3;
+        grid-row: 2;
+    }
 
     /* Row B – HSN, price, quantity, discount */
-    .so-wrap #productTable tbody td:nth-child(5) { grid-column: 1 / span 3; grid-row: 3; }
-    .so-wrap #productTable tbody td:nth-child(6) { grid-column: 4 / span 3; grid-row: 3; }
-    .so-wrap #productTable tbody td:nth-child(7) { grid-column: 7 / span 3; grid-row: 3; }
-    .so-wrap #productTable tbody td:nth-child(8) { grid-column: 10 / span 3; grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(5) {
+        grid-column: 1 / span 3;
+        grid-row: 3;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(6) {
+        grid-column: 4 / span 3;
+        grid-row: 3;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(7) {
+        grid-column: 7 / span 3;
+        grid-row: 3;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(8) {
+        grid-column: 10 / span 3;
+        grid-row: 3;
+    }
 
     /* Row C – calculated amounts */
-    .so-wrap #productTable tbody td:nth-child(9)  { grid-column: 1 / span 3; grid-row: 4; }
-    .so-wrap #productTable tbody td:nth-child(10) { grid-column: 4 / span 3; grid-row: 4; }
-    .so-wrap #productTable tbody td:nth-child(11) { grid-column: 7 / span 3; grid-row: 4; }
-    .so-wrap #productTable tbody td:nth-child(12) { grid-column: 10 / span 3; grid-row: 4; }
+    .so-wrap #productTable tbody td:nth-child(9) {
+        grid-column: 1 / span 3;
+        grid-row: 4;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(10) {
+        grid-column: 4 / span 3;
+        grid-row: 4;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(11) {
+        grid-column: 7 / span 3;
+        grid-row: 4;
+    }
+
+    .so-wrap #productTable tbody td:nth-child(12) {
+        grid-column: 10 / span 3;
+        grid-row: 4;
+    }
 
     /* Auto-filled / calculated fields look muted, editable ones stay white */
     .so-wrap #productTable tbody td input[readonly],
@@ -1014,6 +1059,13 @@ use Illuminate\Support\Facades\Crypt;
             </div>
             @endif
 
+            @if(session('error'))
+            <div class="so-alert err">
+                <i class="ti ti-alert-circle"></i>
+                <div>{{ session('error') }}</div>
+            </div>
+            @endif
+
             @if(session('success'))
             <div class="so-alert ok">
                 <i class="ti ti-circle-check"></i>
@@ -1021,9 +1073,18 @@ use Illuminate\Support\Facades\Crypt;
             </div>
             @endif
 
-            <form method="POST" id="frm_create" action="{{ route('admin.salesorders.store') }}"
-                enctype="multipart/form-data">
+            @php
+            $isTelecallerRoute = request()->routeIs('admin.telecallers.*');
+            $isEditing = isset($sale) && $sale->n_sl_no && (!isset($viewmode) || $viewmode != 'on');
+            $formAction = $isEditing
+            ? route($isTelecallerRoute ? 'admin.telecallers.update' : 'admin.salesorders.update')
+            : route($isTelecallerRoute ? 'admin.telecallers.store' : 'admin.salesorders.store');
+            @endphp
+            <form method="POST" id="frm_create" action="{{ $formAction }}" enctype="multipart/form-data">
                 @csrf
+                @if($isEditing)
+                @method('PUT')
+                @endif
 
                 <input type="hidden" name="id" class="form-control" value="{{isset($sale) ? $sale->n_sl_no : ''}}">
 
@@ -1040,9 +1101,9 @@ use Illuminate\Support\Facades\Crypt;
                             <label class="form-label">Date *</label>
                             <input type="date" name="d_date" class="form-control mandatory"
                                 data-message="Please Select a Date"
-                                value="{{ old('d_date', isset($sale) ? $sale->d_date->format('Y-m-d') : date('Y-m-d')) }}"
+                                value="{{ old('d_date', isset($sale) && $sale->d_date ? $sale->d_date->format('Y-m-d') : date('Y-m-d')) }}"
                                 {{isset($viewmode) && $viewmode=='on' ? 'readonly' : '' }}>
-                            <div class="text-danger mt-1 fs-2"></div>
+                            <div class="text-danger mt-1 fs-2">@error('d_date'){{ $message }}@enderror</div>
                         </div>
 
                         @if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor==true )
@@ -1085,13 +1146,14 @@ use Illuminate\Support\Facades\Crypt;
                                 @if(isset($employees))
                                 @foreach($employees as $employee)
                                 <option value="{{ $employee->n_employee_id }}"
-                                    {{isset($sale) && $sale->farm_care_advisor_id == $employee->n_employee_id ? 'selected' : '' }}>
+                                    {{ old('farm_care_advisor_id', $sale->farm_care_advisor_id ?? '') == $employee->n_employee_id ? 'selected' : '' }}>
                                     {{ $employee->c_employee_name }}
                                 </option>
                                 @endforeach
                                 @endif
                             </select>
-                            <div class="text-danger mt-1 fs-2"></div>
+                            <div class="text-danger mt-1 fs-2">@error('farm_care_advisor_id'){{ $message }}@enderror
+                            </div>
                             @endif
                         </div>
 
@@ -1106,11 +1168,11 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="file" name="booklet_image" id="booklet_image" class="form-control"
                                 accept="image/*" data-message="Please Enter Booklet Proof">
                             <input type="hidden" name="remove_booklet_image" id="remove_booklet_image" value="0">
-                            <div class="text-danger mt-1 fs-2"></div>
+                            <div class="text-danger mt-1 fs-2">@error('booklet_image'){{ $message }}@enderror</div>
 
                             <div class="mt-3" id="booklet_image_preview_container">
                                 <img id="booklet_image_preview"
-                                    src="{{ isset($sale) && $sale->booklet_image ? asset('uploads/booklet_images/' . $sale->booklet_image) : '' }}"
+                                    src="{{ isset($sale) && $sale->booklet_image ? route('admin.salesorders.proof', ['type' => 'booklet_images', 'filename' => $sale->booklet_image]) : '' }}"
                                     alt="Booklet Proof Preview" class="img-thumbnail"
                                     style="{{ isset($sale) && $sale->booklet_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
 
@@ -1163,107 +1225,153 @@ use Illuminate\Support\Facades\Crypt;
                                 </tr>
                             </thead>
                             <tbody>
-                                @if(isset($sale->orderProducts) && count($sale->orderProducts) > 0)
-                                @foreach($sale->orderProducts as $key=>$val)
+                                @php
+                                /*
+                                | Build the product rows from (a) the submitted input after a failed
+                                | validation, otherwise (b) the saved order lines. Names shown next to the
+                                | hidden ids are looked up so nothing is lost when the page re-renders.
+                                */
+                                $productRows = [];
+
+                                if (is_array(old('products'))) {
+                                $oldRows = collect(old('products'));
+                                $catIds = $oldRows->pluck('n_category_id')
+                                ->merge($oldRows->pluck('n_sub_category_id'))
+                                ->filter()->unique()->values();
+                                $catNames = $catIds->isNotEmpty()
+                                ? \App\Models\CategoryMaster::whereIn('n_category_id',
+                                $catIds)->pluck('c_category_name', 'n_category_id')
+                                : collect();
+                                $prodIds = $oldRows->pluck('product_id')->filter()->unique()->values();
+                                $prodNames = $prodIds->isNotEmpty()
+                                ? \App\Models\ProductMaster::whereIn('n_product_id', $prodIds)->pluck('c_product_name',
+                                'n_product_id')
+                                : collect();
+
+                                foreach (old('products') as $rk => $r) {
+                                $productRows[$rk] = [
+                                'n_category_id' => $r['n_category_id'] ?? '',
+                                'category_name' => $catNames[$r['n_category_id'] ?? 0] ?? '',
+                                'n_sub_category_id' => $r['n_sub_category_id'] ?? '',
+                                'sub_category_name' => $catNames[$r['n_sub_category_id'] ?? 0] ?? '',
+                                'product_id' => $r['product_id'] ?? '',
+                                'product_name' => $prodNames[$r['product_id'] ?? 0] ?? ($r['c_product_name'] ?? ''),
+                                'c_unit' => $r['c_unit'] ?? '',
+                                'c_hsn_code' => $r['c_hsn_code'] ?? '',
+                                'product_price' => $r['product_price'] ?? '0.00',
+                                'qty' => $r['qty'] ?? 1,
+                                'discount' => $r['discount'] ?? '0.00',
+                                'n_gst_percentage' => $r['n_gst_percentage'] ?? 0,
+                                'gst_amount' => $r['gst_amount'] ?? '0.00',
+                                'discounted_price' => $r['discounted_price'] ?? '0.00',
+                                'product_total' => $r['product_total'] ?? '0.00',
+                                ];
+                                }
+                                } elseif (isset($sale->orderProducts)) {
+                                foreach ($sale->orderProducts as $rk => $val) {
+                                $productRows[$rk] = [
+                                'n_category_id' => $val->n_category_id,
+                                'category_name' => $val->category?->c_category_name,
+                                'n_sub_category_id' => $val->n_sub_category_id,
+                                'sub_category_name' => $val->subCategory?->c_category_name,
+                                'product_id' => $val->product_id,
+                                'product_name' => $val->product?->c_product_name,
+                                'c_unit' => $val->c_unit ?: ($val->product?->c_unit),
+                                'c_hsn_code' => $val->c_hsn_code,
+                                'product_price' => $val->product_price ?? '0.00',
+                                'qty' => $val->qty ?? 1,
+                                'discount' => $val->discount ?? '0.00',
+                                'n_gst_percentage' => $val->n_gst_percentage ?? 0,
+                                'gst_amount' => $val->gst_amount ?? '0.00',
+                                'discounted_price' => $val->discounted_price ?? '0.00',
+                                'product_total' => $val->product_total ?? '0.00',
+                                ];
+                                }
+                                }
+                                @endphp
+
+                                @foreach($productRows as $key => $row)
                                 <tr class="existing-product-row">
                                     <!-- Category -->
                                     <td>
                                         <input type="hidden" name="products[{{ $key }}][n_category_id]"
-                                            class="form-control subcategory-select"
-                                            value="{{$val->category?->n_category_id}}">
-
-                                        <input type="text" name="" class="form-control"
-                                            value="{{$val->category?->c_category_name}}" readonly>
-
+                                            value="{{ $row['n_category_id'] }}">
+                                        <input type="text" class="form-control" value="{{ $row['category_name'] }}"
+                                            readonly>
                                     </td>
 
                                     <!-- Sub Category -->
                                     <td>
                                         <input type="hidden" name="products[{{ $key }}][n_sub_category_id]"
-                                            class="form-control subcategory-select"
-                                            value="{{$val->subCategory?->n_category_id}}">
-
-                                        <input type="text" name="" class="form-control"
-                                            value="{{$val->subCategory?->c_category_name}}" readonly>
-
+                                            value="{{ $row['n_sub_category_id'] }}">
+                                        <input type="text" class="form-control" value="{{ $row['sub_category_name'] }}"
+                                            readonly>
                                     </td>
 
                                     <!-- Product -->
                                     <td>
                                         <input type="hidden" name="products[{{ $key }}][product_id]"
-                                            class="form-control product-select" value="{{$val->product->n_product_id}}">
-
-                                        <input type="text" name="" class="form-control"
-                                            value="{{$val->product->c_product_name}}" readonly>
-
-
+                                            class="product-select" value="{{ $row['product_id'] }}">
+                                        <input type="text" class="form-control" value="{{ $row['product_name'] }}"
+                                            readonly>
                                     </td>
 
                                     <!-- Attribute / Pack Size -->
                                     <td>
                                         <input type="hidden" name="products[{{ $key }}][c_unit]"
-                                            class="form-control attribute-select" value="{{$val->product->c_unit}}">
-
-                                        <input type="text" name="" class="form-control"
-                                            value="{{$val->product->c_unit}}" readonly>
-
+                                            value="{{ $row['c_unit'] }}">
+                                        <input type="text" class="form-control" value="{{ $row['c_unit'] }}" readonly>
                                     </td>
 
                                     <!-- HSN Code -->
                                     <td>
                                         <input type="text" name="products[{{ $key }}][c_hsn_code]"
-                                            class="form-control c_hsn_code" value="{{ $val->c_hsn_code ?? '' }}"
-                                            readonly>
+                                            class="form-control c_hsn_code" value="{{ $row['c_hsn_code'] }}" readonly>
                                     </td>
 
                                     <!-- Price -->
                                     <td>
                                         <input type="text" name="products[{{ $key }}][product_price]"
-                                            class="form-control price" value="{{ $val->product_price ?? '0.00' }}"
-                                            readonly>
+                                            class="form-control price" value="{{ $row['product_price'] }}" readonly>
                                     </td>
 
                                     <!-- Quantity -->
                                     <td>
                                         <input type="number" name="products[{{ $key }}][qty]" class="form-control qty"
-                                            value="{{ $val->qty ?? 1 }}" min="1">
+                                            value="{{ $row['qty'] }}" min="1">
                                     </td>
-
-
 
                                     <!-- Discount -->
                                     <td>
                                         <input type="number" name="products[{{ $key }}][discount]"
-                                            class="form-control discount" value="{{ $val->discount ?? '0.00' }}"
-                                            step="0.01" min="0">
+                                            class="form-control discount" value="{{ $row['discount'] }}" step="0.01"
+                                            min="0">
                                     </td>
 
                                     <!-- GST % -->
                                     <td>
                                         <input type="number" name="products[{{ $key }}][n_gst_percentage]"
-                                            class="form-control gst_percentage"
-                                            value="{{ $val->n_gst_percentage ?? 0 }}" step="0.01" readonly>
+                                            class="form-control gst_percentage" value="{{ $row['n_gst_percentage'] }}"
+                                            step="0.01" readonly>
                                     </td>
 
                                     <!-- GST Amount -->
                                     <td>
                                         <input type="text" name="products[{{ $key }}][gst_amount]"
-                                            class="form-control gst_amount" value="{{ $val->gst_amount ?? '0.00' }}"
-                                            readonly>
+                                            class="form-control gst_amount" value="{{ $row['gst_amount'] }}" readonly>
                                     </td>
 
                                     <!-- Taxable / Discounted Price -->
                                     <td>
                                         <input type="text" name="products[{{ $key }}][discounted_price]"
-                                            class="form-control discounted_price"
-                                            value="{{ $val->discounted_price ?? '0.00' }}" readonly>
+                                            class="form-control discounted_price" value="{{ $row['discounted_price'] }}"
+                                            readonly>
                                     </td>
 
                                     <!-- Total (MRP) -->
                                     <td>
                                         <input type="text" name="products[{{ $key }}][product_total]"
-                                            class="form-control total" value="{{ $val->product_total ?? '0.00' }}"
-                                            readonly>
+                                            class="form-control total" value="{{ $row['product_total'] }}" readonly>
                                     </td>
 
                                     <td class="text-center">
@@ -1273,10 +1381,12 @@ use Illuminate\Support\Facades\Crypt;
                                     </td>
                                 </tr>
                                 @endforeach
-                                @endif
                             </tbody>
                         </table>
                     </div>
+                    @error('products')
+                    <div class="text-danger mt-2">{{ $message }}</div>
+                    @enderror
 
                     <!-- Product Details Summary Box (Bill Card) -->
                     <div class="row justify-content-end mt-4">
@@ -1306,7 +1416,7 @@ use Illuminate\Support\Facades\Crypt;
                                         <span class="summary-label">Total Discount</span>
                                         <input type="text" name="n_product_discount_total"
                                             class="form-control summary-input text-end" id="summaryTotalDiscount"
-                                            value="{{ old('n_total_discount', $sale->n_product_discount_total ?? '0.00') }}"
+                                            value="{{ old('n_product_discount_total', $sale->n_product_discount_total ?? '0.00') }}"
                                             readonly>
                                     </div>
 
@@ -1327,11 +1437,11 @@ use Illuminate\Support\Facades\Crypt;
                 <!-- Customer Type Selection -->
                 <div class="customer-toggle mb-4">
                     <input type="radio" class="btn-check" name="c_customer_type" id="newCustomer" value="new"
-                        {{ (!isset($sale) || (isset($sale) && $sale->c_customer_type=="new")) ? "checked" : '' }}>
+                        {{ old('c_customer_type', $sale->c_customer_type ?? 'new') != 'existing' ? 'checked' : '' }}>
                     <label class="toggle-btn new" for="newCustomer"><i class="ti ti-user-plus"></i> New Customer</label>
 
                     <input type="radio" class="btn-check" name="c_customer_type" id="existingCustomer" value="existing"
-                        {{ (isset($sale) && $sale->c_customer_type=="existing") ? "checked" : '' }}>
+                        {{ old('c_customer_type', $sale->c_customer_type ?? 'new') == 'existing' ? 'checked' : '' }}>
                     <label class="toggle-btn existing" for="existingCustomer"><i class="ti ti-user-search"></i> Existing
                         Customer</label>
                 </div>
@@ -1369,7 +1479,10 @@ use Illuminate\Support\Facades\Crypt;
                     </div>
 
                     <input type="hidden" name="n_customer_id" id="n_customer_id" class="form-control customer-id"
-                        value="{{ (isset($sale) ? $sale->customer?->n_customer_id : '') }}">
+                        value="{{ old('n_customer_id', isset($sale) ? $sale->customer?->n_customer_id : '') }}">
+                    @error('n_customer_id')
+                    <div class="text-danger mt-1 mb-2">{{ $message }}</div>
+                    @enderror
 
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
@@ -1401,7 +1514,7 @@ use Illuminate\Support\Facades\Crypt;
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">WhatsApp Number</label>
+                            <label class="form-label">WhatsApp Number *</label>
                             <input type="text" maxlength="10" name="n_whatsapp" id="n_whatsapp"
                                 value="{{ old('n_whatsapp', isset($sale) ? $sale->customer?->n_whatsapp : '') }}"
                                 class="form-control" placeholder="WhatsApp Number">
@@ -1411,7 +1524,7 @@ use Illuminate\Support\Facades\Crypt;
                         </div>
 
                         <div class="col-md-12">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">Email *</label>
                             <input type="email" name="c_email" id="c_email"
                                 value="{{ old('c_email', isset($sale) ? $sale->customer?->c_email : '') }}"
                                 class="form-control" placeholder="example@domain.com">
@@ -1426,7 +1539,7 @@ use Illuminate\Support\Facades\Crypt;
 
                     <div class="row g-4 mb-4">
                         <div class="col-md-12">
-                            <label for="c_address" class="form-label">Address</label>
+                            <label for="c_address" class="form-label">Address *</label>
                             <textarea id="c_address" name="c_address" rows="3" class="form-control"
                                 placeholder="Enter Customer Address">{{ old('c_address', isset($sale) ? $sale->customer?->c_address : '') }}</textarea>
                             @error('c_address')
@@ -1436,7 +1549,7 @@ use Illuminate\Support\Facades\Crypt;
 
                         <div class="col-md-4">
                             <label for="c_post_office" class="form-label">
-                                Post Office
+                                Post Office *
                             </label>
                             <input type="text" id="c_post_office" name="c_post_office"
                                 value="{{ old('c_post_office',isset($sale) ? $sale->customer?->c_post_office : '')}}"
@@ -1449,44 +1562,44 @@ use Illuminate\Support\Facades\Crypt;
                         </div>
 
                         <div class="col-md-4">
-                            <label for="n_state_id" class="form-label">State</label>
-                            <select name="n_state_id" id="n_state_id" class="form-select">
+                            <label for="n_state_id" class="form-label">State *</label>
+                            <select name="customer_state_id" id="n_state_id" class="form-select">
                                 <option value="">Select State</option>
                                 @if(isset($states))
                                 @foreach($states as $state)
                                 <option value="{{ $state->n_state_id }}" data-id="{{ $state->n_state_id }}"
-                                    {{ old('n_state_id', isset($sale) ? $sale->customer?->n_state_id : '') == $state->n_state_id ? 'selected' : '' }}>
+                                    {{ old('customer_state_id', isset($sale) ? $sale->customer?->n_state_id : '') == $state->n_state_id ? 'selected' : '' }}>
                                     {{ $state->name }}
                                 </option>
                                 @endforeach
                                 @endif
                             </select>
-                            @error('n_state_id')
+                            @error('customer_state_id')
                             <div class="text-danger mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="col-md-4">
-                            <label for="n_district_id" class="form-label">District</label>
-                            <select name="n_district_id" id="n_district_id" class="form-select">
+                            <label for="n_district_id" class="form-label">District *</label>
+                            <select name="customer_district_id" id="n_district_id" class="form-select">
                                 <option value="">Select District</option>
                                 @if(isset($districts))
                                 @foreach($districts as $district)
                                 <option value="{{ $district->id }}"
-                                    {{ old('n_district_id', isset($sale) ? $sale->customer?->n_district_id : '') == $district->id ? 'selected' : '' }}>
+                                    {{ old('customer_district_id', isset($sale) ? $sale->customer?->n_district_id : '') == $district->id ? 'selected' : '' }}>
                                     {{ $district->district_name }}
                                 </option>
                                 @endforeach
                                 @endif
                             </select>
-                            @error('n_district_id')
+                            @error('customer_district_id')
                             <div class="text-danger mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="col-md-4">
                             <label for="c_thaluk" class="form-label">
-                                Thaluk
+                                Thaluk *
                             </label>
                             <input type="text" id="c_thaluk" name="c_thaluk"
                                 value="{{ old('c_thaluk',isset($sale) ? $sale->customer?->c_thaluk : '') }}"
@@ -1499,7 +1612,7 @@ use Illuminate\Support\Facades\Crypt;
                         </div>
 
                         <div class="col-md-4">
-                            <label for="c_pincode" class="form-label">Pincode</label>
+                            <label for="c_pincode" class="form-label">Pincode *</label>
                             <input type="text" id="c_pincode" name="c_pincode" maxlength="6"
                                 value="{{ old('c_pincode', isset($sale) ? $sale->customer?->c_pincode : '') }}"
                                 class="form-control" placeholder="Pincode">
@@ -1510,7 +1623,8 @@ use Illuminate\Support\Facades\Crypt;
 
                         {{-- Order location: filled from the address above, same approach as Franchise > Add --}}
                         <div class="col-md-12">
-                            <div class="form-label mb-2"><i class="ti ti-current-location"></i> Location (from address)</div>
+                            <div class="form-label mb-2"><i class="ti ti-current-location"></i> Location (from address)
+                            </div>
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-3">
                                     <label for="so_latitude" class="form-label">Latitude</label>
@@ -1540,9 +1654,12 @@ use Illuminate\Support\Facades\Crypt;
                                 </div>
                             </div>
                             <div id="soLocationStatus" class="mt-2 small text-muted">
-                                Fill in the address, state and district, then click "Get Location from Address". You can drag the pin or click the map to fine-tune it.
+                                Fill in the address, state and district, then click "Get Location from Address". You can
+                                drag the pin or click the map to fine-tune it.
                             </div>
-                            <div id="soLocationMap" style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;"></div>
+                            <div id="soLocationMap"
+                                style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;">
+                            </div>
                         </div>
                     </div> <!-- Customer Status -->
                     <div class="form-section-header">
@@ -1618,7 +1735,8 @@ use Illuminate\Support\Facades\Crypt;
                                     <i class="ti ti-cash"></i> Paid to Franchise
                                 </label>
                             </div>
-                            <div class="text-danger mt-1 fs-2"></div>
+                            <div class="text-danger mt-1 fs-2" id="payment_mode_error">
+                                @error('c_mode_of_payment'){{ $message }}@enderror</div>
                         </div>
                     </div>
 
@@ -1635,7 +1753,7 @@ use Illuminate\Support\Facades\Crypt;
                                     {{ old('payment_status', $sale->payment_status ?? '') == "paid" ? 'selected' : '' }}>
                                     Paid</option>
                             </select>
-                            <div class="text-danger mt-1 fs-2"></div>
+                            <div class="text-danger mt-1 fs-2">@error('payment_status'){{ $message }}@enderror</div>
                         </div>
                     </div>
 
@@ -1657,7 +1775,7 @@ use Illuminate\Support\Facades\Crypt;
                                 value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
                                 data-message="Please Enter Transaction id" class="form-control"
                                 placeholder="Enter Transaction / UTR / Reference No">
-                            <div class="text-danger mt-1 fs-2"></div>
+                            <div class="text-danger mt-1 fs-2">@error('c_transaction_id'){{ $message }}@enderror</div>
                         </div>
 
                         <div class="col-md-4">
@@ -1671,11 +1789,11 @@ use Illuminate\Support\Facades\Crypt;
                             <input type="file" id="payment_image" name="payment_image"
                                 data-message="Please Enter Transaction Proof" class="form-control" accept="image/*">
                             <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
-                            <div class="text-danger mt-1 fs-2"></div>
+                            <div class="text-danger mt-1 fs-2">@error('payment_image'){{ $message }}@enderror</div>
 
                             <div class="mt-3" id="payment_preview_container">
                                 <img id="payment_image_preview"
-                                    src="{{ isset($sale) && $sale->payment_image ? asset('uploads/payment_images/' . $sale->payment_image) : '' }}"
+                                    src="{{ isset($sale) && $sale->payment_image ? route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) : '' }}"
                                     alt="Transaction Proof Preview" class="img-thumbnail"
                                     style="{{ isset($sale) && $sale->payment_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
 
@@ -1711,6 +1829,9 @@ use Illuminate\Support\Facades\Crypt;
                                     <label class="form-check-label" for="franchise_type">Franchise</label>
                                 </div>
                             </div>
+                            @error('order_type')
+                            <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                     @endif
@@ -1742,10 +1863,13 @@ use Illuminate\Support\Facades\Crypt;
                                     data-message="Please Select District"
                                     {{ isset($viewmode) && $viewmode == 'on' ? 'disabled' : '' }}>
                                     <option value="">Select District</option>
-                                    @if(isset($sale->n_district_id) && isset($sale->n_state_id))
                                     @php
-                                    $franchiseDistricts = \App\Models\District::where('state_id',
-                                    $sale->n_state_id)->get();
+                                    $fState = old('n_state_id', $sale->n_state_id ?? null);
+                                    $fDistrict = old('n_district_id', $sale->n_district_id ?? null);
+                                    @endphp
+                                    @if($fState)
+                                    @php
+                                    $franchiseDistricts = \App\Models\District::where('state_id', $fState)->get();
                                     @endphp
                                     @foreach($franchiseDistricts as $district)
                                     <option value="{{ $district->id }}"
@@ -1755,16 +1879,19 @@ use Illuminate\Support\Facades\Crypt;
                                     @endforeach
                                     @endif
                                 </select>
+                                @error('n_district_id')
+                                <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Panchayath</label>
                                 <select class="form-select" id="franchise_panchayath" name="n_panchayath_id">
                                     <option value="">Select Panchayath</option>
-                                    @if(isset($sale->n_district_id))
+                                    @if($fDistrict)
                                     @php
                                     $franchisePanchayaths = \App\Models\Panchayath::where('district_id',
-                                    $sale->n_district_id)->get();
+                                    $fDistrict)->get();
                                     @endphp
                                     @foreach($franchisePanchayaths as $panchayath)
                                     <option value="{{ $panchayath->id }}"
@@ -1790,7 +1917,11 @@ use Illuminate\Support\Facades\Crypt;
                                     @endforeach
                                     @endif
                                 </select>
+                                @error('nearest_franchise_id')
+                                <div class="text-danger mt-1 fs-2">{{ $message }}</div>
+                                @enderror
                                 <div id="soFranchiseHint" class="mt-1 small text-muted"></div>
+                                <div id="soFranchiseRank" class="mt-2" style="display:none;"></div>
                             </div>
                         </div>
                     </div>
@@ -1811,10 +1942,12 @@ use Illuminate\Support\Facades\Crypt;
                     <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
                         Order Summary Preview
                     </a>
+                    @if(strtolower($sale->approval?->status ?? '') === 'approved')
                     <a href="{{ route('admin.invoice.download', $sale->n_sl_no) }}">
                         <button type="button" class="btn buttonSpc" style="height:61px;margin-top: 4px;">Generate
                             Invoice</button>
                     </a>
+                    @endif
                     @endif
                     @else
                     <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
@@ -1876,7 +2009,12 @@ use Illuminate\Support\Facades\Crypt;
     $(document).ready(function() {
         console.log('Sales Order JS loaded with Category & Attribute flow');
 
-        let rowIndex = $('#productTable tbody tr').length;
+        let rowIndex = 0;
+        $('#productTable tbody tr').each(function() {
+            const m = ($(this).find('[name^="products["]').first().attr('name') || '').match(
+                /^products\[(\d+)\]/);
+            if (m) rowIndex = Math.max(rowIndex, parseInt(m[1], 10) + 1);
+        });
 
         /*
         |--------------------------------------------------------------------------
@@ -2358,8 +2496,9 @@ use Illuminate\Support\Facades\Crypt;
                     parseFloat(globalmrp) || 0,
                     parseFloat(globalGstPercentage) || 0
                 );
-                if ($(this).closest('.existing-product-row')) {
+                if ($(this).closest('.existing-product-row').length) {
                     calculateExistingRow($(this).closest('.existing-product-row'));
+                    calculateSummary();
                 }
 
             });
@@ -2668,8 +2807,16 @@ use Illuminate\Support\Facades\Crypt;
             handlePaymentMode();
         });
 
+        const hasStoredPaymentImage = {
+            {
+                isset($sale) && $sale - > payment_image ? 'true' : 'false'
+            }
+        };
+
         function handlePaymentMode() {
             let paymentMode = $('.mode_of_payment:checked').val();
+            // A stored proof is kept unless the user removed it
+            const needsProofFile = !hasStoredPaymentImage || $('#remove_payment_image').val() === '1';
 
             if (!paymentMode) {
                 $('#paymet-proofs').hide();
@@ -2691,7 +2838,7 @@ use Illuminate\Support\Facades\Crypt;
                 $('#ps').show();
                 $('#franchise-details').show();
                 $('#c_transaction_id').addClass('mandatory');
-                $('#payment_image').addClass('mandatory');
+                $('#payment_image').toggleClass('mandatory', needsProofFile);
             }
         }
 
@@ -2885,6 +3032,7 @@ use Illuminate\Support\Facades\Crypt;
                 $('#' + previewId).attr('src', '').hide();
                 $('#' + removeInputId).val('1');
                 $(this).hide();
+                if (typeof handlePaymentMode === 'function') handlePaymentMode();
             });
         }
 
@@ -2932,7 +3080,7 @@ use Illuminate\Support\Facades\Crypt;
             } else {
                 lookupCard.classList.add('d-none');
                 $("#c_customer_code").val(
-                    "{{ $customerCode ?? (isset($sale) ? $sale->c_customer_code : '') }}");
+                    "{{ $customerCode ?? (isset($sale) ? $sale->customer?->c_customer_code : '') }}");
             }
         }
 
@@ -2973,7 +3121,7 @@ use Illuminate\Support\Facades\Crypt;
                             $('[name="c_pincode"]').val(data.customer.c_pincode || '');
 
                             if (data.customer.n_state_id) {
-                                $('[name="n_state_id"]').val(data.customer.n_state_id);
+                                $('#n_state_id').val(data.customer.n_state_id);
                                 districtFilter(data.customer.n_state_id, data.customer
                                     .n_district_id);
                             }
@@ -3022,10 +3170,14 @@ use Illuminate\Support\Facades\Crypt;
     |--------------------------------------------------------------------------
     */
     $(function() {
-        const $lat = $('#so_latitude'), $lng = $('#so_longitude'), $status = $('#soLocationStatus');
-        const $btn = $('#soGetLocationBtn'), $mapBox = $('#soLocationMap');
+        const $lat = $('#so_latitude'),
+            $lng = $('#so_longitude'),
+            $status = $('#soLocationStatus');
+        const $btn = $('#soGetLocationBtn'),
+            $mapBox = $('#soLocationMap');
         const BTN_HTML = '<i class="ti ti-map-pin-search"></i> Get Location from Address';
-        let map = null, marker = null;
+        let map = null,
+            marker = null;
 
         function say(type, html) {
             $status.removeClass('text-muted text-success text-danger text-warning')
@@ -3033,8 +3185,8 @@ use Illuminate\Support\Facades\Crypt;
         }
 
         function validCoords(lat, lng) {
-            return isFinite(lat) && isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
-                && $lat.val().toString().trim() !== '' && $lng.val().toString().trim() !== '';
+            return isFinite(lat) && isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 &&
+                $lat.val().toString().trim() !== '' && $lng.val().toString().trim() !== '';
         }
 
         function ensureMap(lat, lng, zoom) {
@@ -3051,7 +3203,9 @@ use Illuminate\Support\Facades\Crypt;
             } else {
                 map.setView([lat, lng], zoom);
             }
-            setTimeout(function() { map.invalidateSize(); }, 250);
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 250);
         }
 
         function placeMarker(lat, lng) {
@@ -3059,7 +3213,9 @@ use Illuminate\Support\Facades\Crypt;
                 marker.setLatLng([lat, lng]);
                 return;
             }
-            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            marker = L.marker([lat, lng], {
+                draggable: true
+            }).addTo(map);
             marker.on('dragend', function() {
                 const p = marker.getLatLng();
                 setLocation(p.lat, p.lng, 'manual');
@@ -3076,30 +3232,43 @@ use Illuminate\Support\Facades\Crypt;
         | Values are set without firing the State/District/Panchayath change handlers, because those
         | reset the franchise list.
         */
-        const NEAREST_FRANCHISE_MAX_KM = 50;
-        const FRANCHISES = {!! json_encode(collect($franchises ?? [])->map(function ($f) {
-            return [
-                'id' => $f->n_store_id,
-                'name' => trim(($f->c_store_name ?? '') . ($f->c_store_code ? ' (' . $f->c_store_code . ')' : '')),
-                'lat' => $f->latitude !== null ? (float) $f->latitude : null,
-                'lng' => $f->longitude !== null ? (float) $f->longitude : null,
-                'state' => $f->n_state_id,
-                'district' => $f->n_district_id,
-                'panchayath' => $f->n_panchayath_id,
-            ];
-        })->values()) !!};
-        const $franchise = $('#franchise'), $fHint = $('#soFranchiseHint');
-        const $fState = $('#franchise_state'), $fDistrict = $('#franchise_district'),
+        const NEAREST_FRANCHISE_MAX_KM = {
+            {
+                (float) config('spc.nearest_franchise_max_km', 50)
+            }
+        };
+        const FRANCHISES = {
+            !!json_encode(collect($franchises ?? []) - > map(function($f) {
+                return [
+                    'id' => $f - > n_store_id,
+                    'name' => trim(($f - > c_store_name ?? '').($f - > c_store_code ? ' ('.$f -
+                        >
+                        c_store_code.
+                        ')' : '')),
+                    'lat' => $f - > latitude !== null ? (float) $f - > latitude : null,
+                    'lng' => $f - > longitude !== null ? (float) $f - > longitude : null,
+                    'state' => $f - > n_state_id,
+                    'district' => $f - > n_district_id,
+                    'panchayath' => $f - > n_panchayath_id,
+                ];
+            }) - > values()) !!
+        };
+        const $franchise = $('#franchise'),
+            $fHint = $('#soFranchiseHint');
+        const $fState = $('#franchise_state'),
+            $fDistrict = $('#franchise_district'),
             $fPanchayath = $('#franchise_panchayath');
-        let franchiseAutoSet = false;   // current franchise value was set by this feature
-        let franchiseManual = false;    // user picked a franchise by hand
-        let locationManual = false;     // user picked state/district/panchayath by hand
-        let orderTypeAutoSet = false;   // Order Type was set by this feature
-        let autoRun = 0;                // ignores stale async results when the pin moves quickly
+        let franchiseAutoSet = false; // current franchise value was set by this feature
+        let franchiseManual = false; // user picked a franchise by hand
+        let locationManual = false; // user picked state/district/panchayath by hand
+        let orderTypeAutoSet = false; // Order Type was set by this feature
+        let autoRun = 0; // ignores stale async results when the pin moves quickly
 
         function haversineKm(lat1, lon1, lat2, lon2) {
-            const R = 6371, rad = Math.PI / 180;
-            const dLat = (lat2 - lat1) * rad, dLon = (lon2 - lon1) * rad;
+            const R = 6371,
+                rad = Math.PI / 180;
+            const dLat = (lat2 - lat1) * rad,
+                dLon = (lon2 - lon1) * rad;
             const a = Math.sin(dLat / 2) ** 2 +
                 Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
             return 2 * R * Math.asin(Math.sqrt(a));
@@ -3108,9 +3277,16 @@ use Illuminate\Support\Facades\Crypt;
         function nearestFranchise(lat, lng) {
             let best = null;
             FRANCHISES.forEach(function(f) {
-                if (f.lat === null || f.lng === null || !isFinite(f.lat) || !isFinite(f.lng)) { return; }
+                if (f.lat === null || f.lng === null || !isFinite(f.lat) || !isFinite(f.lng)) {
+                    return;
+                }
                 const d = haversineKm(lat, lng, f.lat, f.lng);
-                if (!best || d < best.km) { best = { f: f, km: d }; }
+                if (!best || d < best.km) {
+                    best = {
+                        f: f,
+                        km: d
+                    };
+                }
             });
             return best;
         }
@@ -3124,24 +3300,118 @@ use Illuminate\Support\Facades\Crypt;
 
         // State -> District -> Panchayath, populated straight from the franchise record
         function fillFranchiseLocation(f, run) {
-            if (locationManual || !f.state) { return; }
+            if (locationManual || !f.state) {
+                return;
+            }
             $fState.val(String(f.state));
-            if (!f.district) { return; }
-            $.getJSON("{{ route('admin.filterDistrict') }}", { state: f.state }).done(function(res) {
-                if (run !== autoRun || locationManual) { return; }
+            if (!f.district) {
+                return;
+            }
+            $.getJSON("{{ route('admin.filterDistrict') }}", {
+                state: f.state
+            }).done(function(res) {
+                if (run !== autoRun || locationManual) {
+                    return;
+                }
                 fillOptions($fDistrict, res.districts, 'id', 'district_name', 'Select District');
                 $fDistrict.val(String(f.district));
-                if (!f.panchayath) { return; }
-                $.getJSON("{{ route('admin.filterPanchayath') }}", { district: f.district }).done(function(r2) {
-                    if (run !== autoRun || locationManual) { return; }
-                    fillOptions($fPanchayath, r2.panchayaths, 'id', 'panchayath_name', 'Select Panchayath');
+                if (!f.panchayath) {
+                    return;
+                }
+                $.getJSON("{{ route('admin.filterPanchayath') }}", {
+                    district: f.district
+                }).done(function(r2) {
+                    if (run !== autoRun || locationManual) {
+                        return;
+                    }
+                    fillOptions($fPanchayath, r2.panchayaths, 'id', 'panchayath_name',
+                        'Select Panchayath');
                     $fPanchayath.val(String(f.panchayath));
                 });
             });
         }
 
+
+        /*
+        | Ranked suggestions: the closest franchises with their distance, one click to use.
+        | The closest is still auto-selected below; this just lets the user see and pick others.
+        */
+        const $rank = $('#soFranchiseRank');
+
+        function rankFranchises(lat, lng, limit) {
+            const out = [];
+            FRANCHISES.forEach(function(f) {
+                if (f.lat === null || f.lng === null || !isFinite(f.lat) || !isFinite(f.lng)) {
+                    return;
+                }
+                out.push({
+                    f: f,
+                    km: haversineKm(lat, lng, f.lat, f.lng)
+                });
+            });
+            out.sort(function(a, b) {
+                return a.km - b.km;
+            });
+            return out.slice(0, limit);
+        }
+
+        function renderRank(lat, lng) {
+            const list = rankFranchises(lat, lng, 3);
+            if (!list.length) {
+                $rank.hide().empty();
+                return;
+            }
+            const selected = String($franchise.val() || '');
+            $rank.empty().show();
+            $rank.append('<div class="small fw-semibold mb-1">Nearest franchises</div>');
+            list.forEach(function(x, i) {
+                const far = x.km > NEAREST_FRANCHISE_MAX_KM;
+                const isSel = selected === String(x.f.id);
+                const $row = $(
+                        '<div class="d-flex justify-content-between align-items-center border rounded px-2 py-1 mb-1"></div>'
+                    )
+                    .css(isSel ? {
+                        borderColor: '#2f7d4f',
+                        background: 'rgba(47,125,79,.08)'
+                    } : {});
+                const $label = $('<div class="small"></div>')
+                    .append($('<span class="fw-semibold"></span>').text(x.f.name))
+                    .append($('<span class="text-muted ms-2"></span>').text(x.km.toFixed(1) + ' km'));
+                if (i === 0) {
+                    $label.append(' <span class="badge bg-success ms-1">Closest</span>');
+                }
+                if (far) {
+                    $label.append(' <span class="badge bg-warning text-dark ms-1">Far</span>');
+                }
+                const $btn = $('<button type="button" class="btn btn-sm btn-outline-success"></button>')
+                    .text(isSel ? 'Selected' : 'Use').prop('disabled', isSel)
+                    .on('click', function() {
+                        chooseFranchise(x.f, x.km);
+                    });
+                $row.append($label, $btn);
+                $rank.append($row);
+            });
+        }
+
+        function chooseFranchise(f, km) {
+            if (!$franchise.find('option[value="' + f.id + '"]').length) {
+                $franchise.append($('<option>').val(f.id).text(f.name));
+            }
+            $franchise.val(String(f.id)).trigger('change'); // counts as a manual choice
+            if (!$('input[name="order_type"]:checked').length && $('#franchise_type').length) {
+                $('#franchise_type').prop('checked', true).trigger('change');
+            }
+            fillFranchiseLocation(f, ++autoRun);
+            $fHint.removeClass('text-muted text-warning').addClass('text-success')
+                .text('Selected ' + f.name + ' (' + km.toFixed(1) + ' km away).');
+            renderRank(parseFloat($lat.val()), parseFloat($lng.val()));
+        }
+
         function autoFillFranchise(lat, lng) {
-            if (franchiseManual) { return; }   // respect manual choice
+            if (franchiseManual) {
+                renderRank(lat, lng);
+                return;
+            } // respect manual choice
             const run = ++autoRun;
             const best = nearestFranchise(lat, lng);
             if (best && best.km <= NEAREST_FRANCHISE_MAX_KM) {
@@ -3161,30 +3431,57 @@ use Illuminate\Support\Facades\Crypt;
                 fillFranchiseLocation(f, run);
                 $fHint.removeClass('text-muted text-warning').addClass('text-success')
                     .text('Auto-selected nearest franchise (' + best.km.toFixed(1) +
-                        ' km away) and filled its state, district and panchayath. You can change them manually.');
+                        ' km away) and filled its state, district and panchayath. You can change them manually.'
+                    );
+                renderRank(lat, lng);
             } else {
-                if (franchiseAutoSet) { $franchise.val(''); }
+                if (franchiseAutoSet) {
+                    $franchise.val('');
+                }
                 franchiseAutoSet = false;
                 $fHint.removeClass('text-muted text-success').addClass('text-warning')
-                    .text('No franchise found within ' + NEAREST_FRANCHISE_MAX_KM + ' km. Please select one manually.');
+                    .text('No franchise found within ' + NEAREST_FRANCHISE_MAX_KM +
+                        ' km. Please select one manually.');
+                renderRank(lat, lng);
             }
         }
 
         // Any hand-made selection locks out autofill for that field
         $franchise.on('change', function(e) {
-            if (e.namespace === 'auto') { return; }
+            if (e.namespace === 'auto') {
+                return;
+            }
             franchiseAutoSet = false;
             franchiseManual = $franchise.val() !== '';
-            if (franchiseManual) { $fHint.text(''); }
+            if (franchiseManual) {
+                $fHint.text('');
+            }
         });
-        $fState.add($fDistrict).add($fPanchayath).on('change', function() { locationManual = true; });
+        $fState.add($fDistrict).add($fPanchayath).on('change', function() {
+            locationManual = true;
+        });
         $('input[name="order_type"]').on('change', function(e) {
-            if (!e.isTrigger) { orderTypeAutoSet = false; }
+            if (!e.isTrigger) {
+                orderTypeAutoSet = false;
+            }
         });
 
         // Values already saved on the order (edit page / validation error) count as chosen
-        if ($franchise.val()) { franchiseManual = true; }
-        if ($fState.val() || $fDistrict.val() || $fPanchayath.val()) { locationManual = true; }
+        if ($franchise.val()) {
+            franchiseManual = true;
+        }
+        if ($fState.val() || $fDistrict.val() || $fPanchayath.val()) {
+            locationManual = true;
+        }
+
+        // Edit page / validation error: show the ranking for the saved location
+        (function() {
+            const lat0 = parseFloat($lat.val()),
+                lng0 = parseFloat($lng.val());
+            if (validCoords(lat0, lng0)) {
+                renderRank(lat0, lng0);
+            }
+        })();
 
         function setLocation(lat, lng, source, note) {
             lat = parseFloat(lat);
@@ -3197,7 +3494,8 @@ use Illuminate\Support\Facades\Crypt;
             if (source === 'manual') {
                 say('success', '&#10003; Location selected on the map.');
             } else if (source === 'approx') {
-                say('warning', '&#9888; Approximate location (' + note + '). Please drag the pin to the exact spot.');
+                say('warning', '&#9888; Approximate location (' + note +
+                    '). Please drag the pin to the exact spot.');
             } else {
                 say('success', '&#10003; Location found. Please verify the pin.');
             }
@@ -3208,7 +3506,12 @@ use Illuminate\Support\Facades\Crypt;
                 url: 'https://nominatim.openstreetmap.org/search',
                 type: 'GET',
                 dataType: 'json',
-                data: { q: query, format: 'json', limit: 1, countrycodes: 'in' }
+                data: {
+                    q: query,
+                    format: 'json',
+                    limit: 1,
+                    countrycodes: 'in'
+                }
             });
         }
 
@@ -3226,21 +3529,50 @@ use Illuminate\Support\Facades\Crypt;
             const state = selectedText('#n_state_id');
             const district = selectedText('#n_district_id');
 
-            if (!address) { say('danger', 'Please enter the address first.'); $('#c_address').focus(); return; }
-            if (!state) { say('danger', 'Please select a state.'); $('#n_state_id').focus(); return; }
-            if (!district) { say('danger', 'Please select a district.'); $('#n_district_id').focus(); return; }
+            if (!address) {
+                say('danger', 'Please enter the address first.');
+                $('#c_address').focus();
+                return;
+            }
+            if (!state) {
+                say('danger', 'Please select a state.');
+                $('#n_state_id').focus();
+                return;
+            }
+            if (!district) {
+                say('danger', 'Please select a district.');
+                $('#n_district_id').focus();
+                return;
+            }
 
             const join = (...parts) => parts.filter(Boolean).join(', ');
             const pin = /^\d{6}$/.test(pincode) ? pincode : '';
 
             // most specific -> least specific; label is shown when a fallback is used
-            const attempts = [
-                { q: join(address, postOffice, thaluk, district, state, pin, 'India'), label: null },
-                { q: join(address, thaluk, district, state, 'India'), label: null },
-                { q: join(postOffice, thaluk, district, state, pin, 'India'), label: 'matched by post office / taluk' },
-                pin ? { q: join(pin, 'India'), label: 'matched by pincode ' + pin } : null,
-                { q: join(thaluk, district, state, 'India'), label: 'matched by taluk' },
-                { q: join(district, state, 'India'), label: 'matched by district only' }
+            const attempts = [{
+                    q: join(address, postOffice, thaluk, district, state, pin, 'India'),
+                    label: null
+                },
+                {
+                    q: join(address, thaluk, district, state, 'India'),
+                    label: null
+                },
+                {
+                    q: join(postOffice, thaluk, district, state, pin, 'India'),
+                    label: 'matched by post office / taluk'
+                },
+                pin ? {
+                    q: join(pin, 'India'),
+                    label: 'matched by pincode ' + pin
+                } : null,
+                {
+                    q: join(thaluk, district, state, 'India'),
+                    label: 'matched by taluk'
+                },
+                {
+                    q: join(district, state, 'India'),
+                    label: 'matched by district only'
+                }
             ].filter(Boolean).filter(function(a, i, arr) {
                 return arr.findIndex(b => b.q === a.q) === i;
             });
@@ -3248,25 +3580,34 @@ use Illuminate\Support\Facades\Crypt;
             $btn.prop('disabled', true).html('<i class="ti ti-loader-2"></i> Searching...');
             say('muted', 'Finding location...');
 
-            function finish() { $btn.prop('disabled', false).html(BTN_HTML); }
+            function finish() {
+                $btn.prop('disabled', false).html(BTN_HTML);
+            }
 
             function tryAt(i) {
                 if (i >= attempts.length) {
                     finish();
-                    say('danger', 'Location not found. Please check the address, or click "Select on Map" to pin it manually.');
+                    say('danger',
+                        'Location not found. Please check the address, or click "Select on Map" to pin it manually.'
+                    );
                     return;
                 }
                 geocode(attempts[i].q).done(function(res) {
                     if (res && res.length) {
                         finish();
-                        setLocation(res[0].lat, res[0].lon, attempts[i].label ? 'approx' : 'exact', attempts[i].label);
+                        setLocation(res[0].lat, res[0].lon, attempts[i].label ? 'approx' :
+                            'exact', attempts[i].label);
                     } else {
                         // Nominatim allows ~1 request/second
-                        setTimeout(function() { tryAt(i + 1); }, 1100);
+                        setTimeout(function() {
+                            tryAt(i + 1);
+                        }, 1100);
                     }
                 }).fail(function() {
                     finish();
-                    say('danger', 'Could not reach the location service. Check your connection, or click "Select on Map" to pin it manually.');
+                    say('danger',
+                        'Could not reach the location service. Check your connection, or click "Select on Map" to pin it manually.'
+                    );
                 });
             }
             tryAt(0);
@@ -3277,7 +3618,8 @@ use Illuminate\Support\Facades\Crypt;
                 $mapBox.hide();
                 return;
             }
-            const lat = parseFloat($lat.val()), lng = parseFloat($lng.val());
+            const lat = parseFloat($lat.val()),
+                lng = parseFloat($lng.val());
             if (validCoords(lat, lng)) {
                 ensureMap(lat, lng, 16);
                 placeMarker(lat, lng);
@@ -3289,8 +3631,11 @@ use Illuminate\Support\Facades\Crypt;
 
         // Typed / pasted coordinates move the pin
         $lat.add($lng).on('change', function() {
-            const lat = parseFloat($lat.val()), lng = parseFloat($lng.val());
-            if ($lat.val().trim() === '' && $lng.val().trim() === '') { return; }
+            const lat = parseFloat($lat.val()),
+                lng = parseFloat($lng.val());
+            if ($lat.val().trim() === '' && $lng.val().trim() === '') {
+                return;
+            }
             if (!validCoords(lat, lng)) {
                 say('danger', 'Enter a valid latitude (-90 to 90) and longitude (-180 to 180).');
                 return;
@@ -3299,18 +3644,23 @@ use Illuminate\Support\Facades\Crypt;
         });
 
         // Address edited after a pin was set -> remind, don't silently keep a stale pin
-        $('#c_address, #c_post_office, #c_thaluk, #c_pincode, #n_state_id, #n_district_id').on('change', function() {
-            if ($lat.val().trim() !== '') {
-                say('warning', 'Address changed. Click "Get Location from Address" to refresh the location.');
-            }
-        });
+        $('#c_address, #c_post_office, #c_thaluk, #c_pincode, #n_state_id, #n_district_id').on('change',
+            function() {
+                if ($lat.val().trim() !== '') {
+                    say('warning',
+                        'Address changed. Click "Get Location from Address" to refresh the location.');
+                }
+            });
 
         // Edit page / validation error: show the saved pin
-        const l0 = parseFloat($lat.val()), g0 = parseFloat($lng.val());
+        const l0 = parseFloat($lat.val()),
+            g0 = parseFloat($lng.val());
         if (validCoords(l0, g0)) {
             ensureMap(l0, g0, 16);
             placeMarker(l0, g0);
-            say('muted', 'Saved location shown. Change the address and click "Get Location from Address" to update it.');
+            say('muted',
+                'Saved location shown. Change the address and click "Get Location from Address" to update it.'
+            );
         }
     });
     </script>

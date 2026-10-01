@@ -198,7 +198,10 @@ class UnifiedDashboardController extends Controller
         ];
 
         // 7-day sales trend
+        // Deleted orders must never count (SalesOrder has no SoftDeletes
+        // trait, so the filter has to be explicit).
         $salesTrendQuery = SalesOrder::query()
+            ->whereNull('sales_orders.deleted_at')
             ->whereBetween('sales_orders.created_at', [
                 now()->subDays(30)->startOfDay(),
                 now()->endOfDay(),
@@ -219,6 +222,10 @@ class UnifiedDashboardController extends Controller
             }
 
             $salesTrendQuery->whereIn('sales_orders.farm_care_advisor_id', array_unique($employeeIds));
+        } elseif (! $isAdminDashboard) {
+            // Every other non-admin role: same scope as the order cards —
+            // own sales + direct reports only (was company-wide).
+            $salesTrendQuery->whereIn('sales_orders.farm_care_advisor_id', $scopedEmployeeIds);
         }
 
         $salesTrend = $salesTrendQuery

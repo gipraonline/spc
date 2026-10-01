@@ -76,7 +76,7 @@ class AnnouncementController extends Controller
             if ($userId === $this->currentUser()->id) {
                 continue;
             }
-            Notification::notify($userId, 'announcement', 'New announcement: '.$announcement->title, '/modules/announcements');
+            Notification::notify($userId, 'announcement', 'New announcement: '.$announcement->title, '/hr/modules/announcements');
         }
 
         return back()->with('status', 'Announcement published.');

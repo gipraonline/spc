@@ -42,7 +42,14 @@ class InvoiceController extends Controller
         $order = SalesOrder::with([
             'customer',
             'orderProducts.product',
+            'approval',
         ])->findOrFail($id);
+
+        abort_unless(
+            strtolower($order->approval?->status ?? '') === 'approved',
+            403,
+            'Invoice can be generated only after the order is approved.'
+        );
 
         $company = CompanySetting::first();
 

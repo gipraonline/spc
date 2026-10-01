@@ -14,7 +14,7 @@ class AuthController extends Controller
     public function show(Request $request)
     {
         if (session('user_id') && User::find(session('user_id'))) {
-            return redirect()->route('hr.dashboard');
+            return redirect()->route('dashboard');
         }
 
         // Single sign-on: already logged into the SPC portal with a
@@ -23,7 +23,7 @@ class AuthController extends Controller
             session(['user_id' => $user->id]);
             $user->update(['last_login_at' => now()]);
 
-            return redirect()->route('hr.dashboard');
+            return redirect()->route('dashboard');
         }
 
         return view('hr.auth.login');
@@ -54,14 +54,6 @@ class AuthController extends Controller
         session(['user_id' => $user->id]);
         $user->update(['last_login_at' => now()]);
 
-        return redirect()->route('hr.dashboard');
-    }
-
-    public function logout(Request $request)
-    {
-        $request->session()->forget('user_id');
-        $request->session()->regenerate();
-
-        return redirect()->route('hr.login.show');
+        return redirect()->route('dashboard');
     }
 }

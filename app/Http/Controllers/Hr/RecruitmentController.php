@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Hr;
 
-
 use App\Models\Hr\Candidate;
 use App\Models\Hr\Department;
 use App\Models\Hr\Designation;
@@ -55,8 +54,8 @@ class RecruitmentController extends Controller
 
         $data = $request->validate([
             'title' => 'required|string|max:150',
-            'department_id' => 'nullable|exists:departments,id',
-            'designation_id' => 'nullable|exists:designations,id',
+            'department_id' => 'nullable|exists:spc_hr.departments,id',
+            'designation_id' => 'nullable|exists:spc_hr.designations,id',
             'openings' => 'required|integer|min:1',
         ]);
 

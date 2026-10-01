@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Hr;
 
-
+use App\Models\DesignationMaster;
 use App\Models\Hr\Department;
 use App\Models\Hr\Designation;
 use App\Models\Hr\Holiday;
+use App\Services\Hr\DesignationSyncService;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
@@ -20,6 +21,7 @@ class OrganizationController extends Controller
             'departments' => Department::withCount('employees')->orderBy('name')->get(),
             'designations' => Designation::with('department')->withCount('employees')->orderBy('title')->get(),
             'holidays' => Holiday::orderBy('holiday_date')->get(),
+            'parentOptions' => DesignationMaster::where('c_status', 'Y')->orderBy('hierarchy_level')->get(),
         ]));
     }
 
@@ -59,11 +61,28 @@ class OrganizationController extends Controller
         abort_unless($this->isHrOrAbove(), 403);
 
         $data = $request->validate([
-            'title' => 'required|string|max:120',
-            'department_id' => 'nullable|exists:departments,id',
+            'title' => DesignationSyncService::TITLE_RULES,
+            'department_id' => 'nullable|exists:spc_hr.departments,id',
+            // Optional: who this designation reports to in the SPC org chart.
+            'parent_designation_id' => 'nullable|exists:designation_masters,n_designation_id',
+        ], [
+            'title.regex' => 'Only letters, spaces, & and / are allowed.',
+            'title.max' => 'Designation must not exceed 30 characters.',
         ]);
 
-        Designation::create($data);
+        $departmentId = $data['department_id'] ?? null;
+
+        // Same title + department already in HR -> nothing new to add.
+        if (Designation::where('title', $data['title'])->where('department_id', $departmentId)->exists()) {
+            return back()->withErrors(['title' => 'This designation already exists in that department.'])->withInput();
+        }
+
+        // Creates the SPC master row (if new) and the HR row together.
+        DesignationSyncService::createFromHr(
+            $data['title'],
+            $departmentId ? (int) $departmentId : null,
+            ! empty($data['parent_designation_id']) ? (int) $data['parent_designation_id'] : null,
+        );
 
         return back()->with('status', 'Designation "'.$data['title'].'" added.');
     }
@@ -75,12 +94,34 @@ class OrganizationController extends Controller
 
         $data = $request->validate([
             'title' => 'required|string|max:120',
-            'department_id' => 'nullable|exists:departments,id',
+            'department_id' => 'nullable|exists:spc_hr.departments,id',
         ]);
+
+        $oldTitle = $designation->title;
 
         $designation->update($data);
 
+        DesignationSyncService::renameEverywhere($oldTitle, $designation->title);
+
         return back()->with('status', 'Designation updated.');
+    }
+
+    public function destroyDesignation(Designation $designation)
+    {
+        $this->abortUnlessModuleAllowed('organization');
+        abort_unless($this->isHrOrAbove(), 403);
+
+        $title = $designation->title;
+
+        try {
+            $merged = DesignationSyncService::deleteFromHr($designation);
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['designation' => $e->getMessage()]);
+        }
+
+        return back()->with('status', $merged
+            ? 'Duplicate "'.$title.'" removed; its employees now use the identical entry.'
+            : 'Designation "'.$title.'" deleted.');
     }
 
     public function storeHoliday(Request $request)

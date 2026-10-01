@@ -22,11 +22,8 @@
                 @php $isSelf = $employee && $employee->id === $viewed->id; @endphp
                 @if(($role === 'hr_admin' || $role === 'super_admin') || $isSelf)
                 <button type="button" class="tab" data-tab="security" onclick="hrTab(this,'security')">Security</button>
-<<<<<<< Updated upstream
-=======
                 <button type="button" class="tab" data-tab="secondary-contact"
                     onclick="hrTab(this,'secondary-contact')">Secondary Contact</button>
->>>>>>> Stashed changes
                 @endif
                 @if(($role === 'hr_admin' || $role === 'super_admin') && $viewed->history &&
                 $viewed->history->isNotEmpty())
@@ -52,12 +49,9 @@
                                 value="{{ $viewed->address }}" @disabled(!$canEdit)></div>
                         <div class="field"><label>City</label><input name="city" value="{{ $viewed->city }}"
                                 @disabled(!$canEdit)></div>
-<<<<<<< Updated upstream
-=======
                         <div class="field"><label>Date of birth</label><input type="date" name="date_of_birth"
                                 value="{{ $viewed->date_of_birth ? \Illuminate\Support\Carbon::parse($viewed->date_of_birth)->format('Y-m-d') : '' }}"
                                 @disabled(!$canEdit)></div>
->>>>>>> Stashed changes
                         <div class="field"><label>Date of joining</label><input value="{{ $viewed->date_of_joining }}"
                                 disabled></div>
                     </div>
@@ -264,8 +258,6 @@
                 </form>
                 @endif
             </div>
-<<<<<<< Updated upstream
-=======
 
             <div class="tabpanel" data-tabpanel="secondary-contact">
                 <p class="card-note">Emergency / secondary contact on file for {{ $viewed->user->name }}.</p>
@@ -291,7 +283,6 @@
                     @endif
                 </form>
             </div>
->>>>>>> Stashed changes
             @endif
 
             @if(($role === 'hr_admin' || $role === 'super_admin') && $viewed->history && $viewed->history->isNotEmpty())

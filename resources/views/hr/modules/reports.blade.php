@@ -93,12 +93,12 @@
                     </div>
                     @php
                         $maxPayroll = max(1, $payrollByDept->max('gross'));
-                        $barTones = ['#1FA97A','#2BC08D','#5CCFA6','#8CDfC1','#B8E8D6'];
+                        $barTones = ['#5E8D3D','#7CA243','#5CCFA6','#8CDfC1','#B8E8D6'];
                     @endphp
                     @foreach($payrollByDept as $d)
                         <div class="bar-row">
                             <span class="bar-label">{{ $d->department }}</span>
-                            <div class="bar-track"><div class="bar-fill" style="width:{{ round($d->gross / $maxPayroll * 100) }}%;background:linear-gradient(90deg,#0E6B4B,{{ $barTones[$loop->index % 5] }});"></div></div>
+                            <div class="bar-track"><div class="bar-fill" style="width:{{ round($d->gross / $maxPayroll * 100) }}%;background:linear-gradient(90deg,#1F5C2E,{{ $barTones[$loop->index % 5] }});"></div></div>
                             <span class="bar-value">₹{{ number_format($d->gross,0) }}</span>
                         </div>
                     @endforeach
@@ -125,7 +125,7 @@
                         <div class="appr-line"><i class="fa-solid fa-circle-check" style="color:var(--brand-bright);"></i><b>{{ $appraisalDone }}</b> completed</div>
                         <div class="appr-line"><i class="fa-regular fa-clock" style="color:#C9A227;"></i><b>{{ $appraisalTotal - $appraisalDone }}</b> pending</div>
                         <div class="appr-line"><i class="fa-solid fa-users" style="color:var(--brand);"></i><b>{{ $appraisalTotal }}</b> total appraisals</div>
-                        <a href="{{ url('/modules/appraisal') }}" class="appr-link">Open Performance module <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="{{ url('/hr/modules/appraisal') }}" class="appr-link">Open Performance module <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </div>

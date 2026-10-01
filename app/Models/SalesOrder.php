@@ -4,10 +4,48 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
+use App\Support\Geo;
 
 class SalesOrder extends Model
 {
     use HasFactory;
+
+    /**
+     * Keep franchise_distance_km (straight-line km from the order location to the
+     * assigned franchise) in sync whenever the order or its franchise changes,
+     * whichever screen / import saved it.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (SalesOrder $order) {
+            static $hasColumn = null;
+            $hasColumn ??= Schema::hasColumn('sales_orders', 'franchise_distance_km');
+
+            if (! $hasColumn) {
+                return; // migration not run yet
+            }
+
+            if (! $order->isDirty(['latitude', 'longitude', 'nearest_franchise_id']) && $order->franchise_distance_km !== null) {
+                return;
+            }
+
+            $order->franchise_distance_km = null;
+
+            if (! $order->nearest_franchise_id || ! Geo::valid($order->latitude, $order->longitude)) {
+                return;
+            }
+
+            $store = StoreMaster::withTrashed()->find($order->nearest_franchise_id);
+
+            if ($store && Geo::valid($store->latitude, $store->longitude)) {
+                $order->franchise_distance_km = round(Geo::distanceKm(
+                    (float) $order->latitude, (float) $order->longitude,
+                    (float) $store->latitude, (float) $store->longitude
+                ), 2);
+            }
+        });
+    }
 
     protected $table = 'sales_orders';
 
@@ -31,9 +69,12 @@ class SalesOrder extends Model
         'n_state_id',
         'n_district_id',
         'n_panchayath_id',
+        'latitude',
+        'longitude',
         'c_mode_of_payment',
         'c_order_status',
         'nearest_franchise_id',
+        'franchise_distance_km',
         'payment_status',
         'c_transaction_id',
         'payment_image',
@@ -88,6 +129,11 @@ class SalesOrder extends Model
         );
     }
 
+    public function approval()
+    {
+        return $this->hasOne(SalesApproval::class, 'sales_order_id', 'n_sl_no');
+    }
+
     public function orderProducts()
     {
         return $this->hasMany(
@@ -119,6 +165,7 @@ class SalesOrder extends Model
         {
             $lastOrder = self::where('c_order_no', 'like', 'TL-%')
             ->orderByDesc('n_sl_no')
+            ->lockForUpdate()
             ->first();
 
 
@@ -140,6 +187,7 @@ class SalesOrder extends Model
         {
             $lastOrder = self::where('c_order_no', 'like', 'FCO-%')
             ->orderByDesc('n_sl_no')
+            ->lockForUpdate()
             ->first();
 
 
@@ -162,6 +210,7 @@ class SalesOrder extends Model
         {
             $lastOrder = self::where('c_order_no', 'like', 'FS-%')
             ->orderByDesc('n_sl_no')
+            ->lockForUpdate()
             ->first();
 
 

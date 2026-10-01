@@ -15,7 +15,8 @@ class MenuController extends Controller
             $q->orderBy('sort_order');
         }])
         ->orderBy('sort_order')
-        ->paginate(1); // 10 parent menus per page
+        ->orderBy('id')
+        ->paginate(10); // 10 parent menus per page
 
     return view('admin.menus.index', compact('menus'));
     }
@@ -30,14 +31,21 @@ class MenuController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'route_name' => 'nullable',
-            'icon' => 'nullable',
-            'parent_id' => 'nullable',
+            'name' => 'required|string|max:255',
+            'route_name' => 'nullable|string|max:255',
+            'icon' => 'nullable|string|max:255',
+            'parent_id' => 'nullable|integer|exists:menus,id',
+            'sort_order' => 'nullable|integer|min:0|max:65535',
+        ], [
+            'sort_order.integer' => 'Sort order must be a whole number.',
+            'sort_order.min' => 'Sort order cannot be negative.',
         ]);
-         // Get the next sort order for the selected parent
-    $sortOrder = Menu::where('parent_id', $request->parent_id)
-        ->max('sort_order') + 1;
+
+        // Use the sort order that was typed in; if it was left empty, put the
+        // new menu at the end of the selected parent (or the main menu).
+        $sortOrder = $request->filled('sort_order')
+            ? (int) $request->sort_order
+            : ((int) Menu::where('parent_id', $request->input('parent_id'))->max('sort_order')) + 1;
 
         Menu::create([
             'name'       => $request->name,
@@ -65,15 +73,30 @@ class MenuController extends Controller
     public function update(Request $request, Menu $menu)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:255',
+            'route_name' => 'nullable|string|max:255',
+            'icon' => 'nullable|string|max:255',
+            'parent_id' => ['nullable', 'integer', 'exists:menus,id', 'not_in:'.$menu->id],
+            'sort_order' => 'nullable|integer|min:0|max:65535',
+        ], [
+            'parent_id.not_in' => 'A menu cannot be its own parent.',
+            'sort_order.integer' => 'Sort order must be a whole number.',
+            'sort_order.min' => 'Sort order cannot be negative.',
         ]);
 
-        $menu->update([
+        $data = [
             'name'       => $request->name,
             'route_name' => $request->route_name,
             'icon'       => $request->icon,
             'parent_id'  => $request->parent_id,
-        ]);
+        ];
+
+        // Empty sort order = keep the current one
+        if ($request->filled('sort_order')) {
+            $data['sort_order'] = (int) $request->sort_order;
+        }
+
+        $menu->update($data);
 
         return redirect()
             ->route('admin.menus.index')

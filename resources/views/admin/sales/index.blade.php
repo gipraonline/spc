@@ -59,7 +59,7 @@
 }
 
 .widget-icon.green-emerald {
-    background-color: #059669;
+    background-color: #7CA243;
 }
 
 .widget-icon.purple {
@@ -96,25 +96,25 @@
 .card-title {
     font-size: 20px;
     font-weight: 700;
-    color: #0f5132;
+    color: #5E8D3D;
 }
 
 .buttonSpc {
-    background: linear-gradient(135deg, #0f5132 0%, #059669 100%) !important;
+    background: linear-gradient(135deg, #5E8D3D 0%, #7CA243 100%) !important;
     color: #ffffff !important;
     border: none !important;
     border-radius: 8px !important;
     padding: 10px 20px !important;
     font-weight: 600 !important;
     font-size: 14px !important;
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    box-shadow: 0 4px 12px rgba(94, 141, 61, 0.2);
     transition: all 0.2s ease;
 }
 
 .buttonSpc:hover {
-    background: linear-gradient(135deg, #0b3e26 0%, #047857 100%) !important;
+    background: linear-gradient(135deg, #1F5C2E 0%, #1F5C2E 100%) !important;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+    box-shadow: 0 6px 16px rgba(94, 141, 61, 0.3);
 }
 
 /* Filter Form Styling */
@@ -139,8 +139,8 @@
 }
 
 .form-control:focus {
-    border-color: #059669;
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    border-color: #7CA243;
+    box-shadow: 0 0 0 3px rgba(94, 141, 61, 0.12);
 }
 
 .btn {
@@ -224,7 +224,7 @@
 /* Approved - Green */
 .badge-status.approved {
     background-color: #d1fae5;
-    color: #047857;
+    color: #1F5C2E;
 }
 
 /* Dispatched - Blue */
@@ -252,6 +252,11 @@
 }
 
 .badge-status.returned {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.badge-status.rejected {
     background-color: #fee2e2;
     color: #b91c1c;
 }
@@ -486,15 +491,20 @@ use Illuminate\Support\Facades\Crypt;
                         </div>
 
                         <!-- Buttons -->
-                        <div class="col-lg-3 col-md-3 d-flex gap-2">
-                            <button class="btn buttonSpc w-100">Filter Report</button>
-                            @can('sales-orders.export')
-                            <button type="submit" name="export" value="excel" class="btn btn-success">
-                                <i class="ti ti-file-export me-1"></i>
-                                Export
+                        <div class="col-lg-6 col-md-9 d-flex flex-wrap gap-2">
+                            <button class="btn buttonSpc px-4 text-nowrap">
+                                <i class="ti ti-filter me-1"></i>Filter Report
                             </button>
-                            @endcan
-                            <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Reset</a>
+                            @canany(['sales-orders.export', 'sales-orders.view'])
+                            <button type="submit" name="export" value="excel"
+                                class="btn text-nowrap px-4 d-inline-flex align-items-center"
+                                style="background:#fff;color:#1F5C2E;border:1.5px solid #5E8D3D;font-weight:600;">
+                                <i class="ti ti-file-spreadsheet me-1" style="color:#5E8D3D;"></i>Export Excel
+                            </button>
+                            @endcanany
+                            <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary text-nowrap px-4">
+                                <i class="ti ti-refresh me-1"></i>Reset
+                            </a>
                         </div>
                     </div>
 
@@ -520,6 +530,7 @@ use Illuminate\Support\Facades\Crypt;
                         <th scope="col">Payment Image</th>
                         <th scope="col">Payment Status</th>
                         <th scope="col">Order Status</th>
+                        <th scope="col">Approval Status</th>
                         @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
                         <th scope="col">Actions</th>
                         @endcanany
@@ -561,8 +572,8 @@ use Illuminate\Support\Facades\Crypt;
                         </td>
                         <td>
                             @if($sale->payment_image)
-                            <a href="{{ asset('uploads/payment_images/' . $sale->payment_image) }}" target="_blank">
-                                <img src="{{ asset('uploads/payment_images/' . $sale->payment_image) }}" width="50"
+                            <a href="{{ route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) }}" target="_blank">
+                                <img src="{{ route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) }}" width="50"
                                     height="50"
                                     style="object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0;">
                             </a>
@@ -601,6 +612,19 @@ use Illuminate\Support\Facades\Crypt;
                             <span class="badge-status returned">Returned</span>
 
                             @elseif($status == 'pending')
+                            <span class="badge-status pending">Pending</span>
+                            @endif
+                        </td>
+
+                        <td>
+                            @php
+                            $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
+                            @endphp
+                            @if($approvalStatus == 'approved')
+                            <span class="badge-status approved">Approved</span>
+                            @elseif($approvalStatus == 'rejected')
+                            <span class="badge-status rejected">Rejected</span>
+                            @else
                             <span class="badge-status pending">Pending</span>
                             @endif
                         </td>
@@ -665,7 +689,7 @@ use Illuminate\Support\Facades\Crypt;
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="11" class="text-center py-4 text-muted">No sales records found</td>
+                        <td colspan="12" class="text-center py-4 text-muted">No sales records found</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -689,7 +713,7 @@ use Illuminate\Support\Facades\Crypt;
             <form action="{{ route('admin.salesorders.salesUpdateStore') }}" method="POST">
                 @csrf
 
-                <div class="modal-header" style="background: linear-gradient(135deg, #0f5132, #074E30);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #5E8D3D, #1F5C2E);">
                     <h5 class="modal-title text-white" id="salesUpdateModalLabel">
                         Sales Order Update Form
                     </h5>

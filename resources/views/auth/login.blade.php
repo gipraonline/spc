@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>SPC</title>
+    <title>Sign in · SPC Universal</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="handheldfriendly" content="true" />
@@ -13,20 +13,22 @@
     <link rel="shortcut icon" type="image/png" href="{{asset('dist/images/logos/fav.png')}}" />
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
        :root {
-                --primary-blue: #0f7d3d;
-                --primary-red: #1e550b;
-                --accent-glow: rgba(0, 75, 145, 0.15);
-                --bg-color: #fcfdfe;
+                --primary-blue: #4E7A33;
+                --primary-red: #1F5C2E;
+                --accent-glow: rgba(94, 141, 61, 0.16);
+                --bg-color: #f4faf6;
                 --card-bg: #ffffff;
-                --text-dark: #1a1a1a;
-                --text-grey: #666666;
-                --input-border: #e0e0e0;
-                --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.05);
-                --shadow-glow: 0 0 20px rgba(0, 75, 145, 0.1);
+                --text-dark: #1F3D14;
+                --text-grey: #61756B;
+                --input-border: #dde8e1;
+                --shadow-soft: 0 20px 40px rgba(10, 61, 44, 0.10);
+                --shadow-glow: 0 0 20px rgba(94, 141, 61, 0.18);
             }
 
         * {
@@ -34,6 +36,10 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Outfit', sans-serif;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Kanit', 'Outfit', sans-serif;
         }
 
         body {
@@ -146,6 +152,49 @@
             color: var(--text-grey);
         }
 
+        .error-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fdecec;
+            border: 1px solid #f5c6c6;
+            color: #c62828;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            margin-bottom: 22px;
+            animation: shakeX .4s;
+        }
+
+        .error-banner svg {
+            flex: none;
+        }
+
+        @keyframes shakeX {
+            0%, 100% { transform: none; }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        .status-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #eaf6ec;
+            border: 1px solid #cfe8d2;
+            color: #1b5e20;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            margin-bottom: 22px;
+        }
+
+        .status-banner svg {
+            flex: none;
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
@@ -218,14 +267,14 @@
             padding: 15px;
             border-radius: 12px;
             border: none;
-            background: linear-gradient(135deg, #5A8D3A, #074E30);
+            background: linear-gradient(135deg, #5E8D3D, #1F5C2E);
             color: white;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-            box-shadow: 0 10px 20px rgba(0, 75, 145, 0.2);
+            box-shadow: 0 12px 24px rgba(14, 107, 75, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -243,7 +292,7 @@
 
         .submit-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(0, 75, 145, 0.3);
+            box-shadow: 0 16px 32px rgba(14, 107, 75, 0.35);
         }
 
         .submit-btn:hover::after {
@@ -371,6 +420,20 @@
                 <h1>Welcome Back</h1>
                 <p>Please enter your details to sign in</p>
             </div>
+
+            @if (session('status'))
+                <div class="status-banner" role="status">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span>{{ session('status') }}</span>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="error-banner" role="alert">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>{{ $errors->first('email') ?: $errors->first('password') ?: $errors->first() }}</span>
+                </div>
+            @endif
 
             <form method="POST" action="{{ route('login') }}">
                 @csrf

@@ -104,6 +104,25 @@
 
                 </div>
 
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label fw-semibold">
+                        Sort Order
+                    </label>
+
+                    <input type="number" name="sort_order" min="0" step="1" value="{{ old('sort_order') }}"
+                        class="form-control @error('sort_order') is-invalid @enderror" placeholder="e.g. 1">
+
+                    @error('sort_order')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+
+                    <small class="text-muted">
+                        Smaller number shows first in the sidebar. Leave empty to add at the end.
+                    </small>
+
+                </div>
+
             </div>
 
             <hr>

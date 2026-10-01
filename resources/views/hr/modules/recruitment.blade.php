@@ -51,7 +51,7 @@
         @endif
 
         @if($requisitions->isNotEmpty())
-            <form method="GET" action="{{ url('/modules/recruitment') }}" style="margin:24px 0 0;max-width:440px;" onchange="this.submit()">
+            <form method="GET" action="{{ url('/hr/modules/recruitment') }}" style="margin:24px 0 0;max-width:440px;" onchange="this.submit()">
                 <div class="field">
                     <label><i class="fa-solid fa-filter" style="color:var(--brand);margin-right:6px;font-size:11px;"></i>Candidate pipeline for</label>
                     <select name="requisition">
@@ -74,7 +74,7 @@
                 @foreach(['applied'=>'Applied','shortlisted'=>'Shortlisted','interviewed'=>'Interviewed','offered'=>'Offered','hired'=>'Hired'] as $stage => $label)
                     <div class="pipe-col">
                         <div class="pipe-head">
-                            <span class="ph-dot" style="background:{{ ['applied'=>'#8FA79B','shortlisted'=>'#1FA97A','interviewed'=>'#1D6FA5','offered'=>'#A16207','hired'=>'#0E5239'][$stage] }};"></span>
+                            <span class="ph-dot" style="background:{{ ['applied'=>'#8FA79B','shortlisted'=>'#5E8D3D','interviewed'=>'#1D6FA5','offered'=>'#A16207','hired'=>'#0E5239'][$stage] }};"></span>
                             <h4>{{ $label }}</h4>
                             <span>{{ ($pipeline[$stage] ?? collect())->count() }}</span>
                         </div>

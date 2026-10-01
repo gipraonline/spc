@@ -56,7 +56,7 @@
     }
 
     .table thead th {
-        background: linear-gradient(135deg, #5A8D3A, #074E30);
+        background: linear-gradient(135deg, #5E8D3D, #1F5C2E);
         color: #fff;
         font-weight: 600;
         padding: 14px;

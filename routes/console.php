@@ -8,4 +8,5 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('incentives:calculate-daily')->dailyAt('00:10');
+Schedule::command('hr:incentives:calculate')->dailyAt('00:10');
+Schedule::command('hr:finalize-exits')->dailyAt('00:20');

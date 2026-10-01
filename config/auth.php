@@ -108,6 +108,14 @@ return [
     |
     */
 
+    /*
+    | Forgot-password: show specific messages ("no account found with this
+    | email", "account inactive" ...). Set PASSWORD_RESET_SHOW_ERRORS=false in
+    | .env to show one generic message instead, which stops outsiders from
+    | discovering which emails are registered.
+    */
+    'password_reset_show_errors' => env('PASSWORD_RESET_SHOW_ERRORS', true),
+
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
 ];

@@ -2,10 +2,12 @@
 
 namespace App\Services\Hr;
 
+use App\Models\Admin;
 use App\Models\EmployeeMaster;
 use App\Models\Hr\Department;
 use App\Models\Hr\Designation;
 use App\Models\Hr\Employee as HrEmployee;
+use App\Models\Hr\EmployeeHistory;
 use App\Models\Hr\User as HrUser;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -60,9 +62,7 @@ class EmployeeHrSyncService
         $attributes = [
             'name' => $employee->c_employee_name,
             'email' => $email,
-            'role' => in_array($employee->c_hr_role, ['employee', 'manager', 'hr_admin', 'super_admin'], true)
-                ? $employee->c_hr_role
-                : 'employee',
+            'role' => static::deriveRole($employee),
             'is_active' => $employee->c_status === 'Y',
         ];
 
@@ -95,8 +95,16 @@ class EmployeeHrSyncService
         }
 
         $hrEmployee = HrEmployee::firstOrNew(['user_id' => $hrUser->id]);
+        $isNew = ! $hrEmployee->exists;
+
+        // Someone serving notice is still working (their SPC status stays
+        // Active); only the exit flow moves them on to "exited".
+        $employmentStatus = $employee->c_status === 'Y'
+            ? ($hrEmployee->employment_status === 'on_notice' ? 'on_notice' : 'active')
+            : 'exited';
 
         $hrEmployee->fill([
+            'employee_master_id' => $employee->n_employee_id,
             'employee_code' => $employee->c_employee_code,
             'department_id' => $departmentId,
             'designation_id' => static::matchingHrDesignationId($employee, $departmentId),
@@ -105,7 +113,7 @@ class EmployeeHrSyncService
                 ?? $hrEmployee->date_of_joining
                 ?? $employee->created_at?->toDateString()
                 ?? now()->toDateString(),
-            'employment_status' => $employee->c_status === 'Y' ? 'active' : 'exited',
+            'employment_status' => $employmentStatus,
             'phone' => $employee->n_employee_phone,
             'personal_email' => $employee->personal_email,
             'address' => $employee->c_employee_address,
@@ -115,9 +123,156 @@ class EmployeeHrSyncService
             'bank_name' => $employee->bank_name,
             'bank_account_number' => $employee->bank_account_number,
             'bank_ifsc' => $employee->bank_ifsc,
-        ])->save();
+        ]);
+
+        // Capture what actually changed (before saving) so the career
+        // timeline records promotions / transfers made from the SPC screen.
+        $changed = $isNew ? [] : array_intersect_key(
+            $hrEmployee->getDirty(),
+            array_flip(['designation_id', 'department_id', 'reporting_manager_id'])
+        );
+        $original = $hrEmployee->getOriginal();
+
+        $hrEmployee->save();
+
+        // History is a bonus on top of the sync — never let a logging
+        // problem (e.g. employee_history.sql not applied yet) block a save.
+        try {
+            static::logTimeline($hrEmployee, $isNew, $changed, $original);
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return $hrEmployee;
+    }
+
+    /** Who is making this change, as an HR users.id (null for console/jobs). */
+    public static function actingHrUserId(): ?int
+    {
+        $admin = auth()->user();
+
+        return $admin instanceof Admin ? HrUser::findForSpcAdmin($admin)?->id : null;
+    }
+
+    protected static function logTimeline(HrEmployee $hr, bool $isNew, array $changed, array $original): void
+    {
+        $by = static::actingHrUserId();
+
+        if ($isNew) {
+            $hr->loadMissing(['designation', 'department']);
+
+            EmployeeHistory::log(
+                $hr->id, 'joined', 'Joined company', null,
+                trim(($hr->designation->title ?? 'Employee').' — '.($hr->department->name ?? '—'), ' —'),
+                $by, null, $hr->date_of_joining ? (string) $hr->date_of_joining : null
+            );
+
+            return;
+        }
+
+        if (array_key_exists('designation_id', $changed)) {
+            EmployeeHistory::log(
+                $hr->id, 'promotion', 'Designation',
+                Designation::find($original['designation_id'] ?? null)?->title ?? '—',
+                Designation::find($changed['designation_id'])?->title ?? '—',
+                $by
+            );
+        }
+
+        if (array_key_exists('department_id', $changed)) {
+            EmployeeHistory::log(
+                $hr->id, 'transfer', 'Department',
+                Department::find($original['department_id'] ?? null)?->name ?? '—',
+                Department::find($changed['department_id'])?->name ?? '—',
+                $by
+            );
+        }
+
+        if (array_key_exists('reporting_manager_id', $changed)) {
+            $name = fn ($id) => $id ? (HrEmployee::with('user')->find($id)?->user?->name ?? '—') : '—';
+
+            EmployeeHistory::log(
+                $hr->id, 'change', 'Reporting manager',
+                $name($original['reporting_manager_id'] ?? null),
+                $name($changed['reporting_manager_id']),
+                $by
+            );
+        }
+    }
+
+    /**
+     * Some SPC admin accounts aren't tied to any employee at all (e.g. a
+     * standalone admin-only login like "Gipra Admin") — there's no
+     * EmployeeMaster to run through sync(), so nothing above ever touches
+     * their HR row. This updates just their role directly, matched by
+     * email (the same key the SSO bridge itself uses), so a change to a
+     * role's HR Portal Access still reaches them.
+     */
+    public static function syncRoleForAdmin(Admin $admin): void
+    {
+        if ($admin->n_employee_id) {
+            // Has a real employee record — let the full sync handle it,
+            // rather than partially updating just the role here.
+            return;
+        }
+
+        $email = trim((string) $admin->c_username);
+
+        if ($email === '') {
+            return;
+        }
+
+        $hrUser = HrUser::whereRaw('LOWER(email) = ?', [Str::lower($email)])->first();
+
+        if (! $hrUser) {
+            return;
+        }
+
+        $accessLevels = $admin->roles->pluck('hr_access')->filter();
+
+        foreach (['super_admin', 'hr_admin', 'manager', 'employee'] as $tier) {
+            if ($accessLevels->contains($tier)) {
+                $hrUser->update(['role' => $tier]);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * The HR module's access tier — employee, manager, hr_admin or
+     * super_admin — is no longer a separate field anyone has to pick by
+     * hand. It's read straight from SPC's own Role records:
+     *
+     *   - each SPC role can have an "HR Portal Access" tier set on it
+     *     (Admin > Role Management > Edit Role), stored as roles.hr_access
+     *   - if this person holds a role with that set, the highest tier among
+     *     their roles wins (super_admin > hr_admin > manager > employee)
+     *   - if none of their roles have a tier set, fall back to whether they
+     *     have direct reports in SPC (manager) or not (employee)
+     *
+     * There is deliberately one set of roles, defined once in SPC (Role
+     * Management); HR just reads them — nothing is hardcoded by role name.
+     */
+    protected static function deriveRole(EmployeeMaster $employee): string
+    {
+        $admin = Admin::where('n_employee_id', $employee->n_employee_id)->first();
+
+        if ($admin) {
+            $accessLevels = $admin->roles->pluck('hr_access')->filter();
+
+            foreach (['super_admin', 'hr_admin', 'manager', 'employee'] as $tier) {
+                if ($accessLevels->contains($tier)) {
+                    return $tier;
+                }
+            }
+        }
+
+        if ($employee->subordinates()->exists()) {
+            return 'manager';
+        }
+
+        return 'employee';
     }
 
     /**

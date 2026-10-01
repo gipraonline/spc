@@ -12,6 +12,11 @@ class Payslip extends Model
 
     public $timestamps = false;
 
+    protected $casts = [
+        'calc_detail' => 'array',
+        'generated_at' => 'datetime',
+    ];
+
     public function payrollRun()
     {
         return $this->belongsTo(PayrollRun::class);

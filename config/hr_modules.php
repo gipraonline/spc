@@ -140,6 +140,21 @@ return [
             ],
         ],
 
+        'document-verification' => [
+            'code' => 'DV',
+            'group' => 'People',
+            'nav_label' => 'Document Verification',
+            'title' => 'Document Verification',
+            'summary' => 'Review, verify or reject documents uploaded by employees.',
+            // Only HR Admin and Super Admin may open this module.
+            'roles' => ['hr_admin', 'super_admin'],
+            'features' => [
+                'Queue of every document uploaded by employees, pending first.',
+                'Preview the file, then verify it or reject it with a reason.',
+                'Employees are notified of the decision automatically.',
+            ],
+        ],
+
         'appraisal' => [
             'code' => 'PA',
             'group' => 'Growth',

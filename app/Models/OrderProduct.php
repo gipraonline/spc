@@ -56,8 +56,8 @@ class OrderProduct extends Model
     {
         return $this->belongsTo(
             CategoryMaster::class,
-            'n_category_id',
-            'n_parent_category_id'
+            'n_sub_category_id',
+            'n_category_id'
         );
     }
 }

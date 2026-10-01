@@ -64,21 +64,25 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Destroy an authenticated session.
+     *
+     * Single logout for the whole app: SPC and HR share one sign-on, so this
+     * one action tears down both sides of it, wherever it's called from, and
+     * always sends the browser back to the SPC login screen — there's one
+     * sign-in, so there's one place to sign back in from.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // dd('Logout method called');
         Auth::logout();
 
-        // Logging out of SPC also logs out of the linked HR session, since
-        // the two are now a single sign-on.
+        // Logging out also logs out of the linked HR session, since the two
+        // are now a single sign-on.
         $request->session()->forget('user_id');
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
-   
+
 }

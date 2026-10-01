@@ -93,7 +93,14 @@
 
                         <td>{{ $fieldLog->admin->c_name ?? ''}}</td>
 
-                        <td>{{ $fieldLog->check_in_time->format('h:i A') }}</td>
+                        <td>
+                            {{ $fieldLog->check_in_time->format('h:i A') }}
+                            @if($fieldLog->hasCheckInLocation())
+                                <a href="{{ $fieldLog->checkInMapUrl() }}" target="_blank" rel="noopener" title="Checked in from this location"><i class="ti ti-map-pin"></i></a>
+                            @else
+                                <i class="ti ti-map-pin-off text-muted" title="Location not captured"></i>
+                            @endif
+                        </td>
 
                         <td>
 

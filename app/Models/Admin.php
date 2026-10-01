@@ -10,6 +10,8 @@ class Admin extends Authenticatable
 {
     use HasFactory, HasRoles;
 
+    public const STATUS_ACTIVE = 'Active';
+
     protected $guard_name = 'web';
 
     protected $table = 'admins';
@@ -36,9 +38,16 @@ class Admin extends Authenticatable
     ];
 
     protected $casts = [
-        'initial_password' => 'encrypted',
+        // Fail-safe encrypted cast: legacy rows written under a previous
+        // APP_KEY read as null instead of throwing DecryptException.
+        'initial_password' => \App\Casts\EncryptedNullable::class,
         'initial_password_expires_at' => 'datetime',
     ];
+
+    public function isActive(): bool
+    {
+        return $this->c_status === self::STATUS_ACTIVE;
+    }
 
     public function getAuthPassword()
     {

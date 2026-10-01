@@ -31,6 +31,7 @@
                     <th>Menu Name</th>
                     <th>Route</th>
                     <th>Icon</th>
+                    <th width="110" class="text-center">Sort Order</th>
                     @canany(['menu-management.edit', 'menu-management.delete'])
                     <th width="180">Action</th>
                     @endcanany
@@ -53,6 +54,8 @@
                     <td>{{ $parent->route_name ?? '-' }}</td>
 
                     <td>{{ $parent->icon ?? '-' }}</td>
+
+                    <td class="text-center"><span class="badge bg-dark">{{ $parent->sort_order }}</span></td>
                     @canany(['menu-management.edit', 'menu-management.delete'])
                     <td>
                         @can('menu-management.edit')
@@ -94,6 +97,8 @@
                     <td>{{ $child->route_name }}</td>
 
                     <td>{{ $child->icon }}</td>
+
+                    <td class="text-center"><span class="badge bg-secondary">{{ $child->sort_order }}</span></td>
                     @canany(['menu-management.edit', 'menu-management.delete'])
                     <td>
                         @can('menu-management.edit')
@@ -122,7 +127,7 @@
                 @empty
 
                 <tr>
-                    <td colspan="5" class="text-center">
+                    <td colspan="6" class="text-center">
                         No Menus Found.
                     </td>
                 </tr>

@@ -2,24 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\ProductExport;
+use App\Exports\TableExport;
 use App\Http\Controllers\Controller;
 use App\Models\CategoryMaster;
 use App\Models\ProductMaster;
-// use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
-    // public function export(Request $request)
-    // {
-    //     return Excel::download(
-    //         new ProductExport($request->all()),
-    //         'products.xlsx'
-    //     );
-    // }
-
     public function search(Request $request)
     {
         session([
@@ -42,19 +34,17 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index');
     }
 
-    public function index(Request $request)
+    /**
+     * Product list query with the search / category / status filters.
+     * Shared by the list page and the Excel export.
+     */
+    private function filteredProducts()
     {
         $search = session('product_search');
         $categoryId = session('product_category_id');
         $status = session('product_status');
-        // Categories for filter dropdown
-        $categories = CategoryMaster::where('c_status', 'Y')
-            ->with('children')
-            ->whereNull('n_parent_category_id')
-            ->orderBy('c_category_name')
-            ->get();
 
-        $products = ProductMaster::query()
+        return ProductMaster::query()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('c_product_code', 'LIKE', "%{$search}%")
@@ -96,7 +86,61 @@ class ProductController extends Controller
         // status filter
             ->when(! empty($status), function ($query) use ($status) {
                 $query->where('c_status', $status);
-            })
+            });
+    }
+
+    public function export()
+    {
+        $products = $this->filteredProducts()
+            ->with('category.parent')
+            ->orderBy('c_product_code')
+            ->get();
+
+        $rows = [];
+        $i = 0;
+        foreach ($products as $p) {
+            $category = $p->category;
+            $categoryName = $category
+                ? trim(($category->parent?->c_category_name ? $category->parent->c_category_name.' > ' : '').$category->c_category_name)
+                : null;
+
+            $rows[] = [
+                ++$i,
+                $p->c_product_code,
+                $p->c_product_name,
+                $categoryName,
+                $p->c_unit,
+                $p->c_hsn_code,
+                $p->n_gst_percentage !== null ? (float) $p->n_gst_percentage : null,
+                (float) $p->n_purchase_price,
+                (float) $p->n_selling_price,
+                (float) $p->n_mrp,
+                $p->c_status === 'Y' ? 'Active' : 'Inactive',
+            ];
+        }
+
+        return Excel::download(
+            new TableExport(
+                ['Sl No', 'Product Code', 'Product Name', 'Category', 'Unit', 'HSN Code', 'GST %',
+                    'Purchase Price', 'Selling Price', 'MRP', 'Status'],
+                $rows,
+                ['B', 'F'],
+                ['H', 'I', 'J']
+            ),
+            'products-'.now()->format('Ymd-His').'.xlsx'
+        );
+    }
+
+    public function index(Request $request)
+    {
+        // Categories for filter dropdown
+        $categories = CategoryMaster::where('c_status', 'Y')
+            ->with('children')
+            ->whereNull('n_parent_category_id')
+            ->orderBy('c_category_name')
+            ->get();
+
+        $products = $this->filteredProducts()
             ->paginate(10);
 
         return view('admin.products.index', compact('products', 'categories'));

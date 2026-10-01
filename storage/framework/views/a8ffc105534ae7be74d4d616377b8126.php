@@ -5,119 +5,124 @@
         'title' => $module['title'],
         'eyebrow' => 'System',
         'heroIcon' => 'fa-solid fa-shield-halved',
-        'heroSummary' => 'Manage access, roles and the organization-wide audit trail.',
+        'heroSummary' => 'A record of who changed what, and when.',
         'heroStats' => [
-            ['label' => 'Users', 'icon' => 'fa-solid fa-user-gear', 'value' => $totalUsers],
-            ['label' => 'Active', 'icon' => 'fa-solid fa-user-check', 'value' => $activeUsersCount],
-            ['label' => 'Audit entries', 'icon' => 'fa-solid fa-timeline', 'value' => $totalAuditEntries],
+            ['label' => 'Entries', 'icon' => 'fa-solid fa-timeline', 'value' => $totalAuditEntries],
+            ['label' => 'Today', 'icon' => 'fa-regular fa-calendar', 'value' => $todayCount],
         ],
     ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <div class="content">
-        <div class="table-card">
-            <div class="tc-head">
-                <h3><span class="wh-ico"><i class="fa-solid fa-users-gear"></i></span>Users</h3>
-                <span class="pill pill-muted"><?php echo e($totalUsers); ?> accounts</span>
-            </div>
-            <div class="tc-body">
-                <table>
-                    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
-                    <tbody>
-                        <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $u): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <tr>
-                                <td>
-                                    <div class="cell-emp">
-                                        <div class="av"><?php echo e(strtoupper(substr($u->name,0,1))); ?></div>
-                                        <div><b><?php echo e($u->name); ?></b></div>
-                                    </div>
-                                </td>
-                                <td><?php echo e($u->email); ?></td>
-                                <td><?php echo e($u->roleLabel()); ?></td>
-                                <td><span class="pill <?php echo e($u->is_active ? 'pill-ok' : 'pill-bad'); ?>"><?php echo e($u->is_active ? 'Active' : 'Suspended'); ?></span></td>
-                                <td><a href="<?php echo e(request()->fullUrlWithQuery(['user' => $u->id])); ?>" class="btn-ghost"><i class="fa-solid fa-pen" style="font-size:11px;"></i> Edit</a></td>
-                            </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </tbody>
-                </table>
-                <?php echo e($users->links()); ?>
+        <style>
+            .al-wrap{max-width:900px;}
+            .al-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+            .al-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--text);font-size:13px;font-weight:500;text-decoration:none;transition:border-color .15s,background .15s;}
+            .al-chip small{font-size:11.5px;color:var(--text-muted);font-weight:600;}
+            .al-chip:hover{border-color:var(--brand-bright);background:var(--brand-softer);}
+            .al-chip.on{background:var(--brand);border-color:var(--brand);color:#fff;}
+            .al-chip.on small{color:rgba(255,255,255,.8);}
+            .al-day{margin:26px 0 10px;font-size:13px;font-weight:600;color:var(--text-muted);}
+            .al-day:first-of-type{margin-top:0;}
+            .al-list{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+            .al-item{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line-soft);align-items:start;}
+            .al-item:last-child{border-bottom:none;}
+            .al-ico{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+            .al-ico.add{background:var(--ok-soft);color:var(--ok);}
+            .al-ico.edit{background:var(--warn-soft);color:var(--warn);}
+            .al-ico.remove{background:var(--bad-soft);color:var(--bad);}
+            .al-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.4;}
+            .al-lines{margin:4px 0 0;padding:0;list-style:none;font-size:13px;color:var(--text-muted);line-height:1.6;}
+            .al-by{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;color:var(--text-muted);}
+            .al-by .av{width:22px;height:22px;font-size:11px;}
+            .al-time{font-size:12.5px;color:var(--text-muted);white-space:nowrap;text-align:right;}
+            .al-raw{margin-top:8px;}
+            .al-raw summary{cursor:pointer;font-size:12px;color:var(--brand);font-weight:600;list-style:none;}
+            .al-raw summary::-webkit-details-marker{display:none;}
+            .al-raw pre{margin:8px 0 0;padding:10px 12px;background:var(--brand-softer);border-radius:10px;font-size:11.5px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text);}
+            .al-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;font-size:13px;color:var(--text-muted);}
+            .al-pager .btns{display:flex;gap:8px;}
+            .al-pager a,.al-pager span.dis{padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);text-decoration:none;font-weight:500;}
+            .al-pager a:hover{border-color:var(--brand-bright);background:var(--brand-softer);}
+            .al-pager span.dis{opacity:.4;}
+            @media (max-width:640px){
+                .al-item{grid-template-columns:36px minmax(0,1fr);}
+                .al-time{grid-column:2;text-align:left;}
+            }
+        </style>
 
-            </div>
-        </div>
+        <div class="al-wrap">
+            <nav class="al-chips" aria-label="Filter by area">
+                <a class="al-chip <?php if(! $area): ?> on <?php endif; ?>" href="<?php echo e(route('hr.system.index')); ?>">All <small><?php echo e($areaCounts['all']); ?></small></a>
+                <?php $__currentLoopData = $areas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if($areaCounts[$key] > 0 || $area === $key): ?>
+                        <a class="al-chip <?php if($area === $key): ?> on <?php endif; ?>" href="<?php echo e(route('hr.system.index', ['area' => $key])); ?>"><?php echo e($label); ?> <small><?php echo e($areaCounts[$key]); ?></small></a>
+                    <?php endif; ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </nav>
 
-        <div class="card" style="margin-top:20px;">
-            <div class="widget-head">
-                <div class="wh-ico"><i class="fa-solid <?php echo e($editingUser ? 'fa-user-pen' : 'fa-user-plus'); ?>"></i></div>
-                <div>
-                    <h3><?php echo e($editingUser ? 'Edit user' : 'Add user'); ?></h3>
-                    <p><?php echo e($editingUser ? 'Updating '.$editingUser->name : 'Creates a portal account with the chosen role.'); ?></p>
-                </div>
-            </div>
-            <form method="POST" action="<?php echo e($editingUser ? route('hr.system.user.update', $editingUser) : route('hr.system.user.store')); ?>">
-                <?php echo csrf_field(); ?>
-                <div class="field-grid">
-                    <div class="field"><label>Full name</label><input name="name" value="<?php echo e($editingUser->name ?? ''); ?>" required></div>
-                    <div class="field"><label>Email</label><input name="email" value="<?php echo e($editingUser->email ?? ''); ?>" required></div>
-                    <div class="field">
-                        <label>Role</label>
-                        <select name="role">
-                            <?php $__currentLoopData = $roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($key); ?>" <?php if(($editingUser->role ?? '') === $key): echo 'selected'; endif; ?>><?php echo e($data['label']); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </select>
+            <?php if($auditLog->isEmpty()): ?>
+                <div class="table-card">
+                    <div class="tc-body">
+                        <div class="empty-widget">
+                            <div class="ew-ico"><i class="fa-solid fa-timeline"></i></div>
+                            <b><?php echo e($area ? 'Nothing here yet' : 'No activity recorded yet'); ?></b>
+                            <span><?php echo e($area ? 'No changes have been recorded in this area.' : 'Changes to payroll, settings and access will appear here.'); ?></span>
+                        </div>
                     </div>
-                    <?php if($editingUser): ?>
-                        <div class="field" style="flex-direction:row;align-items:center;gap:8px;">
-                            <input type="checkbox" name="is_active" value="1" style="width:auto;" <?php if($editingUser->is_active): echo 'checked'; endif; ?>>
-                            <label style="margin:0;">Active</label>
+                </div>
+            <?php else: ?>
+                <?php
+                    $days = $auditLog->getCollection()->groupBy(fn ($l) => \Illuminate\Support\Carbon::parse($l->created_at)->toDateString());
+                ?>
+
+                <?php $__currentLoopData = $days; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date => $entries): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
+                        $d = \Illuminate\Support\Carbon::parse($date);
+                        $dayLabel = $d->isToday() ? 'Today' : ($d->isYesterday() ? 'Yesterday' : $d->format('l, d M Y'));
+                    ?>
+                    <h3 class="al-day"><?php echo e($dayLabel); ?></h3>
+                    <div class="al-list">
+                        <?php $__currentLoopData = $entries; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $log): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php $sm = $log->summary; $who = $log->user->name ?? 'System'; ?>
+                            <div class="al-item">
+                                <div class="al-ico <?php echo e($sm['tone']); ?>"><i class="fa-solid <?php echo e($sm['icon']); ?>"></i></div>
+                                <div>
+                                    <div class="al-title"><?php echo e($sm['title']); ?></div>
+                                    <?php if($sm['lines']): ?>
+                                        <ul class="al-lines">
+                                            <?php $__currentLoopData = $sm['lines']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $line): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><li><?php echo e($line); ?></li><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </ul>
+                                    <?php endif; ?>
+                                    <div class="al-by">
+                                        <div class="av"><?php echo e(strtoupper(substr($who, 0, 1))); ?></div>
+                                        <span>by <?php echo e($who); ?><?php if($log->ip_address): ?> &middot; <?php echo e($log->ip_address); ?><?php endif; ?></span>
+                                    </div>
+                                    <?php if($log->old_value || $log->new_value): ?>
+                                        <details class="al-raw">
+                                            <summary>View technical details</summary>
+<pre><?php if($log->old_value): ?>Before: <?php echo e($log->old_value); ?>
+
+<?php endif; ?> <?php if($log->new_value): ?>After:  <?php echo e($log->new_value); ?><?php endif; ?></pre>
+                                        </details>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="al-time" title="<?php echo e(\Illuminate\Support\Carbon::parse($log->created_at)->format('d M Y, H:i:s')); ?>"><?php echo e(\Illuminate\Support\Carbon::parse($log->created_at)->format('h:i A')); ?></div>
+                            </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                <div class="al-pager">
+                    <span>Showing <?php echo e($auditLog->firstItem()); ?>&ndash;<?php echo e($auditLog->lastItem()); ?> of <?php echo e($auditLog->total()); ?></span>
+                    <?php if($auditLog->hasPages()): ?>
+                        <div class="btns">
+                            <?php if($auditLog->onFirstPage()): ?><span class="dis">Newer</span><?php else: ?><a href="<?php echo e($auditLog->previousPageUrl()); ?>">Newer</a><?php endif; ?>
+                            <?php if($auditLog->hasMorePages()): ?><a href="<?php echo e($auditLog->nextPageUrl()); ?>">Older</a><?php else: ?><span class="dis">Older</span><?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary"><?php echo e($editingUser ? 'Save user' : 'Create user'); ?></button>
-                    <?php if($editingUser): ?><a href="<?php echo e(url('/modules/system')); ?>" class="btn-secondary">Cancel</a><?php endif; ?>
-                </div>
-            </form>
+            <?php endif; ?>
         </div>
-
-        <div class="section-head" style="margin-top:30px;">
-            <h2><i class="fa-solid fa-timeline"></i>Audit log</h2>
-            <span class="hint">Every privileged action, newest first</span>
-        </div>
-        <div class="table-card">
-            <div class="tc-body">
-                <?php if($auditLog->isEmpty()): ?>
-                    <div class="empty-widget">
-                        <div class="ew-ico"><i class="fa-solid fa-timeline"></i></div>
-                        <b>No audit entries yet</b>
-                        <span>Privileged actions will be recorded here.</span>
-                    </div>
-                <?php else: ?>
-                    <table>
-                        <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Module</th></tr></thead>
-                        <tbody>
-                            <?php $__currentLoopData = $auditLog; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $log): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <tr>
-                                    <td><?php echo e(\Illuminate\Support\Carbon::parse($log->created_at)->format('d M, H:i')); ?></td>
-                                    <td>
-                                        <div class="cell-emp">
-                                            <div class="av"><?php echo e(strtoupper(substr($log->user->name ?? 'S',0,1))); ?></div>
-                                            <div><b><?php echo e($log->user->name ?? 'System'); ?></b></div>
-                                        </div>
-                                    </td>
-                                    <td><span class="pill pill-muted"><?php echo e($log->action); ?></span></td>
-                                    <td><?php echo e(ucfirst(str_replace('_',' ',$log->module))); ?></td>
-                                </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </tbody>
-                    </table>
-                    <?php echo e($auditLog->links()); ?>
-
-                <?php endif; ?>
-            </div>
-        </div>
-
-
     </div>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('hr.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/modules/system.blade.php ENDPATH**/ ?>

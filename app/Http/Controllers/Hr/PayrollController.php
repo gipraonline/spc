@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Hr;
 
-
+use App\Exports\TableExport;
+use App\Models\Hr\AuditLog;
 use App\Models\Hr\Employee;
 use App\Models\Hr\PayrollRun;
-use App\Models\Hr\PfContribution;
 use App\Models\Hr\Payslip;
 use App\Models\Hr\SalaryStructure;
+use App\Services\Hr\PayrollCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PayrollController extends Controller
 {
@@ -44,32 +45,53 @@ class PayrollController extends Controller
                 $runsByDepartment = Payslip::where('payroll_run_id', $latestRun->id)
                     ->join('employees', 'employees.id', '=', 'payslips.employee_id')
                     ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
-                    ->selectRaw('COALESCE(departments.name, "Unassigned") as department, count(*) as headcount, sum(payslips.gross_pay) as gross')
+                    ->selectRaw('COALESCE(departments.name, "Unassigned") as department, count(*) as headcount, sum(payslips.gross_pay) as gross, sum(payslips.net_pay) as net')
                     ->groupBy('departments.name')
                     ->orderByDesc('gross')
                     ->get();
             }
         }
 
-        // Super Admin only: data for the dedicated Salary Structure / Run
-        // Payroll / Payslip History tabs. HR Admin and Employee use the
-        // unchanged layout above and never touch any of this.
+        // Super Admin only: Salary Structure / Run Payroll / Payslip History tabs.
         $superAdminData = [];
         if ($role === 'super_admin') {
             $activeEmployees = Employee::with(['user', 'currentSalaryStructure'])
-                ->where('employment_status', 'active')->orderBy('employee_code')->get();
+                ->whereIn('employment_status', ['active', 'on_notice'])->orderBy('employee_code')->get();
 
             $lastRun = $runs->first();
+
+            $slipQuery = Payslip::with(['employee.user', 'payrollRun'])->orderByDesc('id');
+            $filterRun = $request->integer('run') ?: null;
+            if ($filterRun) {
+                $slipQuery->where('payroll_run_id', $filterRun);
+            }
+
+            // Preview: nothing is saved, it only shows what a run would produce.
+            $preview = null;
+            $activeTab = $request->query('tab', 'salary');
+            if ($request->filled('preview_month') && $request->filled('preview_year')) {
+                $pm = (int) $request->query('preview_month');
+                $py = (int) $request->query('preview_year');
+                if ($pm >= 1 && $pm <= 12 && $py >= 2020 && $py <= 2100) {
+                    $preview = app(PayrollCalculator::class)->calculate($pm, $py);
+                    $preview['already_run'] = PayrollRun::where('month', $pm)->where('year', $py)->first();
+                    $activeTab = 'run';
+                }
+            }
 
             $superAdminData = [
                 'activeEmployees' => $activeEmployees,
                 'activeEmployeeCount' => $activeEmployees->count(),
-                'lastCycleNetPay' => $lastRun ? $lastRun->payslips()->sum('net_pay') : 0,
+                'lastCycleNetPay' => $lastRun ? (float) $lastRun->total_net ?: $lastRun->payslips()->sum('net_pay') : 0,
                 'cyclesFinalized' => $runs->count(),
                 'currentCycleMonth' => now()->format('F'),
                 'totalPayslips' => Payslip::count(),
-                'allPayslips' => Payslip::with(['employee.user', 'payrollRun'])
-                    ->orderByDesc('id')->paginate(20, ['*'], 'payslipsPage')->withQueryString(),
+                'allPayslips' => $slipQuery->paginate(20, ['*'], 'payslipsPage')->withQueryString(),
+                'filterRun' => $filterRun,
+                'preview' => $preview,
+                'activeTab' => $filterRun ? 'history' : $activeTab,
+                'previewMonth' => $request->query('preview_month', now()->subMonth()->month),
+                'previewYear' => $request->query('preview_year', now()->subMonth()->year),
             ];
         }
 
@@ -86,12 +108,7 @@ class PayrollController extends Controller
         ], $superAdminData));
     }
 
-    /**
-     * Super Admin only: process a payroll cycle for every active employee
-     * with a salary structure on file, generating one payslip and one PF
-     * contribution row each. Nothing here changes what HR Admin or
-     * Employees see or can do on this page.
-     */
+    /** Process a payroll cycle (Super Admin only). */
     public function runPayroll(Request $request)
     {
         $this->abortUnlessModuleAllowed('payroll');
@@ -100,70 +117,131 @@ class PayrollController extends Controller
         $data = $request->validate([
             'month' => 'required|integer|min:1|max:12',
             'year' => 'required|integer|min:2020|max:2100',
+            'notes' => 'nullable|string|max:255',
         ]);
 
-        if (PayrollRun::where('month', $data['month'])->where('year', $data['year'])->exists()) {
-            return back()->with('status', 'Payroll for that month has already been run.');
+        // never pay a month that has not started
+        if (Carbon::create($data['year'], $data['month'], 1)->gt(now()->endOfMonth())) {
+            return back()->with('status', 'You cannot run payroll for a future month.');
         }
 
-        $processed = 0;
+        if (PayrollRun::where('month', $data['month'])->where('year', $data['year'])->exists()) {
+            return back()->with('status', 'Payroll for that month has already been run. Discard it first if it needs to be redone.');
+        }
 
-        DB::transaction(function () use ($data, &$processed) {
-            $run = PayrollRun::create([
-                'month' => $data['month'],
-                'year' => $data['year'],
-                'status' => 'processed',
-                'processed_by' => $this->currentUser()->id,
-                'processed_at' => now(),
-            ]);
+        try {
+            $run = app(PayrollCalculator::class)->process((int) $data['month'], (int) $data['year'], $this->currentUser()->id, $data['notes'] ?? null);
+        } catch (\RuntimeException $e) {
+            return back()->with('status', $e->getMessage());
+        }
 
-            $employees = Employee::where('employment_status', 'active')->with('currentSalaryStructure')->get();
+        $this->audit('PAYROLL_RUN', $run->id, null, [
+            'period' => $run->monthLabel(), 'employees' => $run->employee_count, 'net' => $run->total_net,
+        ]);
 
-            foreach ($employees as $employee) {
-                $structure = $employee->currentSalaryStructure;
-                if (! $structure) {
-                    continue;
-                }
+        return redirect()->route('hr.payroll.index', ['tab' => 'run'])
+            ->with('status', 'Payroll for '.$run->monthLabel().' processed for '.$run->employee_count.' employees. Review it, then mark it paid after the bank transfer.');
+    }
 
-                $gross = (float) $structure->gross_monthly;
-                $pf = round((float) $structure->basic * 0.12, 2);
-                $tds = round($gross * 0.04, 2);
-                $net = $gross - $pf - $tds;
+    public function discard(PayrollRun $run)
+    {
+        $this->abortUnlessModuleAllowed('payroll');
+        abort_unless($this->currentRole() === 'super_admin', 403);
 
-                Payslip::create([
-                    'payroll_run_id' => $run->id,
-                    'employee_id' => $employee->id,
-                    'gross_pay' => $gross,
-                    'pf_deduction' => $pf,
-                    'esi_deduction' => 0,
-                    'professional_tax' => 0,
-                    'tds_deduction' => $tds,
-                    'other_deductions' => 0,
-                    'net_pay' => $net,
-                    'generated_at' => now(),
+        $label = $run->monthLabel();
+
+        try {
+            app(PayrollCalculator::class)->discard($run);
+        } catch (\RuntimeException $e) {
+            return back()->with('status', $e->getMessage());
+        }
+
+        $this->audit('PAYROLL_DISCARD', $run->id, ['period' => $label], null);
+
+        return redirect()->route('hr.payroll.index', ['tab' => 'run'])->with('status', 'Payroll for '.$label.' was discarded. You can run it again.');
+    }
+
+    public function markPaid(PayrollRun $run)
+    {
+        $this->abortUnlessModuleAllowed('payroll');
+        abort_unless($this->currentRole() === 'super_admin', 403);
+
+        try {
+            app(PayrollCalculator::class)->markPaid($run);
+        } catch (\RuntimeException $e) {
+            return back()->with('status', $e->getMessage());
+        }
+
+        $this->audit('PAYROLL_PAID', $run->id, ['status' => 'processed'], ['status' => 'paid']);
+
+        return back()->with('status', 'Payroll for '.$run->monthLabel().' marked as paid.');
+    }
+
+    /** Excel payroll register for a run (HR Admin and Super Admin). */
+    public function register(PayrollRun $run)
+    {
+        $this->abortUnlessModuleAllowed('payroll');
+        abort_unless($this->isHrOrAbove(), 403);
+
+        $slips = $run->payslips()->with(['employee.user', 'employee.department', 'employee.designation'])->get()
+            ->sortBy(fn ($p) => $p->employee->employee_code);
+
+        $headings = ['Emp Code', 'Name', 'Department', 'Designation', 'Days in Month', 'Paid Days', 'LOP Days',
+            'Basic', 'HRA', 'Allowances', 'Variable', 'Incentive', 'Gross', 'PF', 'ESI', 'Professional Tax', 'TDS',
+            'Other Deductions', 'Total Deductions', 'Net Pay', 'Employer PF', 'Employer ESI', 'PF Admin + EDLI',
+            'Cost to Company', 'Bank', 'Account No', 'IFSC'];
+
+        $rows = $slips->map(function ($p) {
+            $e = $p->employee;
+            $ded = $p->pf_deduction + $p->esi_deduction + $p->professional_tax + $p->tds_deduction + $p->other_deductions;
+
+            return [
+                $e->employee_code, $e->user->name ?? '', $e->department->name ?? '', $e->designation->title ?? '',
+                (int) $p->days_in_month, (float) $p->paid_days, (float) $p->lop_days,
+                (float) $p->basic_earned, (float) $p->hra_earned, (float) $p->allowances_earned, (float) $p->variable_earned,
+                (float) $p->incentive_pay, (float) $p->gross_pay, (float) $p->pf_deduction, (float) $p->esi_deduction,
+                (float) $p->professional_tax, (float) $p->tds_deduction, (float) $p->other_deductions, round($ded, 2),
+                (float) $p->net_pay, (float) $p->employer_pf, (float) $p->employer_esi, (float) $p->employer_admin_charges,
+                round($p->gross_pay + $p->employer_pf + $p->employer_esi + $p->employer_admin_charges, 2),
+                $e->bank_name, (string) $e->bank_account_number, $e->bank_ifsc,
+            ];
+        })->values()->all();
+
+        $money = ['H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
+
+        return Excel::download(
+            new TableExport($headings, $rows, ['Z', 'AA'], $money),
+            sprintf('payroll-register-%04d-%02d.xlsx', $run->year, $run->month)
+        );
+    }
+
+    /** Bank transfer sheet (CSV) with net pay per employee. Super Admin only. */
+    public function bankFile(PayrollRun $run)
+    {
+        $this->abortUnlessModuleAllowed('payroll');
+        abort_unless($this->currentRole() === 'super_admin', 403);
+
+        $slips = $run->payslips()->with('employee.user')->get()->sortBy(fn ($p) => $p->employee->employee_code);
+        $label = $run->monthLabel();
+
+        return response()->streamDownload(function () use ($slips, $label) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Employee Code', 'Name', 'Bank', 'Account Number', 'IFSC', 'Net Pay', 'Narration']);
+            foreach ($slips as $p) {
+                $e = $p->employee;
+                fputcsv($out, [
+                    $e->employee_code, $e->user->name ?? '', $e->bank_name, $e->bank_account_number, $e->bank_ifsc,
+                    number_format((float) $p->net_pay, 2, '.', ''), 'Salary '.$label,
                 ]);
-
-                PfContribution::create([
-                    'employee_id' => $employee->id,
-                    'payroll_run_id' => $run->id,
-                    'employee_share' => $pf,
-                    'employer_share' => $pf,
-                ]);
-
-                $processed++;
             }
-        });
-
-        $label = \DateTime::createFromFormat('!m', $data['month'])->format('F').' '.$data['year'];
-
-        return back()->with('status', 'Payroll run for '.$label.' processed for '.$processed.' employees.');
+            fclose($out);
+        }, sprintf('salary-transfer-%04d-%02d.csv', $run->year, $run->month), ['Content-Type' => 'text/csv']);
     }
 
     public function updateSalary(Request $request, Employee $employee)
     {
         $this->abortUnlessModuleAllowed('payroll');
-        // Compensation changes are Super Admin only — HR Admin can view every
-        // salary structure here but not edit it, same as any other employee.
+        // Compensation changes are Super Admin only.
         abort_unless($this->currentRole() === 'super_admin', 403);
 
         $data = $request->validate([
@@ -171,16 +249,29 @@ class PayrollController extends Controller
             'hra' => 'required|numeric|min:0',
             'other_allowances' => 'required|numeric|min:0',
             'variable_pay' => 'required|numeric|min:0',
+            'other_deduction' => 'nullable|numeric|min:0',
+            'tds_monthly_override' => 'nullable|numeric|min:0',
             'effective_from' => 'nullable|date',
         ]);
 
-        $effectiveFrom = $data['effective_from'] ?? now()->toDateString();
+        $effectiveFrom = Carbon::parse($data['effective_from'] ?? now()->toDateString())->toDateString();
         unset($data['effective_from']);
+
+        $data['other_deduction'] = $data['other_deduction'] ?? 0;
+        $data['tds_monthly_override'] = ($data['tds_monthly_override'] ?? '') === '' ? null : $data['tds_monthly_override'];
+        $data['pf_applicable'] = $request->boolean('pf_applicable');
+        $data['esi_applicable'] = $request->boolean('esi_applicable');
+        $data['pt_applicable'] = $request->boolean('pt_applicable');
 
         $gross = $data['basic'] + $data['hra'] + $data['other_allowances'] + $data['variable_pay'];
 
-        $current = $employee->salaryStructures()->orderByDesc('effective_from')->first();
-        if ($current && $current->effective_from === $effectiveFrom) {
+        $current = $employee->salaryStructures()->orderByDesc('effective_from')->orderByDesc('id')->first();
+
+        if ($current && Carbon::parse($effectiveFrom)->lt(Carbon::parse($current->effective_from))) {
+            return back()->with('status', 'The effective date cannot be earlier than the current structure ('.Carbon::parse($current->effective_from)->format('d M Y').').');
+        }
+
+        if ($current && Carbon::parse($current->effective_from)->toDateString() === $effectiveFrom) {
             $current->update(array_merge($data, ['gross_monthly' => $gross]));
         } else {
             if ($current) {
@@ -193,6 +284,8 @@ class PayrollController extends Controller
                 'created_at' => now(),
             ]));
         }
+
+        $this->audit('SALARY_UPDATE', $employee->id, $current ? $current->only(['basic', 'hra', 'other_allowances', 'variable_pay', 'gross_monthly']) : null, $data + ['gross_monthly' => $gross, 'effective_from' => $effectiveFrom]);
 
         return back()->with('status', 'Salary structure saved for '.$employee->employee_code.'.');
     }
@@ -209,7 +302,23 @@ class PayrollController extends Controller
 
         $payslip->load(['employee.user', 'employee.department', 'employee.designation', 'payrollRun']);
 
-        return view('hr.modules.payslip-print', ['payslip' => $payslip]);
+        return view('hr.modules.payslip-print', [
+            'payslip' => $payslip,
+            'companyName' => \App\Models\Hr\SystemSetting::where('setting_key', 'company_name')->value('setting_value') ?: 'SPC Enterprises',
+        ]);
+    }
+
+    private function audit(string $action, ?int $recordId, $old, $new): void
+    {
+        AuditLog::create([
+            'user_id' => $this->currentUser()->id,
+            'action' => $action,
+            'module' => 'payroll',
+            'record_id' => $recordId,
+            'old_value' => $old === null ? null : json_encode($old),
+            'new_value' => $new === null ? null : json_encode($new),
+            'ip_address' => request()->ip(),
+            'created_at' => now(),
+        ]);
     }
 }
-

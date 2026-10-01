@@ -31,6 +31,13 @@
             </div>
         @endif
 
+        @include('hr.partials.performance-insights')
+        @include('hr.partials.performance-targets')
+
+        <div class="section-head" style="margin-top:36px;">
+            <h2><i class="fa-solid fa-user-pen"></i>Appraisal</h2>
+        </div>
+
         @if($currentAppraisal)
             <div class="card">
                 <div class="widget-head">
@@ -117,7 +124,7 @@
                             @foreach($a->goals as $goal)
                                 <div class="field" style="margin-top:10px;max-width:220px;">
                                     <label>Manager rating &mdash; {{ \Illuminate\Support\Str::limit($goal->goal_text, 24) }}</label>
-                                    <input type="number" step="0.1" min="0" max="5" name="goal_ratings[{{ $goal->id }}]" value="{{ $a->manager_rating ?? $goal->self_rating }}">
+                                    <input type="number" step="0.1" min="0" max="5" name="goal_ratings[{{ $goal->id }}]" value="{{ $goal->manager_rating ?? $goal->self_rating }}">
                                 </div>
                             @endforeach
                             <div class="form-actions"><button type="submit" class="btn-primary">Complete review</button></div>

@@ -108,6 +108,8 @@
 
         </div>
 
+        @include('admin.field-log._location-card', ['fieldLog' => $fieldLog])
+
         <hr>
 
         @php

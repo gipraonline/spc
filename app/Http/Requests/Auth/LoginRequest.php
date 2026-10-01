@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Admin;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -50,9 +51,21 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt(['c_username' => $this->email, 'password' => $this->password], $this->boolean('remember'))) {
+        $credentials = ['c_username' => $this->email, 'password' => $this->password];
+
+        // Only accounts whose status is "Active" may sign in. HR offboarding
+        // sets admins.c_status = 'Inactive', which must end SPC access too.
+        if (! Auth::attempt($credentials + ['c_status' => Admin::STATUS_ACTIVE], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            // Correct credentials but a deactivated account: say so, rather
+            // than the misleading "invalid username or password". Only
+            // revealed once the password has been proven correct.
+            if (Auth::validate($credentials)) {
+                throw ValidationException::withMessages([
+                    'email' => 'This account is inactive. Please contact your administrator.',
+                ]);
+            }
 
             throw ValidationException::withMessages([
                // 'email' => trans('auth.failed'),

@@ -103,11 +103,9 @@
                     @csrf
                     <div class="field-grid">
                         <div class="field full"><label>Date</label><input type="date" name="attendance_date"
-                                value="{{ now()->toDateString() }}" required></div>
-                        <div class="field"><label>Check-in</label><input type="time" name="requested_check_in"
-                                value="09:00"></div>
-                        <div class="field"><label>Check-out</label><input type="time" name="requested_check_out"
-                                value="18:00"></div>
+                                value="{{ now()->toDateString() }}" max="{{ now()->toDateString() }}" required></div>
+                        <div class="field"><label>Check-in</label><input type="time" name="requested_check_in"></div>
+                        <div class="field"><label>Check-out</label><input type="time" name="requested_check_out"></div>
                         <div class="field full"><label>Reason</label><textarea name="reason"
                                 placeholder="Why the punch was missed" required></textarea></div>
                     </div>

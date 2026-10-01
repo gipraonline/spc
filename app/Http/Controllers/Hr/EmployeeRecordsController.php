@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Hr;
 
-
 use App\Models\Hr\Attendance;
-use App\Models\Hr\AuditLog;
 use App\Models\Hr\Department;
 use App\Models\Hr\Designation;
 use App\Models\Hr\Employee;
@@ -13,13 +11,19 @@ use App\Models\Hr\EmployeeHistory;
 use App\Models\Hr\Notification;
 use App\Models\Hr\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class EmployeeRecordsController extends Controller
 {
+    private const DOCUMENT_MIME_EXT = [
+        'application/pdf' => 'pdf',
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+    ];
+
     public function index(Request $request)
     {
         $module = $this->abortUnlessModuleAllowed('employee-records');
@@ -35,7 +39,7 @@ class EmployeeRecordsController extends Controller
                 $q = $request->string('q');
                 $query->where(function ($w) use ($q) {
                     $w->where('employee_code', 'like', "%{$q}%")
-                      ->orWhereHas('user', fn ($u) => $u->where('name', 'like', "%{$q}%"));
+                        ->orWhereHas('user', fn ($u) => $u->where('name', 'like', "%{$q}%"));
                 });
             }
 
@@ -217,9 +221,9 @@ class EmployeeRecordsController extends Controller
         // requires Super Admin, via System & Access.
         if ($isHr) {
             $hrData = $request->validate([
-                'department_id' => 'nullable|exists:departments,id',
-                'designation_id' => 'nullable|exists:designations,id',
-                'reporting_manager_id' => 'nullable|exists:employees,id|different:'.$employee->id,
+                'department_id' => 'nullable|exists:spc_hr.departments,id',
+                'designation_id' => 'nullable|exists:spc_hr.designations,id',
+                'reporting_manager_id' => 'nullable|exists:spc_hr.employees,id|different:'.$employee->id,
                 'employment_status' => 'nullable|in:active,on_notice,exited',
                 'portal_role' => 'nullable|in:employee,manager',
             ]);
@@ -356,7 +360,18 @@ class EmployeeRecordsController extends Controller
             'expiry_date' => 'nullable|date',
         ]);
 
-        $path = $request->file('file')->store('documents/'.$employee->id, 'public');
+        // Private disk (storage/app/private) — never web-reachable; served only
+        // through downloadDocument(). The extension comes from the detected
+        // MIME type, not from the client-supplied filename.
+        $file = $request->file('file');
+        $ext = self::DOCUMENT_MIME_EXT[$file->getMimeType()] ?? null;
+        abort_unless($ext, 422, 'Unsupported file type.');
+
+        $path = $file->storeAs(
+            'documents/'.$employee->id,
+            Str::random(40).'.'.$ext,
+            'local'
+        );
 
         $isHr = $this->isHrOrAbove();
 
@@ -373,8 +388,11 @@ class EmployeeRecordsController extends Controller
         ]);
 
         if (! $isHr) {
-            foreach (\App\Models\User::whereIn('role', ['hr_admin', 'super_admin'])->pluck('id') as $userId) {
-                Notification::notify($userId, 'document_uploaded', $employee->user->name.' uploaded a '.$data['document_type'].' for verification.', '/modules/employee-records?employee='.$employee->id);
+            // Goes to the Document Verification module (HR Admin / Super Admin only),
+            // pre-focused on this exact document. route(..., false) keeps the /hr prefix.
+            $link = route('hr.verification.index', ['document' => $document->id], false);
+            foreach (User::whereIn('role', ['hr_admin', 'super_admin'])->where('is_active', true)->pluck('id') as $userId) {
+                Notification::notify($userId, 'document_uploaded', $employee->user->name.' uploaded a '.$data['document_type'].' for verification.', $link);
             }
         }
 
@@ -399,7 +417,7 @@ class EmployeeRecordsController extends Controller
                 $document->employee->user->id,
                 'document_'.$data['action'],
                 'Your '.$document->document_type.' was '.$data['action'].'.',
-                '/modules/employee-records'
+                route('hr.profile.index', [], false)
             );
         }
 
@@ -410,8 +428,17 @@ class EmployeeRecordsController extends Controller
     {
         $employee = $this->currentEmployee();
         abort_unless($this->isHrOrAbove() || ($employee && $document->employee_id === $employee->id), 403);
-        abort_unless(Storage::disk('public')->exists($document->file_path), 404);
 
-        return Storage::disk('public')->download($document->file_path, $document->document_type.'-'.$document->employee_id.'.'.pathinfo($document->file_path, PATHINFO_EXTENSION));
+        // Private disk first; fall back to the old public disk for documents
+        // uploaded before the fix (until `php artisan files:secure-legacy` runs).
+        $diskName = Storage::disk('local')->exists($document->file_path) ? 'local' : 'public';
+        abort_unless(Storage::disk($diskName)->exists($document->file_path), 404);
+
+        $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
+        $downloadName = Str::slug($document->document_type).'-'.$document->employee_id.'.'.$ext;
+
+        return Storage::disk($diskName)->download($document->file_path, $downloadName, [
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 }

@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers\Hr;
 
-
 use App\Models\Hr\Appraisal;
 use App\Models\Hr\AppraisalCycle;
-<<<<<<< HEAD
 use App\Models\Hr\Employee;
 use App\Models\Hr\SalesTarget;
-=======
->>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
 use App\Services\Hr\PerformanceInsightsService;
 use Illuminate\Http\Request;
 
@@ -51,11 +47,7 @@ class AppraisalController extends Controller
 
         // Scope is decided here, by role, and nowhere else: an employee only
         // ever receives their own numbers; team/org data is never loaded for them.
-<<<<<<< HEAD
         $mine = $employee ? $insights->forEmployee($employee, $from, $to, $selectedCycle?->id) : null;
-=======
-        $mine = $employee ? $insights->forEmployee($employee, $from, $to) : null;
->>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
         $team = ($role === 'manager' && $employee)
             ? $insights->forTeam($employee, $from, $to, $selectedCycle?->id)
             : null;
@@ -63,7 +55,6 @@ class AppraisalController extends Controller
             ? $insights->forOrganisation($from, $to, $selectedCycle?->id, $role === 'super_admin')
             : null;
 
-<<<<<<< HEAD
         // Who this person may set targets for: managers -> direct reports, HR -> everyone active.
         $targetEmployees = collect();
         $targetValues = [];
@@ -74,8 +65,6 @@ class AppraisalController extends Controller
                 ->groupBy('employee_id')->map(fn ($g) => $g->pluck('target_value', 'metric')->map(fn ($v) => (float) $v)->all())->all();
         }
 
-=======
->>>>>>> ecbf179f112763652c4c004034826b6c8822c12d
         return view('hr.modules.appraisal', array_merge($this->baseViewData(), [
             'targetEmployees' => $targetEmployees,
             'targetValues' => $targetValues,

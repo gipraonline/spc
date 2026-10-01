@@ -9,7 +9,6 @@ use App\Models\Hr\Employee;
 use App\Models\Hr\EmployeeDocument;
 use App\Models\Hr\EmployeeHistory;
 use App\Models\Hr\Notification;
-use App\Models\Hr\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\TableExport;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Models\DesignationMaster;
 use App\Models\EmployeeEditLog;
@@ -14,11 +13,14 @@ use App\Models\Hr\EmployeeExit;
 use App\Models\KycSubmission;
 use App\Services\Hr\EmployeeExitService;
 use App\Services\Hr\EmployeeHrSyncService;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -50,8 +52,8 @@ class EmployeeController extends Controller
     /**
      * How much of the employee list the signed-in user may see.
      *
-     * @return array{0: 'all'|'direct', 1: ?int}  mode, and (for 'direct')
-     *                                            the user's own employee id
+     * @return array{0: 'all'|'direct', 1: ?int} mode, and (for 'direct')
+     *                                           the user's own employee id
      */
     private function employeeScope(): array
     {
@@ -93,7 +95,7 @@ class EmployeeController extends Controller
      * Employee list query (session filters + what the logged-in user may
      * see — see employeeScope()). Shared by the list page and the Excel export.
      *
-     * @return array{0: \Illuminate\Database\Eloquent\Builder, 1: string}
+     * @return array{0: Builder, 1: string}
      */
     private function filteredEmployees(): array
     {
@@ -162,7 +164,7 @@ class EmployeeController extends Controller
                 $e->n_employee_phone,
                 $e->city,
                 $e->reportingManager?->c_employee_name,
-                $e->date_of_joining ? \Carbon\Carbon::parse($e->date_of_joining)->format('d-m-Y') : null,
+                $e->date_of_joining ? Carbon::parse($e->date_of_joining)->format('d-m-Y') : null,
                 $statusFilter === 'former' ? 'Former' : ($e->c_status === 'Y' ? 'Active' : 'Inactive'),
             ];
         }
@@ -472,52 +474,52 @@ class EmployeeController extends Controller
         $this->authorizeEmployeeAccess($employee);
 
         $validator = Validator::make(
-            $request->all(),[
-            'c_employee_name' => 'required|string|max:255',
-            'c_employee_address' => 'nullable|string|max:500',
+            $request->all(), [
+                'c_employee_name' => 'required|string|max:255',
+                'c_employee_address' => 'nullable|string|max:500',
 
-            'c_employee_email' => 'nullable|email|max:255|',
+                'c_employee_email' => 'nullable|email|max:255|',
 
-            'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
+                'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
 
-            'n_designation_id' => 'required|exists:designation_masters,n_designation_id',
+                'n_designation_id' => 'required|exists:designation_masters,n_designation_id',
 
-            'reporting_to' => 'nullable|exists:employee_masters,n_employee_id',
+                'reporting_to' => 'nullable|exists:employee_masters,n_employee_id',
 
-            'c_status' => 'required|in:Y,N',
+                'c_status' => 'required|in:Y,N',
 
-            'account_number' => 'nullable|digits_between:8,18',
+                'account_number' => 'nullable|digits_between:8,18',
 
-            'ifsc_code' => 'nullable|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
+                'ifsc_code' => 'nullable|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
 
-            'bank_name' => 'nullable|string|max:255',
+                'bank_name' => 'nullable|string|max:255',
 
-            'branch_name' => 'nullable|string|max:255',
+                'branch_name' => 'nullable|string|max:255',
 
-            'date_of_birth' => 'nullable|date|before:today',
-            'gender' => 'nullable|in:male,female,other',
-            'personal_email' => 'nullable|email|max:255',
-            'city' => 'nullable|string|max:100',
-            'department_id' => 'nullable|integer',
-            'date_of_joining' => 'nullable|date',
+                'date_of_birth' => 'nullable|date|before:today',
+                'gender' => 'nullable|in:male,female,other',
+                'personal_email' => 'nullable|email|max:255',
+                'city' => 'nullable|string|max:100',
+                'department_id' => 'nullable|integer',
+                'date_of_joining' => 'nullable|date',
 
-            'password' => [
-                'nullable',
-                'confirmed',
-                Password::min(8)->letters()->numbers()->symbols(),
-            ],
-        ], [
-            'c_employee_email.unique' => 'This email already exists.',
-            'n_employee_phone.regex' => 'Please enter a valid 10-digit mobile number.',
-            'ifsc_code.regex' => 'Please enter a valid IFSC code.',
-            'account_number.digits_between' => 'Account number must be between 8 and 18 digits.',
-        ]);
+                'password' => [
+                    'nullable',
+                    'confirmed',
+                    Password::min(8)->letters()->numbers()->symbols(),
+                ],
+            ], [
+                'c_employee_email.unique' => 'This email already exists.',
+                'n_employee_phone.regex' => 'Please enter a valid 10-digit mobile number.',
+                'ifsc_code.regex' => 'Please enter a valid IFSC code.',
+                'account_number.digits_between' => 'Account number must be between 8 and 18 digits.',
+            ]);
 
         if ($validator->fails()) {
-           /*  return back()
-                ->withErrors($validator)
-                ->withInput(); */
-                 dd($validator->errors()->toArray());
+            /*  return back()
+                 ->withErrors($validator)
+                 ->withInput(); */
+            dd($validator->errors()->toArray());
         }
 
         $validated = $validator->validated();

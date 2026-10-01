@@ -8,7 +8,6 @@ use App\Models\Admin;
 use App\Models\AuditRecord;
 use App\Models\CategoryMaster;
 use App\Models\CustomerMaster;
-use App\Models\DesignationMaster;
 use App\Models\District;
 use App\Models\EmployeeMaster;
 use App\Models\OrderProduct;
@@ -19,14 +18,18 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderstatusUpdation;
 use App\Models\State;
 use App\Models\StoreMaster;
+use App\Support\Geo;
 use Carbon\Carbon;
 use DB;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -1995,7 +1998,7 @@ class SalesController extends Controller
      */
     public function auditRecord($oldRecord, $newRecord, $moduleName, $recordId = null, $action = 'Updated')
     {
-        $toArray = fn ($r) => $r instanceof \Illuminate\Contracts\Support\Arrayable
+        $toArray = fn ($r) => $r instanceof Arrayable
             ? $r->toArray()
             : (is_array($r) ? $r : null);
 
@@ -2206,8 +2209,8 @@ class SalesController extends Controller
     public function nearestFranchise(Request $request)
     {
         // Preferred: rank by real distance when the order location is known.
-        if (\App\Support\Geo::valid($request->latitude, $request->longitude)) {
-            $ranked = \App\Support\Geo::rank(
+        if (Geo::valid($request->latitude, $request->longitude)) {
+            $ranked = Geo::rank(
                 (float) $request->latitude,
                 (float) $request->longitude,
                 StoreMaster::where('c_store_status', 'Y')->whereNotNull('latitude')->whereNotNull('longitude')->get(),
@@ -2419,14 +2422,14 @@ class SalesController extends Controller
         'image/webp' => 'webp',
     ];
 
-    private function storeProofFile(\Illuminate\Http\UploadedFile $file, string $type, string $prefix): string
+    private function storeProofFile(UploadedFile $file, string $type, string $prefix): string
     {
         abort_unless(in_array($type, self::PROOF_TYPES, true), 500);
 
         $ext = self::PROOF_MIME_EXT[$file->getMimeType()] ?? null;
         abort_unless($ext, 422, 'Unsupported image type.');
 
-        $name = $prefix.\Illuminate\Support\Str::random(32).'.'.$ext;
+        $name = $prefix.Str::random(32).'.'.$ext;
 
         Storage::disk('local')->putFileAs('sales/'.$type, $file, $name);
 

@@ -32,7 +32,7 @@ class PerformanceInsightsService
     private const EARNED_PAYOUT_STATUSES = ['approved', 'included_in_payroll', 'paid'];
 
     /* ------------------------------------------------------------------ */
-    /*  Period                                                             */
+    /*  Period */
     /* ------------------------------------------------------------------ */
 
     /** [from, to] for a cycle (clipped to today), or the last 90 days. */
@@ -73,7 +73,7 @@ class PerformanceInsightsService
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Role entry points                                                  */
+    /*  Role entry points */
     /* ------------------------------------------------------------------ */
 
     /** One employee's own numbers. */
@@ -221,7 +221,7 @@ class PerformanceInsightsService
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Sales (default / "spc" connection)                                 */
+    /*  Sales (default / "spc" connection) */
     /* ------------------------------------------------------------------ */
 
     /** Base query. $ids === null means "everyone". */
@@ -365,9 +365,8 @@ class PerformanceInsightsService
         }
     }
 
-
     /* ------------------------------------------------------------------ */
-    /*  Targets                                                            */
+    /*  Targets */
     /* ------------------------------------------------------------------ */
 
     /** Distinct days on which the advisor(s) checked in to the field log. */
@@ -422,7 +421,7 @@ class PerformanceInsightsService
     }
 
     /* ------------------------------------------------------------------ */
-    /*  HR data ("spc_hr" connection)                                      */
+    /*  HR data ("spc_hr" connection) */
     /* ------------------------------------------------------------------ */
 
     /** $employeeIds === null means "everyone". */

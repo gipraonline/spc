@@ -45,46 +45,46 @@ Route::prefix('hr')->name('hr.')->group(function () {
 
     Route::middleware(['hr.auth'])->group(function () {
 
-     // Attendance
-Route::middleware(['permission:attendance.view'])->group(function () {
+        // Attendance
+        Route::middleware(['permission:attendance.view'])->group(function () {
 
-    Route::get('/modules/attendance', [AttendanceController::class, 'index'])
-        ->name('attendance.index');
+            Route::get('/modules/attendance', [AttendanceController::class, 'index'])
+                ->name('attendance.index');
 
-    Route::get('/modules/attendance/report', [AttendanceController::class, 'report'])
-        ->name('attendance.report');
+            Route::get('/modules/attendance/report', [AttendanceController::class, 'report'])
+                ->name('attendance.report');
 
-    Route::post('/modules/attendance/punch', [AttendanceController::class, 'punch'])
-        ->name('attendance.punch');
+            Route::post('/modules/attendance/punch', [AttendanceController::class, 'punch'])
+                ->name('attendance.punch');
 
-    Route::post('/modules/attendance/check-in', [AttendanceController::class, 'checkIn'])
-        ->name('attendance.check-in');
+            Route::post('/modules/attendance/check-in', [AttendanceController::class, 'checkIn'])
+                ->name('attendance.check-in');
 
-    Route::post('/modules/attendance/check-out', [AttendanceController::class, 'checkOut'])
-        ->name('attendance.check-out');
+            Route::post('/modules/attendance/check-out', [AttendanceController::class, 'checkOut'])
+                ->name('attendance.check-out');
 
-    Route::post('/modules/attendance/{employee}/mark', [AttendanceController::class, 'mark'])
-        ->name('attendance.mark');
+            Route::post('/modules/attendance/{employee}/mark', [AttendanceController::class, 'mark'])
+                ->name('attendance.mark');
 
-    Route::post('/modules/attendance/regularize', [AttendanceController::class, 'regularize'])
-        ->name('attendance.regularize');
+            Route::post('/modules/attendance/regularize', [AttendanceController::class, 'regularize'])
+                ->name('attendance.regularize');
 
-    Route::post('/modules/attendance/regularize/{regularization}/decide', [AttendanceController::class, 'decide'])
-        ->name('attendance.decide');
-});
+            Route::post('/modules/attendance/regularize/{regularization}/decide', [AttendanceController::class, 'decide'])
+                ->name('attendance.decide');
+        });
 
-       // Leave
-Route::middleware(['permission:leave.view'])->group(function () {
+        // Leave
+        Route::middleware(['permission:leave.view'])->group(function () {
 
-    Route::get('/modules/leave', [LeaveController::class, 'index'])
-        ->name('leave.index');
+            Route::get('/modules/leave', [LeaveController::class, 'index'])
+                ->name('leave.index');
 
-    Route::post('/modules/leave/apply', [LeaveController::class, 'apply'])
-        ->name('leave.apply');
+            Route::post('/modules/leave/apply', [LeaveController::class, 'apply'])
+                ->name('leave.apply');
 
-    Route::post('/modules/leave/{leaveRequest}/decide', [LeaveController::class, 'decide'])
-        ->name('leave.decide');
-});
+            Route::post('/modules/leave/{leaveRequest}/decide', [LeaveController::class, 'decide'])
+                ->name('leave.decide');
+        });
         // Payroll
         Route::middleware(['permission:payroll.view'])->group(function () {
             Route::get('/modules/payroll', [PayrollController::class, 'index'])->name('payroll.index');
@@ -97,7 +97,7 @@ Route::middleware(['permission:leave.view'])->group(function () {
             Route::get('/modules/payroll/runs/{run}/bank-file', [PayrollController::class, 'bankFile'])->name('payroll.bank-file');
         });
 
-       // Recruitment
+        // Recruitment
         Route::middleware(['permission:recruitment.view'])->group(function () {
             Route::get('/modules/recruitment', [RecruitmentController::class, 'index'])
                 ->name('recruitment.index');
@@ -112,7 +112,7 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('recruitment.checklist.toggle');
         });
 
-      // Employee Records
+        // Employee Records
         Route::middleware(['permission:employee-records.view'])->group(function () {
             Route::get('/modules/employee-records', [EmployeeRecordsController::class, 'index'])
                 ->name('records.index');
@@ -176,8 +176,7 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('profile.index');
         });
 
-
-            // Performance / Appraisal
+        // Performance / Appraisal
         Route::middleware(['permission:performance.view'])->group(function () {
             Route::get('/modules/appraisal', [AppraisalController::class, 'index'])
                 ->name('appraisal.index');
@@ -192,13 +191,13 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('appraisal.targets.save');
         });
 
-      // PF & Gratuity
+        // PF & Gratuity
         Route::middleware(['permission:pf-gratuity.view'])->group(function () {
             Route::get('/modules/pf-gratuity', [PfGratuityController::class, 'index'])
                 ->name('pf.index');
         });
 
-       // Incentives
+        // Incentives
         Route::middleware(['permission:incentives.view'])->group(function () {
             Route::get('/modules/incentive', [IncentiveController::class, 'index'])
                 ->name('incentive.index');
@@ -225,19 +224,19 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('reports.index');
         });
 
-      // System & Access
+        // System & Access
         Route::get('/modules/system', [SystemController::class, 'index'])
             ->middleware('permission:hr-system.view')
             ->name('system.index');
 
-      // Work From Home
+        // Work From Home
         Route::middleware(['permission:work-from-home.view'])->group(function () {
             Route::get('/modules/wfh', [WfhController::class, 'index'])->name('wfh.index');
             Route::post('/modules/wfh', [WfhController::class, 'store'])->name('wfh.store');
             Route::post('/modules/wfh/{wfhRequest}/decide', [WfhController::class, 'decide'])->name('wfh.decide');
         });
 
-       // Announcements
+        // Announcements
         Route::middleware(['permission:announcements.view'])->group(function () {
             Route::get('/modules/announcements', [AnnouncementController::class, 'index'])
                 ->name('announcements.index');
@@ -246,7 +245,7 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('announcements.store');
         });
 
-       // HR Support
+        // HR Support
         Route::middleware(['permission:hr-support.view'])->group(function () {
             Route::get('/modules/support', [SupportController::class, 'index'])
                 ->name('support.index');
@@ -258,7 +257,7 @@ Route::middleware(['permission:leave.view'])->group(function () {
                 ->name('support.update');
         });
 
-      // Settings
+        // Settings
         Route::get('/modules/settings', [SettingsController::class, 'index'])
             ->middleware('permission:hr-settings.view')
             ->name('settings.index');
@@ -279,7 +278,7 @@ Route::middleware(['permission:leave.view'])->group(function () {
             ->middleware('permission:hr-settings.edit')
             ->name('settings.leave-types.store');
 
-       // Organization (Departments, Designations, Holidays)
+        // Organization (Departments, Designations, Holidays)
 
         Route::get('/modules/organization', [OrganizationController::class, 'index'])
             ->middleware('permission:organization.view')
@@ -313,14 +312,10 @@ Route::middleware(['permission:leave.view'])->group(function () {
             ->middleware('permission:organization.delete')
             ->name('organization.holiday.destroy');
 
-
         // Notifications
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
-    
-    
-    
-    
-        });
+
+    });
 });

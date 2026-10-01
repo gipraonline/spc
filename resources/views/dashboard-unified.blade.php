@@ -68,7 +68,8 @@
     letter-spacing: .01em;
     position: relative;
     z-index: 1;
-    color: #fff; /* beat the layout's global dark heading color */
+    color: #fff;
+    /* beat the layout's global dark heading color */
 }
 
 .u-hero h2 .u-wave {
@@ -480,14 +481,37 @@
 }
 
 /* per-status accent colors (used by --oc) */
-.u-order-total { --oc: #1F5C2E; }
-.u-order-pending { --oc: #C07E08; }
-.u-order-approved { --oc: #12805C; }
-.u-order-dispatched { --oc: #1D6FA5; }
-.u-order-shipped { --oc: #6D3FBF; }
-.u-order-delivered { --oc: #0F8A6D; }
-.u-order-completed { --oc: #4E7A33; }
-.u-order-returned { --oc: #C03434; }
+.u-order-total {
+    --oc: #1F5C2E;
+}
+
+.u-order-pending {
+    --oc: #C07E08;
+}
+
+.u-order-approved {
+    --oc: #12805C;
+}
+
+.u-order-dispatched {
+    --oc: #1D6FA5;
+}
+
+.u-order-shipped {
+    --oc: #6D3FBF;
+}
+
+.u-order-delivered {
+    --oc: #0F8A6D;
+}
+
+.u-order-completed {
+    --oc: #4E7A33;
+}
+
+.u-order-returned {
+    --oc: #C03434;
+}
 
 /* (per-status gradient fills removed — the light widget design with
    the --oc accent color handles status colors now, keeping text readable) */
@@ -1038,12 +1062,29 @@
 }
 
 /* stagger the KPI cards left-to-right */
-.u-kpi-grid .u-kpi-card:nth-child(1) { animation-delay: .18s; }
-.u-kpi-grid .u-kpi-card:nth-child(2) { animation-delay: .24s; }
-.u-kpi-grid .u-kpi-card:nth-child(3) { animation-delay: .3s; }
-.u-kpi-grid .u-kpi-card:nth-child(4) { animation-delay: .36s; }
-.u-kpi-grid .u-kpi-card:nth-child(5) { animation-delay: .42s; }
-.u-kpi-grid .u-kpi-card:nth-child(6) { animation-delay: .48s; }
+.u-kpi-grid .u-kpi-card:nth-child(1) {
+    animation-delay: .18s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(2) {
+    animation-delay: .24s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(3) {
+    animation-delay: .3s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(4) {
+    animation-delay: .36s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(5) {
+    animation-delay: .42s;
+}
+
+.u-kpi-grid .u-kpi-card:nth-child(6) {
+    animation-delay: .48s;
+}
 
 .u-card {
     animation: uRise .55s ease .3s backwards;
@@ -1087,20 +1128,22 @@
 
 @push('scripts')
 <script>
-(function () {
+(function() {
     /* Count-up numbers — pure sugar: falls back to the server-rendered
        value if JS is off, and respects reduced motion. */
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!reduce && 'IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function (entries) {
-            entries.forEach(function (e) {
+        var io = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
                 if (!e.isIntersecting) return;
                 io.unobserve(e.target);
                 countUp(e.target);
             });
-        }, { threshold: .4 });
+        }, {
+            threshold: .4
+        });
 
-        document.querySelectorAll('.u-kpi-value').forEach(function (el) {
+        document.querySelectorAll('.u-kpi-value').forEach(function(el) {
             io.observe(el);
         });
     }
@@ -1115,7 +1158,8 @@
         if (!isFinite(end) || end === 0) return;
         var suffix = m[3] || '';
         var decimals = (m[2].indexOf('.') >= 0) ? 2 : 0;
-        var dur = 900, t0 = null;
+        var dur = 900,
+            t0 = null;
 
         function frame(t) {
             if (!t0) t0 = t;
@@ -1153,7 +1197,8 @@ $showKpiSection = $showKpiSales || $showKpiHr;
 $showMain = $show('order_lifecycle') || $show('payment_overview');
 $showRailApprovals = $show('hr_pending_approvals') && isset($hrPendingApprovals);
 $showRailDistribution = $show('hr_distribution') && isset($deptDistribution);
-$showRailSnapshot = $show('hr_snapshot') && !isset($hrPendingApprovals) && !isset($deptDistribution) && isset($myHrSnapshot);
+$showRailSnapshot = $show('hr_snapshot') && !isset($hrPendingApprovals) && !isset($deptDistribution) &&
+isset($myHrSnapshot);
 $showRailHoliday = $show('hr_next_holiday') && !empty($upcomingHoliday);
 $showRail = $hasHrAccess && ($showRailApprovals || $showRailDistribution || $showRailSnapshot || $showRailHoliday);
 @endphp
@@ -1311,7 +1356,8 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         @endif
 
         @if($showKpiHr && isset($hrKpis))
-        <div class="u-eyebrow hr" style="{{ $showKpiSales ? 'margin-top:18px;' : '' }}"><span class="dot"></span> HR at a glance</div>
+        <div class="u-eyebrow hr" style="{{ $showKpiSales ? 'margin-top:18px;' : '' }}"><span class="dot"></span> HR at
+            a glance</div>
         <div class="u-kpi-grid">
             @foreach($hrKpis as $kpi)
             <div class="u-kpi-card hr-kpi">
@@ -1324,7 +1370,8 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
             @endforeach
         </div>
         @elseif($showKpiHr && isset($myHrSnapshot))
-        <div class="u-eyebrow hr" style="{{ $showKpiSales ? 'margin-top:18px;' : '' }}"><span class="dot"></span> My HR at a glance</div>
+        <div class="u-eyebrow hr" style="{{ $showKpiSales ? 'margin-top:18px;' : '' }}"><span class="dot"></span> My HR
+            at a glance</div>
         <div class="u-kpi-grid">
             <div class="u-kpi-card hr-kpi">
                 <div class="u-kpi-ico"><i class="fa-solid fa-user-check"></i></div>
@@ -1387,44 +1434,52 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 </div>
                 <div class="u-order-grid">
                     <a href="{{ route('admin.salesorders.index') }}" class="text-decoration-none">
-                        <div class="u-order-card u-order-total"><span class="i"><i class="fa-solid fa-layer-group"></i></span><span
+                        <div class="u-order-card u-order-total"><span class="i"><i
+                                    class="fa-solid fa-layer-group"></i></span><span
                                 class="n">{{ number_format($totalOrders) }}</span><span class="l">Total Orders</span>
                         </div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'pending']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-pending"><span class="i"><i class="fa-solid fa-hourglass-half"></i></span><span class="n">{{ $pendingOrders }}</span><span
-                                class="l">Pending</span></div>
+                        <div class="u-order-card u-order-pending"><span class="i"><i
+                                    class="fa-solid fa-hourglass-half"></i></span><span
+                                class="n">{{ $pendingOrders }}</span><span class="l">Pending</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'approved']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-approved"><span class="i"><i class="fa-solid fa-circle-check"></i></span><span class="n">{{ $approvedOrders }}</span><span
-                                class="l">Approved</span></div>
+                        <div class="u-order-card u-order-approved"><span class="i"><i
+                                    class="fa-solid fa-circle-check"></i></span><span
+                                class="n">{{ $approvedOrders }}</span><span class="l">Approved</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'dispatched']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-dispatched"><span class="i"><i class="fa-solid fa-box-open"></i></span><span class="n">{{ $dispatchedOrders }}</span><span
-                                class="l">Dispatched</span></div>
+                        <div class="u-order-card u-order-dispatched"><span class="i"><i
+                                    class="fa-solid fa-box-open"></i></span><span
+                                class="n">{{ $dispatchedOrders }}</span><span class="l">Dispatched</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'shipped']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-shipped"><span class="i"><i class="fa-solid fa-truck"></i></span><span class="n">{{ $shippedOrders }}</span><span
-                                class="l">Shipped</span></div>
+                        <div class="u-order-card u-order-shipped"><span class="i"><i
+                                    class="fa-solid fa-truck"></i></span><span
+                                class="n">{{ $shippedOrders }}</span><span class="l">Shipped</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'delivered']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-delivered"><span class="i"><i class="fa-solid fa-house-circle-check"></i></span><span class="n">{{ $deliveredOrders }}</span><span
-                                class="l">Delivered</span></div>
+                        <div class="u-order-card u-order-delivered"><span class="i"><i
+                                    class="fa-solid fa-house-circle-check"></i></span><span
+                                class="n">{{ $deliveredOrders }}</span><span class="l">Delivered</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'completed']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-completed"><span class="i"><i class="fa-solid fa-flag-checkered"></i></span><span class="n">{{ $completedOrders }}</span><span
-                                class="l">Completed</span></div>
+                        <div class="u-order-card u-order-completed"><span class="i"><i
+                                    class="fa-solid fa-flag-checkered"></i></span><span
+                                class="n">{{ $completedOrders }}</span><span class="l">Completed</span></div>
                     </a>
                     <a href="{{ route('admin.salesorders.index', ['status' => 'returned']) }}"
                         class="text-decoration-none">
-                        <div class="u-order-card u-order-returned"><span class="i"><i class="fa-solid fa-rotate-left"></i></span><span class="n">{{ $returnedOrders }}</span><span
-                                class="l">Returned</span></div>
+                        <div class="u-order-card u-order-returned"><span class="i"><i
+                                    class="fa-solid fa-rotate-left"></i></span><span
+                                class="n">{{ $returnedOrders }}</span><span class="l">Returned</span></div>
                     </a>
                 </div>
             </div>

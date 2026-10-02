@@ -254,6 +254,11 @@
     color: #b91c1c;
 }
 
+.badge-status.rejected {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
 /* Pending - Yellow/Orange */
 .badge-status.pending {
     background-color: #fef3c7;
@@ -524,6 +529,7 @@ use Illuminate\Support\Facades\Crypt;
                         <th scope="col">Payment Image</th>
                         <th scope="col">Payment Status</th>
                         <th scope="col">Order Status</th>
+                        <th scope="col">Approval Status</th>
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <th scope="col">Actions</th>
                         <?php endif; ?>
@@ -566,8 +572,8 @@ use Illuminate\Support\Facades\Crypt;
                         </td>
                         <td>
                             <?php if($sale->payment_image): ?>
-                            <a href="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" target="_blank">
-                                <img src="<?php echo e(asset('uploads/payment_images/' . $sale->payment_image)); ?>" width="50"
+                            <a href="<?php echo e(route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image])); ?>" target="_blank">
+                                <img src="<?php echo e(route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image])); ?>" width="50"
                                     height="50"
                                     style="object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0;">
                             </a>
@@ -606,6 +612,19 @@ use Illuminate\Support\Facades\Crypt;
                             <span class="badge-status returned">Returned</span>
 
                             <?php elseif($status == 'pending'): ?>
+                            <span class="badge-status pending">Pending</span>
+                            <?php endif; ?>
+                        </td>
+
+                        <td>
+                            <?php
+                            $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
+                            ?>
+                            <?php if($approvalStatus == 'approved'): ?>
+                            <span class="badge-status approved">Approved</span>
+                            <?php elseif($approvalStatus == 'rejected'): ?>
+                            <span class="badge-status rejected">Rejected</span>
+                            <?php else: ?>
                             <span class="badge-status pending">Pending</span>
                             <?php endif; ?>
                         </td>
@@ -670,7 +689,7 @@ use Illuminate\Support\Facades\Crypt;
                     </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
-                        <td colspan="11" class="text-center py-4 text-muted">No sales records found</td>
+                        <td colspan="12" class="text-center py-4 text-muted">No sales records found</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>

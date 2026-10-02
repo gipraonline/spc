@@ -2807,11 +2807,7 @@ use Illuminate\Support\Facades\Crypt;
             handlePaymentMode();
         });
 
-        const hasStoredPaymentImage = {
-            {
-                isset($sale) && $sale - > payment_image ? 'true' : 'false'
-            }
-        };
+        const hasStoredPaymentImage = @json(isset($sale) && $sale - > payment_image);
 
         function handlePaymentMode() {
             let paymentMode = $('.mode_of_payment:checked').val();

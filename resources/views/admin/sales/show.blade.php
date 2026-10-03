@@ -336,7 +336,8 @@ use Illuminate\Support\Facades\Crypt;
                             @endif
 
                         </select> -->
-                        <select name="n_customer_id" id="n_customer_id" class="form-select mandatory" style="display:none;">
+                        <select name="n_customer_id" id="n_customer_id" class="form-select mandatory"
+                            style="display:none;">
                             <option value="">Select Customer</option>
                             @if(isset($customers))
                             @foreach($customers as $customer)
@@ -915,7 +916,7 @@ $(document).ready(function() {
     console.log("First script loaded");
     let rowIndex = {
         {
-            isset($sale) ? $sale - > orderProducts - > count() : 0
+            isset($sale) ? $sale->orderProducts->count() : 0
         }
     };
     $("#addRow").click(function() {

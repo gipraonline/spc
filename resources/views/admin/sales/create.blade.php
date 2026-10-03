@@ -775,7 +775,7 @@
 
     /* Card header: "Product 1" + remove button */
     .so-wrap #productTable tbody tr::before {
-        content: "Product "counter(prow);
+        content: "Product " counter(prow);
         grid-column: 1 / span 9;
         grid-row: 1;
         align-self: center;
@@ -804,67 +804,22 @@
     }
 
     /* Row A – what is being sold */
-    .so-wrap #productTable tbody td:nth-child(1) {
-        grid-column: 1 / span 3;
-        grid-row: 2;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(2) {
-        grid-column: 4 / span 3;
-        grid-row: 2;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(3) {
-        grid-column: 7 / span 3;
-        grid-row: 2;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(4) {
-        grid-column: 10 / span 3;
-        grid-row: 2;
-    }
+    .so-wrap #productTable tbody td:nth-child(1) { grid-column: 1 / span 3; grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(2) { grid-column: 4 / span 3; grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(3) { grid-column: 7 / span 3; grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(4) { grid-column: 10 / span 3; grid-row: 2; }
 
     /* Row B – HSN, price, quantity, discount */
-    .so-wrap #productTable tbody td:nth-child(5) {
-        grid-column: 1 / span 3;
-        grid-row: 3;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(6) {
-        grid-column: 4 / span 3;
-        grid-row: 3;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(7) {
-        grid-column: 7 / span 3;
-        grid-row: 3;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(8) {
-        grid-column: 10 / span 3;
-        grid-row: 3;
-    }
+    .so-wrap #productTable tbody td:nth-child(5) { grid-column: 1 / span 3; grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(6) { grid-column: 4 / span 3; grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(7) { grid-column: 7 / span 3; grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(8) { grid-column: 10 / span 3; grid-row: 3; }
 
     /* Row C – calculated amounts */
-    .so-wrap #productTable tbody td:nth-child(9) {
-        grid-column: 1 / span 3;
-        grid-row: 4;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(10) {
-        grid-column: 4 / span 3;
-        grid-row: 4;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(11) {
-        grid-column: 7 / span 3;
-        grid-row: 4;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(12) {
-        grid-column: 10 / span 3;
-        grid-row: 4;
-    }
+    .so-wrap #productTable tbody td:nth-child(9)  { grid-column: 1 / span 3; grid-row: 4; }
+    .so-wrap #productTable tbody td:nth-child(10) { grid-column: 4 / span 3; grid-row: 4; }
+    .so-wrap #productTable tbody td:nth-child(11) { grid-column: 7 / span 3; grid-row: 4; }
+    .so-wrap #productTable tbody td:nth-child(12) { grid-column: 10 / span 3; grid-row: 4; }
 
     /* Auto-filled / calculated fields look muted, editable ones stay white */
     .so-wrap #productTable tbody td input[readonly],
@@ -1077,8 +1032,8 @@ use Illuminate\Support\Facades\Crypt;
             $isTelecallerRoute = request()->routeIs('admin.telecallers.*');
             $isEditing = isset($sale) && $sale->n_sl_no && (!isset($viewmode) || $viewmode != 'on');
             $formAction = $isEditing
-            ? route($isTelecallerRoute ? 'admin.telecallers.update' : 'admin.salesorders.update')
-            : route($isTelecallerRoute ? 'admin.telecallers.store' : 'admin.salesorders.store');
+                ? route($isTelecallerRoute ? 'admin.telecallers.update' : 'admin.salesorders.update')
+                : route($isTelecallerRoute ? 'admin.telecallers.store' : 'admin.salesorders.store');
             @endphp
             <form method="POST" id="frm_create" action="{{ $formAction }}" enctype="multipart/form-data">
                 @csrf
@@ -1152,8 +1107,7 @@ use Illuminate\Support\Facades\Crypt;
                                 @endforeach
                                 @endif
                             </select>
-                            <div class="text-danger mt-1 fs-2">@error('farm_care_advisor_id'){{ $message }}@enderror
-                            </div>
+                            <div class="text-danger mt-1 fs-2">@error('farm_care_advisor_id'){{ $message }}@enderror</div>
                             @endif
                         </div>
 
@@ -1227,66 +1181,64 @@ use Illuminate\Support\Facades\Crypt;
                             <tbody>
                                 @php
                                 /*
-                                | Build the product rows from (a) the submitted input after a failed
-                                | validation, otherwise (b) the saved order lines. Names shown next to the
-                                | hidden ids are looked up so nothing is lost when the page re-renders.
-                                */
+                                 | Build the product rows from (a) the submitted input after a failed
+                                 | validation, otherwise (b) the saved order lines. Names shown next to the
+                                 | hidden ids are looked up so nothing is lost when the page re-renders.
+                                 */
                                 $productRows = [];
 
                                 if (is_array(old('products'))) {
-                                $oldRows = collect(old('products'));
-                                $catIds = $oldRows->pluck('n_category_id')
-                                ->merge($oldRows->pluck('n_sub_category_id'))
-                                ->filter()->unique()->values();
-                                $catNames = $catIds->isNotEmpty()
-                                ? \App\Models\CategoryMaster::whereIn('n_category_id',
-                                $catIds)->pluck('c_category_name', 'n_category_id')
-                                : collect();
-                                $prodIds = $oldRows->pluck('product_id')->filter()->unique()->values();
-                                $prodNames = $prodIds->isNotEmpty()
-                                ? \App\Models\ProductMaster::whereIn('n_product_id', $prodIds)->pluck('c_product_name',
-                                'n_product_id')
-                                : collect();
+                                    $oldRows = collect(old('products'));
+                                    $catIds = $oldRows->pluck('n_category_id')
+                                        ->merge($oldRows->pluck('n_sub_category_id'))
+                                        ->filter()->unique()->values();
+                                    $catNames = $catIds->isNotEmpty()
+                                        ? \App\Models\CategoryMaster::whereIn('n_category_id', $catIds)->pluck('c_category_name', 'n_category_id')
+                                        : collect();
+                                    $prodIds = $oldRows->pluck('product_id')->filter()->unique()->values();
+                                    $prodNames = $prodIds->isNotEmpty()
+                                        ? \App\Models\ProductMaster::whereIn('n_product_id', $prodIds)->pluck('c_product_name', 'n_product_id')
+                                        : collect();
 
-                                foreach (old('products') as $rk => $r) {
-                                $productRows[$rk] = [
-                                'n_category_id' => $r['n_category_id'] ?? '',
-                                'category_name' => $catNames[$r['n_category_id'] ?? 0] ?? '',
-                                'n_sub_category_id' => $r['n_sub_category_id'] ?? '',
-                                'sub_category_name' => $catNames[$r['n_sub_category_id'] ?? 0] ?? '',
-                                'product_id' => $r['product_id'] ?? '',
-                                'product_name' => $prodNames[$r['product_id'] ?? 0] ?? ($r['c_product_name'] ?? ''),
-                                'c_unit' => $r['c_unit'] ?? '',
-                                'c_hsn_code' => $r['c_hsn_code'] ?? '',
-                                'product_price' => $r['product_price'] ?? '0.00',
-                                'qty' => $r['qty'] ?? 1,
-                                'discount' => $r['discount'] ?? '0.00',
-                                'n_gst_percentage' => $r['n_gst_percentage'] ?? 0,
-                                'gst_amount' => $r['gst_amount'] ?? '0.00',
-                                'discounted_price' => $r['discounted_price'] ?? '0.00',
-                                'product_total' => $r['product_total'] ?? '0.00',
-                                ];
-                                }
+                                    foreach (old('products') as $rk => $r) {
+                                        $productRows[$rk] = [
+                                            'n_category_id' => $r['n_category_id'] ?? '',
+                                            'category_name' => $catNames[$r['n_category_id'] ?? 0] ?? '',
+                                            'n_sub_category_id' => $r['n_sub_category_id'] ?? '',
+                                            'sub_category_name' => $catNames[$r['n_sub_category_id'] ?? 0] ?? '',
+                                            'product_id' => $r['product_id'] ?? '',
+                                            'product_name' => $prodNames[$r['product_id'] ?? 0] ?? ($r['c_product_name'] ?? ''),
+                                            'c_unit' => $r['c_unit'] ?? '',
+                                            'c_hsn_code' => $r['c_hsn_code'] ?? '',
+                                            'product_price' => $r['product_price'] ?? '0.00',
+                                            'qty' => $r['qty'] ?? 1,
+                                            'discount' => $r['discount'] ?? '0.00',
+                                            'n_gst_percentage' => $r['n_gst_percentage'] ?? 0,
+                                            'gst_amount' => $r['gst_amount'] ?? '0.00',
+                                            'discounted_price' => $r['discounted_price'] ?? '0.00',
+                                            'product_total' => $r['product_total'] ?? '0.00',
+                                        ];
+                                    }
                                 } elseif (isset($sale->orderProducts)) {
-                                foreach ($sale->orderProducts as $rk => $val) {
-                                $productRows[$rk] = [
-                                'n_category_id' => $val->n_category_id,
-                                'category_name' => $val->category?->c_category_name,
-                                'n_sub_category_id' => $val->n_sub_category_id,
-                                'sub_category_name' => $val->subCategory?->c_category_name,
-                                'product_id' => $val->product_id,
-                                'product_name' => $val->product?->c_product_name,
-                                'c_unit' => $val->c_unit ?: ($val->product?->c_unit),
-                                'c_hsn_code' => $val->c_hsn_code,
-                                'product_price' => $val->product_price ?? '0.00',
-                                'qty' => $val->qty ?? 1,
-                                'discount' => $val->discount ?? '0.00',
-                                'n_gst_percentage' => $val->n_gst_percentage ?? 0,
-                                'gst_amount' => $val->gst_amount ?? '0.00',
-                                'discounted_price' => $val->discounted_price ?? '0.00',
-                                'product_total' => $val->product_total ?? '0.00',
-                                ];
-                                }
+                                    foreach ($sale->orderProducts as $rk => $val) {
+                                        $productRows[$rk] = [
+                                            'n_category_id' => $val->n_category_id,
+                                            'category_name' => $val->category?->c_category_name,
+                                            'n_sub_category_id' => $val->n_sub_category_id,
+                                            'sub_category_name' => $val->subCategory?->c_category_name,
+                                            'product_id' => $val->product_id,
+                                            'product_name' => $val->product?->c_product_name,
+                                            'c_unit' => $val->c_unit ?: ($val->product?->c_unit),
+                                            'c_hsn_code' => $val->c_hsn_code,
+                                            'product_price' => $val->product_price ?? '0.00',
+                                            'qty' => $val->qty ?? 1,
+                                            'discount' => $val->discount ?? '0.00',
+                                            'n_gst_percentage' => $val->n_gst_percentage ?? 0,
+                                            'gst_amount' => $val->gst_amount ?? '0.00',
+                                            'discounted_price' => $val->discounted_price ?? '0.00',
+                                            'product_total' => $val->product_total ?? '0.00',
+                                        ];
+                                    }
                                 }
                                 @endphp
 
@@ -1304,8 +1256,8 @@ use Illuminate\Support\Facades\Crypt;
                                     <td>
                                         <input type="hidden" name="products[{{ $key }}][n_sub_category_id]"
                                             value="{{ $row['n_sub_category_id'] }}">
-                                        <input type="text" class="form-control" value="{{ $row['sub_category_name'] }}"
-                                            readonly>
+                                        <input type="text" class="form-control"
+                                            value="{{ $row['sub_category_name'] }}" readonly>
                                     </td>
 
                                     <!-- Product -->
@@ -1623,8 +1575,7 @@ use Illuminate\Support\Facades\Crypt;
 
                         {{-- Order location: filled from the address above, same approach as Franchise > Add --}}
                         <div class="col-md-12">
-                            <div class="form-label mb-2"><i class="ti ti-current-location"></i> Location (from address)
-                            </div>
+                            <div class="form-label mb-2"><i class="ti ti-current-location"></i> Location (from address)</div>
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-3">
                                     <label for="so_latitude" class="form-label">Latitude</label>
@@ -1654,12 +1605,9 @@ use Illuminate\Support\Facades\Crypt;
                                 </div>
                             </div>
                             <div id="soLocationStatus" class="mt-2 small text-muted">
-                                Fill in the address, state and district, then click "Get Location from Address". You can
-                                drag the pin or click the map to fine-tune it.
+                                Fill in the address, state and district, then click "Get Location from Address". You can drag the pin or click the map to fine-tune it.
                             </div>
-                            <div id="soLocationMap"
-                                style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;">
-                            </div>
+                            <div id="soLocationMap" style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;"></div>
                         </div>
                     </div> <!-- Customer Status -->
                     <div class="form-section-header">
@@ -1735,8 +1683,7 @@ use Illuminate\Support\Facades\Crypt;
                                     <i class="ti ti-cash"></i> Paid to Franchise
                                 </label>
                             </div>
-                            <div class="text-danger mt-1 fs-2" id="payment_mode_error">
-                                @error('c_mode_of_payment'){{ $message }}@enderror</div>
+                            <div class="text-danger mt-1 fs-2" id="payment_mode_error">@error('c_mode_of_payment'){{ $message }}@enderror</div>
                         </div>
                     </div>
 
@@ -1890,8 +1837,7 @@ use Illuminate\Support\Facades\Crypt;
                                     <option value="">Select Panchayath</option>
                                     @if($fDistrict)
                                     @php
-                                    $franchisePanchayaths = \App\Models\Panchayath::where('district_id',
-                                    $fDistrict)->get();
+                                    $franchisePanchayaths = \App\Models\Panchayath::where('district_id', $fDistrict)->get();
                                     @endphp
                                     @foreach($franchisePanchayaths as $panchayath)
                                     <option value="{{ $panchayath->id }}"
@@ -2011,8 +1957,7 @@ use Illuminate\Support\Facades\Crypt;
 
         let rowIndex = 0;
         $('#productTable tbody tr').each(function() {
-            const m = ($(this).find('[name^="products["]').first().attr('name') || '').match(
-                /^products\[(\d+)\]/);
+            const m = ($(this).find('[name^="products["]').first().attr('name') || '').match(/^products\[(\d+)\]/);
             if (m) rowIndex = Math.max(rowIndex, parseInt(m[1], 10) + 1);
         });
 
@@ -2807,11 +2752,7 @@ use Illuminate\Support\Facades\Crypt;
             handlePaymentMode();
         });
 
-        const hasStoredPaymentImage = {
-            {
-                isset($sale) && $sale - > payment_image ? 'true' : 'false'
-            }
-        };
+        const hasStoredPaymentImage = {{ isset($sale) && $sale->payment_image ? 'true' : 'false' }};
 
         function handlePaymentMode() {
             let paymentMode = $('.mode_of_payment:checked').val();
@@ -3170,14 +3111,10 @@ use Illuminate\Support\Facades\Crypt;
     |--------------------------------------------------------------------------
     */
     $(function() {
-        const $lat = $('#so_latitude'),
-            $lng = $('#so_longitude'),
-            $status = $('#soLocationStatus');
-        const $btn = $('#soGetLocationBtn'),
-            $mapBox = $('#soLocationMap');
+        const $lat = $('#so_latitude'), $lng = $('#so_longitude'), $status = $('#soLocationStatus');
+        const $btn = $('#soGetLocationBtn'), $mapBox = $('#soLocationMap');
         const BTN_HTML = '<i class="ti ti-map-pin-search"></i> Get Location from Address';
-        let map = null,
-            marker = null;
+        let map = null, marker = null;
 
         function say(type, html) {
             $status.removeClass('text-muted text-success text-danger text-warning')
@@ -3185,8 +3122,8 @@ use Illuminate\Support\Facades\Crypt;
         }
 
         function validCoords(lat, lng) {
-            return isFinite(lat) && isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 &&
-                $lat.val().toString().trim() !== '' && $lng.val().toString().trim() !== '';
+            return isFinite(lat) && isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
+                && $lat.val().toString().trim() !== '' && $lng.val().toString().trim() !== '';
         }
 
         function ensureMap(lat, lng, zoom) {
@@ -3203,9 +3140,7 @@ use Illuminate\Support\Facades\Crypt;
             } else {
                 map.setView([lat, lng], zoom);
             }
-            setTimeout(function() {
-                map.invalidateSize();
-            }, 250);
+            setTimeout(function() { map.invalidateSize(); }, 250);
         }
 
         function placeMarker(lat, lng) {
@@ -3213,9 +3148,7 @@ use Illuminate\Support\Facades\Crypt;
                 marker.setLatLng([lat, lng]);
                 return;
             }
-            marker = L.marker([lat, lng], {
-                draggable: true
-            }).addTo(map);
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
             marker.on('dragend', function() {
                 const p = marker.getLatLng();
                 setLocation(p.lat, p.lng, 'manual');
@@ -3232,43 +3165,30 @@ use Illuminate\Support\Facades\Crypt;
         | Values are set without firing the State/District/Panchayath change handlers, because those
         | reset the franchise list.
         */
-        const NEAREST_FRANCHISE_MAX_KM = {
-            {
-                (float) config('spc.nearest_franchise_max_km', 50)
-            }
-        };
-        const FRANCHISES = {
-            !!json_encode(collect($franchises ?? []) - > map(function($f) {
-                return [
-                    'id' => $f - > n_store_id,
-                    'name' => trim(($f - > c_store_name ?? '').($f - > c_store_code ? ' ('.$f -
-                        >
-                        c_store_code.
-                        ')' : '')),
-                    'lat' => $f - > latitude !== null ? (float) $f - > latitude : null,
-                    'lng' => $f - > longitude !== null ? (float) $f - > longitude : null,
-                    'state' => $f - > n_state_id,
-                    'district' => $f - > n_district_id,
-                    'panchayath' => $f - > n_panchayath_id,
-                ];
-            }) - > values()) !!
-        };
-        const $franchise = $('#franchise'),
-            $fHint = $('#soFranchiseHint');
-        const $fState = $('#franchise_state'),
-            $fDistrict = $('#franchise_district'),
+        const NEAREST_FRANCHISE_MAX_KM = {{ (float) config('spc.nearest_franchise_max_km', 50) }};
+        const FRANCHISES = {!! json_encode(collect($franchises ?? [])->map(function ($f) {
+            return [
+                'id' => $f->n_store_id,
+                'name' => trim(($f->c_store_name ?? '') . ($f->c_store_code ? ' (' . $f->c_store_code . ')' : '')),
+                'lat' => $f->latitude !== null ? (float) $f->latitude : null,
+                'lng' => $f->longitude !== null ? (float) $f->longitude : null,
+                'state' => $f->n_state_id,
+                'district' => $f->n_district_id,
+                'panchayath' => $f->n_panchayath_id,
+            ];
+        })->values()) !!};
+        const $franchise = $('#franchise'), $fHint = $('#soFranchiseHint');
+        const $fState = $('#franchise_state'), $fDistrict = $('#franchise_district'),
             $fPanchayath = $('#franchise_panchayath');
-        let franchiseAutoSet = false; // current franchise value was set by this feature
-        let franchiseManual = false; // user picked a franchise by hand
-        let locationManual = false; // user picked state/district/panchayath by hand
-        let orderTypeAutoSet = false; // Order Type was set by this feature
-        let autoRun = 0; // ignores stale async results when the pin moves quickly
+        let franchiseAutoSet = false;   // current franchise value was set by this feature
+        let franchiseManual = false;    // user picked a franchise by hand
+        let locationManual = false;     // user picked state/district/panchayath by hand
+        let orderTypeAutoSet = false;   // Order Type was set by this feature
+        let autoRun = 0;                // ignores stale async results when the pin moves quickly
 
         function haversineKm(lat1, lon1, lat2, lon2) {
-            const R = 6371,
-                rad = Math.PI / 180;
-            const dLat = (lat2 - lat1) * rad,
-                dLon = (lon2 - lon1) * rad;
+            const R = 6371, rad = Math.PI / 180;
+            const dLat = (lat2 - lat1) * rad, dLon = (lon2 - lon1) * rad;
             const a = Math.sin(dLat / 2) ** 2 +
                 Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
             return 2 * R * Math.asin(Math.sqrt(a));
@@ -3277,16 +3197,9 @@ use Illuminate\Support\Facades\Crypt;
         function nearestFranchise(lat, lng) {
             let best = null;
             FRANCHISES.forEach(function(f) {
-                if (f.lat === null || f.lng === null || !isFinite(f.lat) || !isFinite(f.lng)) {
-                    return;
-                }
+                if (f.lat === null || f.lng === null || !isFinite(f.lat) || !isFinite(f.lng)) { return; }
                 const d = haversineKm(lat, lng, f.lat, f.lng);
-                if (!best || d < best.km) {
-                    best = {
-                        f: f,
-                        km: d
-                    };
-                }
+                if (!best || d < best.km) { best = { f: f, km: d }; }
             });
             return best;
         }
@@ -3300,32 +3213,17 @@ use Illuminate\Support\Facades\Crypt;
 
         // State -> District -> Panchayath, populated straight from the franchise record
         function fillFranchiseLocation(f, run) {
-            if (locationManual || !f.state) {
-                return;
-            }
+            if (locationManual || !f.state) { return; }
             $fState.val(String(f.state));
-            if (!f.district) {
-                return;
-            }
-            $.getJSON("{{ route('admin.filterDistrict') }}", {
-                state: f.state
-            }).done(function(res) {
-                if (run !== autoRun || locationManual) {
-                    return;
-                }
+            if (!f.district) { return; }
+            $.getJSON("{{ route('admin.filterDistrict') }}", { state: f.state }).done(function(res) {
+                if (run !== autoRun || locationManual) { return; }
                 fillOptions($fDistrict, res.districts, 'id', 'district_name', 'Select District');
                 $fDistrict.val(String(f.district));
-                if (!f.panchayath) {
-                    return;
-                }
-                $.getJSON("{{ route('admin.filterPanchayath') }}", {
-                    district: f.district
-                }).done(function(r2) {
-                    if (run !== autoRun || locationManual) {
-                        return;
-                    }
-                    fillOptions($fPanchayath, r2.panchayaths, 'id', 'panchayath_name',
-                        'Select Panchayath');
+                if (!f.panchayath) { return; }
+                $.getJSON("{{ route('admin.filterPanchayath') }}", { district: f.district }).done(function(r2) {
+                    if (run !== autoRun || locationManual) { return; }
+                    fillOptions($fPanchayath, r2.panchayaths, 'id', 'panchayath_name', 'Select Panchayath');
                     $fPanchayath.val(String(f.panchayath));
                 });
             });
@@ -3341,53 +3239,32 @@ use Illuminate\Support\Facades\Crypt;
         function rankFranchises(lat, lng, limit) {
             const out = [];
             FRANCHISES.forEach(function(f) {
-                if (f.lat === null || f.lng === null || !isFinite(f.lat) || !isFinite(f.lng)) {
-                    return;
-                }
-                out.push({
-                    f: f,
-                    km: haversineKm(lat, lng, f.lat, f.lng)
-                });
+                if (f.lat === null || f.lng === null || !isFinite(f.lat) || !isFinite(f.lng)) { return; }
+                out.push({ f: f, km: haversineKm(lat, lng, f.lat, f.lng) });
             });
-            out.sort(function(a, b) {
-                return a.km - b.km;
-            });
+            out.sort(function(a, b) { return a.km - b.km; });
             return out.slice(0, limit);
         }
 
         function renderRank(lat, lng) {
             const list = rankFranchises(lat, lng, 3);
-            if (!list.length) {
-                $rank.hide().empty();
-                return;
-            }
+            if (!list.length) { $rank.hide().empty(); return; }
             const selected = String($franchise.val() || '');
             $rank.empty().show();
             $rank.append('<div class="small fw-semibold mb-1">Nearest franchises</div>');
             list.forEach(function(x, i) {
                 const far = x.km > NEAREST_FRANCHISE_MAX_KM;
                 const isSel = selected === String(x.f.id);
-                const $row = $(
-                        '<div class="d-flex justify-content-between align-items-center border rounded px-2 py-1 mb-1"></div>'
-                    )
-                    .css(isSel ? {
-                        borderColor: '#2f7d4f',
-                        background: 'rgba(47,125,79,.08)'
-                    } : {});
+                const $row = $('<div class="d-flex justify-content-between align-items-center border rounded px-2 py-1 mb-1"></div>')
+                    .css(isSel ? { borderColor: '#2f7d4f', background: 'rgba(47,125,79,.08)' } : {});
                 const $label = $('<div class="small"></div>')
                     .append($('<span class="fw-semibold"></span>').text(x.f.name))
                     .append($('<span class="text-muted ms-2"></span>').text(x.km.toFixed(1) + ' km'));
-                if (i === 0) {
-                    $label.append(' <span class="badge bg-success ms-1">Closest</span>');
-                }
-                if (far) {
-                    $label.append(' <span class="badge bg-warning text-dark ms-1">Far</span>');
-                }
+                if (i === 0) { $label.append(' <span class="badge bg-success ms-1">Closest</span>'); }
+                if (far) { $label.append(' <span class="badge bg-warning text-dark ms-1">Far</span>'); }
                 const $btn = $('<button type="button" class="btn btn-sm btn-outline-success"></button>')
                     .text(isSel ? 'Selected' : 'Use').prop('disabled', isSel)
-                    .on('click', function() {
-                        chooseFranchise(x.f, x.km);
-                    });
+                    .on('click', function() { chooseFranchise(x.f, x.km); });
                 $row.append($label, $btn);
                 $rank.append($row);
             });
@@ -3397,7 +3274,7 @@ use Illuminate\Support\Facades\Crypt;
             if (!$franchise.find('option[value="' + f.id + '"]').length) {
                 $franchise.append($('<option>').val(f.id).text(f.name));
             }
-            $franchise.val(String(f.id)).trigger('change'); // counts as a manual choice
+            $franchise.val(String(f.id)).trigger('change');   // counts as a manual choice
             if (!$('input[name="order_type"]:checked').length && $('#franchise_type').length) {
                 $('#franchise_type').prop('checked', true).trigger('change');
             }
@@ -3408,10 +3285,7 @@ use Illuminate\Support\Facades\Crypt;
         }
 
         function autoFillFranchise(lat, lng) {
-            if (franchiseManual) {
-                renderRank(lat, lng);
-                return;
-            } // respect manual choice
+            if (franchiseManual) { renderRank(lat, lng); return; }   // respect manual choice
             const run = ++autoRun;
             const best = nearestFranchise(lat, lng);
             if (best && best.km <= NEAREST_FRANCHISE_MAX_KM) {
@@ -3431,56 +3305,37 @@ use Illuminate\Support\Facades\Crypt;
                 fillFranchiseLocation(f, run);
                 $fHint.removeClass('text-muted text-warning').addClass('text-success')
                     .text('Auto-selected nearest franchise (' + best.km.toFixed(1) +
-                        ' km away) and filled its state, district and panchayath. You can change them manually.'
-                    );
+                        ' km away) and filled its state, district and panchayath. You can change them manually.');
                 renderRank(lat, lng);
             } else {
-                if (franchiseAutoSet) {
-                    $franchise.val('');
-                }
+                if (franchiseAutoSet) { $franchise.val(''); }
                 franchiseAutoSet = false;
                 $fHint.removeClass('text-muted text-success').addClass('text-warning')
-                    .text('No franchise found within ' + NEAREST_FRANCHISE_MAX_KM +
-                        ' km. Please select one manually.');
+                    .text('No franchise found within ' + NEAREST_FRANCHISE_MAX_KM + ' km. Please select one manually.');
                 renderRank(lat, lng);
             }
         }
 
         // Any hand-made selection locks out autofill for that field
         $franchise.on('change', function(e) {
-            if (e.namespace === 'auto') {
-                return;
-            }
+            if (e.namespace === 'auto') { return; }
             franchiseAutoSet = false;
             franchiseManual = $franchise.val() !== '';
-            if (franchiseManual) {
-                $fHint.text('');
-            }
+            if (franchiseManual) { $fHint.text(''); }
         });
-        $fState.add($fDistrict).add($fPanchayath).on('change', function() {
-            locationManual = true;
-        });
+        $fState.add($fDistrict).add($fPanchayath).on('change', function() { locationManual = true; });
         $('input[name="order_type"]').on('change', function(e) {
-            if (!e.isTrigger) {
-                orderTypeAutoSet = false;
-            }
+            if (!e.isTrigger) { orderTypeAutoSet = false; }
         });
 
         // Values already saved on the order (edit page / validation error) count as chosen
-        if ($franchise.val()) {
-            franchiseManual = true;
-        }
-        if ($fState.val() || $fDistrict.val() || $fPanchayath.val()) {
-            locationManual = true;
-        }
+        if ($franchise.val()) { franchiseManual = true; }
+        if ($fState.val() || $fDistrict.val() || $fPanchayath.val()) { locationManual = true; }
 
         // Edit page / validation error: show the ranking for the saved location
         (function() {
-            const lat0 = parseFloat($lat.val()),
-                lng0 = parseFloat($lng.val());
-            if (validCoords(lat0, lng0)) {
-                renderRank(lat0, lng0);
-            }
+            const lat0 = parseFloat($lat.val()), lng0 = parseFloat($lng.val());
+            if (validCoords(lat0, lng0)) { renderRank(lat0, lng0); }
         })();
 
         function setLocation(lat, lng, source, note) {
@@ -3494,8 +3349,7 @@ use Illuminate\Support\Facades\Crypt;
             if (source === 'manual') {
                 say('success', '&#10003; Location selected on the map.');
             } else if (source === 'approx') {
-                say('warning', '&#9888; Approximate location (' + note +
-                    '). Please drag the pin to the exact spot.');
+                say('warning', '&#9888; Approximate location (' + note + '). Please drag the pin to the exact spot.');
             } else {
                 say('success', '&#10003; Location found. Please verify the pin.');
             }
@@ -3506,12 +3360,7 @@ use Illuminate\Support\Facades\Crypt;
                 url: 'https://nominatim.openstreetmap.org/search',
                 type: 'GET',
                 dataType: 'json',
-                data: {
-                    q: query,
-                    format: 'json',
-                    limit: 1,
-                    countrycodes: 'in'
-                }
+                data: { q: query, format: 'json', limit: 1, countrycodes: 'in' }
             });
         }
 
@@ -3529,50 +3378,21 @@ use Illuminate\Support\Facades\Crypt;
             const state = selectedText('#n_state_id');
             const district = selectedText('#n_district_id');
 
-            if (!address) {
-                say('danger', 'Please enter the address first.');
-                $('#c_address').focus();
-                return;
-            }
-            if (!state) {
-                say('danger', 'Please select a state.');
-                $('#n_state_id').focus();
-                return;
-            }
-            if (!district) {
-                say('danger', 'Please select a district.');
-                $('#n_district_id').focus();
-                return;
-            }
+            if (!address) { say('danger', 'Please enter the address first.'); $('#c_address').focus(); return; }
+            if (!state) { say('danger', 'Please select a state.'); $('#n_state_id').focus(); return; }
+            if (!district) { say('danger', 'Please select a district.'); $('#n_district_id').focus(); return; }
 
             const join = (...parts) => parts.filter(Boolean).join(', ');
             const pin = /^\d{6}$/.test(pincode) ? pincode : '';
 
             // most specific -> least specific; label is shown when a fallback is used
-            const attempts = [{
-                    q: join(address, postOffice, thaluk, district, state, pin, 'India'),
-                    label: null
-                },
-                {
-                    q: join(address, thaluk, district, state, 'India'),
-                    label: null
-                },
-                {
-                    q: join(postOffice, thaluk, district, state, pin, 'India'),
-                    label: 'matched by post office / taluk'
-                },
-                pin ? {
-                    q: join(pin, 'India'),
-                    label: 'matched by pincode ' + pin
-                } : null,
-                {
-                    q: join(thaluk, district, state, 'India'),
-                    label: 'matched by taluk'
-                },
-                {
-                    q: join(district, state, 'India'),
-                    label: 'matched by district only'
-                }
+            const attempts = [
+                { q: join(address, postOffice, thaluk, district, state, pin, 'India'), label: null },
+                { q: join(address, thaluk, district, state, 'India'), label: null },
+                { q: join(postOffice, thaluk, district, state, pin, 'India'), label: 'matched by post office / taluk' },
+                pin ? { q: join(pin, 'India'), label: 'matched by pincode ' + pin } : null,
+                { q: join(thaluk, district, state, 'India'), label: 'matched by taluk' },
+                { q: join(district, state, 'India'), label: 'matched by district only' }
             ].filter(Boolean).filter(function(a, i, arr) {
                 return arr.findIndex(b => b.q === a.q) === i;
             });
@@ -3580,34 +3400,25 @@ use Illuminate\Support\Facades\Crypt;
             $btn.prop('disabled', true).html('<i class="ti ti-loader-2"></i> Searching...');
             say('muted', 'Finding location...');
 
-            function finish() {
-                $btn.prop('disabled', false).html(BTN_HTML);
-            }
+            function finish() { $btn.prop('disabled', false).html(BTN_HTML); }
 
             function tryAt(i) {
                 if (i >= attempts.length) {
                     finish();
-                    say('danger',
-                        'Location not found. Please check the address, or click "Select on Map" to pin it manually.'
-                    );
+                    say('danger', 'Location not found. Please check the address, or click "Select on Map" to pin it manually.');
                     return;
                 }
                 geocode(attempts[i].q).done(function(res) {
                     if (res && res.length) {
                         finish();
-                        setLocation(res[0].lat, res[0].lon, attempts[i].label ? 'approx' :
-                            'exact', attempts[i].label);
+                        setLocation(res[0].lat, res[0].lon, attempts[i].label ? 'approx' : 'exact', attempts[i].label);
                     } else {
                         // Nominatim allows ~1 request/second
-                        setTimeout(function() {
-                            tryAt(i + 1);
-                        }, 1100);
+                        setTimeout(function() { tryAt(i + 1); }, 1100);
                     }
                 }).fail(function() {
                     finish();
-                    say('danger',
-                        'Could not reach the location service. Check your connection, or click "Select on Map" to pin it manually.'
-                    );
+                    say('danger', 'Could not reach the location service. Check your connection, or click "Select on Map" to pin it manually.');
                 });
             }
             tryAt(0);
@@ -3618,8 +3429,7 @@ use Illuminate\Support\Facades\Crypt;
                 $mapBox.hide();
                 return;
             }
-            const lat = parseFloat($lat.val()),
-                lng = parseFloat($lng.val());
+            const lat = parseFloat($lat.val()), lng = parseFloat($lng.val());
             if (validCoords(lat, lng)) {
                 ensureMap(lat, lng, 16);
                 placeMarker(lat, lng);
@@ -3631,11 +3441,8 @@ use Illuminate\Support\Facades\Crypt;
 
         // Typed / pasted coordinates move the pin
         $lat.add($lng).on('change', function() {
-            const lat = parseFloat($lat.val()),
-                lng = parseFloat($lng.val());
-            if ($lat.val().trim() === '' && $lng.val().trim() === '') {
-                return;
-            }
+            const lat = parseFloat($lat.val()), lng = parseFloat($lng.val());
+            if ($lat.val().trim() === '' && $lng.val().trim() === '') { return; }
             if (!validCoords(lat, lng)) {
                 say('danger', 'Enter a valid latitude (-90 to 90) and longitude (-180 to 180).');
                 return;
@@ -3644,23 +3451,18 @@ use Illuminate\Support\Facades\Crypt;
         });
 
         // Address edited after a pin was set -> remind, don't silently keep a stale pin
-        $('#c_address, #c_post_office, #c_thaluk, #c_pincode, #n_state_id, #n_district_id').on('change',
-            function() {
-                if ($lat.val().trim() !== '') {
-                    say('warning',
-                        'Address changed. Click "Get Location from Address" to refresh the location.');
-                }
-            });
+        $('#c_address, #c_post_office, #c_thaluk, #c_pincode, #n_state_id, #n_district_id').on('change', function() {
+            if ($lat.val().trim() !== '') {
+                say('warning', 'Address changed. Click "Get Location from Address" to refresh the location.');
+            }
+        });
 
         // Edit page / validation error: show the saved pin
-        const l0 = parseFloat($lat.val()),
-            g0 = parseFloat($lng.val());
+        const l0 = parseFloat($lat.val()), g0 = parseFloat($lng.val());
         if (validCoords(l0, g0)) {
             ensureMap(l0, g0, 16);
             placeMarker(l0, g0);
-            say('muted',
-                'Saved location shown. Change the address and click "Get Location from Address" to update it.'
-            );
+            say('muted', 'Saved location shown. Change the address and click "Get Location from Address" to update it.');
         }
     });
     </script>

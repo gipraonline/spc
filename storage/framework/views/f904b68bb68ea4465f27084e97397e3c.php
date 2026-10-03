@@ -1770,4 +1770,4 @@
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 
-</html><?php /**PATH C:\xampp\htdocs\laravel\spc_new\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+</html><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/layouts/app.blade.php ENDPATH**/ ?>

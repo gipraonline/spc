@@ -22,4 +22,4 @@
         </a>
     </div>
 </nav>
-<?php /**PATH C:\xampp\htdocs\laravel\spc_new\resources\views/partials/mobile-bottom-nav.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\spc_new\resources\views/partials/mobile-bottom-nav.blade.php ENDPATH**/ ?>

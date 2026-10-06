@@ -235,7 +235,8 @@
             <div class="tabpanel" data-tabpanel="security">
                 @if($isSelf)
                 <p class="card-note">Change your own sign-in password.</p>
-                <form method="POST" action="{{ route('hr.records.password.update', $viewed) }}" style="max-width:360px;">
+                <form method="POST" action="{{ route('hr.records.password.update', $viewed) }}"
+                    style="max-width:360px;">
                     @csrf
                     <div class="field" style="margin-bottom:14px;"><label>Current password</label><input type="password"
                             name="current_password" required></div>
@@ -248,7 +249,8 @@
                 @else
                 <p class="card-note">Reset {{ $viewed->user->name }}'s password — no current password required for an
                     admin reset.</p>
-                <form method="POST" action="{{ route('hr.records.password.update', $viewed) }}" style="max-width:360px;">
+                <form method="POST" action="{{ route('hr.records.password.update', $viewed) }}"
+                    style="max-width:360px;">
                     @csrf
                     <div class="field" style="margin-bottom:14px;"><label>New password</label><input type="password"
                             name="new_password" minlength="8" required></div>
@@ -265,13 +267,13 @@
                 <form method="POST" action="{{ route('hr.records.secondary-contact.update', $viewed) }}">
                     @csrf
                     <div class="field-grid">
-                        <div class="field"><label>Contact name</label><input name="name"
-                                value="{{ $sc->name ?? '' }}" @disabled(!$canEdit)></div>
+                        <div class="field"><label>Contact name</label><input name="name" value="{{ $sc->name ?? '' }}"
+                                @disabled(!$canEdit)></div>
                         <div class="field"><label>Relation</label><input name="relation"
                                 value="{{ $sc->relation ?? '' }}" placeholder="e.g. Spouse, Parent, Sibling"
                                 @disabled(!$canEdit)></div>
-                        <div class="field"><label>Phone number</label><input name="phone"
-                                value="{{ $sc->phone ?? '' }}" @disabled(!$canEdit)></div>
+                        <div class="field"><label>Phone number</label><input name="phone" value="{{ $sc->phone ?? '' }}"
+                                @disabled(!$canEdit)></div>
                         <div class="field"><label>Email</label><input name="email" value="{{ $sc->email ?? '' }}"
                                 @disabled(!$canEdit)></div>
                         <div class="field full"><label>Address</label><input name="address"

@@ -8,6 +8,7 @@ use App\Models\Hr\Employee;
 use App\Models\Hr\PayrollRun;
 use App\Models\Hr\Payslip;
 use App\Models\Hr\SalaryStructure;
+use App\Models\Hr\SystemSetting;
 use App\Services\Hr\PayrollCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -34,7 +35,14 @@ class PayrollController extends Controller
         }
 
         $salaryStructure = $viewedEmployee ? $viewedEmployee->salaryStructures()->orderByDesc('effective_from')->first() : null;
-        $payslips = $viewedEmployee ? $viewedEmployee->payslips()->with('payrollRun')->orderByDesc('id')->get() : collect();
+        // $payslips = $viewedEmployee ? $viewedEmployee->payslips()->with('payrollRun')->orderByDesc('id')->get() : collect();
+        $payslips = $viewedEmployee
+    ? Payslip::query()
+        ->where('employee_id', $viewedEmployee->id)
+        ->with('payrollRun')
+        ->orderByDesc('id')
+        ->get()
+    : collect();
 
         $runs = collect();
         $runsByDepartment = collect();
@@ -304,7 +312,7 @@ class PayrollController extends Controller
 
         return view('hr.modules.payslip-print', [
             'payslip' => $payslip,
-            'companyName' => \App\Models\Hr\SystemSetting::where('setting_key', 'company_name')->value('setting_value') ?: 'SPC Enterprises',
+            'companyName' => SystemSetting::where('setting_key', 'company_name')->value('setting_value') ?: 'SPC Enterprises',
         ]);
     }
 

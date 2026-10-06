@@ -39,7 +39,7 @@ class LeadsController extends Controller
         // FCA: only own leads created/assigned for today
         if ($this->isFca()) {
             $query->where('n_fca_id', Auth::user()->n_employee_id);
-                //->whereDate('d_visit_date', Carbon::today());
+            // ->whereDate('d_visit_date', Carbon::today());
         }
 
         // Search: Customer / Mobile
@@ -91,10 +91,25 @@ class LeadsController extends Controller
         }
 
         // Employees
-        $employees = Admin::join('employee_masters as em', 'em.n_employee_id', 'admins.n_employee_id')
-            ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
+        $employees = Admin::join(
+            'employee_masters as em',
+            'em.n_employee_id',
+            '=',
+            'admins.n_employee_id'
+        )
+            ->join(
+                'designation_masters as dm',
+                'dm.n_designation_id',
+                '=',
+                'em.n_designation_id'
+            )
             ->where('em.c_status', 'Y')
-            ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
+            ->where('dm.identifier', 'FCA')
+            ->select(
+                'em.n_employee_id',
+                'em.c_employee_name',
+                'dm.identifier'
+            )
             ->get();
 
         // Leads
@@ -130,10 +145,25 @@ class LeadsController extends Controller
 
     public function create()
     {
-        $employees = Admin::join('employee_masters as em', 'em.n_employee_id', 'admins.n_employee_id')
-            ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
+        $employees = Admin::join(
+            'employee_masters as em',
+            'em.n_employee_id',
+            '=',
+            'admins.n_employee_id'
+        )
+            ->join(
+                'designation_masters as dm',
+                'dm.n_designation_id',
+                '=',
+                'em.n_designation_id'
+            )
             ->where('em.c_status', 'Y')
-            ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
+            ->where('dm.identifier', 'FCA')
+            ->select(
+                'em.n_employee_id',
+                'em.c_employee_name',
+                'dm.identifier'
+            )
             ->get();
 
         $states = State::where('status', '1')->get();
@@ -148,10 +178,25 @@ class LeadsController extends Controller
 
     public function show(Request $request, $id)
     {
-        $employees = Admin::join('employee_masters as em', 'em.n_employee_id', 'admins.n_employee_id')
-            ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
+        $employees = Admin::join(
+            'employee_masters as em',
+            'em.n_employee_id',
+            '=',
+            'admins.n_employee_id'
+        )
+            ->join(
+                'designation_masters as dm',
+                'dm.n_designation_id',
+                '=',
+                'em.n_designation_id'
+            )
             ->where('em.c_status', 'Y')
-            ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
+            ->where('dm.identifier', 'FCA')
+            ->select(
+                'em.n_employee_id',
+                'em.c_employee_name',
+                'dm.identifier'
+            )
             ->get();
 
         $id = Crypt::decryptString($id);
@@ -167,10 +212,25 @@ class LeadsController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $employees = Admin::join('employee_masters as em', 'em.n_employee_id', 'admins.n_employee_id')
-            ->join('designation_masters as dm', 'dm.n_designation_id', 'em.n_designation_id')
+        $employees = Admin::join(
+            'employee_masters as em',
+            'em.n_employee_id',
+            '=',
+            'admins.n_employee_id'
+        )
+            ->join(
+                'designation_masters as dm',
+                'dm.n_designation_id',
+                '=',
+                'em.n_designation_id'
+            )
             ->where('em.c_status', 'Y')
-            ->select('em.n_employee_id', 'em.c_employee_name', 'dm.identifier')
+            ->where('dm.identifier', 'FCA')
+            ->select(
+                'em.n_employee_id',
+                'em.c_employee_name',
+                'dm.identifier'
+            )
             ->get();
 
         $id = Crypt::decryptString($id);

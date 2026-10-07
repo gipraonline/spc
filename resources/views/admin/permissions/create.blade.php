@@ -87,6 +87,7 @@
             'process-batch',
             'add-sale',
             'follow-up',
+            'update-status',
 
             //Employee Records
             'profile',

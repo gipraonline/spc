@@ -1348,8 +1348,10 @@
                                             <span>Designation</span><span><?php echo e($navProfile['designation'] ?? '—'); ?></span>
                                         </div>
                                         <?php endif; ?>
+                                        <?php if (! (Auth::user()->isAssociate())): ?>
                                         <a href="<?php echo e(route('hr.profile.index')); ?>" class="user-panel-link"><i
                                                 class="fa-regular fa-user"></i>View full profile</a>
+                                        <?php endif; ?>
                                         <form method="POST" action="<?php echo e(route('logout')); ?>" class="user-panel-logout">
                                             <?php echo csrf_field(); ?>
                                             <button type="submit" class="user-panel-signout"><i

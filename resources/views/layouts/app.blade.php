@@ -1345,8 +1345,10 @@
                                             <span>Designation</span><span>{{ $navProfile['designation'] ?? '—' }}</span>
                                         </div>
                                         @endif
+                                        @unless(Auth::user()->isAssociate())
                                         <a href="{{ route('hr.profile.index') }}" class="user-panel-link"><i
                                                 class="fa-regular fa-user"></i>View full profile</a>
+                                        @endunless
                                         <form method="POST" action="{{ route('logout') }}" class="user-panel-logout">
                                             @csrf
                                             <button type="submit" class="user-panel-signout"><i

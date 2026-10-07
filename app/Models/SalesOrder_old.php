@@ -206,22 +206,6 @@ class SalesOrder extends Model
 
         }
 
-        public static function generateOfficeAdminOrderNo()
-        {
-            $lastOrder = self::where('c_order_no', 'like', 'OA-%')
-            ->orderByDesc('n_sl_no')
-            ->lockForUpdate()
-            ->first();
-
-            if (! $lastOrder) {
-                return 'OA-1';
-            }
-
-            $lastNumber = (int) str_replace('OA-', '', $lastOrder->c_order_no);
-
-            return 'OA-' . ($lastNumber + 1);
-        }
-
         public static function generateFCOrderNo()
         {
             $lastOrder = self::where('c_order_no', 'like', 'FS-%')

@@ -1083,8 +1083,7 @@ use Illuminate\Support\Facades\Crypt;
                     <!-- Row 2: Farm Care Advisor & Booklet Proof -->
                     @if(
                     (!isset($isTelecaller) || $isTelecaller == false) &&
-                    (!isset($isFarmCareOfficer) || $isFarmCareOfficer == false) &&
-                    (!isset($isOfficeAdmin) || $isOfficeAdmin == false)
+                    (!isset($isFarmCareOfficer) || $isFarmCareOfficer == false)
                     )
                     <div class="row g-3">
 
@@ -1758,7 +1757,7 @@ use Illuminate\Support\Facades\Crypt;
 
                 <!-- Section 6: Franchise / Company Details Section -->
                 <div class="form-box so-section mb-4" id="franchise-details">
-                    @if((isset($isAdmin) && $isAdmin==true) || (isset($isOfficeAdmin) && $isOfficeAdmin==true))
+                    @if(isset($isAdmin) && $isAdmin==true)
                     <div class="row mb-4">
                         <div class="col-md-12">
                             <label class="form-label fw-bold">Order Type <span class="text-danger">*</span></label>

@@ -1,14 +1,12 @@
-@extends('layouts.app')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
     href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 /* ===== Employee Records — same visual language as the HR "Employee Records" module ===== */
 .employee-page {
@@ -522,29 +520,32 @@
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
+    <?php if($message = Session::get('success')): ?>
     <div class="alert alert-success employee-alert" role="alert">
-        {{ $message }}
+        <?php echo e($message); ?>
+
     </div>
-    @endif
-    @if ($message = Session::get('warning'))
+    <?php endif; ?>
+    <?php if($message = Session::get('warning')): ?>
     <div class="alert alert-warning employee-alert" role="alert">
-        {{ $message }}
+        <?php echo e($message); ?>
+
     </div>
-    @endif
-    @if ($message = Session::get('error'))
+    <?php endif; ?>
+    <?php if($message = Session::get('error')): ?>
     <div class="alert alert-danger employee-alert" role="alert">
-        {{ $message }}
+        <?php echo e($message); ?>
+
     </div>
-    @endif
+    <?php endif; ?>
 
     <div class="employee-directory-card">
-        <form method="POST" action="{{ route('admin.employees.search') }}" class="employee-toolbar">
-            @csrf
+        <form method="POST" action="<?php echo e(route('admin.employees.search')); ?>" class="employee-toolbar">
+            <?php echo csrf_field(); ?>
 
             <div class="employee-search">
                 <span aria-hidden="true"><i class="fa-solid fa-magnifying-glass" style="font-size:12px;"></i></span>
-                <input type="text" id="employee_search" name="employee_search" value="{{ session('employee_search') }}"
+                <input type="text" id="employee_search" name="employee_search" value="<?php echo e(session('employee_search')); ?>"
                     autocomplete="off" placeholder="Search by Name or Code">
                 <input type="hidden" id="employee_id" name="employee_id">
                 <ul id="employee_suggestions" class="list-group position-absolute w-100"></ul>
@@ -553,42 +554,43 @@
             <div class="employee-filters">
                 <select id="n_designation_id" name="n_designation_id">
                     <option value="">All Designations</option>
-                    @foreach($designations as $designation)
-                    <option value="{{ $designation->n_designation_id }}"
-                        {{ session('designation_filter') == $designation->n_designation_id ? 'selected' : '' }}>
-                        {{ $designation->c_designation }}
+                    <?php $__currentLoopData = $designations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $designation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($designation->n_designation_id); ?>"
+                        <?php echo e(session('designation_filter') == $designation->n_designation_id ? 'selected' : ''); ?>>
+                        <?php echo e($designation->c_designation); ?>
+
                     </option>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
 
-                @can('employees.history')
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.history')): ?>
                 <select id="employee_status" name="employee_status">
-                    <option value="current" {{ ($statusFilter ?? 'current') === 'current' ? 'selected' : '' }}>Current
+                    <option value="current" <?php echo e(($statusFilter ?? 'current') === 'current' ? 'selected' : ''); ?>>Current
                         employees</option>
-                    <option value="former" {{ ($statusFilter ?? 'current') === 'former' ? 'selected' : '' }}>Former
+                    <option value="former" <?php echo e(($statusFilter ?? 'current') === 'former' ? 'selected' : ''); ?>>Former
                         employees (deleted / left)</option>
                 </select>
-                @endcan
+                <?php endif; ?>
 
                 <button type="submit" class="employee-filter-btn">
                     <i class="fa-solid fa-filter" style="margin-right:6px;font-size:11px;"></i>Filter
                 </button>
 
-                <a href="{{ route('admin.employees.clearSearch') }}" class="employee-reset-btn">
+                <a href="<?php echo e(route('admin.employees.clearSearch')); ?>" class="employee-reset-btn">
                     <i class="fa-solid fa-rotate-left" style="margin-right:6px;font-size:11px;"></i>Reset
                 </a>
 
-                @canany(['employees.export', 'employees.view'])
-                <a href="{{ route('admin.employees.export') }}" class="employee-add" style="background:linear-gradient(135deg,#2f8f5b,#1a6b3f);">
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['employees.export', 'employees.view'])): ?>
+                <a href="<?php echo e(route('admin.employees.export')); ?>" class="employee-add" style="background:linear-gradient(135deg,#2f8f5b,#1a6b3f);">
                     <i class="fa-solid fa-file-excel" style="font-size:11px;"></i>Export
                 </a>
-                @endcanany
+                <?php endif; ?>
 
-                @can('employees.create')
-                <a href="{{ route('admin.employees.create') }}" class="employee-add">
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.create')): ?>
+                <a href="<?php echo e(route('admin.employees.create')); ?>" class="employee-add">
                     <i class="fa-solid fa-user-plus" style="font-size:11px;"></i>Add Employee
                 </a>
-                @endcan
+                <?php endif; ?>
             </div>
         </form>
 
@@ -602,104 +604,106 @@
                         <th>Reporting To</th>
                         <th>Phone Number</th>
                         <th>Status</th>
-                        @canany(['employees.edit','employees.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['employees.edit','employees.delete'])): ?>
                         <th class="actions-head"></th>
-                        @endcanany
+                        <?php endif; ?>
                         <th class="profile-head"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($employees as $employee)
-                    @php
+                    <?php $__empty_1 = true; $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <?php
                     $empName = $employee->c_employee_name ?? '?';
                     $initials = collect(preg_split('/\s+/', trim($empName)))
                     ->filter()->take(2)->map(fn($part) => strtoupper(substr($part, 0, 1)))->implode('');
                     $isActive = $employee->c_status === 'Y';
                     $isFormer = $employee->trashed();
-                    @endphp
+                    ?>
                     <tr>
                         <td>
                             <div class="employee-person">
-                                <div class="employee-avatar">{{ $initials ?: '?' }}</div>
+                                <div class="employee-avatar"><?php echo e($initials ?: '?'); ?></div>
                                 <div>
-                                    <div class="employee-name">{{ $empName }}</div>
-                                    <div class="employee-email">{{ $employee->c_employee_email ?? '—' }}</div>
+                                    <div class="employee-name"><?php echo e($empName); ?></div>
+                                    <div class="employee-email"><?php echo e($employee->c_employee_email ?? '—'); ?></div>
                                 </div>
                             </div>
                         </td>
-                        <td class="employee-id">{{ $employee->c_employee_code }}</td>
+                        <td class="employee-id"><?php echo e($employee->c_employee_code); ?></td>
                         <td>
-                            {{ $employee->designation?->c_designation ?? '—' }}
-                            @if($employee->isAssociate())
+                            <?php echo e($employee->designation?->c_designation ?? '—'); ?>
+
+                            <?php if($employee->isAssociate()): ?>
                             <span class="associate-badge" title="Not an employee yet">Associate</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
-                        <td>{{ $employee->reportingManager?->designation?->c_designation ?? '—' }}</td>
-                        <td>{{ $employee->c_employee_phone ?? '—' }}</td>
+                        <td><?php echo e($employee->reportingManager?->designation?->c_designation ?? '—'); ?></td>
+                        <td><?php echo e($employee->c_employee_phone ?? '—'); ?></td>
                         <td>
                             <span
-                                class="employee-status {{ $isFormer ? 'former' : ($isActive ? 'active' : 'inactive') }}">
-                                <i></i>{{ $isFormer ? 'Former' : ($isActive ? 'Active' : 'Inactive') }}
+                                class="employee-status <?php echo e($isFormer ? 'former' : ($isActive ? 'active' : 'inactive')); ?>">
+                                <i></i><?php echo e($isFormer ? 'Former' : ($isActive ? 'Active' : 'Inactive')); ?>
+
                             </span>
                         </td>
-                        @canany(['employees.edit','employees.delete'])
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['employees.edit','employees.delete'])): ?>
                         <td>
                             <div class="employee-actions">
-                                @can('employees.edit')
-                                @unless($isFormer)
-                                <a href="{{ route('admin.employees.edit', $employee) }}" class="ea-link">Edit</a>
-                                @endunless
-                                @endcan
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.edit')): ?>
+                                <?php if (! ($isFormer)): ?>
+                                <a href="<?php echo e(route('admin.employees.edit', $employee)); ?>" class="ea-link">Edit</a>
+                                <?php endif; ?>
+                                <?php endif; ?>
 
-                                @can('employees.delete')
-                                @unless($isFormer)
-                                <form method="POST" action="{{ route('admin.employees.destroy', $employee) }}">
-                                    @csrf
-                                    @method('DELETE')
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.delete')): ?>
+                                <?php if (! ($isFormer)): ?>
+                                <form method="POST" action="<?php echo e(route('admin.employees.destroy', $employee)); ?>">
+                                    <?php echo csrf_field(); ?>
+                                    <?php echo method_field('DELETE'); ?>
                                     <button type="submit" class="deactivate"
                                         onclick="return confirm('Delete this employee? Their history is kept and stays available under Former employees.')">Delete</button>
                                 </form>
-                                @endunless
-                                @endcan
+                                <?php endif; ?>
+                                <?php endif; ?>
                             </div>
                         </td>
-                        @endcanany
+                        <?php endif; ?>
                         <td class="profile-cell">
                             <div class="employee-row-btns">
-                                @can('employees.history')
-                                <a href="{{ route('admin.employees.history', $employee) }}" class="employee-history-btn"
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.history')): ?>
+                                <a href="<?php echo e(route('admin.employees.history', $employee)); ?>" class="employee-history-btn"
                                     title="Performance, career timeline and resignation / termination record">
                                     <i class="fa-solid fa-clock-rotate-left"></i>History
                                 </a>
-                                @endcan
-                                @can('employees.profile')
+                                <?php endif; ?>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('employees.profile')): ?>
                                 <button type="button" class="employee-profile-btn" data-bs-toggle="modal"
-                                    data-bs-target="#employeeProfileModal" data-name="{{ $empName }}"
-                                    data-initials="{{ $initials ?: '?' }}"
-                                    data-email="{{ $employee->c_employee_email ?? '—' }}"
-                                    data-phone="{{ $employee->c_employee_phone ?? '—' }}"
-                                    data-code="{{ $employee->c_employee_code ?? '—' }}"
-                                    data-address="{{ $employee->c_employee_address ?? '—' }}"
-                                    data-dob="{{ !empty($employee->date_of_birth) ? \Carbon\Carbon::parse($employee->date_of_birth)->format('d M Y') : '—' }}"
-                                    data-gender="{{ !empty($employee->gender) ? ucfirst($employee->gender) : '—' }}"
-                                    data-personal-email="{{ $employee->personal_email ?? '—' }}"
-                                    data-city="{{ $employee->city ?? '—' }}"
-                                    data-department="{{ $employee->department?->name ?? '—' }}"
-                                    data-joining="{{ !empty($employee->date_of_joining) ? \Carbon\Carbon::parse($employee->date_of_joining)->format('d M Y') : '—' }}"
-                                    data-designation="{{ ($employee->designation?->c_designation ?? '—') . ($employee->isAssociate() ? ' (Associate - not an employee yet)' : '') }}"
-                                    data-reporting="{{ $employee->reportingManager?->c_employee_name ?? '—' }}"
-                                    data-status="{{ $isActive ? 'Active' : 'Inactive' }}"
-                                    data-account="{{ $employee->kycSubmission?->account_number ?? '—' }}"
-                                    data-ifsc="{{ $employee->kycSubmission?->ifsc_code ?? '—' }}"
-                                    data-bank="{{ $employee->kycSubmission?->bank_name ?? '—' }}"
-                                    data-branch="{{ $employee->kycSubmission?->bank_branch ?? '—' }}">
+                                    data-bs-target="#employeeProfileModal" data-name="<?php echo e($empName); ?>"
+                                    data-initials="<?php echo e($initials ?: '?'); ?>"
+                                    data-email="<?php echo e($employee->c_employee_email ?? '—'); ?>"
+                                    data-phone="<?php echo e($employee->c_employee_phone ?? '—'); ?>"
+                                    data-code="<?php echo e($employee->c_employee_code ?? '—'); ?>"
+                                    data-address="<?php echo e($employee->c_employee_address ?? '—'); ?>"
+                                    data-dob="<?php echo e(!empty($employee->date_of_birth) ? \Carbon\Carbon::parse($employee->date_of_birth)->format('d M Y') : '—'); ?>"
+                                    data-gender="<?php echo e(!empty($employee->gender) ? ucfirst($employee->gender) : '—'); ?>"
+                                    data-personal-email="<?php echo e($employee->personal_email ?? '—'); ?>"
+                                    data-city="<?php echo e($employee->city ?? '—'); ?>"
+                                    data-department="<?php echo e($employee->department?->name ?? '—'); ?>"
+                                    data-joining="<?php echo e(!empty($employee->date_of_joining) ? \Carbon\Carbon::parse($employee->date_of_joining)->format('d M Y') : '—'); ?>"
+                                    data-designation="<?php echo e(($employee->designation?->c_designation ?? '—') . ($employee->isAssociate() ? ' (Associate - not an employee yet)' : '')); ?>"
+                                    data-reporting="<?php echo e($employee->reportingManager?->c_employee_name ?? '—'); ?>"
+                                    data-status="<?php echo e($isActive ? 'Active' : 'Inactive'); ?>"
+                                    data-account="<?php echo e($employee->kycSubmission?->account_number ?? '—'); ?>"
+                                    data-ifsc="<?php echo e($employee->kycSubmission?->ifsc_code ?? '—'); ?>"
+                                    data-bank="<?php echo e($employee->kycSubmission?->bank_name ?? '—'); ?>"
+                                    data-branch="<?php echo e($employee->kycSubmission?->bank_branch ?? '—'); ?>">
                                     <i class="fa-solid fa-user"></i>Profile
                                 </button>
-                                @endcan
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="8" class="employee-empty">
                             <div class="employee-empty-ico"><i class="fa-solid fa-magnifying-glass"></i></div>
@@ -707,13 +711,14 @@
                             <span>Try changing the search or filters.</span>
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
         <div class="employee-pagination">
-            {{ $employees->links() }}
+            <?php echo e($employees->links()); ?>
+
         </div>
     </div>
 </div>
@@ -894,7 +899,7 @@
     </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 document.getElementById('employeeProfileModal').addEventListener('show.bs.modal', function(event) {
     const d = event.relatedTarget.dataset;
@@ -1197,9 +1202,9 @@ document.getElementById('employeeProfileModal').addEventListener('show.bs.modal'
     }
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     let designation = document.getElementById('n_designation_id');
@@ -1271,7 +1276,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Pass employee data to JS for search suggestions
-window.employees = @json($employeesForSearch);
+window.employees = <?php echo json_encode($employeesForSearch, 15, 512) ?>;
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/admin/employees/index.blade.php ENDPATH**/ ?>

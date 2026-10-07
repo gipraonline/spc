@@ -120,6 +120,7 @@
             'recent-sales-card',
             'top-stores-card',
             'pending-sales-card',
+            'update-status',
 
             ];
             @endphp

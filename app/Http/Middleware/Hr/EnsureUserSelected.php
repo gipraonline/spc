@@ -21,6 +21,16 @@ class EnsureUserSelected
      */
     public function handle(Request $request, Closure $next)
     {
+        // Associates (un-promoted Farm Care Advisers / Tele Callers) are not
+        // employees, so the employee portal is closed to them.
+        $admin = Auth::user();
+        if ($admin instanceof \App\Models\Admin && $admin->isAssociate()) {
+            $request->session()->forget('user_id');
+
+            return redirect()->route('dashboard')
+                ->with('error', 'The employee portal is available after promotion to Farm Care Officer.');
+        }
+
         $id = session('user_id');
         $user = $id ? User::find($id) : null;
 

@@ -80,6 +80,24 @@ class Admin extends Authenticatable
         return $this->hasMany(FieldLog::class, 'user_id');
     }
 
+    /**
+     * True for a Farm Care Adviser / Tele Caller who has not been promoted
+     * yet: they use the SPC sales side but have no employee portal (HR,
+     * payroll, attendance, leave, PF).
+     */
+    public function isAssociate(): bool
+    {
+        if (! $this->n_employee_id) {
+            return false;
+        }
+
+        return $this->associateCache ??= EmployeeMaster::where('n_employee_id', $this->n_employee_id)
+            ->where('engagement_type', EmployeeMaster::TYPE_ASSOCIATE)
+            ->exists();
+    }
+
+    protected ?bool $associateCache = null;
+
     public function employee()
     {
         return $this->belongsTo(

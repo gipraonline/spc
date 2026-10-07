@@ -27,6 +27,13 @@ class EmployeeHrSyncService
 
     public static function sync(EmployeeMaster $employee): ?HrEmployee
     {
+        if ($employee->isAssociate()) {
+            // Farm Care Advisers / Tele Callers are not employees until they
+            // are promoted, so they get no HR record, payroll, leave or PF.
+            // They keep their SPC login, sales and leads untouched.
+            return null;
+        }
+
         if (! $employee->c_employee_email) {
             // No work email means no login identity to bridge into HR —
             // nothing to sync until one is set.

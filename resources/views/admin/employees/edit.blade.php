@@ -282,7 +282,11 @@
         <aside class="efp-side">
             <div class="efp-side-inner">
                 <div class="efp-side-ico"><i class="ti ti-user-edit"></i></div>
-                <h3>Edit — {{ $employee->c_employee_name }}</h3>
+                <h3>Edit — {{ $employee->c_employee_name }}
+                    @if($employee->isAssociate())
+                    <span style="margin-left:8px;padding:2px 10px;border-radius:999px;background:#FFF4D6;border:1px solid #E6C55A;color:#7A5B00;font-size:12px;font-weight:600;">Associate - not an employee yet</span>
+                    @endif
+                </h3>
                 <p>{{ $employee->c_employee_code }} · {{ $employee->c_employee_email }}</p>
                 <div class="efp-steps">
                     <a href="#sec-identification" class="efp-step"><span class="num">1</span>Identification</a>

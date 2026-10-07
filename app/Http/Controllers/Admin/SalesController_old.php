@@ -51,14 +51,6 @@ class SalesController extends Controller
                 ->exists();
     }
 
-    private function isOfficeAdmin(): bool
-    {
-        return Auth::check()
-            && Auth::user()->roles()
-                ->where('identifier', 'OFFICE_ADMIN')
-                ->exists();
-    }
-
     private function isTC(): bool
     {
         return Auth::check()
@@ -1414,10 +1406,8 @@ class SalesController extends Controller
         $isFco = $is(['FCO']);
         $isAdmin = $is(['SUPER_ADMIN', 'GIPRA_ADMIN']);
         $isTc = $is(['TC']);
-        $isOfficeAdmin = $is(['OFFICE_ADMIN']);
 
         return [
-            'isOfficeAdmin' => $isOfficeAdmin,
             'isFarmCareAdvisor' => $isFca,
             'farmCareAdvisorId' => $isFca ? $employeeId : null,
             'isFarmCareOfficer' => $isFco,
@@ -1467,7 +1457,6 @@ class SalesController extends Controller
      * Order number by the role of the logged-in user:
      *  TC                       -> TL-n   (tele caller)
      *  SUPER_ADMIN/GIPRA_ADMIN  -> FS-n   (admin orders)
-     *  OFFICE_ADMIN             -> OA-n   (office administration orders)
      *  FCO                      -> FCO-n
      *  FCA                      -> the booklet serial no. typed on the form
      */
@@ -1483,11 +1472,6 @@ class SalesController extends Controller
 
         if ($this->isFco()) {
             return SalesOrder::generateFCOOrderNo();
-        }
-
-        // Office Administration -> OA-n (marks the sale as added by the office)
-        if ($this->isOfficeAdmin()) {
-            return SalesOrder::generateOfficeAdminOrderNo();
         }
 
         $isAdmin = Auth::user()?->roles()
@@ -1561,12 +1545,8 @@ class SalesController extends Controller
             ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'FCO', 'FCA'])
             ->exists();
 
-        // Office Administration behaves like Super Admin on this form (Company /
-        // Franchise order type) but has no Farm Care Advisor and no booklet proof.
-        $isOfficeAdmin = $this->isOfficeAdmin();
-
         $isAdminRole = $user && $user->roles()
-            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'OFFICE_ADMIN'])
+            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN'])
             ->exists();
 
         $paymentModes = $this->isTC()
@@ -1742,14 +1722,6 @@ class SalesController extends Controller
         }
 
         $validated = $validator->validated();
-
-        // Office Administration: never an advisor, never a booklet serial / proof,
-        // whatever the browser posts.
-        if ($isOfficeAdmin) {
-            unset($validated['farm_care_advisor_id'], $validated['c_order_no'], $validated['booklet_image']);
-            $request->files->remove('booklet_image');
-            $request->merge(['remove_booklet_image' => '0']);
-        }
 
         /*
         |--------------------------------------------------------------------------

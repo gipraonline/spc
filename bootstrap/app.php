@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             // HR Module — separate routes, separate DB (spc_hr), mounted under /hr.
             Route::middleware('web')
                 ->group(base_path('routes/hr.php'));
+
+            // Task assignment — separate routes file.
+            Route::middleware('web')
+                ->group(base_path('routes/tasks.php'));
         },
         health: '/up',
     )

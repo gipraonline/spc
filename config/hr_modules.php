@@ -87,7 +87,7 @@ return [
             'nav_label' => 'Payroll',
             'title' => 'Payroll',
             'summary' => 'Salary structure, monthly runs, and payslip access.',
-            'roles' => ['employee', 'hr_admin', 'super_admin'],
+            'roles' => ['employee', 'manager', 'hr_admin', 'super_admin'],
             'features' => [
                 'Salary structure setup per employee (fixed, variable, deductions).',
                 'Automated monthly payroll run based on attendance and leave data.',
@@ -176,7 +176,7 @@ return [
             'nav_label' => 'PF & Gratuity',
             'title' => 'PF & Gratuity',
             'summary' => 'Contribution tracking, eligibility, and statements.',
-            'roles' => ['employee', 'hr_admin', 'super_admin'],
+            'roles' => ['employee', 'manager', 'hr_admin', 'super_admin'],
             'features' => [
                 'PF contribution tracking (employee and employer share) per payroll cycle.',
                 'Gratuity eligibility tracking based on tenure.',

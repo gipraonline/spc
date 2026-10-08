@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Hr;
 
+use App\Models\Admin;
 use App\Models\Hr\Attendance;
 use App\Models\Hr\Department;
 use App\Models\Hr\Designation;
@@ -331,13 +332,30 @@ class EmployeeRecordsController extends Controller
 
         $data = $request->validate($rules);
 
-        if ($requireCurrent && ! Hash::check($data['current_password'], $user->password)) {
-            throw ValidationException::withMessages([
-                'current_password' => 'Your current password is incorrect.',
-            ]);
+        // Sign-in goes through the SPC login (admins.c_password); the HR account
+        // is linked to it by email (single sign-on) and holds no usable password
+        // of its own. So the real password to check / change is the SPC admin's.
+        $admin = Admin::whereRaw('LOWER(c_username) = ?', [Str::lower(trim((string) $user->email))])->first();
+
+        if ($requireCurrent) {
+            $currentHash = $admin ? (string) $admin->c_password : (string) $user->password;
+
+            if (! Hash::check($data['current_password'], $currentHash)) {
+                throw ValidationException::withMessages([
+                    'current_password' => 'Your current password is incorrect.',
+                ]);
+            }
         }
 
-        $user->update(['password' => Hash::make($data['new_password'])]);
+        $newHash = Hash::make($data['new_password']);
+
+        if ($admin) {
+            $admin->c_password = $newHash;
+            $admin->save();
+        }
+
+        // Keep the HR-side copy in step (used only by the standalone HR login)
+        $user->forceFill(['password' => $newHash])->save();
 
         return back()->with('status', $isSelf
             ? 'Your password has been updated.'

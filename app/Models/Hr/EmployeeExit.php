@@ -6,6 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmployeeExit extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'exits';
+
+    protected string $auditEntity = 'Exit record';
+
+    protected array $auditIgnore = ['snapshot'];
+
+    public function auditSubject(): ?string
+    {
+        $emp = $this->employee_id ? \App\Models\Hr\Employee::with('user')->find($this->employee_id) : null;
+
+        return $emp?->user?->name;
+    }
+
     protected $connection = 'spc_hr';
 
     protected $table = 'employee_exits';

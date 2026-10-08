@@ -8,6 +8,16 @@ use Spatie\Permission\Traits\HasRoles;
 
 class Admin extends Authenticatable
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'users';
+
+    protected string $auditEntity = 'User login';
+
+    protected array $auditSubjectColumns = ['c_name', 'c_username'];
+
+    protected array $auditIgnore = ['initial_password_expires_at'];
+
     use HasFactory, HasRoles;
 
     public const STATUS_ACTIVE = 'Active';
@@ -85,6 +95,14 @@ class Admin extends Authenticatable
      * yet: they use the SPC sales side but have no employee portal (HR,
      * payroll, attendance, leave, PF).
      */
+    /**
+     * Managing Director: can see documents but does not verify or reject them.
+     */
+    public function isManagingDirector(): bool
+    {
+        return $this->roles->contains(fn ($role) => $role->identifier === 'MD');
+    }
+
     public function isAssociate(): bool
     {
         if (! $this->n_employee_id) {

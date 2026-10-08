@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Permission;
 use App\Models\Menu;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use App\Services\AuditTrail;
 
 
 class PermissionController extends Controller
@@ -86,10 +87,18 @@ public function store(Request $request)
 
    foreach ($request->actions as $action) {
 
-    Permission::firstOrCreate([
+    $permission = Permission::firstOrCreate([
         'name' => Str::slug($request->module, '-') . '.' . Str::slug($action, '-'),
         'guard_name' => 'web',
     ]);
+
+    if ($permission->wasRecentlyCreated) {
+        AuditTrail::record('roles', 'CREATE', (int) $permission->id, null, [
+            'name' => $permission->name,
+            '_entity' => 'Permission',
+            '_subject' => $permission->name,
+        ]);
+    }
 
 }
 
@@ -108,9 +117,19 @@ public function store(Request $request)
                 'name' => 'required|unique:permissions,name,' . $permission->id,
             ]);
 
+            $oldName = $permission->name;
+
             $permission->update([
                 'name' => $request->name,
             ]);
+
+            if ($oldName !== $permission->name) {
+                AuditTrail::record('roles', 'UPDATE', (int) $permission->id, ['name' => $oldName], [
+                    'name' => $permission->name,
+                    '_entity' => 'Permission',
+                    '_subject' => $permission->name,
+                ]);
+            }
 
             return redirect()
                 ->route('admin.permissions.index')
@@ -118,6 +137,12 @@ public function store(Request $request)
         }
     public function destroy(Permission $permission)
         {
+            AuditTrail::record('roles', 'DELETE', (int) $permission->id, [
+                'name' => $permission->name,
+                '_entity' => 'Permission',
+                '_subject' => $permission->name,
+            ], null);
+
             $permission->delete();
 
             return redirect()

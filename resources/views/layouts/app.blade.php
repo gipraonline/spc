@@ -1313,12 +1313,18 @@
                                 <li class="nav-item dropdown">
                                     <div class="topbar-user" id="drop1" role="button" data-bs-toggle="dropdown"
                                         aria-expanded="false">
-                                        @php $spcName = trim(Auth::user()->name ?? ''); @endphp
+                                        @php
+                                            $spcName = trim(Auth::user()->name ?? '');
+                                            // Show the designation; fall back to the role when there is none.
+                                            $navTitle = $navProfile['designation'] ?? null;
+                                            $navTitleLabel = $navTitle ? 'Designation' : 'Role';
+                                            $navTitle = $navTitle ?: ($navProfile['role'] ?? 'User');
+                                        @endphp
                                         <span
                                             class="topbar-avatar">{{ strtoupper(substr($spcName ?: '?', 0, 1)) }}{{ strtoupper(substr(strstr($spcName, ' ') ?: '', 1, 1)) }}</span>
                                         <div class="topbar-who">
                                             <b>{{ Auth::user()->name }}</b>
-                                            <span>{{ $navProfile['role'] ?? 'User' }}</span>
+                                            <span>{{ $navTitle }}</span>
                                         </div>
                                     </div>
                                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up user-panel"
@@ -1331,9 +1337,6 @@
                                                 <div class="user-panel-email">{{ Auth::user()->email }}</div>
                                             </div>
                                         </div>
-                                        <div class="user-panel-detail">
-                                            <span>Role</span><span>{{ $navProfile['role'] ?? 'User' }}</span>
-                                        </div>
                                         @if($navProfile ?? null)
                                         <div class="user-panel-detail">
                                             <span>Employee code</span><span>{{ $navProfile['code'] ?? '—' }}</span>
@@ -1341,10 +1344,10 @@
                                         <div class="user-panel-detail">
                                             <span>Department</span><span>{{ $navProfile['department'] ?? '—' }}</span>
                                         </div>
-                                        <div class="user-panel-detail">
-                                            <span>Designation</span><span>{{ $navProfile['designation'] ?? '—' }}</span>
-                                        </div>
                                         @endif
+                                        <div class="user-panel-detail">
+                                            <span>{{ $navTitleLabel }}</span><span>{{ $navTitle }}</span>
+                                        </div>
                                         @unless(Auth::user()->isAssociate())
                                         <a href="{{ route('hr.profile.index') }}" class="user-panel-link"><i
                                                 class="fa-regular fa-user"></i>View full profile</a>

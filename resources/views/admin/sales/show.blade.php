@@ -914,11 +914,7 @@ use Illuminate\Support\Facades\Crypt;
 <script>
 $(document).ready(function() {
     console.log("First script loaded");
-    let rowIndex = {
-        {
-            isset($sale) ? $sale->orderProducts->count() : 0
-        }
-    };
+    let rowIndex = parseInt("{{ isset($sale) ? $sale->orderProducts->count() : 0 }}", 10);
     $("#addRow").click(function() {
 
         let row = `

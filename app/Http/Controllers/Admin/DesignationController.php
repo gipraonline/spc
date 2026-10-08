@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DesignationMaster;
 use App\Models\Hr\Department as HrDepartment;
 use App\Services\DashboardCardVisibility;
+use App\Services\AuditTrail;
 use App\Services\Hr\DesignationSyncService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -144,7 +145,22 @@ class DesignationController extends Controller
 
         // Only touch card settings when the form actually carried that section.
         if ($request->boolean('dashboard_cards_present')) {
+            $cardsBefore = DashboardCardVisibility::forDesignation((int) $designation->n_designation_id);
             DashboardCardVisibility::save((int) $designation->n_designation_id, $cards);
+
+            $cardsBefore = $cardsBefore === null ? array_keys(DashboardCardVisibility::catalog()) : $cardsBefore;
+            $shown = array_values(array_intersect($cards, array_keys(DashboardCardVisibility::catalog())));
+            $nowShown = implode(', ', array_diff($shown, $cardsBefore)) ?: null;
+            $nowHidden = implode(', ', array_diff($cardsBefore, $shown)) ?: null;
+
+            if ($nowShown || $nowHidden) {
+                AuditTrail::record('designations', 'UPDATE', (int) $designation->n_designation_id, null, array_filter([
+                    'dashboard_cards_shown' => $nowShown,
+                    'dashboard_cards_hidden' => $nowHidden,
+                    '_entity' => 'Dashboard cards',
+                    '_subject' => $designation->c_designation,
+                ]));
+            }
         }
 
         DesignationSyncService::renameEverywhere($oldTitle, $designation->c_designation);

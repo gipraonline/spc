@@ -10,69 +10,56 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
-    public function preview($id, InvoiceCalculationService $calculator)
+    public function __construct(private InvoiceCalculationService $invoiceCalculator)
     {
-        $order = SalesOrder::with([
-            'customer',
-            'orderProducts.product',
-        ])->findOrFail($id);
-
-        // Get company details
-        $company = CompanySetting::first();
-
-        $calculation = $calculator->calculate($order);
-
-        // Determine invoice payment mode
-        $paymentMode = $order->c_mode_of_payment;
-
-        if (in_array(strtolower(trim($paymentMode)), ['upi', 'bank deposit'])) {
-            $paymentMode = 'Paid';
-        }
-
-        return view('admin.pdf.invoice-preview', [
-            'order' => $order,
-            'company' => $company,
-            'calculation' => $calculation,
-            'paymentMode' => $paymentMode,
-        ]);
     }
 
-    public function download($id, InvoiceCalculationService $calculator)
+    /**
+     * Order summary preview (HTML page).
+     */
+    public function preview($id)
     {
-        $order = SalesOrder::with([
-            'customer',
-            'orderProducts.product',
-            'approval',
-        ])->findOrFail($id);
+        $order = $this->loadOrder($id);
 
-        abort_unless(
-            strtolower($order->approval?->status ?? '') === 'approved',
-            403,
-            'Invoice can be generated only after the order is approved.'
-        );
+        return view('admin.pdf.invoice-preview', $this->viewData($order));
+    }
 
-        $company = CompanySetting::first();
+    /**
+     * Download the invoice as a PDF. Only for approved orders
+     * (the invoice number is generated at approval).
+     */
+    public function download($id)
+    {
+        $order = $this->loadOrder($id);
 
-        // Calculate invoice values
-        $calculation = $calculator->calculate($order);
-
-        // Determine invoice payment mode
-        $paymentMode = $order->c_mode_of_payment;
-
-        if (in_array(strtolower(trim($paymentMode)), ['upi', 'bank deposit'])) {
-            $paymentMode = 'Paid';
+        if (strtolower($order->approval?->status ?? '') !== 'approved') {
+            return redirect()->back()->with('error', 'Invoice can be generated only after the order is approved.');
         }
 
-        $pdf = Pdf::loadView('admin.pdf.invoice', [
-            'order' => $order,
-            'company' => $company,
-            'calculation' => $calculation,
-            'paymentMode' => $paymentMode,
-        ]);
-        $invoiceNo = $order->invoice_no;
+        $pdf = Pdf::loadView('admin.pdf.invoice', $this->viewData($order))
+            ->setPaper('a4', 'portrait');
 
-        return $pdf->download(
-            'invoice-'.$invoiceNo.'.pdf'
-        );
+        $fileName = 'Invoice-'.($order->invoice_no ?: $order->c_order_no ?: $order->n_sl_no).'.pdf';
+
+        return $pdf->download($fileName);
+    }
+
+    private function loadOrder($id): SalesOrder
+    {
+        return SalesOrder::with([
+            'customer',
+            'approval',
+            'orderProducts.product',
+        ])->findOrFail($id);
+    }
+
+    private function viewData(SalesOrder $order): array
+    {
+        return [
+            'order' => $order,
+            'company' => CompanySetting::first() ?? new CompanySetting(),
+            'calculation' => $this->invoiceCalculator->calculate($order),
+            'paymentMode' => $order->c_mode_of_payment,
+        ];
     }
 }

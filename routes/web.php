@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminFieldLogController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AssociateLeaveController;
 use App\Http\Controllers\Admin\CoverageMapController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DesignationController;
@@ -756,6 +757,16 @@ Route::middleware(['auth', 'admin'])
         Route::get('reports/franchise-sales/export', [FranchiseSalesReportController::class, 'export'])
             ->middleware('permission:franchise-sales-report.export|sales-orders.view')
             ->name('reports.franchise-sales.export');
+        /*
+        |--------------------------------------------------------------------------
+        | Franchise-wise Sales Summary
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('associate-leave', [AssociateLeaveController::class, 'index'])->name('associate-leave.index');
+        Route::post('associate-leave', [AssociateLeaveController::class, 'store'])->name('associate-leave.store');
+        Route::post('associate-leave/{leave}/cancel', [AssociateLeaveController::class, 'cancel'])->name('associate-leave.cancel');
+        Route::post('associate-leave/{leave}/decide', [AssociateLeaveController::class, 'decide'])->name('associate-leave.decide');
 
     });
 

@@ -7,6 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class SalesApproval extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'sales_orders';
+
+    protected string $auditEntity = 'Order approval';
+
+    protected array $auditIgnore = ['approved_at'];
+
+    public function auditSubject(): ?string
+    {
+        return SalesOrder::where('n_sl_no', $this->sales_order_id)->value('c_order_no');
+    }
+
     use HasFactory;
 
     protected $table = 'sales_approvals';

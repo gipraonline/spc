@@ -23,13 +23,19 @@
         <div class="bell-foot"><a href="{{ route('hr.notifications.index') }}">View all <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i></a></div>
     </div>
 </details>
+@php
+    // Show the designation; fall back to the role when there is none.
+    $hdrTitle = $employee->designation->title ?? null;
+    $hdrTitleLabel = $hdrTitle ? 'Designation' : 'Role';
+    $hdrTitle = $hdrTitle ?: $authUser->roleLabel();
+@endphp
 <details class="bell user-menu">
     <summary class="bell-icon user-chip-summary">
         <span class="user-chip">
             <span class="avatar">{{ strtoupper(substr($authUser->name ?? '?', 0, 1)) }}{{ strtoupper(substr(strstr($authUser->name ?? '', ' ') ?: '', 1, 1)) }}</span>
             <span class="who">
                 <b>{{ $authUser->name }}</b>
-                <span>{{ $authUser->roleLabel() }}</span>
+                <span>{{ $hdrTitle }}</span>
             </span>
         </span>
     </summary>
@@ -41,9 +47,6 @@
                 <div class="card-note" style="margin:0;">{{ $authUser->email }}</div>
             </div>
         </div>
-        <div class="user-panel-detail">
-            <span>Role</span><span>{{ $authUser->roleLabel() }}</span>
-        </div>
         @if($employee ?? null)
             <div class="user-panel-detail">
                 <span>Employee code</span><span>{{ $employee->employee_code }}</span>
@@ -51,10 +54,10 @@
             <div class="user-panel-detail">
                 <span>Department</span><span>{{ $employee->department->name ?? '—' }}</span>
             </div>
-            <div class="user-panel-detail">
-                <span>Designation</span><span>{{ $employee->designation->title ?? '—' }}</span>
-            </div>
         @endif
+        <div class="user-panel-detail">
+            <span>{{ $hdrTitleLabel }}</span><span>{{ $hdrTitle }}</span>
+        </div>
         <a href="{{ route('hr.profile.index') }}" class="bell-item" style="display:block;padding:10px 9px;"><i class="fa-regular fa-user" style="margin-right:8px;color:var(--brand);"></i>View full profile</a>
         <form method="POST" action="{{ route('hr.logout') }}" style="padding:4px 9px 2px;">
             @csrf

@@ -6,6 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class JobRequisition extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'recruitment';
+
+    protected string $auditEntity = 'Job requisition';
+
+    protected array $auditSubjectColumns = ['title'];
+
     protected $connection = 'spc_hr';
 
     protected $guarded = [];

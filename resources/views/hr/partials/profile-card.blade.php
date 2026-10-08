@@ -186,7 +186,7 @@
                                 <div class="row-actions">
                                     <a href="{{ route('hr.records.document.download', $doc) }}"
                                         class="btn-ghost">Download</a>
-                                    @if(($role === 'hr_admin' || $role === 'super_admin') && $doc->status === 'pending')
+                                    @if(($role === 'hr_admin' || $role === 'super_admin') && $doc->status === 'pending' && ! Auth::user()?->isManagingDirector())
                                     <form method="POST" action="{{ route('hr.records.document.verify', $doc) }}">
                                         @csrf<input type="hidden" name="action" value="verified"><button class="approve"
                                             type="submit">Verify</button></form>

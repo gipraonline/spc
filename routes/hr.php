@@ -120,9 +120,6 @@ Route::prefix('hr')->name('hr.')->group(function () {
             Route::post('/modules/employee-records', [EmployeeRecordsController::class, 'store'])
                 ->name('records.store');
 
-            Route::post('/modules/employee-records/{employee}', [EmployeeRecordsController::class, 'update'])
-                ->name('records.update');
-
             Route::post('/modules/employee-records/{employee}/status', [EmployeeRecordsController::class, 'updateStatus'])
                 ->name('records.status');
 
@@ -142,6 +139,18 @@ Route::prefix('hr')->name('hr.')->group(function () {
             Route::post('/modules/employee-records/{employee}/reinstate', [EmployeeExitController::class, 'reinstate'])
                 ->name('records.exit.reinstate');
 
+            Route::post('/modules/employee-records/documents/{document}/verify', [EmployeeRecordsController::class, 'verifyDocument'])
+                ->name('records.document.verify');
+        });
+
+        // Self-service on the profile card: an employee saves their own details,
+        // password, secondary contact and documents from My Profile. These need
+        // either permission; the controller still allows only HR or the person
+        // themselves, so nobody can edit someone else's record.
+        Route::middleware(['permission:employee-records.view|my-profile.view'])->group(function () {
+            Route::post('/modules/employee-records/{employee}', [EmployeeRecordsController::class, 'update'])
+                ->name('records.update');
+
             Route::post('/modules/employee-records/{employee}/password', [EmployeeRecordsController::class, 'updatePassword'])
                 ->name('records.password.update');
 
@@ -151,14 +160,13 @@ Route::prefix('hr')->name('hr.')->group(function () {
             Route::post('/modules/employee-records/{employee}/documents', [EmployeeRecordsController::class, 'uploadDocument'])
                 ->name('records.document.upload');
 
-            Route::post('/modules/employee-records/documents/{document}/verify', [EmployeeRecordsController::class, 'verifyDocument'])
-                ->name('records.document.verify');
-
             Route::get('/modules/employee-records/documents/{document}/download', [EmployeeRecordsController::class, 'downloadDocument'])
                 ->name('records.document.download');
         });
 
-        // Document Verification — HR Admin / Super Admin only
+        // Document Verification — HR Admin / Super Admin can open and view (e.g. the MD).
+        // Verifying / rejecting needs the Spatie permission document-verification.verify,
+        // which only HR gets by default (Admin > Roles can change that).
         Route::middleware(['hr.admin'])->group(function () {
             Route::get('/modules/document-verification', [DocumentVerificationController::class, 'index'])
                 ->name('verification.index');
@@ -167,6 +175,7 @@ Route::prefix('hr')->name('hr.')->group(function () {
                 ->name('verification.preview');
 
             Route::post('/modules/document-verification/{document}/decide', [DocumentVerificationController::class, 'decide'])
+                ->middleware('permission:document-verification.verify')
                 ->name('verification.decide');
         });
 

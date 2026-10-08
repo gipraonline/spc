@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\EmployeeMaster;
 use App\Models\Role;
+use App\Services\AuditTrail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -119,6 +120,12 @@ class AdminUserController extends Controller
         // Assign Role
         $user->syncRoles([$request->role]);
 
+        AuditTrail::record('users', 'UPDATE', (int) $user->getKey(), null, [
+            'role' => $request->role,
+            '_entity' => 'User login',
+            '_subject' => $user->c_name,
+        ]);
+
         return redirect()
             ->route('admin.users.index');
     }
@@ -209,12 +216,22 @@ class AdminUserController extends Controller
             'role' => 'required|exists:roles,name',
         ]);
 
+        $oldRole = $user->getRoleNames()->first();
+
         $user->update([
             'c_name' => $request->name,
             'c_username' => $request->username,
         ]);
 
         $user->syncRoles([$request->role]);
+
+        if ($oldRole !== $request->role) {
+            AuditTrail::record('users', 'UPDATE', (int) $user->getKey(), ['role' => $oldRole], [
+                'role' => $request->role,
+                '_entity' => 'User login',
+                '_subject' => $user->c_name,
+            ]);
+        }
 
         return redirect()
             ->route('admin.users.index')

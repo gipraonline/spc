@@ -81,10 +81,11 @@
             'calculate',
             'approval',
             'reject',
+            'verify',
             'view-details',
             'confirm',
             'cancel',
-            'process-batch',
+
             'add-sale',
             'follow-up',
             'update-status',
@@ -93,34 +94,16 @@
             'profile',
             'history',
 
-
-            // Dashboard Cards
-            'employees-card',
-            'stores-card',
-            'products-card',
-            'sales-card',
-            'sales-card-pending',
-            'sales-card-approved',
-            'sales-card-dispatched',
-            'sales-card-delivered',
-
-            'incentives-card',
             // for both field log and dashboard
             'check-in',
             'check-out',
-            'working-hours',
-            'work-status',
+
             'attendance',
             'summary',
             'my-orders',
             'recent-orders',
             'schedule',
 
-
-            // Dashboard Data Cards
-            'recent-sales-card',
-            'top-stores-card',
-            'pending-sales-card',
             'update-status',
 
             ];

@@ -6,6 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'employees';
+
+    protected string $auditEntity = 'Employee profile';
+
+    public function auditSubject(): ?string
+    {
+        return $this->user?->name;
+    }
+
     protected $connection = 'spc_hr';
 
     protected $guarded = [];

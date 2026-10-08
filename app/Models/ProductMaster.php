@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductMaster extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'products';
+
+    protected string $auditEntity = 'Product';
+
+    protected array $auditSubjectColumns = ['c_product_name'];
+
     use HasFactory;
     use SoftDeletes;
 

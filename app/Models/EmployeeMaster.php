@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeMaster extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'employees';
+
+    protected string $auditEntity = 'Employee';
+
+    protected array $auditSubjectColumns = ['c_employee_name'];
+
     use HasFactory;
     use SoftDeletes;
 

@@ -6,6 +6,7 @@ use App\Exports\IncentiveSalesReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\AuditRecord;
+use App\Services\AuditTrail;
 use App\Models\CategoryMaster;
 use App\Models\CustomerMaster;
 use App\Models\District;
@@ -1468,8 +1469,7 @@ class SalesController extends Controller
      *  TC                       -> TL-n   (tele caller)
      *  SUPER_ADMIN/GIPRA_ADMIN  -> FS-n   (admin orders)
      *  OFFICE_ADMIN             -> OA-n   (office administration orders)
-     *  FCO                      -> FCO-n
-     *  FCA                      -> the booklet serial no. typed on the form
+     *  FCO / FCA                -> the booklet serial no. typed on the form
      */
     private function generateOrderNoForUser(?string $typedOrderNo = null): ?string
     {
@@ -1481,8 +1481,9 @@ class SalesController extends Controller
             return $typedOrderNo ?: null;
         }
 
+        // FCO types the booklet serial no. on the form (same as FCA)
         if ($this->isFco()) {
-            return SalesOrder::generateFCOOrderNo();
+            return $typedOrderNo ?: null;
         }
 
         // Office Administration -> OA-n (marks the sale as added by the office)
@@ -1557,6 +1558,17 @@ class SalesController extends Controller
 
         $existingId = $existingOrder?->n_sl_no;
 
+        /*
+        | Booklet rules
+        | FCA / FCO : sale is added under their own name, with a booklet serial no.
+        |             and a booklet proof image.
+        | An FCO editing a sale that belongs to one of their FCAs only edits the
+        | sale; that sale's advisor / booklet serial / booklet proof stay untouched.
+        */
+        $fcoOwnsOrder = $this->isFco()
+            && ($existingOrder === null || (int) $existingOrder->created_by === (int) $user->n_employee_id);
+        $typesBooklet = $this->isFca() || $fcoOwnsOrder;
+
         $isCreatorRoleWithAdvisor = $user && $user->roles()
             ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'FCO', 'FCA'])
             ->exists();
@@ -1597,7 +1609,7 @@ class SalesController extends Controller
                 'nullable',
                 'string',
                 'max:100',
-                Rule::requiredIf($this->isFca()),
+                Rule::requiredIf($typesBooklet),
                 Rule::unique('sales_orders', 'c_order_no')->ignore($existingId, 'n_sl_no'),
             ],
 
@@ -1605,7 +1617,8 @@ class SalesController extends Controller
                 'nullable',
                 'integer',
                 'exists:employee_masters,n_employee_id',
-                Rule::requiredIf($isCreatorRoleWithAdvisor),
+                // FCO's advisor is always the FCO (set server-side), so not posted-required
+                Rule::requiredIf($isCreatorRoleWithAdvisor && ! $this->isFco()),
             ],
 
             /* Customer */
@@ -1645,8 +1658,9 @@ class SalesController extends Controller
             ],
 
             /* Franchise / order location (NOT the customer's address) */
-            'n_state_id' => ['required_unless:order_type,company', 'nullable', 'integer', 'exists:states,n_state_id'],
-            'n_district_id' => ['required_unless:order_type,company', 'nullable', 'integer', 'exists:districts,id'],
+            // State / District / Panchayath are no longer on the form: they are taken from the selected franchise on save
+            'n_state_id' => ['nullable', 'integer', 'exists:states,n_state_id'],
+            'n_district_id' => ['nullable', 'integer', 'exists:districts,id'],
             'n_panchayath_id' => ['nullable', 'integer', 'exists:panchayaths,id'],
             'nearest_franchise_id' => ['required_unless:order_type,company', 'nullable', 'integer', 'exists:store_masters,n_store_id'],
 
@@ -1669,7 +1683,19 @@ class SalesController extends Controller
             ],
             'remove_payment_image' => ['nullable', 'in:0,1'],
 
-            'booklet_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'booklet_image' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+                // FCO must upload the booklet proof (unless one is already stored and kept)
+                Rule::requiredIf(
+                    $fcoOwnsOrder
+                    && ($existingOrder === null
+                        || empty($existingOrder->booklet_image)
+                        || $request->input('remove_booklet_image') == '1')
+                ),
+            ],
             'remove_booklet_image' => ['nullable', 'in:0,1'],
 
             /* Products */
@@ -1702,8 +1728,6 @@ class SalesController extends Controller
             'c_status.required' => 'Please select customer status.',
             'customer_state_id.required' => 'Please select the customer\'s State.',
             'customer_district_id.required' => 'Please select the customer\'s District.',
-            'n_state_id.required_unless' => 'Please select the franchise State.',
-            'n_district_id.required_unless' => 'Please select the franchise District.',
             'nearest_franchise_id.required_unless' => 'Please select the Nearest Franchise.',
             'order_type.required' => 'Please choose the Order Type (Company / Franchise).',
             'c_mode_of_payment.required' => 'Please choose a Mode of Payment.',
@@ -1714,6 +1738,7 @@ class SalesController extends Controller
             'payment_image.required' => 'Payment proof image is required for UPI or Bank Deposit.',
             'payment_image.max' => 'Payment proof image must not exceed 5 MB.',
             'booklet_image.max' => 'Booklet proof image must not exceed 5 MB.',
+            'booklet_image.required' => 'Sales Order Booklet Proof is required.',
             'products.required' => 'Add at least one product.',
             'products.min' => 'Add at least one product.',
             'products.*.product_id.distinct' => 'The same product is added more than once.',
@@ -1745,7 +1770,8 @@ class SalesController extends Controller
 
         // Office Administration: never an advisor, never a booklet serial / proof,
         // whatever the browser posts.
-        if ($isOfficeAdmin) {
+        // The same goes for an FCO editing a sale that belongs to one of their FCAs.
+        if ($isOfficeAdmin || ($this->isFco() && ! $fcoOwnsOrder)) {
             unset($validated['farm_care_advisor_id'], $validated['c_order_no'], $validated['booklet_image']);
             $request->files->remove('booklet_image');
             $request->merge(['remove_booklet_image' => '0']);
@@ -1758,7 +1784,7 @@ class SalesController extends Controller
         | Never rely only on the dropdown. An FCO/Admin must only be able to
         | submit an FCA ID that is actually allowed for the logged-in user.
         */
-        if ($isCreatorRoleWithAdvisor) {
+        if ($isCreatorRoleWithAdvisor && ! $this->isFco()) {
             $allowedAdvisorIds = $this->getAllowedFarmCareAdvisorIdsForSalesOrder();
             $selectedAdvisorId = (int) ($validated['farm_care_advisor_id'] ?? 0);
 
@@ -1774,6 +1800,13 @@ class SalesController extends Controller
         // FCA orders always belong to the logged-in FCA
         if ($this->isFca()) {
             $validated['farm_care_advisor_id'] = (int) $user->n_employee_id;
+        }
+
+        // FCO's own orders are added under the FCO's name; a subordinate's order keeps its advisor
+        if ($this->isFco()) {
+            $validated['farm_care_advisor_id'] = $fcoOwnsOrder
+                ? (int) $user->n_employee_id
+                : (int) $existingOrder->farm_care_advisor_id;
         }
 
         /*
@@ -1835,9 +1868,10 @@ class SalesController extends Controller
         */
         $newFiles = [];        // files written by this request (deleted again if the save fails)
         $oldFilesToDelete = []; // replaced / removed files (deleted only after the save succeeded)
-        $oldSnapshot = $existingOrder ? $existingOrder->toArray() : null;
+        $oldSnapshot = $existingOrder ? $existingOrder->loadMissing(['orderProducts', 'customer'])->toArray() : null;
 
         DB::beginTransaction();
+        AuditTrail::pause(); // one rich audit entry (with items) is written below instead
 
         try {
             /*
@@ -1845,8 +1879,8 @@ class SalesController extends Controller
             | Order No: generated once on create, never regenerated on edit
             |----------------------------------------------------------------------
             */
-            if ($existingOrder && $this->isFca()) {
-                // FCA types the booklet serial number by hand
+            if ($existingOrder && $typesBooklet) {
+                // FCA / FCO type the booklet serial number by hand
                 $orderNo = $validated['c_order_no'] ?? $existingOrder->c_order_no;
             } elseif ($existingOrder && ! empty($existingOrder->c_order_no)) {
                 // Never regenerate an existing number
@@ -1911,6 +1945,11 @@ class SalesController extends Controller
             | Order
             |----------------------------------------------------------------------
             */
+            // State / District / Panchayath come from the selected franchise
+            $orderFranchise = !empty($validated['nearest_franchise_id'])
+                ? StoreMaster::where('n_store_id', $validated['nearest_franchise_id'])->first()
+                : null;
+
             $orderData = [
                 'c_order_no' => $orderNo,
                 'd_date' => $validated['d_date'],
@@ -1918,9 +1957,9 @@ class SalesController extends Controller
                 'c_customer_type' => $validated['c_customer_type'],
                 'n_customer_id' => $customer->n_customer_id,
                 'order_type' => $validated['order_type'] ?? ($existingOrder->order_type ?? null),
-                'n_state_id' => $validated['n_state_id'] ?? null,
-                'n_district_id' => $validated['n_district_id'] ?? null,
-                'n_panchayath_id' => $validated['n_panchayath_id'] ?? null,
+                'n_state_id' => $validated['n_state_id'] ?? $orderFranchise?->n_state_id,
+                'n_district_id' => $validated['n_district_id'] ?? $orderFranchise?->n_district_id,
+                'n_panchayath_id' => $validated['n_panchayath_id'] ?? $orderFranchise?->n_panchayath_id,
                 'nearest_franchise_id' => $validated['nearest_franchise_id'] ?? null,
                 'latitude' => $validated['latitude'] ?? null,
                 'longitude' => $validated['longitude'] ?? null,
@@ -1957,16 +1996,20 @@ class SalesController extends Controller
 
             $fresh = SalesOrder::with(['orderProducts', 'customer'])->find($order->n_sl_no);
 
+            $meta = ['_entity' => 'Sales order', '_subject' => $fresh->c_order_no];
+
             $this->auditRecord(
-                $oldSnapshot,
-                $fresh,
-                $existingOrder ? 'SalesOrderUpdate' : 'SalesOrdercreate',
+                $oldSnapshot ? $oldSnapshot + $meta : null,
+                $fresh->toArray() + $meta,
+                'sales_orders',
                 $order->n_sl_no,
-                $existingOrder ? 'Updated' : 'Created'
+                $existingOrder ? 'UPDATE' : 'CREATE'
             );
 
             DB::commit();
+            AuditTrail::resume();
         } catch (\Throwable $e) {
+            AuditTrail::resume();
             DB::rollBack();
 
             foreach ($newFiles as [$type, $name]) {

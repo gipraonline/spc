@@ -1,11 +1,9 @@
-@extends('hr.layouts.app')
+<?php $__env->startSection('title', $module['title']); ?>
 
-@section('title', $module['title'])
-
-@section('content')
-@php $attendanceDepartments = $dailyAttendance ->pluck('employee.department.name') ->filter() ->unique() ->sort()
-->values(); @endphp
-@include('hr.partials.topbar', [
+<?php $__env->startSection('content'); ?>
+<?php $attendanceDepartments = $dailyAttendance ->pluck('employee.department.name') ->filter() ->unique() ->sort()
+->values(); ?>
+<?php echo $__env->make('hr.partials.topbar', [
     'title' => $module['title'],
     'eyebrow' => 'Workforce',
     'heroIcon' => 'fa-regular fa-clock',
@@ -16,11 +14,11 @@
         ['label' => 'Absent', 'icon' => 'fa-solid fa-user-xmark', 'value' => $dailyCounts['absent'] ?? 0],
         ['label' => 'Corrections', 'icon' => 'fa-solid fa-pen-to-square', 'value' => $pendingApprovals->count()],
     ],
-])
+], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 
 <div class="content">
-    @if($showOwnAttendance)
+    <?php if($showOwnAttendance): ?>
     <div class="grid-2">
         <div class="card">
             <div class="widget-head">
@@ -32,31 +30,33 @@
             </div>
 
             <div class="form-actions" style="margin:18px 0 20px;">
-                @if(!$todayOwnAttendance || !$todayOwnAttendance->check_in)
-                <form method="POST" action="{{ route('hr.attendance.check-in') }}">
-                    @csrf
+                <?php if(!$todayOwnAttendance || !$todayOwnAttendance->check_in): ?>
+                <form method="POST" action="<?php echo e(route('hr.attendance.check-in')); ?>">
+                    <?php echo csrf_field(); ?>
                     <button type="submit" class="btn-primary">Check In</button>
                 </form>
-                @elseif(!$todayOwnAttendance->check_out)
-                <form method="POST" action="{{ route('hr.attendance.check-out') }}">
-                    @csrf
+                <?php elseif(!$todayOwnAttendance->check_out): ?>
+                <form method="POST" action="<?php echo e(route('hr.attendance.check-out')); ?>">
+                    <?php echo csrf_field(); ?>
                     <button type="submit" class="btn-primary">Check Out</button>
                 </form>
                 <span class="field-hint" style="margin-left:8px;">
-                    Checked in at {{ \Illuminate\Support\Carbon::parse($todayOwnAttendance->check_in)->format('h:i A') }}
+                    Checked in at <?php echo e(\Illuminate\Support\Carbon::parse($todayOwnAttendance->check_in)->format('h:i A')); ?>
+
                 </span>
-                @else
+                <?php else: ?>
                 <span class="pill pill-ok">Today's attendance completed</span>
                 <span class="field-hint" style="margin-left:8px;">
-                    {{ \Illuminate\Support\Carbon::parse($todayOwnAttendance->check_in)->format('h:i A') }} –
-                    {{ \Illuminate\Support\Carbon::parse($todayOwnAttendance->check_out)->format('h:i A') }}
+                    <?php echo e(\Illuminate\Support\Carbon::parse($todayOwnAttendance->check_in)->format('h:i A')); ?> –
+                    <?php echo e(\Illuminate\Support\Carbon::parse($todayOwnAttendance->check_out)->format('h:i A')); ?>
+
                 </span>
-                @endif
+                <?php endif; ?>
             </div>
 
-            @if($ownRecords->isEmpty())
+            <?php if($ownRecords->isEmpty()): ?>
             <p class="field-hint">No attendance recorded yet for your account.</p>
-            @else
+            <?php else: ?>
             <table>
                 <thead>
                     <tr>
@@ -67,27 +67,29 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($ownRecords as $rec)
+                    <?php $__currentLoopData = $ownRecords; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rec): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td>{{ \Illuminate\Support\Carbon::parse($rec->attendance_date)->format('d M Y') }}</td>
-                        <td>{{ $rec->check_in ? \Illuminate\Support\Carbon::parse($rec->check_in)->format('h:i A') : '—' }}
+                        <td><?php echo e(\Illuminate\Support\Carbon::parse($rec->attendance_date)->format('d M Y')); ?></td>
+                        <td><?php echo e($rec->check_in ? \Illuminate\Support\Carbon::parse($rec->check_in)->format('h:i A') : '—'); ?>
+
                         </td>
-                        <td>{{ $rec->check_out ? \Illuminate\Support\Carbon::parse($rec->check_out)->format('h:i A') : '—' }}
+                        <td><?php echo e($rec->check_out ? \Illuminate\Support\Carbon::parse($rec->check_out)->format('h:i A') : '—'); ?>
+
                         </td>
                         <td>
-                            @php
+                            <?php
                             $p = [
                             'present'=>'pill-ok', 'late'=>'pill-warn', 'half_day'=>'pill-warn',
                             'on_leave'=>'pill-muted', 'absent'=>'pill-bad'
                             ][$rec->status] ?? 'pill-muted';
-                            @endphp
-                            <span class="pill {{ $p }}">{{ ucfirst(str_replace('_',' ',$rec->status)) }}</span>
+                            ?>
+                            <span class="pill <?php echo e($p); ?>"><?php echo e(ucfirst(str_replace('_',' ',$rec->status))); ?></span>
                         </td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
-            @endif
+            <?php endif; ?>
         </div>
 
         <div class="stack">
@@ -99,11 +101,11 @@
                         <p>Missed punch or biometric issue? Submit it for approval.</p>
                     </div>
                 </div>
-                <form method="POST" action="{{ route('hr.attendance.regularize') }}">
-                    @csrf
+                <form method="POST" action="<?php echo e(route('hr.attendance.regularize')); ?>">
+                    <?php echo csrf_field(); ?>
                     <div class="field-grid">
                         <div class="field full"><label>Date</label><input type="date" name="attendance_date"
-                                value="{{ now()->toDateString() }}" max="{{ now()->toDateString() }}" required></div>
+                                value="<?php echo e(now()->toDateString()); ?>" max="<?php echo e(now()->toDateString()); ?>" required></div>
                         <div class="field"><label>Check-in</label><input type="time" name="requested_check_in"></div>
                         <div class="field"><label>Check-out</label><input type="time" name="requested_check_out"></div>
                         <div class="field full"><label>Reason</label><textarea name="reason"
@@ -116,16 +118,16 @@
             <div class="table-card">
                 <div class="tc-head">
                     <h3><span class="wh-ico"><i class="fa-solid fa-clock-rotate-left"></i></span>Your regularization requests</h3>
-                    <span class="pill pill-muted">{{ $ownRegularizations->count() }} total</span>
+                    <span class="pill pill-muted"><?php echo e($ownRegularizations->count()); ?> total</span>
                 </div>
                 <div class="tc-body">
-                @if($ownRegularizations->isEmpty())
+                <?php if($ownRegularizations->isEmpty()): ?>
                 <div class="empty-widget">
                     <div class="ew-ico"><i class="fa-solid fa-clock-rotate-left"></i></div>
                     <b>None submitted yet</b>
                     <span>Missed-punch corrections you submit will appear here.</span>
                 </div>
-                @else
+                <?php else: ?>
                 <table>
                     <thead>
                         <tr>
@@ -135,46 +137,47 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($ownRegularizations as $r)
+                        <?php $__currentLoopData = $ownRegularizations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $r): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td>{{ \Illuminate\Support\Carbon::parse($r->attendance->attendance_date)->format('d M Y') }}
+                            <td><?php echo e(\Illuminate\Support\Carbon::parse($r->attendance->attendance_date)->format('d M Y')); ?>
+
                             </td>
-                            <td>{{ \Illuminate\Support\Str::limit($r->reason, 28) }}</td>
+                            <td><?php echo e(\Illuminate\Support\Str::limit($r->reason, 28)); ?></td>
                             <td>
-                                @php $p =
+                                <?php $p =
                                 ['approved'=>'pill-ok','pending'=>'pill-warn','rejected'=>'pill-bad'][$r->status] ??
-                                'pill-muted'; @endphp
-                                <span class="pill {{ $p }}">{{ ucfirst($r->status) }}</span>
+                                'pill-muted'; ?>
+                                <span class="pill <?php echo e($p); ?>"><?php echo e(ucfirst($r->status)); ?></span>
                             </td>
                         </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
-                @endif
+                <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-    @endif
+    <?php endif; ?>
 
-    @if($isAttendanceAdmin)
+    <?php if($isAttendanceAdmin): ?>
     <div class="tabs" style="margin-top:32px;">
-        <button type="button" class="tab {{ $activeTab === 'daily' ? 'active' : '' }}" data-tab="daily"
+        <button type="button" class="tab <?php echo e($activeTab === 'daily' ? 'active' : ''); ?>" data-tab="daily"
             onclick="attendanceTab(this,'daily')">Daily (Today)</button>
-        <button type="button" class="tab {{ $activeTab === 'report' ? 'active' : '' }}" data-tab="report"
+        <button type="button" class="tab <?php echo e($activeTab === 'report' ? 'active' : ''); ?>" data-tab="report"
             onclick="attendanceTab(this,'report')">Date-wise Report</button>
-        <button type="button" class="tab {{ $activeTab === 'corrections' ? 'active' : '' }}" data-tab="corrections"
-            onclick="attendanceTab(this,'corrections')">Corrections ({{ $pendingApprovals->count() }})</button>
-        <button type="button" class="tab {{ $activeTab === 'monthly' ? 'active' : '' }}" data-tab="monthly"
+        <button type="button" class="tab <?php echo e($activeTab === 'corrections' ? 'active' : ''); ?>" data-tab="corrections"
+            onclick="attendanceTab(this,'corrections')">Corrections (<?php echo e($pendingApprovals->count()); ?>)</button>
+        <button type="button" class="tab <?php echo e($activeTab === 'monthly' ? 'active' : ''); ?>" data-tab="monthly"
             onclick="attendanceTab(this,'monthly')">Monthly Summary</button>
     </div>
 
-    {{-- Daily (Today) --}}
-    <div class="tabpanel {{ $activeTab === 'daily' ? 'active' : '' }}" data-tabpanel="daily">
+    
+    <div class="tabpanel <?php echo e($activeTab === 'daily' ? 'active' : ''); ?>" data-tabpanel="daily">
         <div class="widget-head">
             <div class="wh-ico"><i class="fa-regular fa-clock"></i></div>
             <div>
-                <h3>Daily attendance — {{ now()->format('d M Y') }}</h3>
+                <h3>Daily attendance — <?php echo e(now()->format('d M Y')); ?></h3>
                 <p>Mark attendance for any active employee. Approved WFH is shown as WFH.</p>
             </div>
         </div>
@@ -185,8 +188,8 @@
                 <label for="attendanceDepartmentFilter">Department</label>
                 <select id="attendanceDepartmentFilter">
                     <option value="all">All Departments</option>
-                    @foreach($attendanceDepartments as $department) <option value="{{ strtolower($department) }}">
-                        {{ $department }}</option> @endforeach
+                    <?php $__currentLoopData = $attendanceDepartments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $department): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?> <option value="<?php echo e(strtolower($department)); ?>">
+                        <?php echo e($department); ?></option> <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </div>
 
@@ -216,12 +219,12 @@
         </div>
 
         <div class="stat-tiles" style="margin:16px 0;">
-            <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-user-check"></i></div><div><b>{{ $dailyCounts['present'] }}</b><span>Present</span></div></div>
-            <div class="stat-tile alt"><div class="st-ico"><i class="fa-regular fa-clock"></i></div><div><b>{{ $dailyCounts['late'] }}</b><span>Late</span></div></div>
-            <div class="stat-tile info"><div class="st-ico"><i class="fa-solid fa-plane-departure"></i></div><div><b>{{ $dailyCounts['leave'] }}</b><span>On leave</span></div></div>
-            <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-house-laptop"></i></div><div><b>{{ $dailyCounts['wfh'] }}</b><span>WFH</span></div></div>
-            <div class="stat-tile warn"><div class="st-ico"><i class="fa-solid fa-user-xmark"></i></div><div><b>{{ $dailyCounts['absent'] }}</b><span>Absent</span></div></div>
-            <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-layer-group"></i></div><div><b>{{ $dailyCounts['total'] }}</b><span>Total</span></div></div>
+            <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-user-check"></i></div><div><b><?php echo e($dailyCounts['present']); ?></b><span>Present</span></div></div>
+            <div class="stat-tile alt"><div class="st-ico"><i class="fa-regular fa-clock"></i></div><div><b><?php echo e($dailyCounts['late']); ?></b><span>Late</span></div></div>
+            <div class="stat-tile info"><div class="st-ico"><i class="fa-solid fa-plane-departure"></i></div><div><b><?php echo e($dailyCounts['leave']); ?></b><span>On leave</span></div></div>
+            <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-house-laptop"></i></div><div><b><?php echo e($dailyCounts['wfh']); ?></b><span>WFH</span></div></div>
+            <div class="stat-tile warn"><div class="st-ico"><i class="fa-solid fa-user-xmark"></i></div><div><b><?php echo e($dailyCounts['absent']); ?></b><span>Absent</span></div></div>
+            <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-layer-group"></i></div><div><b><?php echo e($dailyCounts['total']); ?></b><span>Total</span></div></div>
         </div>
 
         <div class="table-card">
@@ -238,56 +241,59 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($dailyAttendance as $row)
-                    @php $e = $row->employee; @endphp
-                    <tr data-attendance-department="{{ strtolower($e->department?->name ?? '') }}"
-                        data-attendance-status="{{ strtolower($row->status) }}"
-                        data-attendance-employee="{{ strtolower($e->user?->name ?? '') }}">
+                    <?php $__empty_1 = true; $__currentLoopData = $dailyAttendance; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <?php $e = $row->employee; ?>
+                    <tr data-attendance-department="<?php echo e(strtolower($e->department?->name ?? '')); ?>"
+                        data-attendance-status="<?php echo e(strtolower($row->status)); ?>"
+                        data-attendance-employee="<?php echo e(strtolower($e->user?->name ?? '')); ?>">
                         <td>
                             <div class="cell-emp">
                                 <div class="av">
-                                    {{ strtoupper(substr($e->user->name,0,1).substr(strstr($e->user->name,' ') ?: '',1,1)) }}
+                                    <?php echo e(strtoupper(substr($e->user->name,0,1).substr(strstr($e->user->name,' ') ?: '',1,1))); ?>
+
                                 </div>
                                 <div>
-                                    <b>{{ $e->user->name }}</b>
-                                    <span>{{ $e->department->name ?? '—' }}</span>
+                                    <b><?php echo e($e->user->name); ?></b>
+                                    <span><?php echo e($e->department->name ?? '—'); ?></span>
                                 </div>
                             </div>
                         </td>
-                        <td>{{ $row->checkIn ? \Illuminate\Support\Carbon::parse($row->checkIn)->format('h:i A') : '—' }}
+                        <td><?php echo e($row->checkIn ? \Illuminate\Support\Carbon::parse($row->checkIn)->format('h:i A') : '—'); ?>
+
                         </td>
-                        <td>{{ $row->checkOut ? \Illuminate\Support\Carbon::parse($row->checkOut)->format('h:i A') : '—' }}
+                        <td><?php echo e($row->checkOut ? \Illuminate\Support\Carbon::parse($row->checkOut)->format('h:i A') : '—'); ?>
+
                         </td>
                         <td>
-                            @php
+                            <?php
                             $pill =
                             ['present'=>'pill-ok','late'=>'pill-warn','half_day'=>'pill-warn','on_leave'=>'pill-muted','wfh'=>'pill-ok','absent'=>'pill-bad'][$row->status]
                             ?? 'pill-muted';
-                            @endphp
+                            ?>
                             <span
-                                class="pill {{ $pill }}">{{ $row->status === 'wfh' ? 'WFH' : ucfirst(str_replace('_',' ',$row->status)) }}</span>
+                                class="pill <?php echo e($pill); ?>"><?php echo e($row->status === 'wfh' ? 'WFH' : ucfirst(str_replace('_',' ',$row->status))); ?></span>
                         </td>
-                        <td>{{ $row->lateMinutes ?: '—' }}</td>
+                        <td><?php echo e($row->lateMinutes ?: '—'); ?></td>
                         <td>
-                            @if($e->id !== optional($employee)->id)
+                            <?php if($e->id !== optional($employee)->id): ?>
                             <div class="row-actions">
-                                <form method="POST" action="{{ route('hr.attendance.mark', $e) }}">
-                                    @csrf
+                                <form method="POST" action="<?php echo e(route('hr.attendance.mark', $e)); ?>">
+                                    <?php echo csrf_field(); ?>
                                     <input type="hidden" name="status" value="present">
                                     <button class="approve" type="submit">Mark Present</button>
                                 </form>
-                                <form method="POST" action="{{ route('hr.attendance.mark', $e) }}">
-                                    @csrf
+                                <form method="POST" action="<?php echo e(route('hr.attendance.mark', $e)); ?>">
+                                    <?php echo csrf_field(); ?>
                                     <input type="hidden" name="status" value="absent">
                                     <button class="reject" type="submit">Mark Absent</button>
                                 </form>
                             </div>
-                            @else
+                            <?php else: ?>
                             <span class="field-hint">Use self check-in/out</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="6">
                             <div class="empty-widget">
@@ -297,15 +303,15 @@
                             </div>
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
             </div>
         </div>
     </div>
 
-    {{-- Date-wise Report --}}
-    <div class="tabpanel {{ $activeTab === 'report' ? 'active' : '' }}" data-tabpanel="report">
+    
+    <div class="tabpanel <?php echo e($activeTab === 'report' ? 'active' : ''); ?>" data-tabpanel="report">
         <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
                 <div class="widget-head" style="margin:0;">
@@ -315,13 +321,13 @@
                         <p>View attendance, leave and absence for a selected date.</p>
                     </div>
                 </div>
-                <form method="GET" action="{{ route('hr.attendance.index') }}"
+                <form method="GET" action="<?php echo e(route('hr.attendance.index')); ?>"
                     style="display:flex;gap:10px;align-items:end;">
                     <input type="hidden" name="tab" value="report">
                     <div class="field" style="margin:0;">
                         <label>Date</label>
-                        <input type="date" name="report_date" value="{{ $reportDate }}"
-                            max="{{ now()->toDateString() }}">
+                        <input type="date" name="report_date" value="<?php echo e($reportDate); ?>"
+                            max="<?php echo e(now()->toDateString()); ?>">
                     </div>
                     <button type="submit" class="btn-primary">View Report</button>
                     <button type="submit" name="export" value="report" class="employee-export">↧ Export</button>
@@ -329,25 +335,25 @@
             </div>
 
             <div class="stat-tiles" style="margin:18px 0 22px;">
-                <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-user-check"></i></div><div><b>{{ $reportCounts['present'] }}</b><span>Present</span></div></div>
-                <div class="stat-tile alt"><div class="st-ico"><i class="fa-regular fa-clock"></i></div><div><b>{{ $reportCounts['late'] }}</b><span>Late</span></div></div>
-                <div class="stat-tile info"><div class="st-ico"><i class="fa-solid fa-plane-departure"></i></div><div><b>{{ $reportCounts['leave'] }}</b><span>On leave</span></div></div>
-                <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-house-laptop"></i></div><div><b>{{ $reportCounts['wfh'] }}</b><span>WFH</span></div></div>
-                <div class="stat-tile warn"><div class="st-ico"><i class="fa-solid fa-user-xmark"></i></div><div><b>{{ $reportCounts['absent'] }}</b><span>Absent</span></div></div>
-                <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-layer-group"></i></div><div><b>{{ $reportCounts['total'] }}</b><span>Total</span></div></div>
+                <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-user-check"></i></div><div><b><?php echo e($reportCounts['present']); ?></b><span>Present</span></div></div>
+                <div class="stat-tile alt"><div class="st-ico"><i class="fa-regular fa-clock"></i></div><div><b><?php echo e($reportCounts['late']); ?></b><span>Late</span></div></div>
+                <div class="stat-tile info"><div class="st-ico"><i class="fa-solid fa-plane-departure"></i></div><div><b><?php echo e($reportCounts['leave']); ?></b><span>On leave</span></div></div>
+                <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-house-laptop"></i></div><div><b><?php echo e($reportCounts['wfh']); ?></b><span>WFH</span></div></div>
+                <div class="stat-tile warn"><div class="st-ico"><i class="fa-solid fa-user-xmark"></i></div><div><b><?php echo e($reportCounts['absent']); ?></b><span>Absent</span></div></div>
+                <div class="stat-tile"><div class="st-ico"><i class="fa-solid fa-layer-group"></i></div><div><b><?php echo e($reportCounts['total']); ?></b><span>Total</span></div></div>
             </div>
-            @php $reportHasData = ($reportCounts['present'] + $reportCounts['late'] + $reportCounts['leave'] + $reportCounts['wfh']) > 0; @endphp
-            @if(!$reportHasData)
+            <?php $reportHasData = ($reportCounts['present'] + $reportCounts['late'] + $reportCounts['leave'] + $reportCounts['wfh']) > 0; ?>
+            <?php if(!$reportHasData): ?>
             <div class="empty-widget" style="margin:22px 0 6px;">
                 <div class="ew-ico"><i class="fa-regular fa-face-smile"></i></div>
-                <b>No attendance recorded on {{ \Illuminate\Support\Carbon::parse($reportDate)->format('d M Y') }}</b>
+                <b>No attendance recorded on <?php echo e(\Illuminate\Support\Carbon::parse($reportDate)->format('d M Y')); ?></b>
                 <span>This looks like a non-working day or holiday — pick a different date above.</span>
             </div>
-            @else
+            <?php else: ?>
             <div class="widget-head" style="margin:18px 0 12px;">
                 <div class="wh-ico"><i class="fa-regular fa-calendar"></i></div>
                 <div>
-                    <h3>{{ \Illuminate\Support\Carbon::parse($reportDate)->format('d M Y') }}</h3>
+                    <h3><?php echo e(\Illuminate\Support\Carbon::parse($reportDate)->format('d M Y')); ?></h3>
                     <p>Employee attendance status for this date.</p>
                 </div>
             </div>
@@ -364,31 +370,33 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($reportRows as $row)
+                    <?php $__empty_1 = true; $__currentLoopData = $reportRows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
                         <td>
                             <div class="cell-emp">
-                                <div class="av">{{ strtoupper(substr($row->employee->user->name,0,1)) }}</div>
-                                <div><b>{{ $row->employee->user->name }}</b></div>
+                                <div class="av"><?php echo e(strtoupper(substr($row->employee->user->name,0,1))); ?></div>
+                                <div><b><?php echo e($row->employee->user->name); ?></b></div>
                             </div>
                         </td>
-                        <td>{{ $row->employee->department->name ?? '—' }}</td>
-                        <td>{{ $row->checkIn ? \Illuminate\Support\Carbon::parse($row->checkIn)->format('h:i A') : '—' }}
+                        <td><?php echo e($row->employee->department->name ?? '—'); ?></td>
+                        <td><?php echo e($row->checkIn ? \Illuminate\Support\Carbon::parse($row->checkIn)->format('h:i A') : '—'); ?>
+
                         </td>
-                        <td>{{ $row->checkOut ? \Illuminate\Support\Carbon::parse($row->checkOut)->format('h:i A') : '—' }}
+                        <td><?php echo e($row->checkOut ? \Illuminate\Support\Carbon::parse($row->checkOut)->format('h:i A') : '—'); ?>
+
                         </td>
                         <td>
-                            @php
+                            <?php
                             $pill =
                             ['present'=>'pill-ok','late'=>'pill-warn','half_day'=>'pill-warn','on_leave'=>'pill-muted','wfh'=>'pill-ok','absent'=>'pill-bad'][$row->status]
                             ?? 'pill-muted';
-                            @endphp
+                            ?>
                             <span
-                                class="pill {{ $pill }}">{{ $row->status === 'wfh' ? 'WFH' : ucfirst(str_replace('_',' ',$row->status)) }}</span>
+                                class="pill <?php echo e($pill); ?>"><?php echo e($row->status === 'wfh' ? 'WFH' : ucfirst(str_replace('_',' ',$row->status))); ?></span>
                         </td>
-                        <td>{{ $row->lateMinutes ?: '—' }}</td>
+                        <td><?php echo e($row->lateMinutes ?: '—'); ?></td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="6">
                             <div class="empty-widget">
@@ -398,15 +406,15 @@
                             </div>
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 
-    {{-- Corrections --}}
-    <div class="tabpanel {{ $activeTab === 'corrections' ? 'active' : '' }}" data-tabpanel="corrections">
+    
+    <div class="tabpanel <?php echo e($activeTab === 'corrections' ? 'active' : ''); ?>" data-tabpanel="corrections">
         <div class="widget-head">
             <div class="wh-ico"><i class="fa-solid fa-pen-to-square"></i></div>
             <div>
@@ -427,28 +435,30 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($pendingApprovals as $r)
+                    <?php $__empty_1 = true; $__currentLoopData = $pendingApprovals; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $r): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
-                        <td>{{ $r->attendance->employee->user->name }}</td>
-                        <td>{{ \Illuminate\Support\Carbon::parse($r->attendance->attendance_date)->format('d M Y') }}
+                        <td><?php echo e($r->attendance->employee->user->name); ?></td>
+                        <td><?php echo e(\Illuminate\Support\Carbon::parse($r->attendance->attendance_date)->format('d M Y')); ?>
+
                         </td>
-                        <td>{{ \Illuminate\Support\Carbon::parse($r->requested_check_in)->format('h:i A') }}&ndash;{{ \Illuminate\Support\Carbon::parse($r->requested_check_out)->format('h:i A') }}
+                        <td><?php echo e(\Illuminate\Support\Carbon::parse($r->requested_check_in)->format('h:i A')); ?>&ndash;<?php echo e(\Illuminate\Support\Carbon::parse($r->requested_check_out)->format('h:i A')); ?>
+
                         </td>
-                        <td>{{ \Illuminate\Support\Str::limit($r->reason, 34) }}</td>
+                        <td><?php echo e(\Illuminate\Support\Str::limit($r->reason, 34)); ?></td>
                         <td>
                             <div class="row-actions">
-                                <form method="POST" action="{{ route('hr.attendance.decide', $r) }}">@csrf<input
+                                <form method="POST" action="<?php echo e(route('hr.attendance.decide', $r)); ?>"><?php echo csrf_field(); ?><input
                                         type="hidden" name="action" value="approve"><button class="approve"
                                         type="submit">Approve</button>
                                 </form>
-                                <form method="POST" action="{{ route('hr.attendance.decide', $r) }}">@csrf<input
+                                <form method="POST" action="<?php echo e(route('hr.attendance.decide', $r)); ?>"><?php echo csrf_field(); ?><input
                                         type="hidden" name="action" value="reject"><button class="reject"
                                         type="submit">Reject</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="5">
                             <div class="empty-widget">
@@ -458,52 +468,52 @@
                             </div>
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
             </div>
         </div>
     </div>
 
-    {{-- Monthly Summary --}}
-    <div class="tabpanel {{ $activeTab === 'monthly' ? 'active' : '' }}" data-tabpanel="monthly">
-        @php
+    
+    <div class="tabpanel <?php echo e($activeTab === 'monthly' ? 'active' : ''); ?>" data-tabpanel="monthly">
+        <?php
         $monthlyDepartments = $monthlyRows->pluck('employee.department.name')->filter()->unique()->sort()->values();
         $monthlyHasData = $monthlyRows->contains(fn ($r) => ($r->present + $r->late + $r->leave + $r->absent) > 0);
-        @endphp
+        ?>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
             <div class="widget-head" style="margin:0;">
                 <div class="wh-ico"><i class="fa-regular fa-calendar-days"></i></div>
                 <div>
                     <h3>Monthly Summary</h3>
-                    <p>{{ \Illuminate\Support\Carbon::createFromFormat('Y-m', $selectedMonth)->format('F Y') }} · Attendance breakdown per employee, month to date.</p>
+                    <p><?php echo e(\Illuminate\Support\Carbon::createFromFormat('Y-m', $selectedMonth)->format('F Y')); ?> · Attendance breakdown per employee, month to date.</p>
                 </div>
             </div>
-            <form method="GET" action="{{ route('hr.attendance.index') }}" style="display:flex;gap:10px;align-items:end;">
+            <form method="GET" action="<?php echo e(route('hr.attendance.index')); ?>" style="display:flex;gap:10px;align-items:end;">
                 <input type="hidden" name="tab" value="monthly">
                 <div class="field" style="margin:0;">
                     <label>Month</label>
-                    <input type="month" name="month" value="{{ $selectedMonth }}" max="{{ now()->format('Y-m') }}">
+                    <input type="month" name="month" value="<?php echo e($selectedMonth); ?>" max="<?php echo e(now()->format('Y-m')); ?>">
                 </div>
                 <button type="submit" class="btn-primary">View Month</button>
             </form>
         </div>
 
-        @if(!$monthlyHasData)
+        <?php if(!$monthlyHasData): ?>
         <div class="empty-widget" style="margin:22px 0 0;">
             <div class="ew-ico"><i class="fa-regular fa-calendar-xmark"></i></div>
-            <b>No attendance recorded for {{ \Illuminate\Support\Carbon::createFromFormat('Y-m', $selectedMonth)->format('F Y') }}</b>
+            <b>No attendance recorded for <?php echo e(\Illuminate\Support\Carbon::createFromFormat('Y-m', $selectedMonth)->format('F Y')); ?></b>
             <span>Check-ins will appear here as your team starts marking attendance. Try another month above.</span>
         </div>
-        @else
+        <?php else: ?>
 
         <div class="filters" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:18px 0;">
             <div class="field" style="min-width:190px;">
                 <label for="monthlyDepartmentFilter">Department</label>
                 <select id="monthlyDepartmentFilter">
                     <option value="all">All Departments</option>
-                    @foreach($monthlyDepartments as $department) <option value="{{ strtolower($department) }}">
-                        {{ $department }}</option> @endforeach
+                    <?php $__currentLoopData = $monthlyDepartments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $department): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?> <option value="<?php echo e(strtolower($department)); ?>">
+                        <?php echo e($department); ?></option> <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </div>
 
@@ -532,28 +542,28 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($monthlyRows as $row)
-                    <tr data-monthly-department="{{ strtolower($row->employee->department->name ?? '') }}"
-                        data-monthly-employee="{{ strtolower($row->employee->user->name ?? '') }}">
+                    <?php $__empty_1 = true; $__currentLoopData = $monthlyRows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <tr data-monthly-department="<?php echo e(strtolower($row->employee->department->name ?? '')); ?>"
+                        data-monthly-employee="<?php echo e(strtolower($row->employee->user->name ?? '')); ?>">
                         <td>
                             <div class="cell-emp">
-                                <div class="av">{{ strtoupper(substr($row->employee->user->name,0,1)) }}</div>
-                                <div><b>{{ $row->employee->user->name }}</b></div>
+                                <div class="av"><?php echo e(strtoupper(substr($row->employee->user->name,0,1))); ?></div>
+                                <div><b><?php echo e($row->employee->user->name); ?></b></div>
                             </div>
                         </td>
-                        <td>{{ $row->employee->department->name ?? '—' }}</td>
-                        <td>{{ $row->present }}</td>
-                        <td>{{ $row->late }}</td>
-                        <td>{{ $row->leave }}</td>
-                        <td>{{ $row->absent }}</td>
+                        <td><?php echo e($row->employee->department->name ?? '—'); ?></td>
+                        <td><?php echo e($row->present); ?></td>
+                        <td><?php echo e($row->late); ?></td>
+                        <td><?php echo e($row->leave); ?></td>
+                        <td><?php echo e($row->absent); ?></td>
                         <td>
-                            @php
+                            <?php
                             $pill = $row->rate >= 90 ? 'pill-ok' : ($row->rate >= 75 ? 'pill-warn' : 'pill-bad');
-                            @endphp
-                            <span class="pill {{ $pill }}">{{ $row->rate }}%</span>
+                            ?>
+                            <span class="pill <?php echo e($pill); ?>"><?php echo e($row->rate); ?>%</span>
                         </td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="7">
                             <div class="empty-widget">
@@ -563,12 +573,12 @@
                             </div>
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
             </div>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 
     <script>
@@ -580,13 +590,14 @@
         scope.querySelectorAll('[data-tabpanel="' + name + '"]').forEach(p => p.classList.add('active'));
     }
     </script>
-    @endif
+    <?php endif; ?>
 
     <p class="access-note">
         Visible to:
-        @foreach($module['roles'] as $r)
-        {{ $roles[$r]['label'] }}{{ !$loop->last ? ', ' : '' }}
-        @endforeach
+        <?php $__currentLoopData = $module['roles']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $r): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php echo e($roles[$r]['label']); ?><?php echo e(!$loop->last ? ', ' : ''); ?>
+
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </p>
 </div>
 
@@ -748,8 +759,9 @@ function exportAttendance(kind) {
         params.set('employee', document.getElementById('monthlyEmployeeSearch')?.value || '');
     }
 
-    window.location.href = "{{ route('hr.attendance.index') }}?" + params.toString();
+    window.location.href = "<?php echo e(route('hr.attendance.index')); ?>?" + params.toString();
 }
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('hr.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/modules/attendance.blade.php ENDPATH**/ ?>

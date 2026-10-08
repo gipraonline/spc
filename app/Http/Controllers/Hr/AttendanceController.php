@@ -297,8 +297,8 @@ class AttendanceController extends Controller
                 fputcsv($out, [
                     $row->employee->user->name ?? '',
                     $row->employee->department->name ?? '',
-                    $row->checkIn ? Carbon::parse($row->checkIn)->format('H:i') : '',
-                    $row->checkOut ? Carbon::parse($row->checkOut)->format('H:i') : '',
+                    $row->checkIn ? Carbon::parse($row->checkIn)->format('h:i A') : '',
+                    $row->checkOut ? Carbon::parse($row->checkOut)->format('h:i A') : '',
                     ucfirst(str_replace('_', ' ', $row->status)),
                     $row->lateMinutes ?: 0,
                 ]);
@@ -353,7 +353,7 @@ class AttendanceController extends Controller
             'late_minutes' => $lateMinutes,
         ]);
 
-        return back()->with('status', 'Attendance checked in at '.$now->format('H:i').'.');
+        return back()->with('status', 'Attendance checked in at '.$now->format('h:i A').'.');
     }
 
     public function checkOut()
@@ -386,7 +386,7 @@ class AttendanceController extends Controller
             'early_exit_minutes' => $earlyExitMinutes,
         ]);
 
-        return back()->with('status', 'Attendance checked out at '.$now->format('H:i').'.');
+        return back()->with('status', 'Attendance checked out at '.$now->format('h:i A').'.');
     }
 
     public function mark(Request $request, Employee $employee)

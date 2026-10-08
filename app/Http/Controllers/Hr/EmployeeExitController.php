@@ -122,6 +122,13 @@ class EmployeeExitController extends Controller
 
         $employee = Employee::where('employee_master_id', $employeeMaster->n_employee_id)->first();
 
+        if (! $employee && $employeeMaster->isAssociate()) {
+            return redirect()->route('admin.employees.index')->with(
+                'error',
+                $employeeMaster->c_employee_name.' is an associate, not an employee yet, so there is no employee history. Change the designation to Farm Care Officer in Edit to make them an employee.'
+            );
+        }
+
         if (! $employee) {
             try {
                 $employee = EmployeeHrSyncService::sync($employeeMaster);

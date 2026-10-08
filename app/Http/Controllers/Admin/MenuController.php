@@ -119,7 +119,7 @@ class MenuController extends Controller
     // Get all role IDs assigned to the logged-in user
     $roleIds = $user->roles->pluck('id');
     // Get only parent menus (menus without a parent)
-    return Menu::whereNull('parent_id')
+    $menus = Menu::whereNull('parent_id')
      // Get only active menus
         ->where('status', 1)
          // Filter menus based on user roles
@@ -147,5 +147,20 @@ class MenuController extends Controller
         ])
         ->orderBy('sort_order')
         ->get();
+
+    // Associates (un-promoted Farm Care Advisers / Tele Callers) are not
+    // employees: hide every employee-portal (hr.*) item, and any group
+    // that ends up empty. Sales, leads and field menus are unaffected.
+    if ($user instanceof \App\Models\Admin && $user->isAssociate()) {
+        $menus = $menus->each(function ($parent) {
+            $parent->setRelation(
+                'children',
+                $parent->children->reject(fn ($c) => str_starts_with((string) $c->route_name, 'hr.'))->values()
+            );
+        })->filter(fn ($parent) => $parent->children->isNotEmpty()
+            || ($parent->route_name && ! str_starts_with((string) $parent->route_name, 'hr.')))->values();
+    }
+
+    return $menus;
 }
 }

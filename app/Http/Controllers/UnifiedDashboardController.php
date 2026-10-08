@@ -322,6 +322,12 @@ class UnifiedDashboardController extends Controller
     */
     private function buildHrData($user): array
     {
+        // Associates (un-promoted Farm Care Advisers / Tele Callers) are not
+        // employees: no HR section on their dashboard.
+        if ($user instanceof \App\Models\Admin && $user->isAssociate()) {
+            return ['hasHrAccess' => false];
+        }
+
         $hrUser = HrUser::findForSpcAdmin($user);
 
         if (! $hrUser) {

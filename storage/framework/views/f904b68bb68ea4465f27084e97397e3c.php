@@ -1316,12 +1316,18 @@
                                 <li class="nav-item dropdown">
                                     <div class="topbar-user" id="drop1" role="button" data-bs-toggle="dropdown"
                                         aria-expanded="false">
-                                        <?php $spcName = trim(Auth::user()->name ?? ''); ?>
+                                        <?php
+                                            $spcName = trim(Auth::user()->name ?? '');
+                                            // Show the designation; fall back to the role when there is none.
+                                            $navTitle = $navProfile['designation'] ?? null;
+                                            $navTitleLabel = $navTitle ? 'Designation' : 'Role';
+                                            $navTitle = $navTitle ?: ($navProfile['role'] ?? 'User');
+                                        ?>
                                         <span
                                             class="topbar-avatar"><?php echo e(strtoupper(substr($spcName ?: '?', 0, 1))); ?><?php echo e(strtoupper(substr(strstr($spcName, ' ') ?: '', 1, 1))); ?></span>
                                         <div class="topbar-who">
                                             <b><?php echo e(Auth::user()->name); ?></b>
-                                            <span><?php echo e($navProfile['role'] ?? 'User'); ?></span>
+                                            <span><?php echo e($navTitle); ?></span>
                                         </div>
                                     </div>
                                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up user-panel"
@@ -1334,9 +1340,6 @@
                                                 <div class="user-panel-email"><?php echo e(Auth::user()->email); ?></div>
                                             </div>
                                         </div>
-                                        <div class="user-panel-detail">
-                                            <span>Role</span><span><?php echo e($navProfile['role'] ?? 'User'); ?></span>
-                                        </div>
                                         <?php if($navProfile ?? null): ?>
                                         <div class="user-panel-detail">
                                             <span>Employee code</span><span><?php echo e($navProfile['code'] ?? '—'); ?></span>
@@ -1344,12 +1347,14 @@
                                         <div class="user-panel-detail">
                                             <span>Department</span><span><?php echo e($navProfile['department'] ?? '—'); ?></span>
                                         </div>
-                                        <div class="user-panel-detail">
-                                            <span>Designation</span><span><?php echo e($navProfile['designation'] ?? '—'); ?></span>
-                                        </div>
                                         <?php endif; ?>
+                                        <div class="user-panel-detail">
+                                            <span><?php echo e($navTitleLabel); ?></span><span><?php echo e($navTitle); ?></span>
+                                        </div>
+                                        <?php if (! (Auth::user()->isAssociate())): ?>
                                         <a href="<?php echo e(route('hr.profile.index')); ?>" class="user-panel-link"><i
                                                 class="fa-regular fa-user"></i>View full profile</a>
+                                        <?php endif; ?>
                                         <form method="POST" action="<?php echo e(route('logout')); ?>" class="user-panel-logout">
                                             <?php echo csrf_field(); ?>
                                             <button type="submit" class="user-panel-signout"><i

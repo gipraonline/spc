@@ -24,13 +24,19 @@
         <div class="bell-foot"><a href="<?php echo e(route('hr.notifications.index')); ?>">View all <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i></a></div>
     </div>
 </details>
+<?php
+    // Show the designation; fall back to the role when there is none.
+    $hdrTitle = $employee->designation->title ?? null;
+    $hdrTitleLabel = $hdrTitle ? 'Designation' : 'Role';
+    $hdrTitle = $hdrTitle ?: $authUser->roleLabel();
+?>
 <details class="bell user-menu">
     <summary class="bell-icon user-chip-summary">
         <span class="user-chip">
             <span class="avatar"><?php echo e(strtoupper(substr($authUser->name ?? '?', 0, 1))); ?><?php echo e(strtoupper(substr(strstr($authUser->name ?? '', ' ') ?: '', 1, 1))); ?></span>
             <span class="who">
                 <b><?php echo e($authUser->name); ?></b>
-                <span><?php echo e($authUser->roleLabel()); ?></span>
+                <span><?php echo e($hdrTitle); ?></span>
             </span>
         </span>
     </summary>
@@ -42,9 +48,6 @@
                 <div class="card-note" style="margin:0;"><?php echo e($authUser->email); ?></div>
             </div>
         </div>
-        <div class="user-panel-detail">
-            <span>Role</span><span><?php echo e($authUser->roleLabel()); ?></span>
-        </div>
         <?php if($employee ?? null): ?>
             <div class="user-panel-detail">
                 <span>Employee code</span><span><?php echo e($employee->employee_code); ?></span>
@@ -52,10 +55,10 @@
             <div class="user-panel-detail">
                 <span>Department</span><span><?php echo e($employee->department->name ?? '—'); ?></span>
             </div>
-            <div class="user-panel-detail">
-                <span>Designation</span><span><?php echo e($employee->designation->title ?? '—'); ?></span>
-            </div>
         <?php endif; ?>
+        <div class="user-panel-detail">
+            <span><?php echo e($hdrTitleLabel); ?></span><span><?php echo e($hdrTitle); ?></span>
+        </div>
         <a href="<?php echo e(route('hr.profile.index')); ?>" class="bell-item" style="display:block;padding:10px 9px;"><i class="fa-regular fa-user" style="margin-right:8px;color:var(--brand);"></i>View full profile</a>
         <form method="POST" action="<?php echo e(route('hr.logout')); ?>" style="padding:4px 9px 2px;">
             <?php echo csrf_field(); ?>

@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CustomerMaster extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'customers';
+
+    protected string $auditEntity = 'Customer';
+
+    protected array $auditSubjectColumns = ['c_customer_name'];
+
     use SoftDeletes;
 
     protected $primaryKey = 'n_customer_id';

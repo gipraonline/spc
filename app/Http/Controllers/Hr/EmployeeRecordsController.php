@@ -9,6 +9,7 @@ use App\Models\Hr\Employee;
 use App\Models\Hr\EmployeeDocument;
 use App\Models\Hr\EmployeeHistory;
 use App\Models\Hr\Notification;
+use App\Models\Hr\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -401,6 +402,7 @@ class EmployeeRecordsController extends Controller
     public function verifyDocument(Request $request, EmployeeDocument $document)
     {
         abort_unless($this->isHrOrAbove(), 403);
+        abort_if(auth()->user()?->isManagingDirector(), 403, 'The Managing Director does not verify documents.');
 
         $data = $request->validate(['action' => 'required|in:verified,rejected']);
 

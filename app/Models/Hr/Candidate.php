@@ -6,6 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Candidate extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'recruitment';
+
+    protected string $auditEntity = 'Candidate';
+
+    protected array $auditSubjectColumns = ['name'];
+
     protected $connection = 'spc_hr';
 
     protected $guarded = [];

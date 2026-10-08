@@ -7,6 +7,14 @@ use Spatie\Permission\Models\Role;
 
 class Menu extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'roles';
+
+    protected string $auditEntity = 'Menu';
+
+    protected array $auditSubjectColumns = ['name'];
+
     protected $table = 'menus';
 
     protected $fillable = [

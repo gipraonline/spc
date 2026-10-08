@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class DesignationMaster extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'designations';
+
+    protected string $auditEntity = 'Designation';
+
+    protected array $auditSubjectColumns = ['c_designation'];
+
     use HasFactory;
 
     protected $table = 'designation_masters';

@@ -2,14 +2,14 @@
 
 use App\Http\Controllers\Admin\AdminFieldLogController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AssociateLeaveController;
+use App\Http\Controllers\Admin\CoverageMapController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DesignationController;
 use App\Http\Controllers\Admin\EmployeeController;
-use App\Http\Controllers\Admin\FranchiseSalesReportController;
-use App\Http\Controllers\Hr\EmployeeExitController;
 use App\Http\Controllers\Admin\FieldLogController;
+use App\Http\Controllers\Admin\FranchiseSalesReportController;
 use App\Http\Controllers\Admin\InvoiceController;
-use App\Http\Controllers\Admin\CoverageMapController;
 use App\Http\Controllers\Admin\LeadCockpitController;
 use App\Http\Controllers\Admin\LeadsController;
 use App\Http\Controllers\Admin\MenuController;
@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Hr\EmployeeExitController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UnifiedDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -63,10 +65,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Unified notification bell (sales / order / other) — HR notifications
     // are merged in from the /hr module but keep their own read route.
-    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])
+    Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index');
 
-    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'read'])
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])
         ->name('notifications.read');
 
     Route::put('/change-password', [ProfileController::class, 'updatePassword'])
@@ -146,6 +148,10 @@ Route::middleware(['auth', 'admin'])
         Route::put('employees/{employee}', [EmployeeController::class, 'update'])
             ->middleware('permission:employees.edit')
             ->name('employees.update');
+
+        Route::post('employees/{employee}/promote', [EmployeeController::class, 'promote'])
+            ->middleware('permission:employees.edit')
+            ->name('employees.promote');
 
         Route::delete('employees/{employee}', [EmployeeController::class, 'destroy'])
             ->middleware('permission:employees.delete')
@@ -447,11 +453,9 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:sales-orders.approval')
             ->name('salesorders.approval.save');
 
-       Route::put('salesorders/followup', [SalesController::class, 'salesUpdateStore'])
-    ->middleware('permission:sales-orders.follow-up')
-    ->name('salesorders.salesUpdateStore.put');   
-    
-    
+        Route::put('salesorders/followup', [SalesController::class, 'salesUpdateStore'])
+            ->middleware('permission:sales-orders.follow-up')
+            ->name('salesorders.salesUpdateStore.put');
 
         Route::get('salesorders/edit/{id}', [SalesController::class, 'edit'])
             ->middleware('permission:sales-orders.edit')
@@ -483,20 +487,17 @@ Route::middleware(['auth', 'admin'])
         Route::get('filter-productsFromId/{productId}', [SalesController::class, 'getAttributesFromProductname'])
             ->name('get.attributesFromProductname');
 
-
         Route::get('filter-packSize/{productName}', [SalesController::class, 'getProductPackSize'])
             ->name('get.product.packSize');
 
         Route::get('filter-attributes/{productName}/{packSize}', [SalesController::class, 'getProductAttributes'])
             ->name('get.product.attributes');
 
-
-
-         /*
-          |--------------------------------------------------------------------------
-          | Tele Callers
-          |--------------------------------------------------------------------------
-          */
+        /*
+         |--------------------------------------------------------------------------
+         | Tele Callers
+         |--------------------------------------------------------------------------
+         */
 
         Route::get('telecallers', [SalesController::class, 'index'])
             ->middleware('permission:tele-callers.view')
@@ -511,16 +512,16 @@ Route::middleware(['auth', 'admin'])
             ->name('telecallers.store');
 
         Route::get('telecallers/show/{id}', [SalesController::class, 'show'])
-    ->middleware('permission:tele-callers.view-details')
-    ->name('telecallers.show');  
+            ->middleware('permission:tele-callers.view-details')
+            ->name('telecallers.show');
 
         Route::put('telecallers/approval', [SalesController::class, 'approve'])
             ->middleware('permission:tele-callers.approval')
             ->name('telecallers.approval.save');
 
         Route::put('telecallers/followup', [SalesController::class, 'salesUpdateStore'])
-    ->middleware('permission:tele-callers.follow-up')
-    ->name('telecallers.salesUpdateStore');
+            ->middleware('permission:tele-callers.follow-up')
+            ->name('telecallers.salesUpdateStore');
 
         Route::get('telecallers/edit/{id}', [SalesController::class, 'edit'])
             ->middleware('permission:tele-callers.edit')
@@ -534,8 +535,6 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:tele-callers.delete')
             ->name('telecallers.destroy');
 
-
-
         /*
         |--------------------------------------------------------------------------
         | Customers
@@ -547,8 +546,8 @@ Route::middleware(['auth', 'admin'])
             ->name('customers.index');
 
         Route::post('salesorders/followup', [SalesController::class, 'salesUpdateStore'])
-    ->middleware('permission:sales-orders.follow-up')
-    ->name('salesorders.salesUpdateStore');
+            ->middleware('permission:sales-orders.follow-up')
+            ->name('salesorders.salesUpdateStore');
         Route::get('customers/create', [CustomerController::class, 'create'])
             ->middleware('permission:customers.create')
             ->name('customers.create');
@@ -758,6 +757,16 @@ Route::middleware(['auth', 'admin'])
         Route::get('reports/franchise-sales/export', [FranchiseSalesReportController::class, 'export'])
             ->middleware('permission:franchise-sales-report.export|sales-orders.view')
             ->name('reports.franchise-sales.export');
+        /*
+        |--------------------------------------------------------------------------
+        | Franchise-wise Sales Summary
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('associate-leave', [AssociateLeaveController::class, 'index'])->name('associate-leave.index');
+        Route::post('associate-leave', [AssociateLeaveController::class, 'store'])->name('associate-leave.store');
+        Route::post('associate-leave/{leave}/cancel', [AssociateLeaveController::class, 'cancel'])->name('associate-leave.cancel');
+        Route::post('associate-leave/{leave}/decide', [AssociateLeaveController::class, 'decide'])->name('associate-leave.decide');
 
     });
 

@@ -8,6 +8,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class KycSubmission extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'employees';
+
+    protected string $auditEntity = 'KYC details';
+
+    public function auditSubject(): ?string
+    {
+        return EmployeeMaster::where('n_employee_id', $this->n_employee_id)->value('c_employee_name');
+    }
+
     use HasFactory, SoftDeletes;
 
     protected $table = 'kyc_submissions';

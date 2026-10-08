@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeMaster extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'employees';
+
+    protected string $auditEntity = 'Employee';
+
+    protected array $auditSubjectColumns = ['c_employee_name'];
+
     use HasFactory;
     use SoftDeletes;
 
@@ -41,7 +49,28 @@ class EmployeeMaster extends Model
         'bank_account_number',
         'bank_ifsc',
         'c_hr_role',
+
+        // 'associate' = not an employee yet (Farm Care Adviser / Tele Caller
+        // before promotion); 'employee' = full employee.
+        'engagement_type',
     ];
+
+    public const TYPE_EMPLOYEE = 'employee';
+
+    public const TYPE_ASSOCIATE = 'associate';
+
+    /** Designation identifiers that start as associates, not employees. */
+    public const ASSOCIATE_DESIGNATIONS = ['FCA', 'TC'];
+
+    public function isAssociate(): bool
+    {
+        return $this->engagement_type === self::TYPE_ASSOCIATE;
+    }
+
+    public static function startsAsAssociate(?string $designationIdentifier): bool
+    {
+        return in_array(strtoupper((string) $designationIdentifier), self::ASSOCIATE_DESIGNATIONS, true);
+    }
 
     public function designation()
     {

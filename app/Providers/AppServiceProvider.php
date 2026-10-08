@@ -90,6 +90,11 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
+        // What the top-right profile card shows under the name: the person's
+        // designation (not the login role). Falls back to the role only when
+        // the user has no employee record / designation.
+        $profile['title'] = $profile['designation'] ?: $profile['role'];
+
         return $profile;
     }
 }

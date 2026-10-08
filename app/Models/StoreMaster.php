@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StoreMaster extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'franchises';
+
+    protected string $auditEntity = 'Franchise';
+
+    protected array $auditSubjectColumns = ['c_store_name'];
+
     use SoftDeletes;
 
     protected $table = 'store_masters';

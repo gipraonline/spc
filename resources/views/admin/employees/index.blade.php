@@ -378,6 +378,18 @@
     gap: 8px;
 }
 
+.associate-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #FFF4D6;
+    border: 1px solid #E6C55A;
+    color: #7A5B00;
+    font: 600 10.5px/1.4 var(--font-body);
+    white-space: nowrap;
+}
+
 .employee-history-btn {
     cursor: pointer;
     height: 31px;
@@ -616,7 +628,12 @@
                             </div>
                         </td>
                         <td class="employee-id">{{ $employee->c_employee_code }}</td>
-                        <td>{{ $employee->designation?->c_designation ?? '—' }}</td>
+                        <td>
+                            {{ $employee->designation?->c_designation ?? '—' }}
+                            @if($employee->isAssociate())
+                            <span class="associate-badge" title="Not an employee yet">Associate</span>
+                            @endif
+                        </td>
                         <td>{{ $employee->reportingManager?->designation?->c_designation ?? '—' }}</td>
                         <td>{{ $employee->c_employee_phone ?? '—' }}</td>
                         <td>
@@ -669,7 +686,7 @@
                                     data-city="{{ $employee->city ?? '—' }}"
                                     data-department="{{ $employee->department?->name ?? '—' }}"
                                     data-joining="{{ !empty($employee->date_of_joining) ? \Carbon\Carbon::parse($employee->date_of_joining)->format('d M Y') : '—' }}"
-                                    data-designation="{{ $employee->designation?->c_designation ?? '—' }}"
+                                    data-designation="{{ ($employee->designation?->c_designation ?? '—') . ($employee->isAssociate() ? ' (Associate - not an employee yet)' : '') }}"
                                     data-reporting="{{ $employee->reportingManager?->c_employee_name ?? '—' }}"
                                     data-status="{{ $isActive ? 'Active' : 'Inactive' }}"
                                     data-account="{{ $employee->kycSubmission?->account_number ?? '—' }}"

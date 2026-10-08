@@ -16,6 +16,9 @@ use Illuminate\Support\Str;
  * Access is enforced twice: the `hr.admin` route middleware (HR Admin and
  * Super Admin portal roles only) and abortUnlessModuleAllowed() against
  * config/hr_modules.php, so the two can never drift apart silently.
+ *
+ * Viewing is open to those roles (so the MD can see everything), but verifying or
+ * rejecting needs the Spatie permission `document-verification.verify`.
  */
 class DocumentVerificationController extends Controller
 {
@@ -117,6 +120,13 @@ class DocumentVerificationController extends Controller
     public function decide(Request $request, EmployeeDocument $document)
     {
         $this->abortUnlessModuleAllowed('document-verification');
+        // Second lock behind the route's permission middleware: only roles holding
+        // document-verification.verify (HR) can verify / reject. The MD can view only.
+        abort_unless(
+            auth()->user()?->can('document-verification.verify'),
+            403,
+            'You do not have permission to verify or reject documents.'
+        );
 
         $data = $request->validate([
             'action' => 'required|in:verified,rejected',

@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'tasks';
+
+    protected string $auditEntity = 'Task';
+
+    protected array $auditSubjectColumns = ['title'];
+
     use SoftDeletes;
 
     public const PRIORITIES = [

@@ -6,6 +6,14 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'roles';
+
+    protected string $auditEntity = 'Role';
+
+    protected array $auditSubjectColumns = ['name'];
+
     protected $fillable = [
         'name',
         'identifier',

@@ -166,13 +166,14 @@ class EmployeeController extends Controller
                 $e->reportingManager?->c_employee_name,
                 $e->date_of_joining ? Carbon::parse($e->date_of_joining)->format('d-m-Y') : null,
                 $statusFilter === 'former' ? 'Former' : ($e->c_status === 'Y' ? 'Active' : 'Inactive'),
+                $e->isAssociate() ? 'Associate' : 'Employee',
             ];
         }
 
         return Excel::download(
             new TableExport(
                 ['Sl No', 'Employee Code', 'Name', 'Designation', 'Email', 'Phone', 'City', 'Reporting To',
-                    'Date of Joining', 'Status'],
+                    'Date of Joining', 'Status', 'Type'],
                 $rows,
                 ['B', 'F']
             ),
@@ -392,6 +393,12 @@ class EmployeeController extends Controller
                 'reporting_to' => $validated['reporting_to'] ?? null,
                 'c_status' => $validated['c_status'],
 
+                // FCA / Tele Caller start as associates (not employees)
+                // until promoted to Farm Care Officer.
+                'engagement_type' => EmployeeMaster::startsAsAssociate(
+                    DesignationMaster::find($validated['n_designation_id'])?->identifier
+                ) ? EmployeeMaster::TYPE_ASSOCIATE : EmployeeMaster::TYPE_EMPLOYEE,
+
                 // HR-facing fields
                 'date_of_birth' => $validated['date_of_birth'] ?? null,
                 'gender' => $validated['gender'] ?? null,
@@ -535,8 +542,18 @@ class EmployeeController extends Controller
                 'n_new_designation_id' => $request->n_designation_id,
             ]);
 
+            // Moving an associate to any designation other than FCA / TC
+            // (e.g. Farm Care Officer) makes them an employee.
+            $newType = $employee->engagement_type;
+            if ($employee->isAssociate() && ! EmployeeMaster::startsAsAssociate(
+                DesignationMaster::find($request->n_designation_id)?->identifier
+            )) {
+                $newType = EmployeeMaster::TYPE_EMPLOYEE;
+            }
+
             // Update employee
             $employee->update([
+                'engagement_type' => $newType,
                 'c_employee_name' => $request->c_employee_name,
                 'c_employee_address' => $request->c_employee_address,
                 'c_employee_email' => $request->c_employee_email,
@@ -606,6 +623,82 @@ class EmployeeController extends Controller
                 ->withInput()
                 ->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Promote a Farm Care Adviser / Tele Caller (associate) to Farm Care
+     * Officer. They become an employee: designation + login role change,
+     * and the normal HR sync now creates their HR record.
+     */
+    public function promote(Request $request, EmployeeMaster $employee)
+    {
+        [$mode] = $this->employeeScope();
+        abort_unless($mode === 'all', 403, 'Only HR or admin can promote an associate.');
+
+        if (! $employee->isAssociate()) {
+            return back()->with('error', $employee->c_employee_name.' is already an employee.');
+        }
+
+        $fco = DesignationMaster::where('identifier', 'FCO')->where('c_status', 'Y')->first();
+
+        if (! $fco) {
+            return back()->with('error', 'Farm Care Officer designation was not found.');
+        }
+
+        $previousDesignation = $employee->designation?->c_designation ?? '—';
+
+        DB::beginTransaction();
+
+        try {
+            EmployeeEditLog::create([
+                'n_employee_id' => $employee->n_employee_id,
+                'n_pre_designation_id' => $employee->n_designation_id,
+                'n_new_designation_id' => $fco->n_designation_id,
+            ]);
+
+            $employee->update([
+                'n_designation_id' => $fco->n_designation_id,
+                'engagement_type' => EmployeeMaster::TYPE_EMPLOYEE,
+                // Employment starts on the promotion date.
+                'date_of_joining' => now()->toDateString(),
+            ]);
+
+            // Move their SPC login to the Farm Care Officer role, if they have one.
+            $role = \App\Models\Role::where('identifier', 'FCO')->first();
+            $admin = \App\Models\Admin::where('n_employee_id', $employee->n_employee_id)->first();
+
+            if ($role && $admin) {
+                $admin->syncRoles([$role->name]);
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return back()->with('error', 'Could not promote: '.$e->getMessage());
+        }
+
+        try {
+            $hr = EmployeeHrSyncService::sync($employee->fresh());
+
+            if ($hr) {
+                \App\Models\Hr\EmployeeHistory::log(
+                    $hr->id, 'promotion', 'Promoted to employee',
+                    $previousDesignation.' (associate)', $fco->c_designation,
+                    EmployeeHrSyncService::actingHrUserId()
+                );
+            }
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()->route('admin.employees.index')
+                ->with('warning', 'Promoted, but could not be synced to the HR module: '.$e->getMessage());
+        }
+
+        return redirect()->route('admin.employees.index')
+            ->with('success', $employee->c_employee_name.' is now a Farm Care Officer and an employee.'
+                .($employee->c_employee_email ? '' : ' Add a work email so they can be linked to HR.'));
     }
 
     public function destroy($id)

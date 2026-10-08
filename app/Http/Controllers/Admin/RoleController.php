@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EmployeeMaster;
 use App\Models\Menu;
 use App\Models\Role;
+use App\Services\AuditTrail;
 use App\Services\Hr\EmployeeHrSyncService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
@@ -84,6 +85,9 @@ class RoleController extends Controller
 
         $hrAccessChanged = $role->hr_access !== ($request->hr_access ?: null);
 
+        $menusBefore = $role->menus()->pluck('menus.id')->map(fn ($v) => (int) $v)->all();
+        $permsBefore = $role->permissions()->pluck('name')->all();
+
         $role->update([
             'name' => $request->name,
             'identifier' => $request->identifier,
@@ -93,6 +97,8 @@ class RoleController extends Controller
         $role->menus()->sync($request->menus ?? []);
         // Sync permissions
         $role->syncPermissions($request->permissions ?? []);
+
+        $this->auditAccessChange($role, $menusBefore, $permsBefore);
 
         // HR reads its access tier off this role's hr_access field, but only at
         // the moment an employee is synced. Changing hr_access here doesn't
@@ -125,5 +131,31 @@ class RoleController extends Controller
         $role->delete();
 
         return back()->with('success', 'Role deleted successfully.');
+    }
+
+    /** Record which menus / permissions were added to or removed from a role. */
+    private function auditAccessChange(Role $role, array $menusBefore, array $permsBefore): void
+    {
+        $role->unsetRelation('permissions');
+        $menusAfter = $role->menus()->pluck('menus.id')->map(fn ($v) => (int) $v)->all();
+        $permsAfter = $role->permissions()->pluck('name')->all();
+
+        $menuNames = fn (array $ids) => $ids ? Menu::whereIn('id', $ids)->orderBy('name')->pluck('name')->implode(', ') : null;
+
+        $changes = array_filter([
+            'menus_added' => $menuNames(array_diff($menusAfter, $menusBefore)),
+            'menus_removed' => $menuNames(array_diff($menusBefore, $menusAfter)),
+            'permissions_added' => implode(', ', array_diff($permsAfter, $permsBefore)) ?: null,
+            'permissions_removed' => implode(', ', array_diff($permsBefore, $permsAfter)) ?: null,
+        ]);
+
+        if (! $changes) {
+            return;
+        }
+
+        AuditTrail::record('roles', 'UPDATE', (int) $role->id, null, $changes + [
+            '_entity' => 'Role access',
+            '_subject' => $role->name,
+        ]);
     }
 }

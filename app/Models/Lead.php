@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Lead extends Model
 {
+    use \App\Models\Concerns\Auditable;
+
+    protected string $auditModule = 'leads';
+
+    protected string $auditEntity = 'Lead';
+
+    protected array $auditSubjectColumns = ['c_customer_name'];
+
     use HasFactory, SoftDeletes;
 
     protected $table = 'leads';

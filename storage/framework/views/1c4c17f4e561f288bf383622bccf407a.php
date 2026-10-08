@@ -17,9 +17,11 @@
         <a href="<?php echo e(route('admin.franchises.index')); ?>" class="<?php echo e(request()->routeIs('admin.franchises.*') ? 'active' : ''); ?>">
             <i class="fa-solid fa-store"></i><span>Stores</span>
         </a>
+        <?php if (! (auth()->user()?->isAssociate())): ?>
         <a href="<?php echo e(url('/hr/modules/attendance')); ?>" class="<?php echo e($mnavIsHr ? 'active' : ''); ?>">
             <i class="fa-solid fa-users"></i><span>HR</span>
         </a>
+        <?php endif; ?>
     </div>
 </nav>
 <?php /**PATH C:\xampp\htdocs\spc_new\resources\views/partials/mobile-bottom-nav.blade.php ENDPATH**/ ?>

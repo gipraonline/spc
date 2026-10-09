@@ -1,10 +1,8 @@
-@extends('hr.layouts.app')
+<?php $__env->startSection('title', $module['title']); ?>
 
-@section('title', $module['title'])
-
-@section('content')
-@php $currentCycleMonth = $currentCycleMonth ?? now()->format('F'); @endphp
-@include('hr.partials.topbar', [
+<?php $__env->startSection('content'); ?>
+<?php $currentCycleMonth = $currentCycleMonth ?? now()->format('F'); ?>
+<?php echo $__env->make('hr.partials.topbar', [
 'title' => $module['title'],
 'eyebrow' => 'Money',
 'heroIcon' => 'fa-solid fa-indian-rupee-sign',
@@ -19,7 +17,7 @@
 ['label' => 'Payslips', 'icon' => 'fa-regular fa-file-lines', 'value' => $payslips->count()],
 ['label' => 'Cycle', 'icon' => 'fa-regular fa-calendar', 'value' => $currentCycleMonth],
 ],
-])
+], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <style>
 .salary-dialog {
@@ -362,7 +360,7 @@
 }
 </style>
 <div class="content">
-    @if($canManagePayroll)
+    <?php if($canManagePayroll): ?>
     <div class="kpi-row">
         <div class="kpi-card">
             <div class="kpi-top">
@@ -370,7 +368,7 @@
             </div>
             <div>
                 <div class="kpi-label">Active employees</div>
-                <div class="kpi-val">{{ $activeEmployeeCount }}</div>
+                <div class="kpi-val"><?php echo e($activeEmployeeCount); ?></div>
             </div>
         </div>
         <div class="kpi-card">
@@ -379,7 +377,7 @@
             </div>
             <div>
                 <div class="kpi-label">Last cycle net pay</div>
-                <div class="kpi-val">₹{{ number_format($lastCycleNetPay, 0) }}</div>
+                <div class="kpi-val">₹<?php echo e(number_format($lastCycleNetPay, 0)); ?></div>
             </div>
         </div>
         <div class="kpi-card">
@@ -388,7 +386,7 @@
             </div>
             <div>
                 <div class="kpi-label">Cycles finalized</div>
-                <div class="kpi-val">{{ $cyclesFinalized }}</div>
+                <div class="kpi-val"><?php echo e($cyclesFinalized); ?></div>
             </div>
         </div>
         <div class="kpi-card">
@@ -397,25 +395,25 @@
             </div>
             <div>
                 <div class="kpi-label">Current cycle</div>
-                <div class="kpi-val" style="font-size:19px;">{{ $currentCycleMonth }}</div>
+                <div class="kpi-val" style="font-size:19px;"><?php echo e($currentCycleMonth); ?></div>
             </div>
         </div>
     </div>
 
     <div class="tabs">
-        <button type="button" class="tab @if($activeTab === 'salary') active @endif" data-tab="salary"
+        <button type="button" class="tab <?php if($activeTab === 'salary'): ?> active <?php endif; ?>" data-tab="salary"
             onclick="payrollTab(this,'salary')">Salary Structure</button>
-        <button type="button" class="tab @if($activeTab === 'run') active @endif" data-tab="run"
+        <button type="button" class="tab <?php if($activeTab === 'run'): ?> active <?php endif; ?>" data-tab="run"
             onclick="payrollTab(this,'run')">Run Payroll</button>
-        <button type="button" class="tab @if($activeTab === 'history') active @endif" data-tab="history"
+        <button type="button" class="tab <?php if($activeTab === 'history'): ?> active <?php endif; ?>" data-tab="history"
             onclick="payrollTab(this,'history')">Payslip History</button>
     </div>
 
-    <div class="tabpanel @if($activeTab === 'salary') active @endif" data-tabpanel="salary">
+    <div class="tabpanel <?php if($activeTab === 'salary'): ?> active <?php endif; ?>" data-tabpanel="salary">
         <div class="table-card">
             <div class="tc-head">
                 <h3><span class="wh-ico"><i class="fa-solid fa-file-invoice-dollar"></i></span>Salary structures</h3>
-                <span class="pill pill-muted">{{ $activeEmployees->count() }} employees</span>
+                <span class="pill pill-muted"><?php echo e($activeEmployees->count()); ?> employees</span>
             </div>
             <div class="tc-body">
                 <table>
@@ -432,26 +430,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($activeEmployees as $e)
-                        @php $s = $e->currentSalaryStructure; @endphp
+                        <?php $__empty_1 = true; $__currentLoopData = $activeEmployees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $e): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <?php $s = $e->currentSalaryStructure; ?>
                         <tr>
                             <td class="cell-emp">
-                                <div class="av">{{ strtoupper(substr($e->user->name,0,1)) }}</div>
-                                <div><b>{{ $e->user->name }}</b><span>{{ $e->employee_code }}</span></div>
+                                <div class="av"><?php echo e(strtoupper(substr($e->user->name,0,1))); ?></div>
+                                <div><b><?php echo e($e->user->name); ?></b><span><?php echo e($e->employee_code); ?></span></div>
                             </td>
-                            <td>{{ $s ? '₹'.number_format($s->gross_monthly,0) : '—' }}</td>
-                            <td>{{ $s ? '₹'.number_format($s->basic,0) : '—' }}</td>
-                            <td>{{ $s ? '₹'.number_format($s->hra,0) : '—' }}</td>
-                            <td>{{ $s ? '₹'.number_format($s->other_allowances,0) : '—' }}</td>
-                            <td>{{ $s ? '₹'.number_format($s->variable_pay,0) : '—' }}</td>
-                            <td>@if($s)<span
-                                    class="pill pill-muted">{{ $s->pf_applicable ? 'PF' : '' }}{{ $s->esi_applicable ? ' ESI' : '' }}{{ $s->pt_applicable ? ' PT' : '' }}</span>@else
-                                — @endif</td>
+                            <td><?php echo e($s ? '₹'.number_format($s->gross_monthly,0) : '—'); ?></td>
+                            <td><?php echo e($s ? '₹'.number_format($s->basic,0) : '—'); ?></td>
+                            <td><?php echo e($s ? '₹'.number_format($s->hra,0) : '—'); ?></td>
+                            <td><?php echo e($s ? '₹'.number_format($s->other_allowances,0) : '—'); ?></td>
+                            <td><?php echo e($s ? '₹'.number_format($s->variable_pay,0) : '—'); ?></td>
+                            <td><?php if($s): ?><span
+                                    class="pill pill-muted"><?php echo e($s->pf_applicable ? 'PF' : ''); ?><?php echo e($s->esi_applicable ? ' ESI' : ''); ?><?php echo e($s->pt_applicable ? ' PT' : ''); ?></span><?php else: ?>
+                                — <?php endif; ?></td>
                             <td><button type="button" class="btn-ghost"
-                                    onclick="document.getElementById('salary-dialog-{{ $e->id }}').showModal()">Edit</button>
+                                    onclick="document.getElementById('salary-dialog-<?php echo e($e->id); ?>').showModal()">Edit</button>
                             </td>
                         </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="8">
                                 <div class="empty-widget">
@@ -461,22 +459,23 @@
                                 </div>
                             </td>
                         </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        @foreach($activeEmployees as $e)
-        @php $s = $e->currentSalaryStructure; @endphp
-        <dialog id="salary-dialog-{{ $e->id }}" class="app-dialog salary-dialog">
-            <form method="POST" action="{{ route('hr.payroll.salary.update', $e) }}" data-salary-form>
-                @csrf
+        <?php $__currentLoopData = $activeEmployees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $e): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php $s = $e->currentSalaryStructure; ?>
+        <dialog id="salary-dialog-<?php echo e($e->id); ?>" class="app-dialog salary-dialog">
+            <form method="POST" action="<?php echo e(route('hr.payroll.salary.update', $e)); ?>" data-salary-form>
+                <?php echo csrf_field(); ?>
                 <div class="sd-head">
-                    <div class="av">{{ strtoupper(substr($e->user->name,0,1)) }}</div>
+                    <div class="av"><?php echo e(strtoupper(substr($e->user->name,0,1))); ?></div>
                     <div>
-                        <h3>{{ $e->user->name }}</h3>
-                        <p>{{ $s ? 'Edit salary structure' : 'Set up salary structure' }} for {{ $e->employee_code }}
+                        <h3><?php echo e($e->user->name); ?></h3>
+                        <p><?php echo e($s ? 'Edit salary structure' : 'Set up salary structure'); ?> for <?php echo e($e->employee_code); ?>
+
                         </p>
                     </div>
                     <button type="button" class="sd-x" aria-label="Close"
@@ -489,26 +488,26 @@
                         <div class="field-grid">
                             <div class="field"><label>Basic</label>
                                 <div class="money"><span>₹</span><input type="number" step="0.01" min="0" name="basic"
-                                        value="{{ $s->basic ?? 0 }}" data-earn required></div>
+                                        value="<?php echo e($s->basic ?? 0); ?>" data-earn required></div>
                             </div>
                             <div class="field"><label>HRA</label>
                                 <div class="money"><span>₹</span><input type="number" step="0.01" min="0" name="hra"
-                                        value="{{ $s->hra ?? 0 }}" data-earn required></div>
+                                        value="<?php echo e($s->hra ?? 0); ?>" data-earn required></div>
                             </div>
                             <div class="field"><label>Allowances</label>
                                 <div class="money"><span>₹</span><input type="number" step="0.01" min="0"
-                                        name="other_allowances" value="{{ $s->other_allowances ?? 0 }}" data-earn
+                                        name="other_allowances" value="<?php echo e($s->other_allowances ?? 0); ?>" data-earn
                                         required></div>
                             </div>
                             <div class="field"><label>Variable pay</label>
                                 <div class="money"><span>₹</span><input type="number" step="0.01" min="0"
-                                        name="variable_pay" value="{{ $s->variable_pay ?? 0 }}" data-earn required>
+                                        name="variable_pay" value="<?php echo e($s->variable_pay ?? 0); ?>" data-earn required>
                                 </div>
                             </div>
                         </div>
                         <div class="sd-total">
                             <span>Gross monthly<small>Adds up as you type</small></span>
-                            <b data-gross>₹{{ number_format($s->gross_monthly ?? 0, 0) }}</b>
+                            <b data-gross>₹<?php echo e(number_format($s->gross_monthly ?? 0, 0)); ?></b>
                         </div>
                     </section>
 
@@ -517,12 +516,12 @@
                         <div class="field-grid">
                             <div class="field"><label>Loan or advance recovery</label>
                                 <div class="money"><span>₹</span><input type="number" step="0.01" min="0"
-                                        name="other_deduction" value="{{ $s->other_deduction ?? 0 }}"></div><span
+                                        name="other_deduction" value="<?php echo e($s->other_deduction ?? 0); ?>"></div><span
                                     class="field-hint">Deducted every month until you change it.</span>
                             </div>
                             <div class="field"><label>Fixed monthly TDS</label>
                                 <div class="money"><span>₹</span><input type="number" step="0.01" min="0"
-                                        name="tds_monthly_override" value="{{ $s->tds_monthly_override ?? '' }}"
+                                        name="tds_monthly_override" value="<?php echo e($s->tds_monthly_override ?? ''); ?>"
                                         placeholder="Auto"></div><span class="field-hint">Leave blank to calculate TDS
                                     automatically.</span>
                             </div>
@@ -532,14 +531,14 @@
                     <section class="sd-sec">
                         <h4>Statutory deductions</h4>
                         <div class="sd-toggles">
-                            <label class="sd-toggle"><input type="checkbox" name="pf_applicable" value="1" @checked($s ?
-                                    $s->pf_applicable : true)><div><b>Provident fund (PF)</b><span>Deduct PF from
+                            <label class="sd-toggle"><input type="checkbox" name="pf_applicable" value="1" <?php if($s ?
+                                    $s->pf_applicable : true): echo 'checked'; endif; ?>><div><b>Provident fund (PF)</b><span>Deduct PF from
                                         salary</span></div></label>
-                            <label class="sd-toggle"><input type="checkbox" name="esi_applicable" value="1" @checked($s
-                                    ? $s->esi_applicable : true)><div><b>ESI</b><span>Only while gross is under the ESI
+                            <label class="sd-toggle"><input type="checkbox" name="esi_applicable" value="1" <?php if($s
+                                    ? $s->esi_applicable : true): echo 'checked'; endif; ?>><div><b>ESI</b><span>Only while gross is under the ESI
                                         limit</span></div></label>
-                            <label class="sd-toggle"><input type="checkbox" name="pt_applicable" value="1" @checked($s ?
-                                    $s->pt_applicable : true)><div><b>Professional tax</b><span>Deduct professional
+                            <label class="sd-toggle"><input type="checkbox" name="pt_applicable" value="1" <?php if($s ?
+                                    $s->pt_applicable : true): echo 'checked'; endif; ?>><div><b>Professional tax</b><span>Deduct professional
                                         tax</span></div></label>
                         </div>
                     </section>
@@ -547,7 +546,7 @@
                     <section class="sd-sec">
                         <h4>Starts from</h4>
                         <div class="field" style="max-width:240px;">
-                            <input type="date" name="effective_from" value="{{ now()->toDateString() }}"
+                            <input type="date" name="effective_from" value="<?php echo e(now()->toDateString()); ?>"
                                 aria-label="Effective from">
                             <span class="field-hint">Payslips already generated stay unchanged.</span>
                         </div>
@@ -560,10 +559,10 @@
                 </div>
             </form>
         </dialog>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
 
-    <div class="tabpanel @if($activeTab === 'run') active @endif" data-tabpanel="run">
+    <div class="tabpanel <?php if($activeTab === 'run'): ?> active <?php endif; ?>" data-tabpanel="run">
         <div class="card" style="max-width:760px;margin-bottom:18px;">
             <div class="widget-head">
                 <div class="wh-ico"><i class="fa-solid fa-play"></i></div>
@@ -573,23 +572,22 @@
                 </div>
             </div>
             <div class="run-steps">
-                <span class="run-step @if(! $preview) on @else done @endif"><i>1</i>Review</span>
+                <span class="run-step <?php if(! $preview): ?> on <?php else: ?> done <?php endif; ?>"><i>1</i>Review</span>
                 <span class="run-line"></span>
-                <span class="run-step @if($preview) on @endif"><i>2</i>Process</span>
+                <span class="run-step <?php if($preview): ?> on <?php endif; ?>"><i>2</i>Process</span>
             </div>
-            <form method="GET" action="{{ route('hr.payroll.index') }}">
+            <form method="GET" action="<?php echo e(route('hr.payroll.index')); ?>">
                 <div class="field-grid">
                     <div class="field">
                         <label>Month</label>
                         <select name="preview_month">
-                            @foreach(['January','February','March','April','May','June','July','August','September','October','November','December']
-                            as $i => $m)
-                            <option value="{{ $i+1 }}" @selected(($i+1)==(int) $previewMonth)>{{ $m }}</option>
-                            @endforeach
+                            <?php $__currentLoopData = ['January','February','March','April','May','June','July','August','September','October','November','December']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($i+1); ?>" <?php if(($i+1)==(int) $previewMonth): echo 'selected'; endif; ?>><?php echo e($m); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                     <div class="field"><label>Year</label><input type="number" name="preview_year"
-                            value="{{ $previewYear }}"></div>
+                            value="<?php echo e($previewYear); ?>"></div>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Review payroll</button>
@@ -598,21 +596,21 @@
             </form>
         </div>
 
-        @if($preview)
-        @php $t = $preview['totals']; $pLabel = \DateTime::createFromFormat('!m', $preview['month'])->format('F').'
-        '.$preview['year']; @endphp
+        <?php if($preview): ?>
+        <?php $t = $preview['totals']; $pLabel = \DateTime::createFromFormat('!m', $preview['month'])->format('F').'
+        '.$preview['year']; ?>
         <div class="table-card" style="margin-bottom:18px;">
             <div class="tc-head">
-                <h3><span class="wh-ico"><i class="fa-solid fa-calculator"></i></span>Preview &mdash; {{ $pLabel }}</h3>
-                <span class="pill pill-muted">{{ $t['count'] }} employees &middot; nothing saved yet</span>
+                <h3><span class="wh-ico"><i class="fa-solid fa-calculator"></i></span>Preview &mdash; <?php echo e($pLabel); ?></h3>
+                <span class="pill pill-muted"><?php echo e($t['count']); ?> employees &middot; nothing saved yet</span>
             </div>
             <div class="tc-body">
-                @if(! empty($preview['skipped']))
+                <?php if(! empty($preview['skipped'])): ?>
                 <div class="run-warn">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                     <div>
-                        <b>{{ count($preview['skipped']) }} active
-                            {{ \Illuminate\Support\Str::plural('employee', count($preview['skipped'])) }} will not be
+                        <b><?php echo e(count($preview['skipped'])); ?> active
+                            <?php echo e(\Illuminate\Support\Str::plural('employee', count($preview['skipped']))); ?> will not be
                             paid</b>
                         <span>They have no salary structure yet. Add one under Salary Structure, then review
                             again.</span>
@@ -621,39 +619,40 @@
                             Structure</button>
                     </div>
                 </div>
-                @endif
+                <?php endif; ?>
 
-                @if($preview['already_run'])
-                <div class="status-block" style="margin-bottom:16px;">Payroll for {{ $pLabel }} already exists
-                    ({{ ucfirst($preview['already_run']->status) }}). Discard it below if it has to be redone.</div>
-                @elseif($t['count'] > 0)
-                <form method="POST" action="{{ route('hr.payroll.run') }}" class="run-bar"
-                    onsubmit="return confirm('Process payroll for {{ $pLabel }}? Payslips will be generated for {{ $t['count'] }} employees.');">
-                    @csrf
-                    <input type="hidden" name="month" value="{{ $preview['month'] }}">
-                    <input type="hidden" name="year" value="{{ $preview['year'] }}">
-                    <div class="run-bar-text"><b>Step 2: process {{ $pLabel }}</b><span>Looks right? This creates
-                            payslips for {{ $t['count'] }}
-                            {{ \Illuminate\Support\Str::plural('employee', $t['count']) }}.</span></div>
+                <?php if($preview['already_run']): ?>
+                <div class="status-block" style="margin-bottom:16px;">Payroll for <?php echo e($pLabel); ?> already exists
+                    (<?php echo e(ucfirst($preview['already_run']->status)); ?>). Discard it below if it has to be redone.</div>
+                <?php elseif($t['count'] > 0): ?>
+                <form method="POST" action="<?php echo e(route('hr.payroll.run')); ?>" class="run-bar"
+                    onsubmit="return confirm('Process payroll for <?php echo e($pLabel); ?>? Payslips will be generated for <?php echo e($t['count']); ?> employees.');">
+                    <?php echo csrf_field(); ?>
+                    <input type="hidden" name="month" value="<?php echo e($preview['month']); ?>">
+                    <input type="hidden" name="year" value="<?php echo e($preview['year']); ?>">
+                    <div class="run-bar-text"><b>Step 2: process <?php echo e($pLabel); ?></b><span>Looks right? This creates
+                            payslips for <?php echo e($t['count']); ?>
+
+                            <?php echo e(\Illuminate\Support\Str::plural('employee', $t['count'])); ?>.</span></div>
                     <input type="text" name="notes" maxlength="255"
                         placeholder="Note (optional), e.g. includes arrears">
                     <button type="submit" class="btn-primary">Process payroll</button>
                 </form>
-                @endif
+                <?php endif; ?>
 
                 <div class="stat-tiles"
                     style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:16px;">
                     <div class="stat-tile">
-                        <div><b>₹{{ number_format($t['gross'],0) }}</b><span>Gross pay</span></div>
+                        <div><b>₹<?php echo e(number_format($t['gross'],0)); ?></b><span>Gross pay</span></div>
                     </div>
                     <div class="stat-tile">
-                        <div><b>₹{{ number_format($t['deductions'],0) }}</b><span>Deductions</span></div>
+                        <div><b>₹<?php echo e(number_format($t['deductions'],0)); ?></b><span>Deductions</span></div>
                     </div>
                     <div class="stat-tile">
-                        <div><b>₹{{ number_format($t['net'],0) }}</b><span>Net payable</span></div>
+                        <div><b>₹<?php echo e(number_format($t['net'],0)); ?></b><span>Net payable</span></div>
                     </div>
                     <div class="stat-tile">
-                        <div><b>₹{{ number_format($t['employer_cost'],0) }}</b><span>Cost to company</span></div>
+                        <div><b>₹<?php echo e(number_format($t['employer_cost'],0)); ?></b><span>Cost to company</span></div>
                     </div>
                 </div>
                 <table>
@@ -672,60 +671,61 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($preview['rows'] as $r)
+                        <?php $__currentLoopData = $preview['rows']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $r): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
                             <td class="cell-emp">
-                                <div class="av">{{ strtoupper(substr($r['employee']->user->name ?? '?',0,1)) }}</div>
+                                <div class="av"><?php echo e(strtoupper(substr($r['employee']->user->name ?? '?',0,1))); ?></div>
                                 <div>
-                                    <b>{{ $r['employee']->user->name ?? '—' }}</b><span>{{ $r['employee']->employee_code }}</span>
+                                    <b><?php echo e($r['employee']->user->name ?? '—'); ?></b><span><?php echo e($r['employee']->employee_code); ?></span>
                                 </div>
                             </td>
-                            <td>{{ rtrim(rtrim(number_format($r['paid_days'],2),'0'),'.') }} /
-                                {{ $r['days_in_month'] }}@if($r['lop_days'] > 0) <span class="pill pill-muted">LOP
-                                    {{ rtrim(rtrim(number_format($r['lop_days'],2),'0'),'.') }}</span>@endif</td>
-                            <td>₹{{ number_format($r['gross'],0) }}@if($r['incentive'] > 0)<span class="field-hint">
-                                    incl. ₹{{ number_format($r['incentive'],0) }} incentive</span>@endif</td>
-                            <td>₹{{ number_format($r['pf'],0) }}</td>
-                            <td>₹{{ number_format($r['esi'],0) }}</td>
-                            <td>₹{{ number_format($r['pt'],2) }}</td>
-                            <td>₹{{ number_format($r['tds'],0) }}</td>
-                            <td>₹{{ number_format($r['other'],0) }}</td>
-                            <td><b>₹{{ number_format($r['net'],0) }}</b></td>
-                            <td>@if($r['warnings'])<span title="{{ implode(' ', $r['warnings']) }}"
+                            <td><?php echo e(rtrim(rtrim(number_format($r['paid_days'],2),'0'),'.')); ?> /
+                                <?php echo e($r['days_in_month']); ?><?php if($r['lop_days'] > 0): ?> <span class="pill pill-muted">LOP
+                                    <?php echo e(rtrim(rtrim(number_format($r['lop_days'],2),'0'),'.')); ?></span><?php endif; ?></td>
+                            <td>₹<?php echo e(number_format($r['gross'],0)); ?><?php if($r['incentive'] > 0): ?><span class="field-hint">
+                                    incl. ₹<?php echo e(number_format($r['incentive'],0)); ?> incentive</span><?php endif; ?></td>
+                            <td>₹<?php echo e(number_format($r['pf'],0)); ?></td>
+                            <td>₹<?php echo e(number_format($r['esi'],0)); ?></td>
+                            <td>₹<?php echo e(number_format($r['pt'],2)); ?></td>
+                            <td>₹<?php echo e(number_format($r['tds'],0)); ?></td>
+                            <td>₹<?php echo e(number_format($r['other'],0)); ?></td>
+                            <td><b>₹<?php echo e(number_format($r['net'],0)); ?></b></td>
+                            <td><?php if($r['warnings']): ?><span title="<?php echo e(implode(' ', $r['warnings'])); ?>"
                                     style="cursor:help;color:#B45309;"><i
-                                        class="fa-solid fa-triangle-exclamation"></i></span>@endif</td>
+                                        class="fa-solid fa-triangle-exclamation"></i></span><?php endif; ?></td>
                         </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         <tr style="font-weight:600;">
                             <td>Total</td>
                             <td></td>
-                            <td>₹{{ number_format($t['gross'],0) }}</td>
-                            <td>₹{{ number_format($t['pf'],0) }}</td>
-                            <td>₹{{ number_format($t['esi'],0) }}</td>
-                            <td>₹{{ number_format($t['pt'],2) }}</td>
-                            <td>₹{{ number_format($t['tds'],0) }}</td>
-                            <td>₹{{ number_format($t['other'],0) }}</td>
-                            <td>₹{{ number_format($t['net'],0) }}</td>
+                            <td>₹<?php echo e(number_format($t['gross'],0)); ?></td>
+                            <td>₹<?php echo e(number_format($t['pf'],0)); ?></td>
+                            <td>₹<?php echo e(number_format($t['esi'],0)); ?></td>
+                            <td>₹<?php echo e(number_format($t['pt'],2)); ?></td>
+                            <td>₹<?php echo e(number_format($t['tds'],0)); ?></td>
+                            <td>₹<?php echo e(number_format($t['other'],0)); ?></td>
+                            <td>₹<?php echo e(number_format($t['net'],0)); ?></td>
                             <td></td>
                         </tr>
                     </tbody>
                 </table>
 
-                @if($t['warnings'] > 0)
-                <div class="status-block" style="margin-top:16px;">{{ $t['warnings'] }} warning(s) &mdash; hover the <i
+                <?php if($t['warnings'] > 0): ?>
+                <div class="status-block" style="margin-top:16px;"><?php echo e($t['warnings']); ?> warning(s) &mdash; hover the <i
                         class="fa-solid fa-triangle-exclamation"></i> icon on a row for details. Missing attendance is
                     treated as present unless you change that in Settings.</div>
-                @endif
+                <?php endif; ?>
 
             </div>
         </div>
-        @endif
+        <?php endif; ?>
 
         <div class="table-card">
             <div class="tc-head">
                 <h3><span class="wh-ico"><i class="fa-solid fa-list-check"></i></span>Payroll runs</h3>
-                <span class="pill pill-muted">{{ $runs->count() }}
-                    {{ \Illuminate\Support\Str::plural('run', $runs->count()) }}</span>
+                <span class="pill pill-muted"><?php echo e($runs->count()); ?>
+
+                    <?php echo e(\Illuminate\Support\Str::plural('run', $runs->count())); ?></span>
             </div>
             <div class="tc-body">
                 <table>
@@ -741,39 +741,39 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($runs as $run)
+                        <?php $__empty_1 = true; $__currentLoopData = $runs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $run): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr>
-                            <td><b>{{ $run->monthLabel() }}</b></td>
-                            <td>{{ $run->employee_count ?: $run->payslips()->count() }}</td>
-                            <td>₹{{ number_format($run->total_gross,0) }}</td>
-                            <td>₹{{ number_format($run->total_net,0) }}</td>
-                            <td>₹{{ number_format($run->total_employer_cost,0) }}</td>
+                            <td><b><?php echo e($run->monthLabel()); ?></b></td>
+                            <td><?php echo e($run->employee_count ?: $run->payslips()->count()); ?></td>
+                            <td>₹<?php echo e(number_format($run->total_gross,0)); ?></td>
+                            <td>₹<?php echo e(number_format($run->total_net,0)); ?></td>
+                            <td>₹<?php echo e(number_format($run->total_employer_cost,0)); ?></td>
                             <td><span
-                                    class="pill {{ $run->status === 'paid' ? 'pill-ok' : 'pill-muted' }}">{{ $run->stageLabel() }}</span>
-                                @if($run->approval_stage === 'returned' && $run->workflow_remarks)
-                                <span class="field-hint" style="display:block;margin-top:4px;">Reason: {{ $run->workflow_remarks }}</span>
-                                @endif
+                                    class="pill <?php echo e($run->status === 'paid' ? 'pill-ok' : 'pill-muted'); ?>"><?php echo e($run->stageLabel()); ?></span>
+                                <?php if($run->approval_stage === 'returned' && $run->workflow_remarks): ?>
+                                <span class="field-hint" style="display:block;margin-top:4px;">Reason: <?php echo e($run->workflow_remarks); ?></span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <div class="run-actions">
-                                    <a class="rbtn" href="{{ route('hr.payroll.index', ['run' => $run->id]) }}"><i
+                                    <a class="rbtn" href="<?php echo e(route('hr.payroll.index', ['run' => $run->id])); ?>"><i
                                             class="fa-regular fa-file-lines"></i>Payslips</a>
-                                    <a class="rbtn" href="{{ route('hr.payroll.register', $run) }}"><i
+                                    <a class="rbtn" href="<?php echo e(route('hr.payroll.register', $run)); ?>"><i
                                             class="fa-solid fa-file-excel"></i>Excel</a>
-                                    @if(in_array($run->approval_stage ?: 'draft', ['draft','returned'], true) && $run->status === 'processed')
-                                    <form method="POST" action="{{ route('hr.payroll.submit', $run) }}"
-                                        onsubmit="return confirm('Send {{ $run->monthLabel() }} payroll to the COO for approval?');">
-                                        @csrf<button type="submit" class="rbtn rbtn-ok"><i
+                                    <?php if(in_array($run->approval_stage ?: 'draft', ['draft','returned'], true) && $run->status === 'processed'): ?>
+                                    <form method="POST" action="<?php echo e(route('hr.payroll.submit', $run)); ?>"
+                                        onsubmit="return confirm('Send <?php echo e($run->monthLabel()); ?> payroll to the COO for approval?');">
+                                        <?php echo csrf_field(); ?><button type="submit" class="rbtn rbtn-ok"><i
                                                 class="fa-solid fa-paper-plane"></i>Send to COO</button></form>
-                                    <form method="POST" action="{{ route('hr.payroll.discard', $run) }}"
-                                        onsubmit="return confirm('Discard {{ $run->monthLabel() }} payroll and all its payslips? You can run it again afterwards.');">
-                                        @csrf<button type="submit" class="rbtn rbtn-bad"><i
+                                    <form method="POST" action="<?php echo e(route('hr.payroll.discard', $run)); ?>"
+                                        onsubmit="return confirm('Discard <?php echo e($run->monthLabel()); ?> payroll and all its payslips? You can run it again afterwards.');">
+                                        <?php echo csrf_field(); ?><button type="submit" class="rbtn rbtn-bad"><i
                                                 class="fa-solid fa-trash-can"></i>Discard</button></form>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="7">
                                 <div class="empty-widget">
@@ -782,20 +782,20 @@
                                 </div>
                             </td>
                         </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div class="tabpanel @if($activeTab === 'history') active @endif" data-tabpanel="history">
+    <div class="tabpanel <?php if($activeTab === 'history'): ?> active <?php endif; ?>" data-tabpanel="history">
         <div class="table-card">
             <div class="tc-head">
                 <h3><span class="wh-ico"><i class="fa-regular fa-file-lines"></i></span>Payslip history</h3>
                 <span
-                    class="pill pill-muted">{{ $filterRun ? 'Filtered to one run' : $totalPayslips.' payslips' }}</span>@if($filterRun)
-                <a class="btn-ghost" href="{{ route('hr.payroll.index', ['tab' => 'history']) }}">Show all</a>@endif
+                    class="pill pill-muted"><?php echo e($filterRun ? 'Filtered to one run' : $totalPayslips.' payslips'); ?></span><?php if($filterRun): ?>
+                <a class="btn-ghost" href="<?php echo e(route('hr.payroll.index', ['tab' => 'history'])); ?>">Show all</a><?php endif; ?>
             </div>
             <div class="tc-body">
                 <table>
@@ -810,21 +810,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($allPayslips as $p)
+                        <?php $__empty_1 = true; $__currentLoopData = $allPayslips; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr>
-                            <td>{{ $p->payrollRun->monthLabel() }}</td>
+                            <td><?php echo e($p->payrollRun->monthLabel()); ?></td>
                             <td class="cell-emp">
-                                <div class="av">{{ strtoupper(substr($p->employee->user->name ?? '?',0,1)) }}</div>
-                                <div><b>{{ $p->employee->user->name ?? '—' }}</b></div>
+                                <div class="av"><?php echo e(strtoupper(substr($p->employee->user->name ?? '?',0,1))); ?></div>
+                                <div><b><?php echo e($p->employee->user->name ?? '—'); ?></b></div>
                             </td>
-                            <td>₹{{ number_format($p->gross_pay,0) }}</td>
-                            <td>₹{{ number_format($p->pf_deduction + $p->esi_deduction + $p->professional_tax + $p->tds_deduction + $p->other_deductions,0) }}
+                            <td>₹<?php echo e(number_format($p->gross_pay,0)); ?></td>
+                            <td>₹<?php echo e(number_format($p->pf_deduction + $p->esi_deduction + $p->professional_tax + $p->tds_deduction + $p->other_deductions,0)); ?>
+
                             </td>
-                            <td><b>₹{{ number_format($p->net_pay,0) }}</b></td>
-                            <td><a href="{{ route('hr.payroll.payslip', $p) }}" target="_blank"
+                            <td><b>₹<?php echo e(number_format($p->net_pay,0)); ?></b></td>
+                            <td><a href="<?php echo e(route('hr.payroll.payslip', $p)); ?>" target="_blank"
                                     class="btn-ghost">View</a></td>
                         </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="6">
                                 <div class="empty-widget">
@@ -834,10 +835,11 @@
                                 </div>
                             </td>
                         </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
-                {{ $allPayslips->links() }}
+                <?php echo e($allPayslips->links()); ?>
+
             </div>
         </div>
     </div>
@@ -866,9 +868,9 @@
         scope.querySelectorAll('[data-tabpanel="' + name + '"]').forEach(p => p.classList.add('active'));
     }
     </script>
-    @else
+    <?php else: ?>
 
-    @include('hr.modules.payroll-workflow')
+    <?php echo $__env->make('hr.modules.payroll-workflow', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <div class="grid-2">
         <div class="card">
@@ -879,57 +881,57 @@
                     <p>Fixed, variable pay &mdash; per employee.</p>
                 </div>
             </div>
-            @if($viewedEmployee && $salaryStructure)
-            <form method="POST" action="{{ route('hr.payroll.salary.update', $viewedEmployee) }}">
-                @csrf
-                @php $canEditSalary = $canManagePayroll; @endphp
+            <?php if($viewedEmployee && $salaryStructure): ?>
+            <form method="POST" action="<?php echo e(route('hr.payroll.salary.update', $viewedEmployee)); ?>">
+                <?php echo csrf_field(); ?>
+                <?php $canEditSalary = $canManagePayroll; ?>
                 <div class="field-grid">
                     <div class="field"><label>Basic</label><input type="number" step="0.01" name="basic"
-                            value="{{ $salaryStructure->basic }}" @disabled(!$canEditSalary)></div>
+                            value="<?php echo e($salaryStructure->basic); ?>" <?php if(!$canEditSalary): echo 'disabled'; endif; ?>></div>
                     <div class="field"><label>HRA</label><input type="number" step="0.01" name="hra"
-                            value="{{ $salaryStructure->hra }}" @disabled(!$canEditSalary)></div>
+                            value="<?php echo e($salaryStructure->hra); ?>" <?php if(!$canEditSalary): echo 'disabled'; endif; ?>></div>
                     <div class="field"><label>Other allowances</label><input type="number" step="0.01"
-                            name="other_allowances" value="{{ $salaryStructure->other_allowances }}"
-                            @disabled(!$canEditSalary)></div>
+                            name="other_allowances" value="<?php echo e($salaryStructure->other_allowances); ?>"
+                            <?php if(!$canEditSalary): echo 'disabled'; endif; ?>></div>
                     <div class="field"><label>Variable pay</label><input type="number" step="0.01" name="variable_pay"
-                            value="{{ $salaryStructure->variable_pay }}" @disabled(!$canEditSalary)></div>
+                            value="<?php echo e($salaryStructure->variable_pay); ?>" <?php if(!$canEditSalary): echo 'disabled'; endif; ?>></div>
                 </div>
                 <div class="stat-tiles" style="grid-template-columns:1fr;margin-top:18px;margin-bottom:0;">
                     <div class="stat-tile">
                         <div class="st-ico"><i class="fa-solid fa-sack-dollar"></i></div>
-                        <div><b>₹{{ number_format($salaryStructure->gross_monthly,0) }}</b><span>Gross monthly</span>
+                        <div><b>₹<?php echo e(number_format($salaryStructure->gross_monthly,0)); ?></b><span>Gross monthly</span>
                         </div>
                     </div>
                 </div>
-                @if($canEditSalary)
+                <?php if($canEditSalary): ?>
                 <div class="form-actions"><button type="submit" class="btn-primary">Save structure</button></div>
-                @else
+                <?php else: ?>
                 <p class="field-hint" style="margin-top:14px;">Read-only &mdash; salary structure changes are HR only.</p>
-                @endif
+                <?php endif; ?>
             </form>
-            @else
+            <?php else: ?>
             <div class="empty-widget">
                 <div class="ew-ico"><i class="fa-solid fa-file-invoice-dollar"></i></div>
                 <b>No salary structure on file yet</b>
                 <span>HR will set up your structure after onboarding.</span>
             </div>
-            @endif
+            <?php endif; ?>
         </div>
 
         <div class="stack">
             <div class="table-card">
                 <div class="tc-head">
                     <h3><span class="wh-ico"><i class="fa-regular fa-file-lines"></i></span>Payslips</h3>
-                    <span class="pill pill-muted">{{ $payslips->count() }} total</span>
+                    <span class="pill pill-muted"><?php echo e($payslips->count()); ?> total</span>
                 </div>
                 <div class="tc-body">
-                    @if($payslips->isEmpty())
+                    <?php if($payslips->isEmpty()): ?>
                     <div class="empty-widget">
                         <div class="ew-ico"><i class="fa-regular fa-file-lines"></i></div>
                         <b>No payslips yet</b>
                         <span>Paid payslips appear here. Request one and Finance will make it available to print.</span>
                     </div>
-                    @else
+                    <?php else: ?>
                     <table>
                         <thead>
                             <tr>
@@ -939,42 +941,43 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($payslips as $p)
+                            <?php $__currentLoopData = $payslips; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
-                                <td><b>{{ $p->payrollRun->monthLabel() }}</b></td>
-                                <td>₹{{ number_format($p->net_pay,0) }}</td>
+                                <td><b><?php echo e($p->payrollRun->monthLabel()); ?></b></td>
+                                <td>₹<?php echo e(number_format($p->net_pay,0)); ?></td>
                                 <td>
-                                    @php $rq = $requestMap[$p->id] ?? null; @endphp
-                                    @if($rq && $rq->status === 'approved')
-                                    <a href="{{ route('hr.payroll.payslip', $p) }}" target="_blank"
+                                    <?php $rq = $requestMap[$p->id] ?? null; ?>
+                                    <?php if($rq && $rq->status === 'approved'): ?>
+                                    <a href="<?php echo e(route('hr.payroll.payslip', $p)); ?>" target="_blank"
                                         class="btn-ghost">View / print</a>
-                                    @elseif($rq && $rq->status === 'pending')
+                                    <?php elseif($rq && $rq->status === 'pending'): ?>
                                     <span class="pill pill-muted">Requested &mdash; awaiting Finance</span>
-                                    @else
-                                    @if($rq && $rq->status === 'rejected')
-                                    <span class="pill pill-muted" title="{{ $rq->remarks }}">Rejected @if($rq->remarks):  {{ \Illuminate\Support\Str::limit($rq->remarks, 60) }}@endif</span>
-                                    @endif
-                                    <form method="POST" action="{{ route('hr.payroll.payslip.request', $p) }}" style="display:inline-flex;gap:6px;align-items:center;">
-                                        @csrf
+                                    <?php else: ?>
+                                    <?php if($rq && $rq->status === 'rejected'): ?>
+                                    <span class="pill pill-muted" title="<?php echo e($rq->remarks); ?>">Rejected <?php if($rq->remarks): ?>:  <?php echo e(\Illuminate\Support\Str::limit($rq->remarks, 60)); ?><?php endif; ?></span>
+                                    <?php endif; ?>
+                                    <form method="POST" action="<?php echo e(route('hr.payroll.payslip.request', $p)); ?>" style="display:inline-flex;gap:6px;align-items:center;">
+                                        <?php echo csrf_field(); ?>
                                         <input type="text" name="reason" maxlength="255" placeholder="Reason (optional)" style="max-width:150px;">
-                                        <button type="submit" class="btn-ghost">{{ $rq ? 'Request again' : 'Request payslip' }}</button>
+                                        <button type="submit" class="btn-ghost"><?php echo e($rq ? 'Request again' : 'Request payslip'); ?></button>
                                     </form>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                             </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
-            @if(($role === 'hr_admin' || $role === 'super_admin') && $runsByDepartment->isNotEmpty())
+            <?php if(($role === 'hr_admin' || $role === 'super_admin') && $runsByDepartment->isNotEmpty()): ?>
             <div class="table-card">
                 <div class="tc-head">
-                    <h3><span class="wh-ico"><i class="fa-solid fa-sitemap"></i></span>{{ $latestRun->monthLabel() }}
+                    <h3><span class="wh-ico"><i class="fa-solid fa-sitemap"></i></span><?php echo e($latestRun->monthLabel()); ?>
+
                         payroll run</h3>
-                    <span class="pill pill-ok">{{ ucfirst($latestRun->status) }}</span>
+                    <span class="pill pill-ok"><?php echo e(ucfirst($latestRun->status)); ?></span>
                 </div>
                 <div class="tc-body">
                     <table>
@@ -986,22 +989,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($runsByDepartment as $d)
+                            <?php $__currentLoopData = $runsByDepartment; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
-                                <td>{{ $d->department }}</td>
-                                <td>{{ $d->headcount }}</td>
-                                <td>₹{{ number_format($d->gross,0) }}</td>
+                                <td><?php echo e($d->department); ?></td>
+                                <td><?php echo e($d->headcount); ?></td>
+                                <td>₹<?php echo e(number_format($d->gross,0)); ?></td>
                             </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 
 
-    @endif
+    <?php endif; ?>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('hr.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/modules/payroll.blade.php ENDPATH**/ ?>

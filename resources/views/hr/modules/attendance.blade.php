@@ -43,13 +43,13 @@
                     <button type="submit" class="btn-primary">Check Out</button>
                 </form>
                 <span class="field-hint" style="margin-left:8px;">
-                    Checked in at {{ \Illuminate\Support\Carbon::parse($todayOwnAttendance->check_in)->format('H:i') }}
+                    Checked in at {{ \Illuminate\Support\Carbon::parse($todayOwnAttendance->check_in)->format('h:i A') }}
                 </span>
                 @else
                 <span class="pill pill-ok">Today's attendance completed</span>
                 <span class="field-hint" style="margin-left:8px;">
-                    {{ \Illuminate\Support\Carbon::parse($todayOwnAttendance->check_in)->format('H:i') }} –
-                    {{ \Illuminate\Support\Carbon::parse($todayOwnAttendance->check_out)->format('H:i') }}
+                    {{ \Illuminate\Support\Carbon::parse($todayOwnAttendance->check_in)->format('h:i A') }} –
+                    {{ \Illuminate\Support\Carbon::parse($todayOwnAttendance->check_out)->format('h:i A') }}
                 </span>
                 @endif
             </div>
@@ -70,9 +70,9 @@
                     @foreach($ownRecords as $rec)
                     <tr>
                         <td>{{ \Illuminate\Support\Carbon::parse($rec->attendance_date)->format('d M Y') }}</td>
-                        <td>{{ $rec->check_in ? \Illuminate\Support\Carbon::parse($rec->check_in)->format('H:i') : '—' }}
+                        <td>{{ $rec->check_in ? \Illuminate\Support\Carbon::parse($rec->check_in)->format('h:i A') : '—' }}
                         </td>
-                        <td>{{ $rec->check_out ? \Illuminate\Support\Carbon::parse($rec->check_out)->format('H:i') : '—' }}
+                        <td>{{ $rec->check_out ? \Illuminate\Support\Carbon::parse($rec->check_out)->format('h:i A') : '—' }}
                         </td>
                         <td>
                             @php
@@ -254,9 +254,9 @@
                                 </div>
                             </div>
                         </td>
-                        <td>{{ $row->checkIn ? \Illuminate\Support\Carbon::parse($row->checkIn)->format('H:i') : '—' }}
+                        <td>{{ $row->checkIn ? \Illuminate\Support\Carbon::parse($row->checkIn)->format('h:i A') : '—' }}
                         </td>
-                        <td>{{ $row->checkOut ? \Illuminate\Support\Carbon::parse($row->checkOut)->format('H:i') : '—' }}
+                        <td>{{ $row->checkOut ? \Illuminate\Support\Carbon::parse($row->checkOut)->format('h:i A') : '—' }}
                         </td>
                         <td>
                             @php
@@ -373,9 +373,9 @@
                             </div>
                         </td>
                         <td>{{ $row->employee->department->name ?? '—' }}</td>
-                        <td>{{ $row->checkIn ? \Illuminate\Support\Carbon::parse($row->checkIn)->format('H:i') : '—' }}
+                        <td>{{ $row->checkIn ? \Illuminate\Support\Carbon::parse($row->checkIn)->format('h:i A') : '—' }}
                         </td>
-                        <td>{{ $row->checkOut ? \Illuminate\Support\Carbon::parse($row->checkOut)->format('H:i') : '—' }}
+                        <td>{{ $row->checkOut ? \Illuminate\Support\Carbon::parse($row->checkOut)->format('h:i A') : '—' }}
                         </td>
                         <td>
                             @php
@@ -432,7 +432,7 @@
                         <td>{{ $r->attendance->employee->user->name }}</td>
                         <td>{{ \Illuminate\Support\Carbon::parse($r->attendance->attendance_date)->format('d M Y') }}
                         </td>
-                        <td>{{ \Illuminate\Support\Carbon::parse($r->requested_check_in)->format('H:i') }}&ndash;{{ \Illuminate\Support\Carbon::parse($r->requested_check_out)->format('H:i') }}
+                        <td>{{ \Illuminate\Support\Carbon::parse($r->requested_check_in)->format('h:i A') }}&ndash;{{ \Illuminate\Support\Carbon::parse($r->requested_check_out)->format('h:i A') }}
                         </td>
                         <td>{{ \Illuminate\Support\Str::limit($r->reason, 34) }}</td>
                         <td>

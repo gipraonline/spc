@@ -64,8 +64,8 @@ class SystemController extends Controller
         $page = max(1, (int) $request->query('auditPage', 1));
         $take = $page * self::PER_PAGE;
 
-        $hrQuery = $this->scoped(AuditLog::query(), $area);
-        $spcQuery = $this->scoped(AuditRecord::query(), $area);
+        $hrQuery = $this->scoped($this->visible(AuditLog::query(), 'hr'), $area);
+        $spcQuery = $this->scoped($this->visible(AuditRecord::query(), 'spc'), $area);
 
         $total = (clone $hrQuery)->count() + (clone $spcQuery)->count();
 
@@ -105,12 +105,65 @@ class SystemController extends Controller
             'moduleKey' => 'system',
             'auditLog' => $auditLog,
             'totalAuditEntries' => $totalAuditEntries,
-            'todayCount' => AuditLog::where('created_at', '>=', now()->startOfDay())->count()
-                + AuditRecord::where('created_at', '>=', now()->startOfDay())->count(),
+            'todayCount' => $this->visible(AuditLog::query(), 'hr')->where('created_at', '>=', now()->startOfDay())->count()
+                + $this->visible(AuditRecord::query(), 'spc')->where('created_at', '>=', now()->startOfDay())->count(),
             'areas' => $areaLabels,
             'areaCounts' => $areaCounts,
             'area' => $area,
         ]));
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Hidden actors (Gipra Admin)                                        */
+    /* ------------------------------------------------------------------ */
+
+    /** Role whose actions are kept in the database but never listed on this page. */
+    private const HIDDEN_ROLE = 'Gipra Admin';
+
+    /**
+     * Who the Gipra Admin role is, in the shape each audit table stores them:
+     *   spc   -> admins.n_role_id          (audit_records.user_id)
+     *   hr    -> spc_hr users.id           (audit_logs.user_id)
+     *   names -> admins.c_name             (audit_logs.new_value "_by", no HR user)
+     *
+     * @return array{spc: array<int,int>, hr: array<int,int>, names: array<int,string>}
+     */
+    private function hiddenActors(): array
+    {
+        if (isset($this->cache['hidden_actors'])) {
+            return $this->cache['hidden_actors'];
+        }
+
+        $admins = Admin::whereHas('roles', fn ($q) => $q->where('name', self::HIDDEN_ROLE))->get();
+
+        $emails = $admins->pluck('c_username')->filter()->map(fn ($e) => mb_strtolower(trim($e)))->unique()->all();
+
+        return $this->cache['hidden_actors'] = [
+            'spc' => $admins->pluck('n_role_id')->map(fn ($id) => (int) $id)->all(),
+            'hr' => $emails ? User::whereRaw('LOWER(email) IN ('.implode(',', array_fill(0, count($emails), '?')).')', $emails)->pluck('id')->map(fn ($id) => (int) $id)->all() : [],
+            'names' => $admins->pluck('c_name')->filter()->unique()->values()->all(),
+        ];
+    }
+
+    /** Leave Gipra Admin entries out of a query. The rows stay in the table. */
+    private function visible($query, string $source)
+    {
+        $hidden = $this->hiddenActors();
+        $ids = $hidden[$source];
+
+        if ($ids) {
+            $query->where(fn ($q) => $q->whereNull('user_id')->orWhereNotIn('user_id', $ids));
+        }
+
+        if ($source === 'hr') {
+            // HR rows with no linked HR user remember the actor's name in new_value._by
+            foreach ($hidden['names'] as $name) {
+                $needle = '%"_by":'.json_encode($name).'%';
+                $query->where(fn ($q) => $q->whereNull('new_value')->orWhere('new_value', 'not like', $needle));
+            }
+        }
+
+        return $query;
     }
 
     /* ------------------------------------------------------------------ */
@@ -153,8 +206,8 @@ class SystemController extends Controller
         $counts = [];
         $legacy = config('audit.legacy_modules', []);
 
-        foreach ([AuditLog::class, AuditRecord::class] as $model) {
-            $model::selectRaw('module, COUNT(*) as total')->groupBy('module')->pluck('total', 'module')
+        foreach ([['hr', AuditLog::class], ['spc', AuditRecord::class]] as [$source, $model]) {
+            $this->visible($model::query(), $source)->selectRaw('module, COUNT(*) as total')->groupBy('module')->pluck('total', 'module')
                 ->each(function ($n, $m) use (&$counts, $legacy) {
                     $m = $legacy[$m] ?? $m;
                     $counts[$m] = ($counts[$m] ?? 0) + (int) $n;

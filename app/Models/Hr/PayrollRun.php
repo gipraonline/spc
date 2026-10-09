@@ -15,7 +15,24 @@ class PayrollRun extends Model
     protected $casts = [
         'processed_at' => 'datetime',
         'paid_at' => 'datetime',
+        'submitted_at' => 'datetime',
+        'coo_at' => 'datetime',
+        'md_at' => 'datetime',
+        'returned_at' => 'datetime',
     ];
+
+    /** Where the run is in the approval chain: HR -> COO -> MD -> Finance. */
+    public function stageLabel(): string
+    {
+        return match ($this->approval_stage) {
+            'pending_coo' => 'Awaiting COO',
+            'pending_md' => 'Awaiting MD',
+            'pending_finance' => 'Awaiting Finance',
+            'returned' => 'Returned to HR',
+            'completed' => 'Paid',
+            default => 'With HR',
+        };
+    }
 
     public function payslips()
     {

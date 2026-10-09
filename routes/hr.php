@@ -86,27 +86,22 @@ Route::prefix('hr')->name('hr.')->group(function () {
                 ->name('leave.decide');
         });
         // Payroll
-        // Route::middleware(['permission:payroll.view'])->group(function () {
-        //     Route::get('/modules/payroll', [PayrollController::class, 'index'])->name('payroll.index');
-        //     Route::post('/modules/payroll/run', [PayrollController::class, 'runPayroll'])->name('payroll.run');
-        //     Route::post('/modules/payroll/{employee}/salary', [PayrollController::class, 'updateSalary'])->name('payroll.salary.update');
-        //     Route::get('/modules/payroll/payslip/{payslip}', [PayrollController::class, 'payslip'])->name('payroll.payslip');
-        //     Route::post('/modules/payroll/runs/{run}/discard', [PayrollController::class, 'discard'])->name('payroll.discard');
-        //     Route::post('/modules/payroll/runs/{run}/paid', [PayrollController::class, 'markPaid'])->name('payroll.paid');
-        //     Route::get('/modules/payroll/runs/{run}/register', [PayrollController::class, 'register'])->name('payroll.register');
-        //     Route::get('/modules/payroll/runs/{run}/bank-file', [PayrollController::class, 'bankFile'])->name('payroll.bank-file');
-        // });
         Route::middleware(['permission:payroll.view'])->group(function () {
-    Route::get('/modules/payroll', [PayrollController::class, 'index'])->name('payroll.index');
-    Route::post('/modules/payroll/run', [PayrollController::class, 'runPayroll'])->name('payroll.run');
-    Route::post('/modules/payroll/{employee}/salary', [PayrollController::class, 'updateSalary'])->name('payroll.salary.update');
-    Route::get('/modules/payroll/payslip/{payslip}', [PayrollController::class, 'payslip'])->name('payroll.payslip');
-    // ← the six new routes above go here
-    Route::post('/modules/payroll/runs/{run}/discard', [PayrollController::class, 'discard'])->name('payroll.discard');
-    Route::post('/modules/payroll/runs/{run}/paid', [PayrollController::class, 'markPaid'])->name('payroll.paid');
-    Route::get('/modules/payroll/runs/{run}/register', [PayrollController::class, 'register'])->name('payroll.register');
-    Route::get('/modules/payroll/runs/{run}/bank-file', [PayrollController::class, 'bankFile'])->name('payroll.bank-file');
-});
+            Route::get('/modules/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+            Route::post('/modules/payroll/run', [PayrollController::class, 'runPayroll'])->name('payroll.run');
+            Route::post('/modules/payroll/{employee}/salary', [PayrollController::class, 'updateSalary'])->name('payroll.salary.update');
+            Route::get('/modules/payroll/payslip/{payslip}', [PayrollController::class, 'payslip'])->name('payroll.payslip');
+            Route::post('/modules/payroll/runs/{run}/submit', [PayrollController::class, 'submit'])->name('payroll.submit');
+            Route::post('/modules/payroll/runs/{run}/coo-approve', [PayrollController::class, 'approveCoo'])->name('payroll.coo-approve');
+            Route::post('/modules/payroll/runs/{run}/md-approve', [PayrollController::class, 'approveMd'])->name('payroll.md-approve');
+            Route::post('/modules/payroll/runs/{run}/return', [PayrollController::class, 'returnToHr'])->name('payroll.return');
+            Route::post('/modules/payroll/payslip/{payslip}/request', [PayrollController::class, 'requestPayslip'])->name('payroll.payslip.request');
+            Route::post('/modules/payroll/payslip-requests/{payslipRequest}/decide', [PayrollController::class, 'decideRequest'])->name('payroll.payslip.decide');
+            Route::post('/modules/payroll/runs/{run}/discard', [PayrollController::class, 'discard'])->name('payroll.discard');
+            Route::post('/modules/payroll/runs/{run}/paid', [PayrollController::class, 'markPaid'])->name('payroll.paid');
+            Route::get('/modules/payroll/runs/{run}/register', [PayrollController::class, 'register'])->name('payroll.register');
+            Route::get('/modules/payroll/runs/{run}/bank-file', [PayrollController::class, 'bankFile'])->name('payroll.bank-file');
+        });
 
         // Recruitment
         Route::middleware(['permission:recruitment.view'])->group(function () {

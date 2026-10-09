@@ -202,12 +202,12 @@ return [
         'incentive' => [
             'code' => 'CI',
             'group' => 'Money',
-            'nav_label' => 'Commission & Incentive',
-            'title' => 'Commission & Incentive',
-            'summary' => 'Configurable rules, calculations, and payout approval.',
+            'nav_label' => 'Incentive',
+            'title' => 'Incentive',
+            'summary' => 'Configurable incentive rules, calculations, and payout approval.',
             'roles' => ['employee', 'manager', 'hr_admin', 'super_admin'],
             'features' => [
-                'Configurable commission / incentive rules by role, target, or slab.',
+                'Configurable incentive rules by role, target, or slab.',
                 'Automated calculation based on sales / performance data (integrates with Sales Order Management).',
                 'Incentive payout summary per employee, per cycle.',
                 'Approval workflow before payout is included in payroll.',

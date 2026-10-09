@@ -294,6 +294,10 @@
 
         <form method="POST" id="frm_create" action="<?php echo e(route('admin.employees.store')); ?>" class="efp-body">
             <?php echo csrf_field(); ?>
+            <?php if(!empty($candidate)): ?>
+                <input type="hidden" name="candidate_id" value="<?php echo e($candidate->id); ?>">
+                <div class="efp-note"><i class="ti ti-user-check"></i>Creating the employee for hired candidate <b><?php echo e($candidate->name); ?></b>. A work email is required. After saving, the candidate moves to History in Recruitment.</div>
+            <?php endif; ?>
 
             <div class="efp-note"><i class="ti ti-info-circle"></i>Choose a designation to generate the employee code and load the matching reporting managers.</div>
 
@@ -302,7 +306,7 @@
             <div class="efp-grid">
                 <div class="efp-field full">
                     <label for="c_employee_name"><i class="ti ti-user"></i>Employee Name *</label>
-                    <input type="text" id="c_employee_name" name="c_employee_name" value="<?php echo e(old('c_employee_name')); ?>"
+                    <input type="text" id="c_employee_name" name="c_employee_name" value="<?php echo e(old('c_employee_name', $prefill['name'] ?? '')); ?>"
                         data-message="Please enter Employee Name" class="form-control mandatory"
                         placeholder="Enter full name">
                     <?php $__errorArgs = ['c_employee_name'];
@@ -373,9 +377,24 @@ unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="personal_email"><i class="ti ti-mail-opened"></i>Personal Email</label>
-                    <input type="email" id="personal_email" name="personal_email" value="<?php echo e(old('personal_email')); ?>"
+                    <input type="email" id="personal_email" name="personal_email" value="<?php echo e(old('personal_email', $prefill['email'] ?? '')); ?>"
                         class="form-control" placeholder="personal@email.com">
                     <?php $__errorArgs = ['personal_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
+                <div class="efp-field">
+                    <label for="n_employee_phone"><i class="ti ti-phone"></i>Mobile Number</label>
+                    <input type="text" id="n_employee_phone" name="n_employee_phone" value="<?php echo e(old('n_employee_phone', $prefill['phone'] ?? '')); ?>"
+                        class="form-control" maxlength="10" inputmode="numeric" placeholder="10-digit mobile number">
+                    <?php $__errorArgs = ['n_employee_phone'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -406,7 +425,7 @@ unset($__errorArgs, $__bag); ?>
                     <select id="department_id" name="department_id" class="form-select">
                         <option value="">Select Department</option>
                         <?php $__currentLoopData = $hrDepartments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $dept): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($dept->id); ?>" <?php echo e(old('department_id') == $dept->id ? 'selected' : ''); ?>>
+                        <option value="<?php echo e($dept->id); ?>" <?php echo e(old('department_id', $prefill['department_id'] ?? '') == $dept->id ? 'selected' : ''); ?>>
                             <?php echo e($dept->name); ?>
 
                         </option>
@@ -456,12 +475,15 @@ unset($__errorArgs, $__bag); ?>
                         ?>
                         <option value="<?php echo e($designation->n_designation_id); ?>"
                             data-identifier="<?php echo e($designation->identifier); ?>" data-store="<?php echo e($storeRequired); ?>"
-                            <?php echo e(old('n_designation_id') == $designation->n_designation_id ? 'selected' : ''); ?>>
+                            <?php echo e(old('n_designation_id', $prefill['n_designation_id'] ?? '') == $designation->n_designation_id ? 'selected' : ''); ?>>
                             <?php echo e($designation->c_designation); ?>
 
                         </option>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
+                    <?php if(!empty($prefill['designation_note'])): ?>
+                    <div class="efp-err" style="color:#A16207;"><?php echo e($prefill['designation_note']); ?></div>
+                    <?php endif; ?>
                     <?php $__errorArgs = ['n_designation_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -688,6 +710,50 @@ $(document).ready(function() {
         });
 
     });
+
+    // Designation list follows the selected department: only designations HR has
+    // set up under that department are offered. No department, or a department with
+    // no designations set up yet, shows the full list.
+    const deptDesignations = <?php echo json_encode($deptDesignations, 15, 512) ?>;
+    const $desig = $('#n_designation_id');
+    const allDesigOptions = $desig.find('option').clone();
+    const normTitle = t => (t || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+    function filterDesignations() {
+        const dept = $('#department_id').val();
+        const allowed = dept ? (deptDesignations[dept] || []) : [];
+        const current = $desig.val();
+        const restrict = allowed.length > 0;
+
+        $desig.empty();
+        allDesigOptions.each(function () {
+            const $o = $(this).clone();
+            if (!$o.val() || !restrict || allowed.includes(normTitle($o.text()))) {
+                $desig.append($o);
+            }
+        });
+
+        $('#dept-desig-note').remove();
+        if (dept && !restrict) {
+            $desig.after('<div id="dept-desig-note" class="efp-err" style="color:#A16207;">No designations are set up for this department yet, so all are shown.</div>');
+        }
+
+        if (current && $desig.find('option[value="' + current + '"]').length) {
+            $desig.val(current);
+        } else {
+            $desig.val('');
+            if (current) { $desig.trigger('change'); }   // clears employee code / managers
+        }
+    }
+
+    $('#department_id').on('change', filterDesignations);
+    filterDesignations();
+
+    // Designation filled from the hired candidate's requisition: load the
+    // employee code and reporting managers as if it had been picked by hand.
+    <?php if(!empty($prefill['n_designation_id']) && !old('n_designation_id')): ?>
+    $('#n_designation_id').trigger('change');
+    <?php endif; ?>
 
 });
 </script>

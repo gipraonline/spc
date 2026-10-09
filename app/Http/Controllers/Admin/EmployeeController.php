@@ -266,8 +266,31 @@ class EmployeeController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        // Coming from Recruitment: prefill from the hired candidate and their requisition.
+        $found = $request->filled('candidate')
+            ? \App\Models\Hr\Candidate::with('requisition.designation')->find($request->integer('candidate'))
+            : null;
+
+        // Only a hired candidate with no employee profile yet can be linked on save.
+        $candidate = $found && $found->stage === 'hired' && ! $found->converted_employee_id ? $found : null;
+
+        $prefill = [];
+        if ($found) {
+            $phone = substr(preg_replace('/\D+/', '', (string) $found->phone), -10);
+            $prefill = [
+                'name' => $found->name,
+                'email' => $found->email,
+                'phone' => preg_match('/^[6-9]\d{9}$/', $phone) ? $phone : '',
+                'department_id' => $found->requisition?->department_id,
+                'designation_title' => $found->requisition?->designation?->title,
+                'requisition_title' => $found->requisition?->title,
+            ];
+        } elseif ($request->filled('name')) {
+            $prefill = ['name' => $request->query('name'), 'email' => $request->query('email')];
+        }
+
         $employees = EmployeeMaster::where('c_status', 'Y')
             ->orderBy('c_employee_name')
             ->get();
@@ -294,6 +317,19 @@ class EmployeeController extends Controller
                 ->where('identifier', 'FCA')
                 ->get();
 
+        } elseif ($candidate && (
+            $user->hasAnyRole(['HR Manager', 'HR Team', 'HR Department'])
+            || $user->roles->contains(fn ($r) => in_array($r->identifier, ['HRM', 'HR_TEAM'], true))
+        )) {
+
+            /*
+             * HR hiring from Recruitment: can pick any designation while
+             * creating the employee for a hired candidate.
+             */
+            $designations = DesignationMaster::where('c_status', 'Y')
+                ->orderBy('hierarchy_level')
+                ->get();
+
         } else {
 
             /*
@@ -302,10 +338,48 @@ class EmployeeController extends Controller
             $designations = collect();
         }
 
+        // Match the requisition's designation to the SPC list. Names are compared
+        // ignoring case, spaces and punctuation; if there is no exact match, a single
+        // designation that contains (or is contained in) the name is accepted.
+        if (array_key_exists('requisition_title', $prefill)) {
+            $norm = fn ($v) => preg_replace('/[^a-z0-9]+/', '', mb_strtolower((string) $v));
+            $wanted = $prefill['designation_title'] ?: null;
+            $source = $wanted ?: $prefill['requisition_title'];
+            $key = $norm($source);
+
+            $match = null;
+            if ($key !== '') {
+                $match = $designations->first(fn ($d) => $norm($d->c_designation) === $key);
+
+                if (! $match) {
+                    $partial = $designations->filter(function ($d) use ($norm, $key) {
+                        $n = $norm($d->c_designation);
+
+                        return $n !== '' && (str_contains($key, $n) || str_contains($n, $key));
+                    });
+                    $match = $partial->count() === 1 ? $partial->first() : null;
+                }
+            }
+
+            $prefill['n_designation_id'] = $match?->n_designation_id;
+            if (! $match) {
+                $prefill['designation_note'] = $wanted
+                    ? 'The requisition\'s designation "'.$wanted.'" is not in the list you can assign. Please select one.'
+                    : 'The requisition has no designation set. Please select one.';
+            }
+        }
+
         return view(
             'admin.employees.create',
-            compact('designations', 'employees')
-                + ['hrDepartments' => HrDepartment::orderBy('name')->get()]
+            compact('designations', 'employees', 'candidate', 'prefill')
+                + [
+                    'hrDepartments' => HrDepartment::orderBy('name')->get(),
+                    // department id => normalised designation titles, used to filter the designation list
+                    'deptDesignations' => \App\Models\Hr\Designation::whereNotNull('department_id')->get()
+                        ->groupBy('department_id')
+                        ->map(fn ($rows) => $rows->map(fn ($d) => preg_replace('/[^a-z0-9]+/', '', mb_strtolower((string) $d->title)))->unique()->values())
+                        ->all(),
+                ]
         );
     }
 
@@ -324,7 +398,11 @@ class EmployeeController extends Controller
             'c_employee_name' => 'required|string|max:255',
             'c_employee_address' => 'nullable|string|max:500',
 
-            'c_employee_email' => 'nullable|email|max:255|unique:employee_masters,c_employee_email|unique:employee_masters,c_username',
+            // A work email is needed for the HR profile, so it is required when
+            // the employee is being created from a hired candidate.
+            'c_employee_email' => ($request->filled('candidate_id') ? 'required' : 'nullable').'|email|max:255|unique:employee_masters,c_employee_email|unique:employee_masters,c_username',
+
+            'candidate_id' => 'nullable|integer',
 
             'n_employee_phone' => 'nullable|regex:/^[6-9]\d{9}$/',
 
@@ -434,14 +512,31 @@ class EmployeeController extends Controller
             // a different database) and deliberately non-fatal: if the HR
             // database is unreachable, the SPC employee is still created,
             // and the sync will catch up next time this record is saved.
+            $hrEmployee = null;
             try {
-                EmployeeHrSyncService::sync($employee);
+                $hrEmployee = EmployeeHrSyncService::sync($employee);
             } catch (\Throwable $e) {
                 report($e);
 
                 return redirect()
                     ->route('admin.employees.index')
                     ->with('warning', 'Employee created, but could not be synced to the HR module: '.$e->getMessage());
+            }
+
+            // Created from a hired candidate: link them, which moves the candidate
+            // from the Candidates / Onboarding tabs to History in Recruitment.
+            if (! empty($validated['candidate_id']) && $hrEmployee) {
+                try {
+                    \App\Models\Hr\Candidate::where('id', $validated['candidate_id'])
+                        ->where('stage', 'hired')->whereNull('converted_employee_id')
+                        ->first()?->update(['converted_employee_id' => $hrEmployee->id]);
+
+                    return redirect()
+                        ->route('hr.recruitment.index', ['tab' => 'history'])
+                        ->with('status', $employee->c_employee_name.' is now an employee and has moved to History.');
+                } catch (\Throwable $e) {
+                    report($e);
+                }
             }
 
             return redirect()

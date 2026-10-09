@@ -296,6 +296,10 @@
 
         <form method="POST" id="frm_create" action="{{ route('admin.employees.store') }}" class="efp-body">
             @csrf
+            @if(!empty($candidate))
+                <input type="hidden" name="candidate_id" value="{{ $candidate->id }}">
+                <div class="efp-note"><i class="ti ti-user-check"></i>Creating the employee for hired candidate <b>{{ $candidate->name }}</b>. A work email is required. After saving, the candidate moves to History in Recruitment.</div>
+            @endif
 
             <div class="efp-note"><i class="ti ti-info-circle"></i>Choose a designation to generate the employee code and load the matching reporting managers.</div>
 
@@ -304,7 +308,7 @@
             <div class="efp-grid">
                 <div class="efp-field full">
                     <label for="c_employee_name"><i class="ti ti-user"></i>Employee Name *</label>
-                    <input type="text" id="c_employee_name" name="c_employee_name" value="{{ old('c_employee_name') }}"
+                    <input type="text" id="c_employee_name" name="c_employee_name" value="{{ old('c_employee_name', $prefill['name'] ?? '') }}"
                         data-message="Please enter Employee Name" class="form-control mandatory"
                         placeholder="Enter full name">
                     @error('c_employee_name')
@@ -347,9 +351,17 @@
                 </div>
                 <div class="efp-field">
                     <label for="personal_email"><i class="ti ti-mail-opened"></i>Personal Email</label>
-                    <input type="email" id="personal_email" name="personal_email" value="{{ old('personal_email') }}"
+                    <input type="email" id="personal_email" name="personal_email" value="{{ old('personal_email', $prefill['email'] ?? '') }}"
                         class="form-control" placeholder="personal@email.com">
                     @error('personal_email')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="efp-field">
+                    <label for="n_employee_phone"><i class="ti ti-phone"></i>Mobile Number</label>
+                    <input type="text" id="n_employee_phone" name="n_employee_phone" value="{{ old('n_employee_phone', $prefill['phone'] ?? '') }}"
+                        class="form-control" maxlength="10" inputmode="numeric" placeholder="10-digit mobile number">
+                    @error('n_employee_phone')
                     <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>
@@ -366,7 +378,7 @@
                     <select id="department_id" name="department_id" class="form-select">
                         <option value="">Select Department</option>
                         @foreach($hrDepartments as $dept)
-                        <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
+                        <option value="{{ $dept->id }}" {{ old('department_id', $prefill['department_id'] ?? '') == $dept->id ? 'selected' : '' }}>
                             {{ $dept->name }}
                         </option>
                         @endforeach
@@ -401,11 +413,14 @@
                         @endphp
                         <option value="{{ $designation->n_designation_id }}"
                             data-identifier="{{ $designation->identifier }}" data-store="{{ $storeRequired }}"
-                            {{ old('n_designation_id') == $designation->n_designation_id ? 'selected' : '' }}>
+                            {{ old('n_designation_id', $prefill['n_designation_id'] ?? '') == $designation->n_designation_id ? 'selected' : '' }}>
                             {{ $designation->c_designation }}
                         </option>
                         @endforeach
                     </select>
+                    @if(!empty($prefill['designation_note']))
+                    <div class="efp-err" style="color:#A16207;">{{ $prefill['designation_note'] }}</div>
+                    @endif
                     @error('n_designation_id')
                     <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
@@ -568,6 +583,50 @@ $(document).ready(function() {
         });
 
     });
+
+    // Designation list follows the selected department: only designations HR has
+    // set up under that department are offered. No department, or a department with
+    // no designations set up yet, shows the full list.
+    const deptDesignations = @json($deptDesignations);
+    const $desig = $('#n_designation_id');
+    const allDesigOptions = $desig.find('option').clone();
+    const normTitle = t => (t || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+    function filterDesignations() {
+        const dept = $('#department_id').val();
+        const allowed = dept ? (deptDesignations[dept] || []) : [];
+        const current = $desig.val();
+        const restrict = allowed.length > 0;
+
+        $desig.empty();
+        allDesigOptions.each(function () {
+            const $o = $(this).clone();
+            if (!$o.val() || !restrict || allowed.includes(normTitle($o.text()))) {
+                $desig.append($o);
+            }
+        });
+
+        $('#dept-desig-note').remove();
+        if (dept && !restrict) {
+            $desig.after('<div id="dept-desig-note" class="efp-err" style="color:#A16207;">No designations are set up for this department yet, so all are shown.</div>');
+        }
+
+        if (current && $desig.find('option[value="' + current + '"]').length) {
+            $desig.val(current);
+        } else {
+            $desig.val('');
+            if (current) { $desig.trigger('change'); }   // clears employee code / managers
+        }
+    }
+
+    $('#department_id').on('change', filterDesignations);
+    filterDesignations();
+
+    // Designation filled from the hired candidate's requisition: load the
+    // employee code and reporting managers as if it had been picked by hand.
+    @if(!empty($prefill['n_designation_id']) && !old('n_designation_id'))
+    $('#n_designation_id').trigger('change');
+    @endif
 
 });
 </script>

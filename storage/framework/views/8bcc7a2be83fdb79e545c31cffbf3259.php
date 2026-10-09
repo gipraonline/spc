@@ -76,7 +76,7 @@
             <div class="col-md-6">
                 <label class="form-label fw-semibold d-block">Assign to</label>
                 <div class="d-flex flex-column gap-1">
-                    <label><input type="radio" name="assign_mode" value="all" <?php if(old('assign_mode', 'all') === 'all'): echo 'checked'; endif; ?>> Everyone in the department <span id="tkCount" class="text-muted small"></span></label>
+                    <label><input type="radio" name="assign_mode" value="all" <?php if(old('assign_mode', 'all') === 'all'): echo 'checked'; endif; ?>> <?php echo e(!empty($restricted) ? 'Everyone in the department who reports to me' : 'Everyone in the department'); ?> <span id="tkCount" class="text-muted small"></span></label>
                     <label><input type="radio" name="assign_mode" value="pick" <?php if(old('assign_mode') === 'pick'): echo 'checked'; endif; ?>> Only selected people</label>
                 </div>
             </div>

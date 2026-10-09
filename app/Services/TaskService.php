@@ -20,6 +20,8 @@ use InvalidArgumentException;
  *  - Who sees a task:  the person who created it, every assignee, and everyone
  *    ABOVE an assignee in the reporting line (same rule as leads / field logs,
  *    via HierarchyScope). Super Admin, Gipra Admin and National Sales Head see all.
+ *  - Who can be assigned: Super Admin -> anyone; everyone else -> only people
+ *    below them in the reporting line (see assignableEmployeeIds()).
  *  - Who updates it:   only the assignee, on their own row.
  *  - Who is told:      when an assignee changes status, the creator and the
  *    reporting managers above the assignee (config tasks.notify_levels) get a
@@ -74,12 +76,70 @@ class TaskService
         return $all->filter(fn ($a) => in_array((int) $a->employee_id, $ids, true))->values();
     }
 
-    /** Active employees of one department. */
-    public function departmentEmployees(int $departmentId): Collection
+    /** Super Admin (config tasks.unrestricted_roles) may assign to anyone. */
+    public function canAssignToAnyone(Admin $admin): bool
     {
-        return EmployeeMaster::query()
-            ->where('department_id', $departmentId)
+        return $admin->hasAnyRole((array) config('tasks.unrestricted_roles', ['Super Admin']));
+    }
+
+    /**
+     * Employee ids the admin may assign tasks to: everyone below them in the
+     * reporting line, at any depth (not themself).
+     *
+     * @return int[]|null  null = unrestricted, [] = nobody
+     */
+    public function assignableEmployeeIds(Admin $admin): ?array
+    {
+        if ($this->canAssignToAnyone($admin)) {
+            return null;
+        }
+
+        if (! $admin->n_employee_id) {
+            return [];
+        }
+
+        return HierarchyScope::descendants((int) $admin->n_employee_id);
+    }
+
+    /** id => name of the departments the admin may assign to. */
+    public function assignableDepartments(Admin $admin, array $allDepartments): array
+    {
+        $ids = $this->assignableEmployeeIds($admin);
+
+        if ($ids === null) {
+            return $allDepartments;
+        }
+        if (! $ids) {
+            return [];
+        }
+
+        $deptIds = EmployeeMaster::query()
+            ->whereIn('n_employee_id', $ids)
             ->where('c_status', 'Y')
+            ->whereNotNull('department_id')
+            ->distinct()
+            ->pluck('department_id')
+            ->map(fn ($d) => (int) $d)
+            ->all();
+
+        return array_filter($allDepartments, fn ($name, $id) => in_array((int) $id, $deptIds, true), ARRAY_FILTER_USE_BOTH);
+    }
+
+    /**
+     * Active employees of one department, limited to the admin's reporting
+     * line unless the admin is unrestricted.
+     */
+    public function departmentEmployees(int $departmentId, ?Admin $admin = null): Collection
+    {
+        $query = EmployeeMaster::query()
+            ->where('department_id', $departmentId)
+            ->where('c_status', 'Y');
+
+        if ($admin && ($ids = $this->assignableEmployeeIds($admin)) !== null) {
+            $query->whereIn('n_employee_id', $ids ?: [0]);
+        }
+
+        return $query
             ->orderBy('c_employee_name')
             ->get(['n_employee_id', 'c_employee_name', 'c_employee_code', 'n_designation_id']);
     }
@@ -92,14 +152,16 @@ class TaskService
      */
     public function create(array $data, Admin $actor, ?array $employeeIds = null): Task
     {
-        $employees = $this->departmentEmployees((int) $data['department_id']);
+        $employees = $this->departmentEmployees((int) $data['department_id'], $actor);
 
         if ($employeeIds) {
             $employees = $employees->whereIn('n_employee_id', array_map('intval', $employeeIds));
         }
 
         if ($employees->isEmpty()) {
-            throw new InvalidArgumentException('There are no active employees to assign this task to.');
+            throw new InvalidArgumentException($this->canAssignToAnyone($actor)
+                ? 'There are no active employees to assign this task to.'
+                : 'There are no active employees under you in this department to assign this task to.');
         }
 
         $task = DB::transaction(function () use ($data, $actor, $employees) {

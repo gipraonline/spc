@@ -94,7 +94,7 @@ class TaskController extends Controller
             'departments' => $this->departments(),
             'myEmployeeId' => $myEmployeeId,
             'filters' => $request->only(['scope', 'department_id', 'priority', 'status', 'q']),
-            'canCreate' => $admin->can('tasks.create'),
+            'canCreate' => $admin->can('tasks.create') && $this->tasks->assignableEmployeeIds($admin) !== [],
         ]);
     }
 
@@ -119,18 +119,27 @@ class TaskController extends Controller
 
     public function create()
     {
+        $admin = auth()->user();
+        $departments = $this->tasks->assignableDepartments($admin, $this->departments());
+
+        if (! $departments) {
+            return redirect()->route('admin.tasks.index')
+                ->with('error', 'There is nobody reporting to you to assign a task to.');
+        }
+
         return view('admin.tasks.form', [
             'task' => new Task(['priority' => config('tasks.default_priority', 'medium')]),
-            'departments' => $this->departments(),
+            'departments' => $departments,
             'editing' => false,
+            'restricted' => ! $this->tasks->canAssignToAnyone($admin),
         ]);
     }
 
-    /** JSON list of active employees of a department (for the "pick people" box). */
+    /** JSON list of the active employees the user may assign to in a department (for the "pick people" box). */
     public function departmentEmployees(int $department)
     {
         return response()->json(
-            $this->tasks->departmentEmployees($department)->map(fn ($e) => [
+            $this->tasks->departmentEmployees($department, auth()->user())->map(fn ($e) => [
                 'id' => $e->n_employee_id,
                 'name' => $e->c_employee_name,
                 'code' => $e->c_employee_code,
@@ -140,7 +149,7 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-        $departments = $this->departments();
+        $departments = $this->tasks->assignableDepartments(auth()->user(), $this->departments());
 
         $data = $request->validate([
             'title' => 'required|string|max:200',

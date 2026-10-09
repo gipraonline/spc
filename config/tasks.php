@@ -20,4 +20,13 @@ return [
     'notify_levels' => 3,
 
     'default_priority' => 'medium',
+
+    /*
+    | unrestricted_roles : roles that may assign a task to ANY department /
+    |                      employee. Everyone else can only assign to people
+    |                      who report to them (directly or at any level below),
+    |                      following employee_masters.reporting_to.
+    */
+
+    'unrestricted_roles' => ['Super Admin'],
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Services\Hr;
 
+use App\Services\Hr\AssociateScope;
 use App\Services\HierarchyScope;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +52,15 @@ class IncentiveEngine
             ->join('users as u', 'u.id', '=', 'e.user_id')
             ->where('e.employment_status', '!=', 'exited')
             ->whereNotNull('e.employee_master_id')
+            // associates (Farm Care Advisers / Tele Callers) earn commission, not incentives
+            ->whereNotIn('e.employee_master_id', AssociateScope::masterIds())
             ->get(['e.id', 'e.employee_master_id as master_id', 'u.role', 'u.name']);
+
+        // Unapproved incentives already created for associates are dropped; approved / paid ones are never touched.
+        $associateHrIds = AssociateScope::hrEmployeeIds();
+        if ($associateHrIds !== []) {
+            $hr->table('incentive_payouts')->where('status', 'pending')->whereIn('employee_id', $associateHrIds)->delete();
+        }
 
         $summary = ['month' => $from->format('Y-m'), 'employees' => $employees->count(), 'created' => 0, 'updated' => 0, 'locked' => 0, 'removed' => 0, 'total' => 0.0];
 

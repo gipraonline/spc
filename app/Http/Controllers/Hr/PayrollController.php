@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Hr;
 
+use App\Services\Hr\AssociateScope;
 use App\Exports\TableExport;
 use App\Models\Hr\AuditLog;
 use App\Models\Hr\Employee;
@@ -74,7 +75,9 @@ class PayrollController extends Controller
         $superAdminData = [];
         if ($canManagePayroll) {
             $activeEmployees = Employee::with(['user', 'currentSalaryStructure'])
-                ->whereIn('employment_status', ['active', 'on_notice'])->orderBy('employee_code')->get();
+                ->whereIn('employment_status', ['active', 'on_notice'])
+                ->where(fn ($q) => AssociateScope::exclude($q))   // associates are paid commission, not salary
+                ->orderBy('employee_code')->get();
 
             $lastRun = $runs->first();
 
@@ -437,6 +440,10 @@ class PayrollController extends Controller
         $this->abortUnlessModuleAllowed('payroll');
         // Compensation changes are HR only.
         abort_unless($this->canManagePayroll(), 403);
+
+        if (AssociateScope::isAssociateMaster($employee->employee_master_id)) {
+            return back()->with('status', 'Farm Care Advisers and Tele Callers are associates and are paid commission, not salary.');
+        }
 
         $data = $request->validate([
             'basic' => 'required|numeric|min:0',

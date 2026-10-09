@@ -46,7 +46,7 @@
                     <form method="POST" action="{{ route('hr.incentive.rule.store') }}">
                         @csrf
                         <div class="field-grid">
-                            <div class="field full"><label>Rule name</label><input name="name" placeholder="e.g. FCA own sales - slab 4" required></div>
+                            <div class="field full"><label>Rule name</label><input name="name" placeholder="e.g. FCO own sales - slab 4" required></div>
                             <div class="field">
                                 <label>Designation</label>
                                 <select name="designation_code">

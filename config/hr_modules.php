@@ -96,6 +96,20 @@ return [
             ],
         ],
 
+        'commission' => [
+            'code' => 'CM',
+            'group' => 'Money',
+            'nav_label' => 'Commission',
+            'title' => 'Commission',
+            'summary' => 'Commission for Farm Care Advisers and Tele Callers on their sales.',
+            'roles' => ['employee', 'manager', 'hr_admin', 'super_admin'],
+            'features' => [
+                'Office Administration sets the commission percentage.',
+                'HR calculates it from approved, paid sales and downloads Excel.',
+                'Approval by COO, then MD, then payment by Finance.',
+            ],
+        ],
+
         'recruitment' => [
             'code' => 'RC',
             'group' => 'Growth',

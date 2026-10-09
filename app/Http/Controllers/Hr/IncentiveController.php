@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Hr;
 
+use App\Services\Hr\AssociateScope;
 use App\Models\Hr\IncentivePayout;
 use App\Models\Hr\IncentiveRule;
 use App\Services\Hr\IncentiveEngine;
@@ -21,7 +22,8 @@ class IncentiveController extends Controller
 
         $pendingPayouts = collect();
         if ($this->isManagerOrAbove()) {
-            $query = IncentivePayout::with(['employee.user', 'rule'])->where('status', 'pending');
+            $query = IncentivePayout::with(['employee.user', 'rule'])->where('status', 'pending')
+                ->whereNotIn('employee_id', AssociateScope::hrEmployeeIds());
             if ($role === 'manager' && $employee) {
                 $reportIds = $employee->directReports()->pluck('id');
                 $query->whereIn('employee_id', $reportIds);
@@ -34,7 +36,7 @@ class IncentiveController extends Controller
             : collect();
 
         $designations = DB::table('designation_masters')
-            ->whereIn('identifier', ['FCA', 'FCO', 'TC', 'TL', 'AGM_OM', 'RSH', 'NSH', 'FR_MGR'])
+            ->whereIn('identifier', ['FCO', 'TL', 'AGM_OM', 'RSH', 'NSH', 'FR_MGR'])
             ->orderBy('hierarchy_level', 'desc')->get(['identifier', 'c_designation']);
 
         return view('hr.modules.incentive', array_merge($this->baseViewData(), [

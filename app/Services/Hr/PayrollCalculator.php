@@ -2,6 +2,7 @@
 
 namespace App\Services\Hr;
 
+use App\Services\Hr\AssociateScope;
 use App\Models\Hr\Attendance;
 use App\Models\Hr\Employee;
 use App\Models\Hr\Holiday;
@@ -80,6 +81,8 @@ class PayrollCalculator
                 // an "exited" employee with no exit date is data we cannot place in a month
                 $q->where('employment_status', '!=', 'exited')->orWhereNotNull('date_of_exit');
             })
+            // associates (Farm Care Advisers / Tele Callers) earn commission, not salary
+            ->where(fn ($q) => AssociateScope::exclude($q))
             ->orderBy('employee_code')
             ->get();
 

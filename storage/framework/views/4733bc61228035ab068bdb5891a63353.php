@@ -44,7 +44,7 @@
                     <form method="POST" action="<?php echo e(route('hr.incentive.rule.store')); ?>">
                         <?php echo csrf_field(); ?>
                         <div class="field-grid">
-                            <div class="field full"><label>Rule name</label><input name="name" placeholder="e.g. FCA own sales - slab 4" required></div>
+                            <div class="field full"><label>Rule name</label><input name="name" placeholder="e.g. FCO own sales - slab 4" required></div>
                             <div class="field">
                                 <label>Designation</label>
                                 <select name="designation_code">
@@ -211,5 +211,4 @@
 
     </div>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('hr.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/modules/incentive.blade.php ENDPATH**/ ?>

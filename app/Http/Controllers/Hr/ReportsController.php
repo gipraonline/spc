@@ -21,6 +21,14 @@ class ReportsController extends Controller
         $funnelStages = ['applied', 'shortlisted', 'interviewed', 'offered', 'hired'];
         $funnel = collect($funnelStages)->mapWithKeys(fn ($stage) => [$stage => Candidate::where('stage', $stage)->count()]);
         $maxFunnel = max(1, $funnel->max() ?: 1);
+        $rejectedCount = Candidate::where('stage', 'rejected')->count();
+
+        // Funnel counts for each requisition (one row per requisition).
+        $funnelByRequisition = \App\Models\Hr\JobRequisition::with('department')->withCount(
+            collect($funnelStages)->mapWithKeys(fn ($st) => [
+                'candidates as '.$st.'_count' => fn ($q) => $q->where('stage', $st),
+            ])->all() + ['candidates as rejected_count' => fn ($q) => $q->where('stage', 'rejected')]
+        )->orderByDesc('id')->get();
 
         $appraisalTotal = \App\Models\Hr\Appraisal::count();
         $appraisalDone = \App\Models\Hr\Appraisal::where('status', 'completed')->count();
@@ -45,6 +53,8 @@ class ReportsController extends Controller
             'maxHeadcount' => $maxHeadcount,
             'funnel' => $funnel,
             'maxFunnel' => $maxFunnel,
+            'rejectedCount' => $rejectedCount,
+            'funnelByRequisition' => $funnelByRequisition,
             'appraisalTotal' => $appraisalTotal,
             'appraisalDone' => $appraisalDone,
             'latestRun' => $latestRun,

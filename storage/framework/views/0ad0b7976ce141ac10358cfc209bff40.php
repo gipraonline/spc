@@ -1,14 +1,12 @@
-@extends('layouts.app')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
     href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 /* ===== Add / Edit Employee — same visual language as the Employee Records module ===== */
 .employee-page.efp {
@@ -294,12 +292,12 @@
             </div>
         </aside>
 
-        <form method="POST" id="frm_create" action="{{ route('admin.employees.store') }}" class="efp-body">
-            @csrf
-            @if(!empty($candidate))
-                <input type="hidden" name="candidate_id" value="{{ $candidate->id }}">
-                <div class="efp-note"><i class="ti ti-user-check"></i>Creating the employee for hired candidate <b>{{ $candidate->name }}</b>. A work email is required. After saving, the candidate moves to History in Recruitment.</div>
-            @endif
+        <form method="POST" id="frm_create" action="<?php echo e(route('admin.employees.store')); ?>" class="efp-body">
+            <?php echo csrf_field(); ?>
+            <?php if(!empty($candidate)): ?>
+                <input type="hidden" name="candidate_id" value="<?php echo e($candidate->id); ?>">
+                <div class="efp-note"><i class="ti ti-user-check"></i>Creating the employee for hired candidate <b><?php echo e($candidate->name); ?></b>. A work email is required. After saving, the candidate moves to History in Recruitment.</div>
+            <?php endif; ?>
 
             <div class="efp-note"><i class="ti ti-info-circle"></i>Choose a designation to generate the employee code and load the matching reporting managers.</div>
 
@@ -308,21 +306,35 @@
             <div class="efp-grid">
                 <div class="efp-field full">
                     <label for="c_employee_name"><i class="ti ti-user"></i>Employee Name *</label>
-                    <input type="text" id="c_employee_name" name="c_employee_name" value="{{ old('c_employee_name', $prefill['name'] ?? '') }}"
+                    <input type="text" id="c_employee_name" name="c_employee_name" value="<?php echo e(old('c_employee_name', $prefill['name'] ?? '')); ?>"
                         data-message="Please enter Employee Name" class="form-control mandatory"
                         placeholder="Enter full name">
-                    @error('c_employee_name')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_employee_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field full">
                     <label for="c_employee_address"><i class="ti ti-map-pin"></i>Address *</label>
                     <textarea id="c_employee_address" name="c_employee_address"
                         data-message="Please enter Employee Address" class="form-control mandatory"
-                        placeholder="Enter Address">{{ old('c_employee_address') }}</textarea>
-                    @error('c_employee_address')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                        placeholder="Enter Address"><?php echo e(old('c_employee_address')); ?></textarea>
+                    <?php $__errorArgs = ['c_employee_address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -331,70 +343,120 @@
             <div class="efp-grid">
                 <div class="efp-field">
                     <label for="date_of_birth"><i class="ti ti-cake"></i>Date of Birth</label>
-                    <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
+                    <input type="date" id="date_of_birth" name="date_of_birth" value="<?php echo e(old('date_of_birth')); ?>"
                         class="form-control">
-                    @error('date_of_birth')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['date_of_birth'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="gender"><i class="ti ti-gender-bigender"></i>Gender</label>
                     <select id="gender" name="gender" class="form-select">
                         <option value="">Select</option>
-                        <option value="male" {{ old('gender') === 'male' ? 'selected' : '' }}>Male</option>
-                        <option value="female" {{ old('gender') === 'female' ? 'selected' : '' }}>Female</option>
-                        <option value="other" {{ old('gender') === 'other' ? 'selected' : '' }}>Other</option>
+                        <option value="male" <?php echo e(old('gender') === 'male' ? 'selected' : ''); ?>>Male</option>
+                        <option value="female" <?php echo e(old('gender') === 'female' ? 'selected' : ''); ?>>Female</option>
+                        <option value="other" <?php echo e(old('gender') === 'other' ? 'selected' : ''); ?>>Other</option>
                     </select>
-                    @error('gender')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['gender'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="personal_email"><i class="ti ti-mail-opened"></i>Personal Email</label>
-                    <input type="email" id="personal_email" name="personal_email" value="{{ old('personal_email', $prefill['email'] ?? '') }}"
+                    <input type="email" id="personal_email" name="personal_email" value="<?php echo e(old('personal_email', $prefill['email'] ?? '')); ?>"
                         class="form-control" placeholder="personal@email.com">
-                    @error('personal_email')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['personal_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="n_employee_phone"><i class="ti ti-phone"></i>Mobile Number</label>
-                    <input type="text" id="n_employee_phone" name="n_employee_phone" value="{{ old('n_employee_phone', $prefill['phone'] ?? '') }}"
+                    <input type="text" id="n_employee_phone" name="n_employee_phone" value="<?php echo e(old('n_employee_phone', $prefill['phone'] ?? '')); ?>"
                         class="form-control" maxlength="10" inputmode="numeric" placeholder="10-digit mobile number">
-                    @error('n_employee_phone')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['n_employee_phone'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="city"><i class="ti ti-building"></i>City</label>
-                    <input type="text" id="city" name="city" value="{{ old('city') }}" class="form-control"
+                    <input type="text" id="city" name="city" value="<?php echo e(old('city')); ?>" class="form-control"
                         placeholder="Kochi">
-                    @error('city')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['city'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="department_id"><i class="ti ti-sitemap"></i>Department</label>
                     <select id="department_id" name="department_id" class="form-select">
                         <option value="">Select Department</option>
-                        @foreach($hrDepartments as $dept)
-                        <option value="{{ $dept->id }}" {{ old('department_id', $prefill['department_id'] ?? '') == $dept->id ? 'selected' : '' }}>
-                            {{ $dept->name }}
+                        <?php $__currentLoopData = $hrDepartments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $dept): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($dept->id); ?>" <?php echo e(old('department_id', $prefill['department_id'] ?? '') == $dept->id ? 'selected' : ''); ?>>
+                            <?php echo e($dept->name); ?>
+
                         </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                     <small class="efp-hint">Used by the HR module.</small>
-                    @error('department_id')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['department_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="date_of_joining"><i class="ti ti-calendar-plus"></i>Date of Joining</label>
                     <input type="date" id="date_of_joining" name="date_of_joining"
-                        value="{{ old('date_of_joining', now()->toDateString()) }}" class="form-control">
-                    @error('date_of_joining')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                        value="<?php echo e(old('date_of_joining', now()->toDateString())); ?>" class="form-control">
+                    <?php $__errorArgs = ['date_of_joining'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -406,48 +468,71 @@
                     <select id="n_designation_id" name="n_designation_id" data-message="Please select a Designation"
                         class="form-select mandatory">
                         <option value="">Select Designation</option>
-                        @foreach($designations as $designation)
-                        @php
+                        <?php $__currentLoopData = $designations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $designation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                         $desigName = strtoupper(trim($designation->c_designation));
                         $storeRequired = in_array($desigName, ['CSA', 'C&A', 'SM']) ? 1 : 0;
-                        @endphp
-                        <option value="{{ $designation->n_designation_id }}"
-                            data-identifier="{{ $designation->identifier }}" data-store="{{ $storeRequired }}"
-                            {{ old('n_designation_id', $prefill['n_designation_id'] ?? '') == $designation->n_designation_id ? 'selected' : '' }}>
-                            {{ $designation->c_designation }}
+                        ?>
+                        <option value="<?php echo e($designation->n_designation_id); ?>"
+                            data-identifier="<?php echo e($designation->identifier); ?>" data-store="<?php echo e($storeRequired); ?>"
+                            <?php echo e(old('n_designation_id', $prefill['n_designation_id'] ?? '') == $designation->n_designation_id ? 'selected' : ''); ?>>
+                            <?php echo e($designation->c_designation); ?>
+
                         </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
-                    @if(!empty($prefill['designation_note']))
-                    <div class="efp-err" style="color:#A16207;">{{ $prefill['designation_note'] }}</div>
-                    @endif
-                    @error('n_designation_id')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php if(!empty($prefill['designation_note'])): ?>
+                    <div class="efp-err" style="color:#A16207;"><?php echo e($prefill['designation_note']); ?></div>
+                    <?php endif; ?>
+                    <?php $__errorArgs = ['n_designation_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="c_employee_code"><i class="ti ti-id-badge-2"></i>Employee Code *</label>
-                    <input type="text" id="c_employee_code" name="c_employee_code" value="{{ old('c_employee_code') }}"
+                    <input type="text" id="c_employee_code" name="c_employee_code" value="<?php echo e(old('c_employee_code')); ?>"
                         class="form-control" placeholder="Select designation" readonly>
-                    @error('c_employee_code')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_employee_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field full">
                     <label for="reporting_to"><i class="ti ti-user-check"></i>Reporting Manager</label>
                     <select name="reporting_to" id="reporting_to" class="form-select">
                         <option value="">Select Reporting Manager</option>
-                        @if(isset($employees))
-                        @foreach ($employees as $employee)
-                        <option value="{{ $employee->n_employee_id }}">
-                            {{ $employee->c_employee_name }}
+                        <?php if(isset($employees)): ?>
+                        <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($employee->n_employee_id); ?>">
+                            <?php echo e($employee->c_employee_name); ?>
+
                         </option>
-                        @endforeach
-                        @endif
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endif; ?>
                     </select>
-                    @error('reporting_to')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['reporting_to'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -456,35 +541,63 @@
             <div class="efp-grid">
                 <div class="efp-field">
                     <label for="account_number"><i class="ti ti-hash"></i>Account Number</label>
-                    <input type="text" id="account_number" name="account_number" value="{{ old('account_number') }}"
+                    <input type="text" id="account_number" name="account_number" value="<?php echo e(old('account_number')); ?>"
                         data-message="Please add Account Number" class="form-control" placeholder="ACC-001">
-                    @error('account_number')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['account_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="ifsc_code"><i class="ti ti-barcode"></i>IFSC Code</label>
-                    <input type="text" id="ifsc_code" name="ifsc_code" value="{{ old('ifsc_code') }}"
+                    <input type="text" id="ifsc_code" name="ifsc_code" value="<?php echo e(old('ifsc_code')); ?>"
                         data-message="Please enter IFSC Code" class="form-control" placeholder="Enter IFSC code">
-                    @error('ifsc_code')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['ifsc_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="bank_name"><i class="ti ti-building-bank"></i>Bank Name</label>
-                    <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}"
+                    <input type="text" id="bank_name" name="bank_name" value="<?php echo e(old('bank_name')); ?>"
                         data-message="Please add Bank name" class="form-control" placeholder="SBI">
-                    @error('bank_name')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['bank_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="branch_name"><i class="ti ti-map-2"></i>Branch Name</label>
-                    <input type="text" id="branch_name" name="branch_name" value="{{ old('branch_name') }}"
+                    <input type="text" id="branch_name" name="branch_name" value="<?php echo e(old('branch_name')); ?>"
                         data-message="Please add Branch name" class="form-control" placeholder="KOCHI">
-                    @error('branch_name')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['branch_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -494,29 +607,43 @@
                 <div class="efp-field">
                     <label for="c_employee_email"><i class="ti ti-mail"></i>Email Address *</label>
                     <input type="email" id="c_employee_email" name="c_employee_email"
-                        value="{{ old('c_employee_email') }}" data-message="Please enter an Email Address"
+                        value="<?php echo e(old('c_employee_email')); ?>" data-message="Please enter an Email Address"
                         class="form-control mandatory" placeholder="example@company.com">
-                    @error('c_employee_email')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_employee_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="efp-field">
                     <label for="c_status"><i class="ti ti-circle-half-2"></i>Employment Status *</label>
                     <select id="c_status" name="c_status" class="form-select mandatory"
                         data-message="Please select Status">
                         <option value="">Select Status</option>
-                        <option value="Y" {{ old('c_status') === 'Y' ? 'selected' : '' }}>Active</option>
-                        <option value="N" {{ old('c_status') === 'N' ? 'selected' : '' }}>Inactive</option>
+                        <option value="Y" <?php echo e(old('c_status') === 'Y' ? 'selected' : ''); ?>>Active</option>
+                        <option value="N" <?php echo e(old('c_status') === 'N' ? 'selected' : ''); ?>>Inactive</option>
                     </select>
-                    @error('c_status')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
+                    <?php $__errorArgs = ['c_status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <div class="text-danger efp-err"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
             <div class="efp-foot">
                 <span class="efp-hint-secure"><i class="ti ti-asterisk"></i>Fields marked * are required</span>
-                <a href="{{ route('admin.employees.index') }}" class="efp-btn efp-btn-secondary">Cancel</a>
+                <a href="<?php echo e(route('admin.employees.index')); ?>" class="efp-btn efp-btn-secondary">Cancel</a>
                 <button type="submit" id="btn_create" class="efp-btn efp-btn-primary">
                     <i class="ti ti-plus"></i>Create Employee
                 </button>
@@ -525,8 +652,8 @@
     </div>
 </div>
 
-@push('scripts')
-<script src="{{asset('dist/js/custom.js?1')}}"></script>
+<?php $__env->startPush('scripts'); ?>
+<script src="<?php echo e(asset('dist/js/custom.js?1')); ?>"></script>
 <script>
 $(document).ready(function() {
 
@@ -547,7 +674,7 @@ $(document).ready(function() {
 
         // Generate employee code
         $.ajax({
-            url: "{{ url('/admin/employees/generate-code') }}/" + designation,
+            url: "<?php echo e(url('/admin/employees/generate-code')); ?>/" + designation,
             type: 'GET',
             success: function(response) {
                 $('#c_employee_code').val(response.employee_code);
@@ -587,7 +714,7 @@ $(document).ready(function() {
     // Designation list follows the selected department: only designations HR has
     // set up under that department are offered. No department, or a department with
     // no designations set up yet, shows the full list.
-    const deptDesignations = @json($deptDesignations);
+    const deptDesignations = <?php echo json_encode($deptDesignations, 15, 512) ?>;
     const $desig = $('#n_designation_id');
     const allDesigOptions = $desig.find('option').clone();
     const normTitle = t => (t || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -624,11 +751,12 @@ $(document).ready(function() {
 
     // Designation filled from the hired candidate's requisition: load the
     // employee code and reporting managers as if it had been picked by hand.
-    @if(!empty($prefill['n_designation_id']) && !old('n_designation_id'))
+    <?php if(!empty($prefill['n_designation_id']) && !old('n_designation_id')): ?>
     $('#n_designation_id').trigger('change');
-    @endif
+    <?php endif; ?>
 
 });
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/admin/employees/create.blade.php ENDPATH**/ ?>

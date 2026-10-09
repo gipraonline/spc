@@ -111,6 +111,15 @@ Route::prefix('hr')->name('hr.')->group(function () {
             Route::post('/modules/recruitment/requisitions', [RecruitmentController::class, 'storeRequisition'])
                 ->name('recruitment.requisition.store');
 
+            Route::post('/modules/recruitment/requisitions/{requisition}/decide', [RecruitmentController::class, 'decideRequisition'])
+                ->name('recruitment.requisition.decide');
+
+            Route::post('/modules/recruitment/requisitions/{requisition}/candidates', [RecruitmentController::class, 'storeCandidate'])
+                ->name('recruitment.candidate.store');
+
+            Route::get('/modules/recruitment/candidates/{candidate}/resume', [RecruitmentController::class, 'resume'])
+                ->name('recruitment.candidate.resume');
+
             Route::post('/modules/recruitment/candidates/{candidate}/stage', [RecruitmentController::class, 'updateCandidateStage'])
                 ->name('recruitment.candidate.stage');
 

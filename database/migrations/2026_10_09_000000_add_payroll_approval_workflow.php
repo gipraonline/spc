@@ -24,20 +24,26 @@ return new class extends Migration
     {
         $hr = Schema::connection('spc_hr');
 
-        $hr->table('payroll_runs', function (Blueprint $table) use ($hr) {
-            if (! $hr->hasColumn('payroll_runs', 'approval_stage')) {
-                $table->string('approval_stage', 20)->default('draft');
-                $table->unsignedBigInteger('submitted_by')->nullable();
-                $table->timestamp('submitted_at')->nullable();
-                $table->unsignedBigInteger('coo_by')->nullable();
-                $table->timestamp('coo_at')->nullable();
-                $table->unsignedBigInteger('md_by')->nullable();
-                $table->timestamp('md_at')->nullable();
-                $table->unsignedBigInteger('returned_by')->nullable();
-                $table->timestamp('returned_at')->nullable();
-                $table->string('workflow_remarks', 255)->nullable();
+        // Add each column on its own, so a table that already has some of them
+        // (earlier partial run, manual SQL import) still gets the missing ones.
+        $columns = [
+            'approval_stage' => fn (Blueprint $t) => $t->string('approval_stage', 20)->default('draft'),
+            'submitted_by' => fn (Blueprint $t) => $t->unsignedBigInteger('submitted_by')->nullable(),
+            'submitted_at' => fn (Blueprint $t) => $t->timestamp('submitted_at')->nullable(),
+            'coo_by' => fn (Blueprint $t) => $t->unsignedBigInteger('coo_by')->nullable(),
+            'coo_at' => fn (Blueprint $t) => $t->timestamp('coo_at')->nullable(),
+            'md_by' => fn (Blueprint $t) => $t->unsignedBigInteger('md_by')->nullable(),
+            'md_at' => fn (Blueprint $t) => $t->timestamp('md_at')->nullable(),
+            'returned_by' => fn (Blueprint $t) => $t->unsignedBigInteger('returned_by')->nullable(),
+            'returned_at' => fn (Blueprint $t) => $t->timestamp('returned_at')->nullable(),
+            'workflow_remarks' => fn (Blueprint $t) => $t->string('workflow_remarks', 255)->nullable(),
+        ];
+
+        foreach ($columns as $name => $define) {
+            if (! $hr->hasColumn('payroll_runs', $name)) {
+                $hr->table('payroll_runs', fn (Blueprint $table) => $define($table));
             }
-        });
+        }
 
         DB::connection('spc_hr')->table('payroll_runs')->where('status', 'paid')->where('approval_stage', 'draft')->update(['approval_stage' => 'completed']);
         DB::connection('spc_hr')->table('payroll_runs')->where('status', 'processed')->where('approval_stage', 'draft')->update(['approval_stage' => 'pending_finance']);

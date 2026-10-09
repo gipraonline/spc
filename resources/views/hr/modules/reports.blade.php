@@ -70,6 +70,13 @@
                         <span class="bar-value">{{ $count }}</span>
                     </div>
                 @endforeach
+                @if($rejectedCount > 0)
+                    <div class="bar-row">
+                        <span class="bar-label"><i class="fa-solid fa-user-xmark" style="color:#942B2B;margin-right:7px;font-size:11px;"></i>Rejected</span>
+                        <div class="bar-track"><div class="bar-fill" style="width:{{ round($rejectedCount / max($maxFunnel, $rejectedCount) * 100) }}%;background:#C03434;"></div></div>
+                        <span class="bar-value">{{ $rejectedCount }}</span>
+                    </div>
+                @endif
                 @if($funnel->sum() > 0)
                     <div class="funnel-rate">
                         <i class="fa-solid fa-bullseye"></i>
@@ -79,6 +86,38 @@
                 @endif
             </div>
         </div>
+
+
+        @if($funnelByRequisition->isNotEmpty())
+            <div class="table-card" style="margin-top:20px;">
+                <div class="tc-head"><h3>Recruitment funnel by requisition</h3></div>
+                <div class="tc-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Requisition</th><th>Status</th><th>Openings</th>
+                                <th>Applied</th><th>Shortlisted</th><th>Interviewed</th><th>Offered</th><th>Hired</th><th>Rejected</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($funnelByRequisition as $r)
+                                <tr>
+                                    <td>{{ $r->title }}@if($r->department)<br><small>{{ $r->department->name }}</small>@endif</td>
+                                    <td>{{ ucfirst(str_replace('_', ' ', $r->status)) }}</td>
+                                    <td>{{ $r->openings }}</td>
+                                    <td>{{ $r->applied_count }}</td>
+                                    <td>{{ $r->shortlisted_count }}</td>
+                                    <td>{{ $r->interviewed_count }}</td>
+                                    <td>{{ $r->offered_count }}</td>
+                                    <td>{{ $r->hired_count }}</td>
+                                    <td>{{ $r->rejected_count }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
 
         <div class="grid-2" style="margin-top:20px;">
             @if($latestRun && $payrollByDept->isNotEmpty())

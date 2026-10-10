@@ -24,6 +24,7 @@ use App\Http\Controllers\Hr\EmployeeExitController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UnifiedDashboardController;
+use App\Http\Controllers\Admin\MyCommissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -767,6 +768,7 @@ Route::middleware(['auth', 'admin'])
         Route::post('associate-leave', [AssociateLeaveController::class, 'store'])->name('associate-leave.store');
         Route::post('associate-leave/{leave}/cancel', [AssociateLeaveController::class, 'cancel'])->name('associate-leave.cancel');
         Route::post('associate-leave/{leave}/decide', [AssociateLeaveController::class, 'decide'])->name('associate-leave.decide');
+        Route::get('my-commission', [MyCommissionController::class, 'index'])->name('my-commission.index');
 
     });
 

@@ -8,6 +8,7 @@ use App\Models\Hr\AnnouncementRead;
 use App\Models\Hr\Notification;
 use App\Models\Hr\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AnnouncementController extends Controller
 {
@@ -57,10 +58,18 @@ class AnnouncementController extends Controller
         abort_unless($this->isHrOrAbove(), 403);
 
         $data = $request->validate([
-            'title' => 'required|string|max:200',
+            'title' => 'nullable|string|max:200',
             'body' => 'required|string|max:4000',
             'audience_role' => 'required|in:all,employee,manager,hr_admin,super_admin',
         ]);
+
+        // Title left blank: build it from the first line of the message.
+        $title = trim((string) ($data['title'] ?? ''));
+        if ($title === '') {
+            $firstLine = trim((string) strtok(trim($data['body']), "\r\n"));
+            $title = Str::limit($firstLine, 60, '...');
+        }
+        $data['title'] = $title;
 
         $announcement = Announcement::create(array_merge($data, [
             'created_by' => $this->currentUser()->id,

@@ -4,7 +4,6 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Hr\AnnouncementController;
 use App\Http\Controllers\Hr\AppraisalController;
 use App\Http\Controllers\Hr\AttendanceController;
-use App\Http\Controllers\Hr\CommissionController;
 use App\Http\Controllers\Hr\DocumentVerificationController;
 use App\Http\Controllers\Hr\EmployeeExitController;
 use App\Http\Controllers\Hr\EmployeeRecordsController;
@@ -103,19 +102,6 @@ Route::prefix('hr')->name('hr.')->group(function () {
             Route::get('/modules/payroll/runs/{run}/register', [PayrollController::class, 'register'])->name('payroll.register');
             Route::get('/modules/payroll/runs/{run}/bank-file', [PayrollController::class, 'bankFile'])->name('payroll.bank-file');
         });
-
-
-        // Associate commission (Farm Care Advisers / Tele Callers). Access is enforced per designation in the controller.
-        Route::get('/modules/commission', [CommissionController::class, 'index'])->name('commission.index');
-        Route::post('/modules/commission/rates', [CommissionController::class, 'storeRate'])->name('commission.rate.store');
-        Route::post('/modules/commission/calculate', [CommissionController::class, 'calculate'])->name('commission.calculate');
-        Route::post('/modules/commission/runs/{commissionRun}/submit', [CommissionController::class, 'submit'])->name('commission.submit');
-        Route::post('/modules/commission/runs/{commissionRun}/coo-approve', [CommissionController::class, 'approveCoo'])->name('commission.coo-approve');
-        Route::post('/modules/commission/runs/{commissionRun}/md-approve', [CommissionController::class, 'approveMd'])->name('commission.md-approve');
-        Route::post('/modules/commission/runs/{commissionRun}/return', [CommissionController::class, 'returnToHr'])->name('commission.return');
-        Route::post('/modules/commission/runs/{commissionRun}/paid', [CommissionController::class, 'markPaid'])->name('commission.paid');
-        Route::post('/modules/commission/runs/{commissionRun}/discard', [CommissionController::class, 'discard'])->name('commission.discard');
-        Route::get('/modules/commission/runs/{commissionRun}/export', [CommissionController::class, 'export'])->name('commission.export');
 
         // Recruitment
         Route::middleware(['permission:recruitment.view'])->group(function () {
@@ -219,11 +205,10 @@ Route::prefix('hr')->name('hr.')->group(function () {
             Route::get('/modules/appraisal', [AppraisalController::class, 'index'])
                 ->name('appraisal.index');
 
-            Route::post('/modules/appraisal/{appraisal}/self', [AppraisalController::class, 'submitSelfAssessment'])
-                ->name('appraisal.self');
+            Route::get('/modules/appraisal/report/export', [AppraisalController::class, 'exportReport'])
+                ->name('appraisal.report.export');
 
-            Route::post('/modules/appraisal/{appraisal}/review', [AppraisalController::class, 'submitManagerReview'])
-                ->name('appraisal.review');
+
 
             Route::post('/modules/appraisal/targets', [AppraisalController::class, 'saveTargets'])
                 ->name('appraisal.targets.save');

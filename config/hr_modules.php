@@ -96,20 +96,6 @@ return [
             ],
         ],
 
-        'commission' => [
-            'code' => 'CM',
-            'group' => 'Money',
-            'nav_label' => 'Commission',
-            'title' => 'Commission',
-            'summary' => 'Commission for Farm Care Advisers and Tele Callers on their sales.',
-            'roles' => ['employee', 'manager', 'hr_admin', 'super_admin'],
-            'features' => [
-                'Office Administration sets the commission percentage.',
-                'HR calculates it from approved, paid sales and downloads Excel.',
-                'Approval by COO, then MD, then payment by Finance.',
-            ],
-        ],
-
         'recruitment' => [
             'code' => 'RC',
             'group' => 'Growth',
@@ -173,14 +159,14 @@ return [
             'code' => 'PA',
             'group' => 'Growth',
             'nav_label' => 'Performance',
-            'title' => 'Performance Appraisal',
-            'summary' => 'Appraisal cycles, self-assessment, and manager review.',
+            'title' => 'Performance',
+            'summary' => 'Sales, attendance, targets and a monthly report for every employee.',
             'roles' => ['employee', 'manager', 'hr_admin', 'super_admin'],
             'features' => [
-                'Configurable appraisal cycles (quarterly / half-yearly / annual).',
-                'Goal-setting, self-assessment, and manager review workflow.',
-                'Consolidated rating and appraisal history per employee.',
-                'Exportable appraisal reports for management review.',
+                'Monthly employee report: sales value, leave, WFH, late and salary paid.',
+                'Team and company overview of sales, attendance, leads and incentives paid.',
+                'Targets for sales, orders, leads and field days, with progress.',
+                'Download the monthly report as CSV.',
             ],
         ],
 
@@ -202,12 +188,12 @@ return [
         'incentive' => [
             'code' => 'CI',
             'group' => 'Money',
-            'nav_label' => 'Incentive',
-            'title' => 'Incentive',
-            'summary' => 'Configurable incentive rules, calculations, and payout approval.',
+            'nav_label' => 'Commission & Incentive',
+            'title' => 'Commission & Incentive',
+            'summary' => 'Configurable rules, calculations, and payout approval.',
             'roles' => ['employee', 'manager', 'hr_admin', 'super_admin'],
             'features' => [
-                'Configurable incentive rules by role, target, or slab.',
+                'Configurable commission / incentive rules by role, target, or slab.',
                 'Automated calculation based on sales / performance data (integrates with Sales Order Management).',
                 'Incentive payout summary per employee, per cycle.',
                 'Approval workflow before payout is included in payroll.',

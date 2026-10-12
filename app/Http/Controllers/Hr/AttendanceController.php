@@ -51,6 +51,21 @@ class AttendanceController extends Controller
             ? $employee->attendances()->where('attendance_date', $today)->first()
             : null;
 
+        // Date => ['in' => 'H:i', 'out' => 'H:i'] for the last 60 days. Used by the
+        // "Request regularization" form to pre-fill the recorded check-in/out
+        // times, which the employee can then edit before submitting.
+        $ownPunches = $showOwnAttendance
+            ? $employee->attendances()
+                ->where('attendance_date', '>=', now()->subDays(60)->toDateString())
+                ->get()
+                ->mapWithKeys(fn ($a) => [
+                    Carbon::parse($a->attendance_date)->toDateString() => [
+                        'in' => $a->check_in ? Carbon::parse($a->check_in)->format('H:i') : '',
+                        'out' => $a->check_out ? Carbon::parse($a->check_out)->format('H:i') : '',
+                    ],
+                ])
+            : collect();
+
         $ownRegularizations = $showOwnAttendance
             ? AttendanceRegularization::whereHas('attendance', fn ($q) => $q->where('employee_id', $employee->id))
                 ->with('attendance')->orderByDesc('id')->limit(10)->get()
@@ -171,6 +186,7 @@ class AttendanceController extends Controller
             'moduleKey' => 'attendance',
             'ownRecords' => $ownRecords,
             'todayOwnAttendance' => $todayOwnAttendance,
+            'ownPunches' => $ownPunches,
             'ownRegularizations' => $ownRegularizations,
             'pendingApprovals' => $pendingApprovals,
             'dailyAttendance' => $dailyRows,
@@ -380,7 +396,7 @@ class AttendanceController extends Controller
             return back()->with('status', 'You have already checked out today.');
         }
 
-        $earlyExitMinutes = max(0, $now->diffInMinutes(Carbon::parse($today.' 18:00:00'), false));
+        $earlyExitMinutes = max(0, $now->diffInMinutes(Carbon::parse($today.' '.$this->workEnd()), false));
         $attendance->update([
             'check_out' => $now,
             'early_exit_minutes' => $earlyExitMinutes,
@@ -429,7 +445,41 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Grace period (minutes after 09:00) from HR Settings → attendance_grace_minutes.
+     * Office start time from HR Settings → attendance_work_start (falls back to 09:00).
+     */
+    private function workStart(): string
+    {
+        return $this->workTime('attendance_work_start', '09:00:00');
+    }
+
+    /**
+     * Office end time from HR Settings → attendance_work_end (falls back to 18:00).
+     */
+    private function workEnd(): string
+    {
+        return $this->workTime('attendance_work_end', '18:00:00');
+    }
+
+    /**
+     * Read a time setting and normalise it to H:i:s; invalid or missing values use the default.
+     */
+    private function workTime(string $key, string $default): string
+    {
+        $value = SystemSetting::where('setting_key', $key)->value('setting_value');
+
+        if (! $value) {
+            return $default;
+        }
+
+        try {
+            return Carbon::parse($value)->format('H:i:s');
+        } catch (\Exception $e) {
+            return $default;
+        }
+    }
+
+    /**
+     * Grace period (minutes after the office start time) from HR Settings → attendance_grace_minutes.
      */
     private function graceMinutes(): int
     {
@@ -441,13 +491,13 @@ class AttendanceController extends Controller
     /**
      * Status + late minutes for a check-in. Arriving within the grace period
      * counts as on time (present, 0 late minutes); beyond it the employee is
-     * "late" and late_minutes is the full time after 09:00.
+     * "late" and late_minutes is the full time after the office start time.
      *
      * @return array{0: string, 1: int}
      */
     private function lateStatus(Carbon $checkIn, string $date): array
     {
-        $late = (int) floor(max(0, Carbon::parse($date.' 09:00:00')->diffInMinutes($checkIn, false)));
+        $late = (int) floor(max(0, Carbon::parse($date.' '.$this->workStart())->diffInMinutes($checkIn, false)));
 
         return $late > $this->graceMinutes() ? ['late', $late] : ['present', 0];
     }
@@ -570,7 +620,7 @@ class AttendanceController extends Controller
 
                 [$status, $late] = $checkIn ? $this->lateStatus($checkIn, $date) : ['present', 0];
                 $early = $checkOut
-                    ? (int) floor(max(0, $checkOut->diffInMinutes(Carbon::parse($date.' 18:00:00'), false)))
+                    ? (int) floor(max(0, $checkOut->diffInMinutes(Carbon::parse($date.' '.$this->workEnd()), false)))
                     : 0;
 
                 $attendance->update([

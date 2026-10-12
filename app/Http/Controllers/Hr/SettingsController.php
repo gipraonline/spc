@@ -26,6 +26,8 @@ class SettingsController extends Controller
         'leave_year_start_month' => ['label' => 'Leave year start month (1-12)', 'type' => 'number'],
         'payroll_cutoff_day' => ['label' => 'Payroll cutoff day of month', 'type' => 'number'],
         'attendance_grace_minutes' => ['label' => 'Attendance grace period (minutes)', 'type' => 'number'],
+        'attendance_work_start' => ['label' => 'Office start time (HH:MM)', 'type' => 'text'],
+        'attendance_work_end' => ['label' => 'Office end time (HH:MM)', 'type' => 'text'],
         'wfh_max_days_per_month' => ['label' => 'Max WFH days per employee / month', 'type' => 'number'],
         'weekly_off_days' => ['label' => 'Weekly off days for payroll (0=Sun ... 6=Sat, comma separated)', 'type' => 'text'],
         'missing_attendance_as' => ['label' => 'Working day with no attendance record counts as (present / absent)', 'type' => 'text'],
@@ -240,6 +242,19 @@ class SettingsController extends Controller
         if ($v('weekly_off_days') !== '' && ! preg_match('/^[0-6](\s*,\s*[0-6])*$/', $v('weekly_off_days'))) {
             $errors['weekly_off_days'] = 'Use day numbers 0-6 separated by commas, e.g. 0 or 0,6.';
         }
+
+        // Office hours used by attendance (late status, late minutes, early exit).
+        foreach (['attendance_work_start', 'attendance_work_end'] as $t) {
+            if ($v($t) !== '' && ! preg_match('/^([01]?\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/', $v($t))) {
+                $errors[$t] = 'Use a time like 09:00.';
+            }
+        }
+        if (! isset($errors['attendance_work_start']) && ! isset($errors['attendance_work_end'])
+            && $v('attendance_work_start') !== '' && $v('attendance_work_end') !== ''
+            && strtotime($v('attendance_work_end')) <= strtotime($v('attendance_work_start'))) {
+            $errors['attendance_work_end'] = 'Office end time must be later than the start time.';
+        }
+
         foreach (['pf_cap_wages', 'pt_enabled', 'tds_enabled'] as $flag) {
             if ($v($flag) !== '' && ! in_array($v($flag), ['0', '1'], true)) {
                 $errors[$flag] = 'Use 1 or 0.';

@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\Hr;
 
-use App\Models\Hr\Appraisal;
 use App\Models\Hr\AppraisalCycle;
 use App\Models\Hr\Employee;
 use App\Models\Hr\SalesTarget;
 use App\Services\Hr\PerformanceInsightsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
+/**
+ * Performance page: sales / attendance overview, monthly employee report and targets.
+ *
+ * Targets are still stored against the review period they belong to, because the
+ * incentive calculation divides them across that period. The page never shows
+ * "cycles" or appraisals: it just uses the period that covers today.
+ */
 class AppraisalController extends Controller
 {
     public function index(Request $request, PerformanceInsightsService $insights)
@@ -17,128 +24,90 @@ class AppraisalController extends Controller
         $employee = $this->currentEmployee();
         $role = $this->currentRole();
 
-        $cycles = AppraisalCycle::orderByDesc('start_date')->get();
+        $month = $this->reportMonth($request);
+        [$from, $to] = $insights->periodForMonth($month);
 
-        $ownAppraisals = $employee
-            ? Appraisal::with(['cycle', 'goals'])->where('employee_id', $employee->id)->orderByDesc('id')->get()
-            : collect();
+        // Target period (internal): the period covering today, else the active one, else the latest.
+        $today = now()->toDateString();
+        $periods = AppraisalCycle::orderByDesc('start_date')->get();
+        $targetPeriod = $periods->first(fn ($c) => $c->start_date <= $today && $c->end_date >= $today)
+            ?? $periods->firstWhere('status', 'active')
+            ?? $periods->first();
+        [$targetFrom, $targetTo] = $insights->period($targetPeriod);
 
-        $currentAppraisal = $ownAppraisals->firstWhere('status', '!=', 'completed') ?? $ownAppraisals->first();
+        // Own target progress (the only personal figures an employee gets).
+        $mine = $employee ? $insights->forEmployee($employee, $targetFrom, $targetTo, $targetPeriod?->id) : null;
 
-        $toReview = collect();
-        if ($this->isManagerOrAbove() && $employee) {
-            $query = Appraisal::with(['employee.user', 'cycle', 'goals'])
-                ->where('status', '!=', 'not_started')
-                ->where('status', '!=', 'completed');
+        // My own numbers for the picked month (every login with an employee record).
+        $mineMonth = $employee ? $insights->forEmployee($employee, $from, $to, null) : null;
+        $mineReport = $employee ? ($insights->employeeMonthlyReport($month, null, $employee)['rows'][0] ?? null) : null;
 
-            if ($role === 'manager') {
-                $query->where('manager_id', $employee->id);
-            }
+        // Scope is decided here, by role, and nowhere else.
+        $team = ($role === 'manager' && $employee) ? $insights->forTeam($employee, $from, $to) : null;
+        $org = $this->isHrOrAbove() ? $insights->forOrganisation($from, $to, $role === 'super_admin') : null;
 
-            $toReview = $query->orderByDesc('id')->get();
-        }
-
-        // Selected cycle drives the date range for sales / attendance / incentives.
-        // Default: the active cycle, else the most recent one, else the last 90 days.
-        $selectedCycle = $cycles->firstWhere('id', (int) $request->query('cycle'))
-            ?? $cycles->firstWhere('status', 'active')
-            ?? $cycles->first();
-        [$from, $to] = $insights->period($selectedCycle);
-
-        // Scope is decided here, by role, and nowhere else: an employee only
-        // ever receives their own numbers; team/org data is never loaded for them.
-        $mine = $employee ? $insights->forEmployee($employee, $from, $to, $selectedCycle?->id) : null;
-        $team = ($role === 'manager' && $employee)
-            ? $insights->forTeam($employee, $from, $to, $selectedCycle?->id)
-            : null;
-        $org = $this->isHrOrAbove()
-            ? $insights->forOrganisation($from, $to, $selectedCycle?->id, $role === 'super_admin')
+        $report = $this->isManagerOrAbove() && $employee
+            ? $insights->employeeMonthlyReport($month, $role === 'manager' ? $employee : null)
             : null;
 
-        // Who this person may set targets for: managers -> direct reports, HR -> everyone active.
         $targetEmployees = collect();
         $targetValues = [];
-        if ($this->isManagerOrAbove() && $employee && $selectedCycle) {
+        if ($this->isManagerOrAbove() && $employee && $targetPeriod) {
             $targetEmployees = $this->targetableEmployees($employee)->load('user');
-            $targetValues = SalesTarget::where('appraisal_cycle_id', $selectedCycle->id)
+            $targetValues = SalesTarget::where('appraisal_cycle_id', $targetPeriod->id)
                 ->whereIn('employee_id', $targetEmployees->pluck('id'))->get()
                 ->groupBy('employee_id')->map(fn ($g) => $g->pluck('target_value', 'metric')->map(fn ($v) => (float) $v)->all())->all();
         }
 
         return view('hr.modules.appraisal', array_merge($this->baseViewData(), [
-            'targetEmployees' => $targetEmployees,
-            'targetValues' => $targetValues,
             'module' => $module,
             'moduleKey' => 'appraisal',
-            'selectedCycle' => $selectedCycle,
+            'month' => $month,
             'periodFrom' => $from,
             'periodTo' => $to,
+            'targetPeriod' => $targetPeriod,
+            'targetFrom' => $targetFrom,
+            'targetTo' => $targetTo,
+            'targetEmployees' => $targetEmployees,
+            'targetValues' => $targetValues,
             'mine' => $mine,
+            'mineMonth' => $mineMonth,
+            'mineReport' => $mineReport,
             'team' => $team,
             'org' => $org,
-            'cycles' => $cycles,
-            'ownAppraisals' => $ownAppraisals,
-            'currentAppraisal' => $currentAppraisal,
-            'toReview' => $toReview,
+            'report' => $report,
         ]));
     }
 
-    public function submitSelfAssessment(Request $request, Appraisal $appraisal)
+    private function reportMonth(Request $request): Carbon
     {
-        $this->abortUnlessModuleAllowed('appraisal');
-        $employee = $this->currentEmployee();
-        abort_unless($employee && $appraisal->employee_id === $employee->id, 403);
-        abort_unless(in_array($appraisal->status, ['not_started', 'self_review'], true), 403, 'This appraisal is already with your manager or completed.');
+        $m = (string) $request->query('month', '');
 
-        $data = $request->validate([
-            'self_assessment' => 'required|string|max:2000',
-            'goal_ratings' => 'nullable|array',
-            'goal_ratings.*' => 'nullable|numeric|min:0|max:5',
-        ]);
+        $month = preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $m)
+            ? Carbon::createFromFormat('Y-m-d', $m.'-01')->startOfMonth()
+            : now()->startOfMonth();
 
-        foreach ($data['goal_ratings'] ?? [] as $goalId => $rating) {
-            if ($rating !== null && $rating !== '') {
-                $appraisal->goals()->where('id', $goalId)->update(['self_rating' => $rating]);
-            }
-        }
-
-        $appraisal->update([
-            'self_assessment' => $data['self_assessment'],
-            'status' => 'self_review',
-        ]);
-
-        return back()->with('status', 'Self-assessment submitted for manager review.');
+        return $month->gt(now()->startOfMonth()) ? now()->startOfMonth() : $month;
     }
 
-    public function submitManagerReview(Request $request, Appraisal $appraisal)
+    public function exportReport(Request $request, PerformanceInsightsService $insights)
     {
         $this->abortUnlessModuleAllowed('appraisal');
         abort_unless($this->isManagerOrAbove(), 403);
-        if ($this->currentRole() === 'manager') {
-            abort_unless($appraisal->manager_id === $this->currentEmployee()?->id, 403, 'You can only review your own direct reports.');
-        }
+        $employee = $this->currentEmployee();
+        abort_unless($employee, 403);
 
-        $data = $request->validate([
-            'manager_review' => 'required|string|max:2000',
-            'final_rating' => 'required|numeric|min:0|max:5',
-            'goal_ratings' => 'nullable|array',
-            'goal_ratings.*' => 'nullable|numeric|min:0|max:5',
-        ]);
+        $month = $this->reportMonth($request);
+        $data = $insights->employeeMonthlyReport($month, $this->currentRole() === 'manager' ? $employee : null);
 
-        foreach ($data['goal_ratings'] ?? [] as $goalId => $rating) {
-            if ($rating !== null && $rating !== '') {
-                $appraisal->goals()->where('id', $goalId)->update(['manager_rating' => $rating]);
+        return response()->streamDownload(function () use ($data) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Employee', 'Code', 'Department', 'Monthly sales value', 'Orders', 'Leave days', 'WFH days', 'Late', 'Salary paid']);
+            foreach ($data['rows'] as $r) {
+                fputcsv($out, [$r['name'], $r['code'], $r['department'], $r['sales_linked'] ? $r['sales'] : '', $r['orders'], $r['leave_days'], $r['wfh_days'], $r['late'], $r['salary_paid'] ?? '']);
             }
-        }
-
-        $appraisal->update([
-            'manager_review' => $data['manager_review'],
-            'final_rating' => $data['final_rating'],
-            'status' => 'completed',
-            'completed_at' => now(),
-        ]);
-
-        return back()->with('status', 'Appraisal review completed for '.$appraisal->employee->employee_code.'.');
+            fclose($out);
+        }, 'employee-performance-'.$month->format('Y-m').'.csv', ['Content-Type' => 'text/csv']);
     }
 
     /** Employees the current manager / HR user is allowed to set targets for. */
@@ -191,7 +160,7 @@ class AppraisalController extends Controller
             }
         }
 
-        return redirect()->route('hr.appraisal.index', ['cycle' => $data['appraisal_cycle_id']])
+        return redirect()->route('hr.appraisal.index', ['tab' => 'targets'])
             ->with('status', "Targets saved ({$saved} values).");
     }
 }

@@ -29,8 +29,19 @@
                 <form method="POST" action="{{ route('hr.announcements.store') }}">
                     @csrf
                     <div class="field-grid">
-                        <div class="field full"><label>Title</label><input name="title" placeholder="e.g. Office closed for Onam" required></div>
-                        <div class="field full"><label>Message</label><textarea name="body" placeholder="Announcement details" required></textarea></div>
+                        <div class="field full">
+                            <label>Title</label>
+                            <input id="annTitle" name="title" value="{{ old('title') }}"
+                                data-default-placeholder="e.g. Office closed for Onam"
+                                placeholder="e.g. Office closed for Onam">
+                            <span class="field-hint">Optional. If left blank, the first line of the message is used as the title.</span>
+                            @error('title')<small class="text-danger">{{ $message }}</small>@enderror
+                        </div>
+                        <div class="field full">
+                            <label>Message</label>
+                            <textarea id="annBody" name="body" placeholder="Announcement details" required>{{ old('body') }}</textarea>
+                            @error('body')<small class="text-danger">{{ $message }}</small>@enderror
+                        </div>
                         <div class="field">
                             <label>Audience</label>
                             <select name="audience_role">
@@ -44,6 +55,24 @@
                     </div>
                     <div class="form-actions"><button type="submit" class="btn-primary">Publish announcement</button></div>
                 </form>
+
+                <script>
+                (function () {
+                    var title = document.getElementById('annTitle');
+                    var body = document.getElementById('annBody');
+                    if (!title || !body) return;
+
+                    // Show the title that will be used (from the message) as a live preview in the empty title box.
+                    function preview() {
+                        var first = (body.value.trim().split(/\r?\n/)[0] || '').trim();
+                        if (first.length > 60) first = first.slice(0, 60).trimEnd() + '...';
+                        title.placeholder = first || title.dataset.defaultPlaceholder;
+                    }
+
+                    body.addEventListener('input', preview);
+                    preview();
+                })();
+                </script>
             </div>
         @endif
 

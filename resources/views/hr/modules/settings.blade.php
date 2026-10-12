@@ -634,6 +634,28 @@
                             </div>
                         </div>
                         <div class="set-row">
+                            <div class="set-lbl"><label for="s-attendance_work_start">Office start
+                                    time</label><span>Check-ins after this time (plus the grace period) are marked
+                                    late.</span></div>
+                            <div class="set-ctl">
+                                <input id="s-attendance_work_start" type="time" name="attendance_work_start"
+                                    value="{{ $val('attendance_work_start') ?: '09:00' }}">
+                                @error('attendance_work_start')<small
+                                    class="text-danger">{{ $message }}</small>@enderror
+                            </div>
+                        </div>
+                        <div class="set-row">
+                            <div class="set-lbl"><label for="s-attendance_work_end">Office end
+                                    time</label><span>Check-outs before this time are counted as early exit.</span>
+                            </div>
+                            <div class="set-ctl">
+                                <input id="s-attendance_work_end" type="time" name="attendance_work_end"
+                                    value="{{ $val('attendance_work_end') ?: '18:00' }}">
+                                @error('attendance_work_end')<small
+                                    class="text-danger">{{ $message }}</small>@enderror
+                            </div>
+                        </div>
+                        <div class="set-row">
                             <div class="set-lbl"><label for="s-attendance_grace_minutes">Late grace
                                     period</label><span>Minutes of lateness allowed before a check-in is marked
                                     late.</span></div>

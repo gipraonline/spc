@@ -101,13 +101,29 @@
                 </div>
                 <form method="POST" action="{{ route('hr.attendance.regularize') }}">
                     @csrf
+                    @php $todayPunch = $ownPunches[now()->toDateString()] ?? ['in' => '', 'out' => '']; @endphp
                     <div class="field-grid">
-                        <div class="field full"><label>Date</label><input type="date" name="attendance_date"
-                                value="{{ now()->toDateString() }}" max="{{ now()->toDateString() }}" required></div>
-                        <div class="field"><label>Check-in</label><input type="time" name="requested_check_in"></div>
-                        <div class="field"><label>Check-out</label><input type="time" name="requested_check_out"></div>
+                        <div class="field full">
+                            <label>Date</label>
+                            <input type="date" id="regDate" name="attendance_date"
+                                value="{{ old('attendance_date', now()->toDateString()) }}"
+                                max="{{ now()->toDateString() }}" required>
+                        </div>
+                        <div class="field">
+                            <label>Check-in</label>
+                            <input type="time" id="regCheckIn" name="requested_check_in"
+                                value="{{ old('requested_check_in', $todayPunch['in']) }}">
+                        </div>
+                        <div class="field">
+                            <label>Check-out</label>
+                            <input type="time" id="regCheckOut" name="requested_check_out"
+                                value="{{ old('requested_check_out', $todayPunch['out']) }}">
+                        </div>
+                        <div class="field full">
+                            <span class="field-hint" id="regHint"></span>
+                        </div>
                         <div class="field full"><label>Reason</label><textarea name="reason"
-                                placeholder="Why the punch was missed" required></textarea></div>
+                                placeholder="Why the punch was missed" required>{{ old('reason') }}</textarea></div>
                     </div>
                     <div class="form-actions"><button type="submit" class="btn-primary">Submit request</button></div>
                 </form>
@@ -432,7 +448,7 @@
                         <td>{{ $r->attendance->employee->user->name }}</td>
                         <td>{{ \Illuminate\Support\Carbon::parse($r->attendance->attendance_date)->format('d M Y') }}
                         </td>
-                        <td>{{ \Illuminate\Support\Carbon::parse($r->requested_check_in)->format('h:i A') }}&ndash;{{ \Illuminate\Support\Carbon::parse($r->requested_check_out)->format('h:i A') }}
+                        <td>{{ $r->requested_check_in ? \Illuminate\Support\Carbon::parse($r->requested_check_in)->format('h:i A') : '—' }}&ndash;{{ $r->requested_check_out ? \Illuminate\Support\Carbon::parse($r->requested_check_out)->format('h:i A') : '—' }}
                         </td>
                         <td>{{ \Illuminate\Support\Str::limit($r->reason, 34) }}</td>
                         <td>
@@ -751,5 +767,46 @@ function exportAttendance(kind) {
     window.location.href = "{{ route('hr.attendance.index') }}?" + params.toString();
 }
 </script>
+
+@if($showOwnAttendance)
+{{-- Request regularization: pre-fill the recorded check-in / check-out for the selected date --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const punches = @json($ownPunches);
+    const dateEl = document.getElementById('regDate');
+    const inEl   = document.getElementById('regCheckIn');
+    const outEl  = document.getElementById('regCheckOut');
+    const hintEl = document.getElementById('regHint');
+    if (!dateEl || !inEl || !outEl || !hintEl) return;
+
+    function fmt(t) {
+        if (!t) return '—';
+        const [h, m] = t.split(':').map(Number);
+        return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM');
+    }
+
+    function updateHint() {
+        const p = punches[dateEl.value] || {in: '', out: ''};
+        hintEl.textContent = (p.in || p.out)
+            ? 'Recorded punch: ' + fmt(p.in) + ' – ' + fmt(p.out) + '. Change a time if it is wrong.'
+            : 'No punch recorded for this date. Enter the times you worked.';
+    }
+
+    function fillPunches() {
+        const p = punches[dateEl.value] || {in: '', out: ''};
+        inEl.value  = p.in;
+        outEl.value = p.out;
+        updateHint();
+    }
+
+    // Changing the date loads that day's recorded punch; the employee can then edit it.
+    dateEl.addEventListener('change', fillPunches);
+
+    // On load: keep whatever the server rendered (including old() values after a
+    // validation error) and just show the hint for the selected date.
+    updateHint();
+});
+</script>
+@endif
 
 @endsection

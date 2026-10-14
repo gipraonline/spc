@@ -369,18 +369,14 @@ var CFG = window.SO_CFG || {};
 
                         success: function(data) {
 
-                            // Example:
                             // Set HSN
                             row.find('.c_hsn_code').val(data.c_hsn_code);
-                            //set gst percentage
+                            // Set gst percentage
                             row.find('.gst_percentage').val(data.n_gst_percentage);
                             row.find('.n_product_id').val(data.n_product_id);
 
-                            globalmrp = data.n_mrp;
-                            globalGstPercentage = data.n_gst_percentage
-
-                            calculateRowWithMrp(row, data.n_mrp, data
-                                .n_gst_percentage);
+                            // MRP is stored on the row itself (full precision)
+                            calculateRowWithMrp(row, data.n_mrp, data.n_gst_percentage);
 
                         },
 
@@ -448,13 +444,9 @@ var CFG = window.SO_CFG || {};
             |--------------------------------------------------------------------------
             */
 
-            let globalmrp = 0;
-            let globalGstPercentage = '';
-
             $(document).on('change', '.packSize-select', function() {
 
                 let row = $(this).closest('.new-product-row');
-                let productId = row.find(".product-select").find(':selected').val();
                 let productName = row.find(".product-select").find(':selected').text();
                 let packSize = $(this).val();
 
@@ -474,16 +466,13 @@ var CFG = window.SO_CFG || {};
 
                     success: function(data) {
 
-                        // Example:
                         // Set HSN
                         row.find('.c_hsn_code').val(data.c_hsn_code);
-                        //set gst percentage
+                        // Set gst percentage
                         row.find('.gst_percentage').val(data.n_gst_percentage);
                         row.find('.n_product_id').val(data.n_product_id);
 
-                        globalmrp = data.n_mrp;
-                        globalGstPercentage = data.n_gst_percentage
-
+                        // MRP is stored on the row itself (full precision)
                         calculateRowWithMrp(row, data.n_mrp, data.n_gst_percentage);
 
                     },
@@ -501,230 +490,78 @@ var CFG = window.SO_CFG || {};
 
             /*
             |--------------------------------------------------------------------------
-            | Quantity / Discount Change Event
+            | Quantity / Discount Change Event (new and saved rows)
             |--------------------------------------------------------------------------
             */
 
             $(document).on('input change', '.qty, .discount', function() {
-
-                let row = $(this).closest('.new-product-row');
-
-                calculateRowWithMrp(
-                    row,
-                    parseFloat(globalmrp) || 0,
-                    parseFloat(globalGstPercentage) || 0
-                );
-                if ($(this).closest('.existing-product-row').length) {
-                    calculateExistingRow($(this).closest('.existing-product-row'));
-                    calculateSummary();
-                }
-
+                renderRow($(this).closest('tr'));
             });
-            /* $(document).on('input', '.qty, .discount', function () {
-
-                const input = this;
-                const row = $(input).closest('.new-product-row');
-
-                clearTimeout(row.data('calculationTimer'));
-
-                const timer = setTimeout(function () {
-
-                    calculateRowWithMrp(
-                        row,
-                        parseFloat(globalmrp) || 0,
-                        parseFloat(globalGstPercentage) || 0
-                    );
-
-                }, 200);
-
-                row.data('calculationTimer', timer);
-            });
-
-
-            $(document).on('change', '.qty, .discount', function () {
-
-                const row = $(this).closest('.new-product-row');
-
-                clearTimeout(row.data('calculationTimer'));
-
-                calculateRowWithMrp(
-                    row,
-                    parseFloat(globalmrp) || 0,
-                    parseFloat(globalGstPercentage) || 0
-                );
-
-            }); */
         });
-        // /*
-        // |--------------------------------------------------------------------------
-        // | Subcategory Selection Change
-        // |--------------------------------------------------------------------------
-        // */
-        // $(document).on('change', '.subcategory-select', function () {
-        //     let row = $(this).closest('tr');
-        //     let catKey = resolveCategoryKey(row.find('.category-select').val());
-        //     let subCatVal = $(this).val();
-
-        //     let productSelect = row.find('.product-select');
-        //     let attrSelect = row.find('.attribute-select');
-
-        //     productSelect.empty();
-        //     attrSelect.empty().prop('disabled', true);
-        //     clearRowPricing(row);
-
-        //     if (!catKey || !subCatVal || subCatVal === 'NA') {
-        //         productSelect.html('<option value="">Select Sub Category First</option>').prop('disabled', true);
-        //         return;
-        //     }
-
-        //     let catData = productCatalog[catKey];
-        //     if (catData && catData.subcategories && catData.subcategories[subCatVal]) {
-        //         productSelect.prop('disabled', false);
-        //         productSelect.append('<option value="">Select Product</option>');
-
-        //         catData.subcategories[subCatVal].forEach(function (p) {
-        //             let opt = $(`<option value="${p.id}">${p.name} ${p.code ? '(' + p.code + ')' : ''}</option>`);
-        //             opt.data('product-info', p);
-        //             productSelect.append(opt);
-        //         });
-        //     }
-        // });
-
-        // /*
-        // |--------------------------------------------------------------------------
-        // | Product Selection Change -> Populates Attributes (Pack Sizes / Variants)
-        // |--------------------------------------------------------------------------
-        // */
-        // $(document).on('change', '.product-select', function () {
-        //     let row = $(this).closest('tr');
-        //     let selectedOption = $(this).find(':selected');
-        //     let productInfo = selectedOption.data('product-info');
-
-        //     let attrSelect = row.find('.attribute-select');
-        //     attrSelect.empty();
-        //     clearRowPricing(row);
-
-        //     if (!productInfo || !productInfo.attributes || productInfo.attributes.length === 0) {
-        //         attrSelect.html('<option value="">No Attributes Available</option>').prop('disabled', true);
-        //         return;
-        //     }
-
-        //     attrSelect.prop('disabled', false);
-
-        //     if (productInfo.attributes.length > 1) {
-        //         attrSelect.append('<option value="">Select Pack Size / Attribute</option>');
-        //     }
-
-        //     productInfo.attributes.forEach(function (attr) {
-        //         let opt = $(`<option value="${attr.name}">${attr.name} - ₹${attr.mrp.toFixed(2)}</option>`);
-        //         opt.attr('data-price', attr.mrp);
-        //         opt.attr('data-unit', attr.unit || '');
-        //         opt.attr('data-gst', productInfo.gst || 0);
-        //         opt.attr('data-hsn-code', productInfo.hsn || '');
-        //         attrSelect.append(opt);
-        //     });
-
-        //     // Automatically select if single attribute (e.g., plants or 1 NOS)
-        //     if (productInfo.attributes.length === 1) {
-        //         attrSelect.val(productInfo.attributes[0].name).trigger('change');
-        //     }
-        // });
-
-        // /*
-        // |--------------------------------------------------------------------------
-        // | Attribute Selection Change -> Calculates Pricing and Totals
-        // |--------------------------------------------------------------------------
-        // */
-        // $(document).on('change', '.attribute-select', function () {
-        //     let row = $(this).closest('tr');
-        //     let selectedOption = $(this).find(':selected');
-
-        //     if (!selectedOption.val()) {
-        //         clearRowPricing(row);
-        //         calculateSummary();
-        //         return;
-        //     }
-
-        //     let mrp = parseFloat(selectedOption.attr('data-price')) || 0;
-        //     let gstPercentage = parseFloat(selectedOption.attr('data-gst')) || 0;
-        //     let hsnCode = selectedOption.attr('data-hsn-code') || '';
-        //     let unit = selectedOption.attr('data-unit') || '';
-
-        //     row.find('.c_hsn_code').val(hsnCode);
-        //     row.find('.c_unit').val(unit);
-        //     row.find('.gst_percentage').val(gstPercentage.toFixed(2));
-
-        //     calculateRowWithMrp(row, mrp, gstPercentage);
-        // });
 
 
         /*
         |--------------------------------------------------------------------------
-        | Calculation Formula (MRP Includes GST)
+        | Calculation (MRP includes GST)
+        | One place for all the maths. NOTHING is rounded here; values are rounded
+        | only when they are written to the screen (toFixed below).
         |--------------------------------------------------------------------------
         */
-        function calculateRowWithMrp(row, mrp, gstPercentage) {
+        function rowAmounts(row) {
+            const qty = Math.max(parseFloat(row.find('.qty').val()) || 0, 0);
+            let discount = Math.max(parseFloat(row.find('.discount').val()) || 0, 0);
+            const gstPct = parseFloat(row.find('.gst_percentage').val()) || 0;
 
-            let qty = parseFloat(row.find('.qty').val()) || 0;
-            let discount = parseFloat(row.find('.discount').val()) || 0;
-
-            if (qty < 0) qty = 0;
-            if (discount < 0) discount = 0;
-
-            let price = 0;
-            let grossAmount = 0;
-            let taxableAmount = 0;
-            let gstAmount = 0;
-            let lineTotal = 0;
-
-            if (mrp > 0) {
-                // Exclusive price
-                price = mrp / (1 + (gstPercentage / 100));
-
-                // Price × Quantity
-                grossAmount = price * qty;
-
-                // Taxable Amount
-                taxableAmount = grossAmount - discount;
-                if (taxableAmount < 0) taxableAmount = 0;
-
-                // GST Amount
-                gstAmount = (taxableAmount * gstPercentage) / 100;
-
-                // Line Total
-                lineTotal = taxableAmount + gstAmount;
+            // Full-precision MRP: stored on the row for new lines; for saved lines
+            // it is rebuilt from the saved ex-GST price (133.33 x 1.05 = 140.00).
+            let mrp = row.data('mrp');
+            if (mrp === undefined) {
+                const shown = parseFloat(row.find('.price').val()) || 0;
+                mrp = Math.round(shown * (1 + gstPct / 100) * 100) / 100;
             }
 
-            row.find('.price').val(price.toFixed(2));
-            row.find('.gst_amount').val(gstAmount.toFixed(2));
-            row.find('.discounted_price').val(taxableAmount.toFixed(2));
-            row.find('.total').val(lineTotal.toFixed(2));
+            // Price is the same 2-decimal value shown in the Price field (133.33),
+            // so the line and the Order Summary always use the same numbers.
+            const r2 = function(x) { return Math.round((x + 1e-9) * 100) / 100; };
+            const price = r2(mrp / (1 + gstPct / 100));   // 133.33
+            const gross = r2(price * qty);                // 1333.30
+            discount = Math.min(discount, gross);         // discount cannot exceed line value
+            const taxable = r2(gross - discount);         // 1233.30
+            const gst = r2(taxable * gstPct / 100);       // 61.67
+            return {
+                price: price,
+                gross: gross,
+                discount: discount,
+                taxable: taxable,
+                gst: gst,
+                total: r2(taxable + gst)                  // 1294.97
+            };
+        }
 
+        // Display only (2 decimals). All calculations above use full precision.
+        function fmt(n) {
+            return (Number(n) || 0).toFixed(2);
+        }
+
+        function renderRow(row) {
+            const a = rowAmounts(row);
+            if (row.data('mrp') !== undefined) {
+                row.find('.price').val(fmt(a.price));
+            }
+            row.find('.gst_amount').val(fmt(a.gst));
+            row.find('.discounted_price').val(fmt(a.taxable));
+            row.find('.total').val(fmt(a.total));
             calculateSummary();
         }
 
-        function calculateExistingRow(row) {
-            let price = parseFloat(row.find('.price').val()) || 0;
-            let qty = parseFloat(row.find('.qty').val()) || 0;
-            let discount = parseFloat(row.find('.discount').val()) || 0;
-            let gstPercentage = parseFloat(row.find('.gst_percentage').val()) || 0;
-
-            if (qty < 0) qty = 0;
-            if (discount < 0) discount = 0;
-
-            let grossAmount = price * qty;
-            let taxableAmount = grossAmount - discount;
-            if (taxableAmount < 0) taxableAmount = 0;
-
-            let gstAmount = (taxableAmount * gstPercentage) / 100;
-            let lineTotal = taxableAmount + gstAmount;
-
-            row.find('.gst_amount').val(gstAmount.toFixed(2));
-            row.find('.discounted_price').val(taxableAmount.toFixed(2));
-            row.find('.total').val(lineTotal.toFixed(2));
+        function calculateRowWithMrp(row, mrp, gstPercentage) {
+            row.data('mrp', parseFloat(mrp) || 0);
+            row.find('.gst_percentage').val(parseFloat(gstPercentage) || 0);
+            renderRow(row);
         }
 
         function clearRowPricing(row) {
+            row.removeData('mrp');
             row.find('.c_hsn_code').val('');
             row.find('.price').val('0.00');
             row.find('.c_unit').val('');
@@ -737,73 +574,29 @@ var CFG = window.SO_CFG || {};
 
         /*
         |--------------------------------------------------------------------------
-        | Summary Totals
+        | Summary Totals (sum of full-precision line values, rounded once)
         |--------------------------------------------------------------------------
         */
-        /*  function calculateSummary() {
-             let totalSales = 0;
-             let totalDiscount = 0;
-             let totalTaxable = 0;
-             let totalGst = 0;
-
-             $('#productTable tbody tr').each(function () {
-                 let row = $(this);
-                 let price = parseFloat(row.find('.price').val()) || 0;
-                 let qty = parseFloat(row.find('.qty').val()) || 0;
-                 let discount = parseFloat(row.find('.discount').val()) || 0;
-                 let gstAmount = parseFloat(row.find('.gst_amount').val()) || 0;
-                 let taxable = parseFloat(row.find('.discounted_price').val()) || 0;
-
-                 let gross = price * qty;
-
-                 totalSales += gross;
-                 totalDiscount += discount;
-                 totalTaxable += taxable;
-                 totalGst += gstAmount;
-             });
-
-             let netSalesAmount = totalTaxable + totalGst;
-
-             $('#summaryTotalSales').val(totalSales.toFixed(2));
-             $('#summaryTotalDiscount').val(totalDiscount.toFixed(2));
-             $('#summaryGstAmount').val(totalGst.toFixed(2));
-             $('#summaryNetSales').val(netSalesAmount.toFixed(2));
-             $('#n_amount_to_pay').val(netSalesAmount.toFixed(2));
-         } */
-
         function calculateSummary() {
-            let totalSales = 0;
-            let totalDiscount = 0;
-            let totalTaxable = 0;
-            let totalGst = 0;
+            let sales = 0,
+                disc = 0,
+                gst = 0,
+                net = 0;
 
             $('#productTable tbody tr').each(function() {
-
-                let row = $(this);
-
-                let price = parseFloat(row.find('.price').val()) || 0;
-                let qty = parseFloat(row.find('.qty').val()) || 0;
-                let discount = parseFloat(row.find('.discount').val()) || 0;
-                let gstAmount = parseFloat(row.find('.gst_amount').val()) || 0;
-
-                let gross = price * qty;
-
-                totalSales += gross;
-                totalDiscount += discount;
-                totalGst += gstAmount;
-
-                // Taxable amount after discount
-                totalTaxable += Math.max(gross - discount, 0);
+                const a = rowAmounts($(this));
+                sales += a.gross;
+                disc += a.discount;
+                gst += a.gst;
+                // Net Sales = exactly the sum of the Total (MRP) shown on each line
+                net += parseFloat(fmt(a.total));
             });
 
-            // Net = Taxable + GST
-            let netSalesAmount = totalTaxable + totalGst;
-
-            $('#summaryTotalSales').val(totalSales.toFixed(2));
-            $('#summaryTotalDiscount').val(totalDiscount.toFixed(2));
-            $('#summaryGstAmount').val(totalGst.toFixed(2));
-            $('#summaryNetSales').val(netSalesAmount.toFixed(2));
-            $('#n_amount_to_pay').val(netSalesAmount.toFixed(2));
+            $('#summaryTotalSales').val(fmt(sales));
+            $('#summaryTotalDiscount').val(fmt(disc));
+            $('#summaryGstAmount').val(fmt(gst));
+            $('#summaryNetSales').val(fmt(net));
+            $('#n_amount_to_pay').val(fmt(net));
         }
 
         /*
@@ -1189,7 +982,7 @@ var CFG = window.SO_CFG || {};
             });
         }
     });
-    
+
 ;
 
     /*

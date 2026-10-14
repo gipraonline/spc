@@ -566,13 +566,13 @@ class SalesController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($allowedEmployeeIds !== null) {
+       if ($allowedEmployeeIds !== null) {
 
-            $query->whereIn(
-                'sales_orders.created_by',
-                $allowedEmployeeIds
-            );
-        }
+    $query->where(function ($q) use ($allowedEmployeeIds) {
+        $q->whereIn('sales_orders.created_by', $allowedEmployeeIds)
+          ->orWhereIn('sales_orders.farm_care_advisor_id', $allowedEmployeeIds);
+    });
+}
 
         /*
         |--------------------------------------------------------------------------
@@ -981,11 +981,11 @@ class SalesController extends Controller
 
         if ($allowedEmployeeIds !== null) {
 
-            $countQuery->whereIn(
-                'sales_orders.farm_care_advisor_id',
-                $allowedEmployeeIds
-            );
-        }
+    $countQuery->where(function ($q) use ($allowedEmployeeIds) {
+        $q->whereIn('sales_orders.created_by', $allowedEmployeeIds)
+          ->orWhereIn('sales_orders.farm_care_advisor_id', $allowedEmployeeIds);
+    });
+}
 
         /*
         |--------------------------------------------------------------------------

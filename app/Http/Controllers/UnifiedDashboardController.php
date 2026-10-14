@@ -496,7 +496,7 @@ class UnifiedDashboardController extends Controller
             $data['myHrSnapshot'] = [
                 'attendance' => $attendanceLabel,
                 'attendanceLabel' => $attendanceKpiLabel,
-                'leaveBalance' => number_format($totalRemaining, 1).' days',
+                'leaveBalance' => rtrim(rtrim(number_format($totalRemaining, 1), '0'), '.').' days',
             ];
         }
 

@@ -56,6 +56,22 @@ class PerformanceInsightsService
         return [$from, $to];
     }
 
+    /** [from, to] for a calendar month (clipped to today). */
+    public function periodForMonth(Carbon $month): array
+    {
+        $from = $month->copy()->startOfMonth();
+        $to = $month->copy()->endOfMonth();
+
+        if ($to->gt(now())) {
+            $to = now()->endOfDay();
+        }
+        if ($from->gt($to)) {
+            $from = $to->copy()->startOfDay();
+        }
+
+        return [$from, $to];
+    }
+
     /** ₹ with lakh / crore shorthand. */
     public static function inr(float|int|null $value): string
     {
@@ -96,12 +112,11 @@ class PerformanceInsightsService
             'leads' => $leads,
             'attendance' => $this->attendanceSummary([$employee->id], $from, $to),
             'incentives' => $this->incentiveSummary([$employee->id], $from, $to),
-            'ratings' => $this->ratingHistory($employee->id),
         ];
     }
 
     /** A manager's direct reports: totals + one row per person. */
-    public function forTeam(Employee $manager, Carbon $from, Carbon $to, ?int $cycleId): array
+    public function forTeam(Employee $manager, Carbon $from, Carbon $to): array
     {
         $members = Employee::with('user')
             ->where('reporting_manager_id', $manager->id)
@@ -117,19 +132,8 @@ class PerformanceInsightsService
 
         $salesByMaster = $this->salesByAdvisor($masterIds, $from, $to);
         $attendanceById = $this->attendanceByEmployee($hrIds, $from, $to);
-        $ratingById = $this->latestRatingByEmployee($hrIds);
-        $statusById = $cycleId
-            ? DB::connection('spc_hr')->table('appraisals')
-                ->where('appraisal_cycle_id', $cycleId)->whereIn('employee_id', $hrIds)
-                ->pluck('status', 'employee_id')->all()
-            : [];
 
-        $salesTargets = $cycleId
-            ? DB::connection('spc_hr')->table('sales_targets')->where('appraisal_cycle_id', $cycleId)->where('metric', 'net_sales')
-                ->whereIn('employee_id', $hrIds)->pluck('target_value', 'employee_id')->map(fn ($v) => (float) $v)->all()
-            : [];
-
-        $rows = $members->map(function (Employee $m) use ($salesByMaster, $attendanceById, $ratingById, $statusById, $salesTargets) {
+        $rows = $members->map(function (Employee $m) use ($salesByMaster, $attendanceById) {
             $s = $salesByMaster[$m->employee_master_id] ?? null;
 
             return [
@@ -137,11 +141,7 @@ class PerformanceInsightsService
                 'code' => $m->employee_code,
                 'orders' => (int) ($s->orders ?? 0),
                 'net_sales' => (float) ($s->net_sales ?? 0),
-                'sales_target' => $salesTargets[$m->id] ?? null,
-                'target_pct' => isset($salesTargets[$m->id]) && $salesTargets[$m->id] > 0 ? round((float) ($s->net_sales ?? 0) / $salesTargets[$m->id] * 100) : null,
                 'attendance_rate' => $attendanceById[$m->id]['rate'] ?? null,
-                'latest_rating' => $ratingById[$m->id] ?? null,
-                'appraisal_status' => $statusById[$m->id] ?? null,
                 'sales_linked' => (bool) $m->employee_master_id,
             ];
         })->sortByDesc('net_sales')->values()->all();
@@ -158,64 +158,20 @@ class PerformanceInsightsService
     }
 
     /** Organisation-wide view for hr_admin / super_admin. */
-    public function forOrganisation(Carbon $from, Carbon $to, ?int $cycleId, bool $includeFranchises): array
+    public function forOrganisation(Carbon $from, Carbon $to, bool $includeFranchises): array
     {
-        $hr = DB::connection('spc_hr');
-
-        $headcount = $hr->table('employees')
+        $headcount = DB::connection('spc_hr')->table('employees')
             ->selectRaw("SUM(employment_status = 'active') as active, SUM(employment_status = 'on_notice') as on_notice")
             ->first();
 
-        // --- appraisal progress for the selected cycle ---
-        $statusCounts = $cycleId
-            ? $hr->table('appraisals')->where('appraisal_cycle_id', $cycleId)
-                ->selectRaw('status, COUNT(*) as n')->groupBy('status')->pluck('n', 'status')->all()
-            : [];
-        $totalAppraisals = array_sum($statusCounts);
-        $completed = (int) ($statusCounts['completed'] ?? 0);
-
-        $ratings = $cycleId
-            ? $hr->table('appraisals')->where('appraisal_cycle_id', $cycleId)->whereNotNull('final_rating')->pluck('final_rating')->map(fn ($r) => (float) $r)
-            : collect();
-
-        $distribution = [
-            'Below 2' => $ratings->filter(fn ($r) => $r < 2)->count(),
-            '2 – 2.9' => $ratings->filter(fn ($r) => $r >= 2 && $r < 3)->count(),
-            '3 – 3.9' => $ratings->filter(fn ($r) => $r >= 3 && $r < 4)->count(),
-            '4 – 5' => $ratings->filter(fn ($r) => $r >= 4)->count(),
-        ];
-
-        $byDepartment = $cycleId
-            ? $hr->table('appraisals as a')
-                ->join('employees as e', 'e.id', '=', 'a.employee_id')
-                ->leftJoin('departments as d', 'd.id', '=', 'e.department_id')
-                ->where('a.appraisal_cycle_id', $cycleId)->whereNotNull('a.final_rating')
-                ->selectRaw("COALESCE(d.name, 'Unassigned') as department, ROUND(AVG(a.final_rating), 2) as avg_rating, COUNT(*) as reviewed")
-                ->groupBy('d.name')->orderByDesc('avg_rating')->get()
-                ->map(fn ($r) => (array) $r)->all()
-            : [];
-
-        // --- sales (all advisors, not just ones linked into HR) ---
-        $topSellers = $this->topSellers($from, $to, 5);
-
         return [
             'headcount' => ['active' => (int) ($headcount->active ?? 0), 'on_notice' => (int) ($headcount->on_notice ?? 0)],
-            'appraisal' => [
-                'total' => $totalAppraisals,
-                'completed' => $completed,
-                'completion_pct' => $totalAppraisals ? round($completed / $totalAppraisals * 100) : null,
-                'avg_rating' => $ratings->isNotEmpty() ? round($ratings->avg(), 2) : null,
-                'by_status' => $statusCounts,
-                'pending_manager' => (int) (($statusCounts['self_review'] ?? 0) + ($statusCounts['manager_review'] ?? 0)),
-                'distribution' => $distribution,
-                'by_department' => $byDepartment,
-            ],
             'sales' => $this->salesSummary(null, $from, $to),
             'trend' => $this->monthlyTrend(null),
             'leads' => $this->leadsSummary(null, $from, $to),
             'attendance' => $this->attendanceSummary(null, $from, $to),
             'incentives' => $this->incentiveSummary(null, $from, $to),
-            'top_sellers' => $topSellers,
+            'top_sellers' => $this->topSellers($from, $to, 5),
             'franchises' => $includeFranchises ? $this->franchiseSales($from, $to, 6) : [],
         ];
     }
@@ -487,30 +443,105 @@ class PerformanceInsightsService
 
         return [
             'earned' => $earned,
+            // Money that has actually gone out: payroll marked paid.
+            'paid' => (float) ($rows['paid']->amt ?? 0),
+            // Approved, but not paid yet (waiting for / inside a payroll run).
+            'awaiting_payment' => (float) (($rows['approved']->amt ?? 0) + ($rows['included_in_payroll']->amt ?? 0)),
             'pending' => (float) ($rows['pending']->amt ?? 0),
             'achieved_value' => $achieved,
         ];
     }
 
-    /** A person's completed appraisals, oldest first (for a trend). */
-    protected function ratingHistory(int $employeeId): array
-    {
-        return DB::connection('spc_hr')->table('appraisals as a')
-            ->join('appraisal_cycles as c', 'c.id', '=', 'a.appraisal_cycle_id')
-            ->where('a.employee_id', $employeeId)->whereNotNull('a.final_rating')
-            ->orderBy('c.start_date')
-            ->get(['c.name as cycle', 'a.final_rating'])
-            ->map(fn ($r) => ['cycle' => $r->cycle, 'rating' => (float) $r->final_rating])->all();
-    }
+    /* ------------------------------------------------------------------ */
+    /*  Employee performance report (one month)                            */
+    /* ------------------------------------------------------------------ */
 
-    protected function latestRatingByEmployee(array $employeeIds): array
+    /**
+     * One row per employee for a calendar month: sales value, leave days,
+     * WFH days, late marks and salary paid.
+     *
+     * @param  Employee|null  $manager  null = everyone (HR / super admin); else that manager's direct reports
+     * @param  Employee|null  $only  just this one employee (their own report)
+     * @return array{rows: array<int,array>, totals: array<string,float|int>, month: Carbon}
+     */
+    public function employeeMonthlyReport(Carbon $month, ?Employee $manager = null, ?Employee $only = null): array
     {
-        return DB::connection('spc_hr')->table('appraisals as a')
-            ->join('appraisal_cycles as c', 'c.id', '=', 'a.appraisal_cycle_id')
-            ->whereIn('a.employee_id', $employeeIds)->whereNotNull('a.final_rating')
-            ->orderBy('c.start_date')
-            ->get(['a.employee_id', 'a.final_rating'])
-            ->mapWithKeys(fn ($r) => [$r->employee_id => (float) $r->final_rating]) // later cycles overwrite earlier
-            ->all();
+        $from = $month->copy()->startOfMonth();
+        $to = $month->copy()->endOfMonth();
+        $hr = DB::connection('spc_hr');
+
+        $employees = Employee::with(['user', 'department'])
+            ->when($only, fn ($q) => $q->where('id', $only->id), fn ($q) => $q->whereIn('employment_status', ['active', 'on_notice']))
+            ->when(! $only && $manager, fn ($q) => $q->where('reporting_manager_id', $manager->id))
+            ->orderBy('employee_code')->get();
+
+        $ids = $employees->pluck('id')->all();
+        $masterIds = $employees->pluck('employee_master_id')->filter()->map(fn ($i) => (int) $i)->values()->all();
+
+        $sales = $this->salesByAdvisor($masterIds, $from, $to);
+
+        // Days of a request that fall inside the month (calendar days, same as leave applications).
+        $overlapDays = function ($rows) use ($from, $to) {
+            $out = [];
+            foreach ($rows as $r) {
+                $start = Carbon::parse($r->start_date)->startOfDay()->max($from);
+                $end = Carbon::parse($r->end_date)->startOfDay()->min($to);
+                if ($end->gte($start)) {
+                    $out[$r->employee_id] = ($out[$r->employee_id] ?? 0) + $start->diffInDays($end) + 1;
+                }
+            }
+
+            return $out;
+        };
+
+        $overlapping = fn ($table) => $hr->table($table)
+            ->where('status', 'approved')->whereIn('employee_id', $ids)
+            ->where('start_date', '<=', $to->toDateString())->where('end_date', '>=', $from->toDateString())
+            ->get(['employee_id', 'start_date', 'end_date']);
+
+        $leave = $overlapDays($overlapping('leave_requests'));
+        $wfh = $overlapDays($overlapping('wfh_requests'));
+
+        $late = $hr->table('attendance')
+            ->whereIn('employee_id', $ids)->where('status', 'late')
+            ->whereBetween('attendance_date', [$from->toDateString(), $to->toDateString()])
+            ->selectRaw('employee_id, COUNT(*) as n')->groupBy('employee_id')->pluck('n', 'employee_id')->all();
+
+        // Salary paid = net pay on payslips of a payroll run for this month that is marked paid.
+        $salary = $hr->table('payslips as ps')
+            ->join('payroll_runs as pr', 'pr.id', '=', 'ps.payroll_run_id')
+            ->where('pr.status', 'paid')->where('pr.month', $month->month)->where('pr.year', $month->year)
+            ->whereIn('ps.employee_id', $ids)
+            ->selectRaw('ps.employee_id, SUM(ps.net_pay) as net')->groupBy('ps.employee_id')
+            ->pluck('net', 'employee_id')->all();
+
+        $rows = $employees->map(function (Employee $e) use ($sales, $leave, $wfh, $late, $salary) {
+            $s = $sales[$e->employee_master_id] ?? null;
+
+            return [
+                'name' => $e->user->name ?? '—',
+                'code' => $e->employee_code,
+                'department' => $e->department->name ?? '—',
+                'sales_linked' => (bool) $e->employee_master_id,
+                'sales' => (float) ($s->net_sales ?? 0),
+                'orders' => (int) ($s->orders ?? 0),
+                'leave_days' => (int) ($leave[$e->id] ?? 0),
+                'wfh_days' => (int) ($wfh[$e->id] ?? 0),
+                'late' => (int) ($late[$e->id] ?? 0),
+                'salary_paid' => isset($salary[$e->id]) ? (float) $salary[$e->id] : null,
+            ];
+        })->all();
+
+        return [
+            'month' => $from,
+            'rows' => $rows,
+            'totals' => [
+                'sales' => array_sum(array_column($rows, 'sales')),
+                'leave_days' => array_sum(array_column($rows, 'leave_days')),
+                'wfh_days' => array_sum(array_column($rows, 'wfh_days')),
+                'late' => array_sum(array_column($rows, 'late')),
+                'salary_paid' => array_sum(array_map(fn ($r) => $r['salary_paid'] ?? 0, $rows)),
+            ],
+        ];
     }
 }

@@ -30,9 +30,13 @@ use Illuminate\Support\Facades\DB;
  * payments on top, HR KPIs + approvals + workforce charts below, all
  * scoped to what the signed-in user is allowed to see.
  *
- * The Sales data below intentionally mirrors DashboardController::index()
- * (same status normalization, same role scoping) — that controller and
- * its route are left in place, untouched, as a fallback.
+ * SALES VISIBILITY RULES (one scope, used by every card and chart):
+ *   - Super Admin, Gipra Admin, National Sales Head, Regional Sales Head,
+ *     Team Lead, Office Administration (or anyone with the
+ *     "dashboard.view-all-orders" permission)  -> ALL sales orders
+ *   - Farm Care Officer (and any other non-admin role)
+ *       -> own sales + sales of the FCAs reporting to them
+ *   - Farm Care Advisor -> own sales only
  *
  * HR data is only added when the signed-in SPC admin also has a linked
  * HR account (App\Models\Hr\User::findForSpcAdmin — the same single
@@ -41,6 +45,29 @@ use Illuminate\Support\Facades\DB;
  */
 class UnifiedDashboardController extends Controller
 {
+    /**
+     * Roles that see every sales order on the dashboard.
+     * Role names must match the Spatie role names exactly.
+     */
+    private const ALL_ORDER_ROLES = [
+        'Super Admin',
+        'Gipra Admin',
+        'National Sales Head',
+        'Regional Sales Head',
+        'Team Lead',
+        'Office Administration',
+    ];
+
+    /**
+     * Same roles, matched by the `identifier` column on the roles table
+     * (this is what SalesController uses), so both pages agree.
+     */
+    private const ALL_ORDER_IDENTIFIERS = [
+        'SUPER_ADMIN',
+        'GIPRA_ADMIN',
+        'OFFICE_ADMIN',
+    ];
+
     public function index(DashboardService $dashboardService)
     {
         $user = Auth::user();
@@ -48,13 +75,9 @@ class UnifiedDashboardController extends Controller
         $isSuperAdmin = $user->hasRole('Super Admin');
         $isGipraAdmin = $user->hasRole('Gipra Admin');
 
-        $isAdminDashboard = $user->hasAnyRole([
-            'Super Admin',
-            'Gipra Admin',
-            'National Sales Head',
-            'Regional Sales Head',
-            'Team Lead',
-        ]) || $user->can('dashboard.view-all-orders');
+        $isAdminDashboard = $user->hasAnyRole(self::ALL_ORDER_ROLES)
+            || $this->hasRoleIdentifier($user, self::ALL_ORDER_IDENTIFIERS)
+            || $user->can('dashboard.view-all-orders');
 
         $attendance = $dashboardService->getAttendance($user);
         $summary = $dashboardService->getSummary($user);
@@ -99,30 +122,90 @@ class UnifiedDashboardController extends Controller
     | Sales side
     |--------------------------------------------------------------------------
     */
-    private function buildSalesData($user, bool $isAdminDashboard): array
+
+    /**
+     * Single source of truth for "whose sales can this user see".
+     *
+     * Returns null for "everyone" (admin-level), otherwise the list of
+     * employee ids whose orders / customers count for this user.
+     */
+    private function resolveScopedEmployeeIds($user, bool $isAdminDashboard): ?array
     {
-        $scopedEmployeeIds = null;
+        if ($isAdminDashboard) {
+            return null;
+        }
 
-        if (! $isAdminDashboard) {
-            $scopedEmployeeIds = [(int) $user->n_employee_id];
+        $ownId = (int) $user->n_employee_id;
 
-            $subordinateIds = EmployeeMaster::query()
-                ->where('reporting_to', $user->n_employee_id)
+        // Farm Care Advisor / Tele Caller: own sales only.
+        if ($user->hasRole('Farm Care Advisor')
+            || $this->hasRoleIdentifier($user, ['FCA', 'TC'])) {
+            return [$ownId];
+        }
+
+        // Farm Care Officer (and any other non-admin role):
+        // own sales + everyone below them in the reporting chain.
+        return $this->teamEmployeeIds($ownId);
+    }
+
+    /** Roles table check by `identifier`, same as SalesController::isFca() etc. */
+    private function hasRoleIdentifier($user, array $identifiers): bool
+    {
+        try {
+            return $user->roles()->whereIn('identifier', $identifiers)->exists();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * The employee plus everyone below them (same as
+     * SalesController::getSubordinateEmployeeIds), with a guard so a
+     * circular reporting_to can never loop forever.
+     */
+    private function teamEmployeeIds(int $employeeId): array
+    {
+        $all = [$employeeId];
+        $queue = [$employeeId];
+
+        while ($queue) {
+            $children = EmployeeMaster::query()
+                ->whereIn('reporting_to', $queue)
                 ->whereNull('deleted_at')
                 ->pluck('n_employee_id')
                 ->map(fn ($id) => (int) $id)
-                ->toArray();
+                ->diff($all)
+                ->values()
+                ->all();
 
-            $scopedEmployeeIds = array_values(array_unique([
-                ...$scopedEmployeeIds,
-                ...$subordinateIds,
-            ]));
+            $all = array_merge($all, $children);
+            $queue = $children;
         }
+
+        return array_values(array_unique($all));
+    }
+
+    /**
+     * An order counts for a user if EITHER the advisor it belongs to OR
+     * the person who entered it is in their scope — the same rule the
+     * Sales Orders page now uses.
+     */
+    private function applyOrderScope($query, array $ids): void
+    {
+        $query->where(function ($q) use ($ids) {
+            $q->whereIn('sales_orders.farm_care_advisor_id', $ids)
+                ->orWhereIn('sales_orders.created_by', $ids);
+        });
+    }
+
+    private function buildSalesData($user, bool $isAdminDashboard): array
+    {
+        $scopedEmployeeIds = $this->resolveScopedEmployeeIds($user, $isAdminDashboard);
 
         $orderQuery = SalesOrder::query()->whereNull('sales_orders.deleted_at');
 
-        if (! $isAdminDashboard) {
-            $orderQuery->whereIn('sales_orders.farm_care_advisor_id', $scopedEmployeeIds);
+        if ($scopedEmployeeIds !== null) {
+            $this->applyOrderScope($orderQuery, $scopedEmployeeIds);
         }
 
         $currentStatusSql = "
@@ -197,7 +280,7 @@ class UnifiedDashboardController extends Controller
             'totalOrders' => $orders->count(),
         ];
 
-        // 7-day sales trend
+        // 7-day sales trend — same scope as the order cards.
         // Deleted orders must never count (SalesOrder has no SoftDeletes
         // trait, so the filter has to be explicit).
         $salesTrendQuery = SalesOrder::query()
@@ -207,25 +290,8 @@ class UnifiedDashboardController extends Controller
                 now()->endOfDay(),
             ]);
 
-        if ($user->hasRole('Farm Care Advisor')) {
-            $salesTrendQuery->where('sales_orders.farm_care_advisor_id', (int) $user->n_employee_id);
-        } elseif ($user->hasRole('Farm Care Officer')) {
-            $fcoId = (int) $user->n_employee_id;
-            $reportingFcaId = EmployeeMaster::query()
-                ->where('n_employee_id', $fcoId)
-                ->whereNull('deleted_at')
-                ->value('reporting_to');
-
-            $employeeIds = [$fcoId];
-            if ($reportingFcaId) {
-                $employeeIds[] = (int) $reportingFcaId;
-            }
-
-            $salesTrendQuery->whereIn('sales_orders.farm_care_advisor_id', array_unique($employeeIds));
-        } elseif (! $isAdminDashboard) {
-            // Every other non-admin role: same scope as the order cards —
-            // own sales + direct reports only (was company-wide).
-            $salesTrendQuery->whereIn('sales_orders.farm_care_advisor_id', $scopedEmployeeIds);
+        if ($scopedEmployeeIds !== null) {
+            $this->applyOrderScope($salesTrendQuery, $scopedEmployeeIds);
         }
 
         $salesTrend = $salesTrendQuery
@@ -249,28 +315,13 @@ class UnifiedDashboardController extends Controller
             ->filter(fn ($o) => $o->d_date && Carbon::parse($o->d_date)->isToday())
             ->sum(fn ($o) => (float) ($o->n_net_sales_amount ?? 0));
 
-        // Customer count, scoped the same way the Sales dashboard does it
+        // Customer count — same scope as everything else on the sales side.
         $totalCustomersQuery = CustomerMaster::query()
             ->whereNull('deleted_at')
             ->where('c_status', 'Y');
 
-        if (! $isAdminDashboard) {
-            $roleNames = $user->getRoleNames();
-
-            if ($roleNames->contains('Farm Care Advisor')) {
-                $customerEmployeeIds = [(int) $user->n_employee_id];
-            } elseif ($roleNames->contains('Farm Care Officer')) {
-                $customerEmployeeIds = EmployeeMaster::query()
-                    ->where('reporting_to', $user->n_employee_id)
-                    ->whereNull('deleted_at')
-                    ->pluck('n_employee_id')
-                    ->map(fn ($id) => (int) $id)
-                    ->toArray();
-            } else {
-                $customerEmployeeIds = [(int) $user->n_employee_id];
-            }
-
-            $totalCustomersQuery->whereIn('created_by', $customerEmployeeIds);
+        if ($scopedEmployeeIds !== null) {
+            $totalCustomersQuery->whereIn('created_by', $scopedEmployeeIds);
         }
 
         $totalCustomers = $totalCustomersQuery->count();
@@ -496,7 +547,8 @@ class UnifiedDashboardController extends Controller
             $data['myHrSnapshot'] = [
                 'attendance' => $attendanceLabel,
                 'attendanceLabel' => $attendanceKpiLabel,
-                'leaveBalance' => number_format($totalRemaining, 1).' days',
+                // Whole numbers show without a decimal (8 days); half days keep it (8.5 days).
+                'leaveBalance' => rtrim(rtrim(number_format($totalRemaining, 1), '0'), '.').' days',
             ];
         }
 

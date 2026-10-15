@@ -868,10 +868,92 @@
     </script>
     @else
 
+    {{-- Approval workflow (COO / MD / Finance) stays above the tabs, unchanged. --}}
     @include('hr.modules.payroll-workflow')
 
-    <div class="grid-2">
-        <div class="card">
+    @php
+        $canSeeRunSummary = ($role === 'hr_admin' || $role === 'super_admin') && $runsByDepartment->isNotEmpty();
+
+        // Tabs for everyone who is not managing payroll: key => [label, count badge]
+        $selfTabs = [
+            'payslips' => ['Payslips', $payslips->count()],
+            'structure' => ['Salary structure', null],
+        ];
+        if ($canSeeRunSummary) {
+            $selfTabs['summary'] = ['Run summary', null];
+        }
+
+        $requestedSelfTab = request()->query('tab');
+        $selfActive = (is_string($requestedSelfTab) && isset($selfTabs[$requestedSelfTab]))
+            ? $requestedSelfTab
+            : 'payslips';
+    @endphp
+
+    <div class="tabs">
+        @foreach($selfTabs as $key => [$tabLabel, $tabCount])
+        <button type="button" class="tab @if($selfActive === $key) active @endif" data-tab="{{ $key }}"
+            onclick="payrollTab(this,'{{ $key }}')">{{ $tabLabel }}@if($tabCount !== null) <span class="pill pill-muted" style="margin-left:6px;">{{ $tabCount }}</span>@endif</button>
+        @endforeach
+    </div>
+
+    {{-- ===== Tab 1: Payslips ===== --}}
+    <div class="tabpanel @if($selfActive === 'payslips') active @endif" data-tabpanel="payslips">
+        <div class="table-card">
+            <div class="tc-head">
+                <h3><span class="wh-ico"><i class="fa-regular fa-file-lines"></i></span>Payslips</h3>
+                <span class="pill pill-muted">{{ $payslips->count() }} total</span>
+            </div>
+            <div class="tc-body">
+                @if($payslips->isEmpty())
+                <div class="empty-widget">
+                    <div class="ew-ico"><i class="fa-regular fa-file-lines"></i></div>
+                    <b>No payslips yet</b>
+                    <span>Paid payslips appear here. Request one and Finance will make it available to print.</span>
+                </div>
+                @else
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Net pay</th>
+                            <th>Request</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($payslips as $p)
+                        <tr>
+                            <td><b>{{ $p->payrollRun->monthLabel() }}</b></td>
+                            <td>₹{{ number_format($p->net_pay,0) }}</td>
+                            <td>
+                                @php $rq = $requestMap[$p->id] ?? null; @endphp
+                                @if($rq && $rq->status === 'approved')
+                                <a href="{{ route('hr.payroll.payslip', $p) }}" target="_blank"
+                                    class="btn-ghost">View / print</a>
+                                @elseif($rq && $rq->status === 'pending')
+                                <span class="pill pill-muted">Requested &mdash; awaiting Finance</span>
+                                @else
+                                @if($rq && $rq->status === 'rejected')
+                                <span class="pill pill-muted" title="{{ $rq->remarks }}">Rejected @if($rq->remarks):  {{ \Illuminate\Support\Str::limit($rq->remarks, 60) }}@endif</span>
+                                @endif
+                                <form method="POST" action="{{ route('hr.payroll.payslip.request', $p) }}" style="display:inline-flex;gap:6px;align-items:center;">
+                                    @csrf
+                                    <input type="text" name="reason" maxlength="255" placeholder="Reason (optional)" style="max-width:150px;">
+                                    <button type="submit" class="btn-ghost">{{ $rq ? 'Request again' : 'Request payslip' }}</button>
+                                </form>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== Tab 2: Salary structure ===== --}}
+    <div class="tabpanel @if($selfActive === 'structure') active @endif" data-tabpanel="structure">
+        <div class="card" style="max-width:760px;">
             <div class="widget-head">
                 <div class="wh-ico"><i class="fa-solid fa-file-invoice-dollar"></i></div>
                 <div>
@@ -915,92 +997,57 @@
             </div>
             @endif
         </div>
-
-        <div class="stack">
-            <div class="table-card">
-                <div class="tc-head">
-                    <h3><span class="wh-ico"><i class="fa-regular fa-file-lines"></i></span>Payslips</h3>
-                    <span class="pill pill-muted">{{ $payslips->count() }} total</span>
-                </div>
-                <div class="tc-body">
-                    @if($payslips->isEmpty())
-                    <div class="empty-widget">
-                        <div class="ew-ico"><i class="fa-regular fa-file-lines"></i></div>
-                        <b>No payslips yet</b>
-                        <span>Paid payslips appear here. Request one and Finance will make it available to print.</span>
-                    </div>
-                    @else
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Month</th>
-                                <th>Net pay</th>
-                                <th>Request</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($payslips as $p)
-                            <tr>
-                                <td><b>{{ $p->payrollRun->monthLabel() }}</b></td>
-                                <td>₹{{ number_format($p->net_pay,0) }}</td>
-                                <td>
-                                    @php $rq = $requestMap[$p->id] ?? null; @endphp
-                                    @if($rq && $rq->status === 'approved')
-                                    <a href="{{ route('hr.payroll.payslip', $p) }}" target="_blank"
-                                        class="btn-ghost">View / print</a>
-                                    @elseif($rq && $rq->status === 'pending')
-                                    <span class="pill pill-muted">Requested &mdash; awaiting Finance</span>
-                                    @else
-                                    @if($rq && $rq->status === 'rejected')
-                                    <span class="pill pill-muted" title="{{ $rq->remarks }}">Rejected @if($rq->remarks):  {{ \Illuminate\Support\Str::limit($rq->remarks, 60) }}@endif</span>
-                                    @endif
-                                    <form method="POST" action="{{ route('hr.payroll.payslip.request', $p) }}" style="display:inline-flex;gap:6px;align-items:center;">
-                                        @csrf
-                                        <input type="text" name="reason" maxlength="255" placeholder="Reason (optional)" style="max-width:150px;">
-                                        <button type="submit" class="btn-ghost">{{ $rq ? 'Request again' : 'Request payslip' }}</button>
-                                    </form>
-                                    @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    @endif
-                </div>
-            </div>
-
-            @if(($role === 'hr_admin' || $role === 'super_admin') && $runsByDepartment->isNotEmpty())
-            <div class="table-card">
-                <div class="tc-head">
-                    <h3><span class="wh-ico"><i class="fa-solid fa-sitemap"></i></span>{{ $latestRun->monthLabel() }}
-                        payroll run</h3>
-                    <span class="pill pill-ok">{{ ucfirst($latestRun->status) }}</span>
-                </div>
-                <div class="tc-body">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Department</th>
-                                <th>Employees</th>
-                                <th>Gross</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($runsByDepartment as $d)
-                            <tr>
-                                <td>{{ $d->department }}</td>
-                                <td>{{ $d->headcount }}</td>
-                                <td>₹{{ number_format($d->gross,0) }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            @endif
-        </div>
     </div>
 
+    {{-- ===== Tab 3: Latest payroll run by department (HR Admin / Super Admin) ===== --}}
+    @if($canSeeRunSummary)
+    <div class="tabpanel @if($selfActive === 'summary') active @endif" data-tabpanel="summary">
+        <div class="table-card">
+            <div class="tc-head">
+                <h3><span class="wh-ico"><i class="fa-solid fa-sitemap"></i></span>{{ $latestRun->monthLabel() }}
+                    payroll run</h3>
+                <span class="pill pill-ok">{{ ucfirst($latestRun->status) }}</span>
+            </div>
+            <div class="tc-body">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Employees</th>
+                            <th>Gross</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($runsByDepartment as $d)
+                        <tr>
+                            <td>{{ $d->department }}</td>
+                            <td>{{ $d->headcount }}</td>
+                            <td>₹{{ number_format($d->gross,0) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <script>
+    function payrollTab(btn, name) {
+        const scope = document.querySelector('.content');
+        scope.querySelectorAll(':scope > .tabs .tab').forEach(t => t.classList.remove('active'));
+        scope.querySelectorAll(':scope > .tabpanel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        scope.querySelectorAll('[data-tabpanel="' + name + '"]').forEach(p => p.classList.add('active'));
+
+        // Remember the open tab in the URL so a reload / form redirect keeps it.
+        if (window.history && window.history.replaceState) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', name);
+            window.history.replaceState(null, '', url);
+        }
+    }
+    </script>
 
     @endif
 </div>

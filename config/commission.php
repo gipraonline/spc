@@ -4,7 +4,7 @@
 |--------------------------------------------------------------------------
 | Associate commission (Farm Care Advisers + Tele Callers)
 |--------------------------------------------------------------------------
-| Office Administration sets the commission percentage. HR calculates the
+| The National Sales Head, COO or MD sets the commission percentage. HR calculates the
 | month from eligible sales (same rules as incentives: config/spc.php
 | 'incentive'), then it is approved by COO -> MD and paid by Finance.
 |
@@ -20,7 +20,7 @@ return [
     ],
 
     'roles' => [
-        'office_admin' => ['Office Administration', 'Office Administrator'],
+        'national_sales_head' => ['National Sales Head'],
         'coo' => ['COO / CFO', 'COO', 'Chief Operating Officer'],
         'md' => ['Managing Director', 'MD'],
         'finance' => ['Finance', 'Finance Manager'],

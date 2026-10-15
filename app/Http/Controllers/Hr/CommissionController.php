@@ -19,7 +19,8 @@ use Maatwebsite\Excel\Facades\Excel;
 /**
  * Commission for Farm Care Advisers and Tele Callers (associates).
  *
- *   Office Administration  sets the commission percentage per designation
+ *   National Sales Head,
+ *   COO or MD              set the commission percentage per designation
  *   HR                     calculates the month, sees every advisor's commission, downloads Excel,
  *                          sends it to the COO
  *   COO -> MD              approve (or return to HR with a reason)
@@ -70,7 +71,7 @@ class CommissionController extends Controller
             'selectedRun' => $selectedRun,
             'lines' => $lines,
             'isHr' => $this->isHr(),
-            'isOfficeAdmin' => $this->hasWorkflowRole('office_admin'),
+            'canSetRate' => $this->canSetRate(),
             'isCoo' => $this->hasWorkflowRole('coo'),
             'isMd' => $this->hasWorkflowRole('md'),
             'isFinance' => $this->hasWorkflowRole('finance'),
@@ -83,11 +84,11 @@ class CommissionController extends Controller
         ]));
     }
 
-    /** Office Administration sets / changes the percentage. */
+    /** National Sales Head, COO or MD sets / changes the percentage. */
     public function storeRate(Request $request)
     {
         $this->abortUnlessModuleAllowed('commission');
-        abort_unless($this->hasWorkflowRole('office_admin'), 403);
+        abort_unless($this->canSetRate(), 403);
 
         $data = $request->validate([
             'designation_code' => 'required|in:'.implode(',', array_keys(config('commission.designations'))),
@@ -104,7 +105,7 @@ class CommissionController extends Controller
         ]);
 
         $this->audit('COMMISSION_RATE_SET', $rate->id, null, $rate->only(['designation_code', 'percent', 'effective_from']));
-        $this->notifyRole('hr', 'Commission rate for '.(config('commission.designations')[$data['designation_code']] ?? $data['designation_code']).' set to '.$data['percent'].'% by Office Administration.');
+        $this->notifyRole('hr', 'Commission rate for '.(config('commission.designations')[$data['designation_code']] ?? $data['designation_code']).' set to '.$data['percent'].'% by '.$this->currentUser()->name.'.');
 
         return back()->with('status', 'Commission rate saved.');
     }
@@ -123,7 +124,7 @@ class CommissionController extends Controller
         }
 
         if (! CommissionRate::exists()) {
-            return back()->with('status', 'No commission percentage has been set yet. Office Administration must set it first.');
+            return back()->with('status', 'No commission percentage has been set yet. The National Sales Head, COO or MD must set it first.');
         }
 
         $existing = CommissionRun::where('month', $month)->where('year', $year)->first();
@@ -282,7 +283,7 @@ class CommissionController extends Controller
         return $this->currentRole() === 'hr_admin';
     }
 
-    /** Office Administration, COO, MD, Finance by designation title (config/commission.php). */
+    /** National Sales Head, COO, MD, Finance by designation title (config/commission.php). */
     private function hasWorkflowRole(string $key, ?Employee $employee = null): bool
     {
         $employee ??= $this->currentEmployee();
@@ -303,7 +304,15 @@ class CommissionController extends Controller
 
     private function canAccess(): bool
     {
-        return $this->canViewStatements() || $this->hasWorkflowRole('office_admin');
+        return $this->canViewStatements() || $this->canSetRate();
+    }
+
+    /** Who may set / change the commission percentage. */
+    private function canSetRate(): bool
+    {
+        return $this->hasWorkflowRole('national_sales_head')
+            || $this->hasWorkflowRole('coo')
+            || $this->hasWorkflowRole('md');
     }
 
     // ---------------------------------------------------------------- helpers

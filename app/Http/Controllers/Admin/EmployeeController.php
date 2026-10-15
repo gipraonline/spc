@@ -317,10 +317,11 @@ class EmployeeController extends Controller
                 ->where('identifier', 'FCA')
                 ->get();
 
-        } elseif ($candidate && (
-            $user->hasAnyRole(['HR Manager', 'HR Team', 'HR Department'])
-            || $user->roles->contains(fn ($r) => in_array($r->identifier, ['HRM', 'HR_TEAM'], true))
-        )) {
+        }  elseif (
+    $user->hasAnyRole(['HR Manager', 'HR Team', 'HR Department'])
+    || $user->roles->contains(fn ($r) => in_array($r->identifier, ['HRM', 'HR_TEAM'], true))
+    || $user->roles->contains(fn ($r) => $r->hr_access === 'hr_admin')
+) {
 
             /*
              * HR hiring from Recruitment: can pick any designation while

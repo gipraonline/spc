@@ -4,12 +4,14 @@
 --}}
 @if($report)
     @php $inrR = fn ($v) => \App\Services\Hr\PerformanceInsightsService::inr($v); @endphp
+@endphp
     <div class="section-head">
         <h2><i class="fa-solid fa-table-list"></i>Employee report &mdash; {{ $month->format('F Y') }}</h2>
         <a href="{{ route('hr.appraisal.report.export', ['month' => $month->format('Y-m')]) }}" class="btn-secondary" style="padding:8px 14px;">
             <i class="fa-solid fa-file-arrow-down"></i> Download CSV
         </a>
     </div>
+ 
 
     <div class="table-card">
         <div class="tc-body pi-scroll">

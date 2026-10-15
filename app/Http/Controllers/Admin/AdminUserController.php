@@ -135,7 +135,7 @@ class AdminUserController extends Controller
         // Only Super Admin and Gipra Admin can view passwords
         if (
             ! auth('web')->check() ||
-            ! auth('web')->user()->hasAnyRole(['Super Admin', 'Gipra Admin'])
+            ! auth('web')->user()->hasAnyRole(['HR Manager', 'Gipra Admin'])
         ) {
             abort(403);
         }
@@ -168,7 +168,7 @@ class AdminUserController extends Controller
     public function copyAllLoginDetails()
     {
 
-        if (! auth()->check() || ! auth()->user()->hasAnyRole(['Super Admin', 'Gipra Admin'])) {
+        if (! auth()->check() || ! auth()->user()->hasAnyRole(['HR Manager', 'Gipra Admin'])) {
             abort(403, 'You are not authorized to view passwords.');
         }
 

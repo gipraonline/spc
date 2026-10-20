@@ -1393,26 +1393,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
     </div>
     @endif
 
-    {{-- =========================================================
-     4. ANALYTICS — the two graphs, together as one "read the
-     trend" moment before the detail grids below
-========================================================= --}}
-    @if($show('sales_graphs'))
-    <div class="u-section">
-        <div class="u-section-head">
-            <h3><i class="fa-solid fa-chart-column"></i> Sales Graphs</h3>
-            <span class="u-sub">Last 7 days &middot; order mix</span>
-        </div>
-        <div class="u-chart-row">
-            <div class="u-card">
-                <div class="u-chart-wrap"><canvas id="uSalesTrendChart"></canvas></div>
-            </div>
-            <div class="u-card">
-                <div class="u-chart-wrap"><canvas id="uOrderStatusChart"></canvas></div>
-            </div>
-        </div>
-    </div>
-    @endif
+
 
     {{-- =========================================================
      5. MAIN CONTENT (left, operational detail) +
@@ -1541,6 +1522,26 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
 
         </div>
         @endif
+            {{-- =========================================================
+     4. ANALYTICS — the two graphs, together as one "read the
+     trend" moment before the detail grids below
+========================================================= --}}
+    @if($show('sales_graphs'))
+    <div class="u-section">
+        <div class="u-section-head">
+            <h3><i class="fa-solid fa-chart-column"></i> Sales Graphs</h3>
+            <span class="u-sub">Last 7 days &middot; order mix</span>
+        </div>
+        <div class="u-chart-row">
+            <div class="u-card">
+                <div class="u-chart-wrap"><canvas id="uSalesTrendChart"></canvas></div>
+            </div>
+            <div class="u-card">
+                <div class="u-chart-wrap"><canvas id="uOrderStatusChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+    @endif
 
         {{-- RIGHT RAIL — everything HR-actionable, grouped for a quick
          glance without needing to scroll through Sales detail --}}

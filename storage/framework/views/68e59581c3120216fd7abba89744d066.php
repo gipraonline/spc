@@ -270,6 +270,13 @@
     background-color: #e5e7eb;
     color: #374151;
 }
+#sales-table {
+    scroll-margin-top: 80px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
 
 /* Responsive Grid Breakpoints */
 @media (max-width: 1200px) {
@@ -288,24 +295,32 @@
 
 <?php $__env->startSection('content'); ?>
 <?php
-use Illuminate\Support\Facades\Crypt;
+    // Keep existing filters (date, search, payment, mode of payment...) and only swap the status
+    $cardUrl = function (?string $status = null) {
+    $params = request()->except(['status', 'order_status', 'page', 'export']);
+    if ($status) {
+        $params['status'] = $status;
+    }
+    return route('admin.salesorders.index', $params) . '#sales-table';
+};
+
+    $activeStatus = $requestedStatus ?? '';
 ?>
 
-<!-- Top 5 Stat Widget Cards (As shown in reference image) -->
+<?php if($errors->any()): ?>
+<div class="alert alert-danger">
+    <ul class="mb-0">
+        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <li><?php echo e($error); ?></li>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    </ul>
+</div>
+<?php endif; ?>
+
 <div class="widgets-grid">
 
-    <?php if($errors->any()): ?>
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <li><?php echo e($error); ?></li>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-        </ul>
-    </div>
-    <?php endif; ?>
-
-    <!-- 1. Total Sales Orders -->
-    <div class="widget-card">
+    <!-- Total Sales Orders -->
+    <a href="<?php echo e($cardUrl()); ?>" class="widget-card <?php echo e($activeStatus === '' ? 'active' : ''); ?>">
         <div class="widget-icon green-dark">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -313,13 +328,13 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count"><?php echo e($totalSalesOrders ?? $sales->total() ?? 0); ?></span>
+            <span class="widget-count"><?php echo e($totalSalesOrders ?? 0); ?></span>
             <span class="widget-label">Total Sales Orders</span>
         </div>
-    </div>
+    </a>
 
-    <!-- 2. Pending -->
-    <div class="widget-card">
+    <!-- Pending -->
+    <a href="<?php echo e($cardUrl('pending')); ?>" class="widget-card <?php echo e($activeStatus === 'pending' ? 'active' : ''); ?>">
         <div class="widget-icon orange">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -330,10 +345,10 @@ use Illuminate\Support\Facades\Crypt;
             <span class="widget-count"><?php echo e($pendingOrders ?? 0); ?></span>
             <span class="widget-label">Pending</span>
         </div>
-    </div>
+    </a>
 
-    <!-- 4. Order Approved -->
-    <div class="widget-card">
+    <!-- Order Approved -->
+    <a href="<?php echo e($cardUrl('approved')); ?>" class="widget-card <?php echo e($activeStatus === 'approved' ? 'active' : ''); ?>">
         <div class="widget-icon green-emerald">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -344,11 +359,10 @@ use Illuminate\Support\Facades\Crypt;
             <span class="widget-count"><?php echo e($approvedOrders ?? 0); ?></span>
             <span class="widget-label">Order Approved</span>
         </div>
-    </div>
+    </a>
 
-
-    <!-- 5. Dispatched -->
-    <div class="widget-card">
+    <!-- Dispatched -->
+    <a href="<?php echo e($cardUrl('dispatched')); ?>" class="widget-card <?php echo e($activeStatus === 'dispatched' ? 'active' : ''); ?>">
         <div class="widget-icon purple">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -359,10 +373,10 @@ use Illuminate\Support\Facades\Crypt;
             <span class="widget-count"><?php echo e($dispatchedOrders ?? 0); ?></span>
             <span class="widget-label">Dispatched</span>
         </div>
-    </div>
+    </a>
 
-    <!-- 3. Order Confirmed -->
-    <div class="widget-card">
+    <!-- Order Completed -->
+    <a href="<?php echo e($cardUrl('completed')); ?>" class="widget-card <?php echo e($activeStatus === 'completed' ? 'active' : ''); ?>">
         <div class="widget-icon blue">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -373,14 +387,12 @@ use Illuminate\Support\Facades\Crypt;
             <span class="widget-count"><?php echo e($completedOrders ?? 0); ?></span>
             <span class="widget-label">Order Completed</span>
         </div>
-    </div>
-
-
+    </a>
 
 </div>
 
 <!-- Main Table & Filter Card -->
-<div class="card w-100 position-relative overflow-hidden mb-4">
+<div class="card w-100 position-relative overflow-hidden mb-4" id="sales-table">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.create')): ?>

@@ -272,6 +272,13 @@
     background-color: #e5e7eb;
     color: #374151;
 }
+#sales-table {
+    scroll-margin-top: 80px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
 
 /* Responsive Grid Breakpoints */
 @media (max-width: 1200px) {
@@ -290,24 +297,32 @@
 
 @section('content')
 @php
-use Illuminate\Support\Facades\Crypt;
+    // Keep existing filters (date, search, payment, mode of payment...) and only swap the status
+    $cardUrl = function (?string $status = null) {
+    $params = request()->except(['status', 'order_status', 'page', 'export']);
+    if ($status) {
+        $params['status'] = $status;
+    }
+    return route('admin.salesorders.index', $params) . '#sales-table';
+};
+
+    $activeStatus = $requestedStatus ?? '';
 @endphp
 
-<!-- Top 5 Stat Widget Cards (As shown in reference image) -->
+@if ($errors->any())
+<div class="alert alert-danger">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 <div class="widgets-grid">
 
-    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
-    <!-- 1. Total Sales Orders -->
-    <div class="widget-card">
+    <!-- Total Sales Orders -->
+    <a href="{{ $cardUrl() }}" class="widget-card {{ $activeStatus === '' ? 'active' : '' }}">
         <div class="widget-icon green-dark">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -315,13 +330,13 @@ use Illuminate\Support\Facades\Crypt;
             </svg>
         </div>
         <div class="widget-details">
-            <span class="widget-count">{{ $totalSalesOrders ?? $sales->total() ?? 0 }}</span>
+            <span class="widget-count">{{ $totalSalesOrders ?? 0 }}</span>
             <span class="widget-label">Total Sales Orders</span>
         </div>
-    </div>
+    </a>
 
-    <!-- 2. Pending -->
-    <div class="widget-card">
+    <!-- Pending -->
+    <a href="{{ $cardUrl('pending') }}" class="widget-card {{ $activeStatus === 'pending' ? 'active' : '' }}">
         <div class="widget-icon orange">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -332,10 +347,10 @@ use Illuminate\Support\Facades\Crypt;
             <span class="widget-count">{{ $pendingOrders ?? 0 }}</span>
             <span class="widget-label">Pending</span>
         </div>
-    </div>
+    </a>
 
-    <!-- 4. Order Approved -->
-    <div class="widget-card">
+    <!-- Order Approved -->
+    <a href="{{ $cardUrl('approved') }}" class="widget-card {{ $activeStatus === 'approved' ? 'active' : '' }}">
         <div class="widget-icon green-emerald">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -346,11 +361,10 @@ use Illuminate\Support\Facades\Crypt;
             <span class="widget-count">{{ $approvedOrders ?? 0 }}</span>
             <span class="widget-label">Order Approved</span>
         </div>
-    </div>
+    </a>
 
-
-    <!-- 5. Dispatched -->
-    <div class="widget-card">
+    <!-- Dispatched -->
+    <a href="{{ $cardUrl('dispatched') }}" class="widget-card {{ $activeStatus === 'dispatched' ? 'active' : '' }}">
         <div class="widget-icon purple">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -361,10 +375,10 @@ use Illuminate\Support\Facades\Crypt;
             <span class="widget-count">{{ $dispatchedOrders ?? 0 }}</span>
             <span class="widget-label">Dispatched</span>
         </div>
-    </div>
+    </a>
 
-    <!-- 3. Order Confirmed -->
-    <div class="widget-card">
+    <!-- Order Completed -->
+    <a href="{{ $cardUrl('completed') }}" class="widget-card {{ $activeStatus === 'completed' ? 'active' : '' }}">
         <div class="widget-icon blue">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -375,14 +389,12 @@ use Illuminate\Support\Facades\Crypt;
             <span class="widget-count">{{ $completedOrders ?? 0 }}</span>
             <span class="widget-label">Order Completed</span>
         </div>
-    </div>
-
-
+    </a>
 
 </div>
 
 <!-- Main Table & Filter Card -->
-<div class="card w-100 position-relative overflow-hidden mb-4">
+<div class="card w-100 position-relative overflow-hidden mb-4" id="sales-table">
     <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
         <h5 class="card-title fw-semibold mb-0 lh-sm">Sales Orders</h5>
         @can('sales-orders.create')

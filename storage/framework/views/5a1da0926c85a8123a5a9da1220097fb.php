@@ -126,27 +126,7 @@
 }
 
 /* Quick actions strip — right under the hero, first thing scanned */
-.u-qa-strip {
-    background: var(--u-surface);
-    border: 1px solid var(--u-border);
-    border-radius: 14px;
-    box-shadow: var(--u-shadow);
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-}
 
-.u-qa-strip .u-qa-eyebrow {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .4px;
-    color: var(--u-muted);
-    margin-right: 4px;
-}
 
 .u-qa-btn {
     border: 1px solid var(--u-border);
@@ -1048,17 +1028,17 @@
 
 .u-hero,
 .u-ticker,
-.u-qa-strip {
+/* .u-qa-strip {
     animation: uRise .5s ease backwards;
-}
+} */
 
 .u-ticker {
     animation-delay: .08s;
 }
 
-.u-qa-strip {
+/* .u-qa-strip {
     animation-delay: .14s;
-}
+} */
 
 .u-eyebrow {
     animation: uRise .45s ease backwards;
@@ -1130,6 +1110,208 @@
         animation: none;
     }
 }
+
+
+
+.u-qa-strip {
+  --ink: #1f2540;
+  --muted: #7a8199;
+  --card: #ffffff;
+
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;                 /* stops the strip growing past its parent */
+  overflow: hidden;
+
+  display: flex;                /* flex-wrap = buttons size to their content */
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0% 0%, #ffe9f3 0, transparent 45%),
+    radial-gradient(circle at 100% 100%, #e3f0ff 0, transparent 45%),
+    #fbfbff;
+  border: 1px solid #eef0fa;
+  box-shadow: 0 10px 30px -12px rgba(80, 90, 160, .25);
+}
+
+/* Label across the full width */
+.u-qa-strip .u-qa-eyebrow {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.u-qa-strip .u-qa-eyebrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff7eb3, #6c8cff);
+  box-shadow: 0 0 0 4px rgba(108, 140, 255, .15);
+}
+
+/* Divider between Sales group and HR group: its own full row */
+.u-qa-strip .u-qa-divider {
+  flex: 0 0 100%;
+  height: 1px;
+  margin: 2px 4px;
+  background: repeating-linear-gradient(
+    90deg, #dfe3f3 0 6px, transparent 6px 12px
+  );
+}
+
+/* Button card */
+.u-qa-strip .u-qa-btn {
+  --c1: #ff7eb3;
+  --c2: #ff758c;
+
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  /* size to content, but never wider than the strip */
+  flex: 0 1 auto;
+  min-width: 170px;
+  max-width: 100%;
+  min-height: 56px;
+  padding: 10px 18px 10px 14px;
+
+  border-radius: 18px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
+  overflow-wrap: anywhere;      /* very long words break instead of overflowing */
+  word-break: break-word;
+  border: 1px solid #eef0fa;
+  box-shadow: 0 4px 14px -6px rgba(31, 37, 64, .18);
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease;
+  -webkit-tap-highlight-color: transparent;
+  animation: u-pop .45s ease both;
+}
+
+/* Color cycle: works for any number of buttons */
+.u-qa-strip .u-qa-btn:nth-of-type(6n+1) { --c1: #ff9a6c; --c2: #ff5e8a; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n+2) { --c1: #6c8cff; --c2: #8e6cff; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n+3) { --c1: #2fd6a5; --c2: #19b4d4; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n+4) { --c1: #ffc857; --c2: #ff9f43; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n+5) { --c1: #ff7eb3; --c2: #ff758c; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n)   { --c1: #5ec8ff; --c2: #4a8cff; }
+
+/* Gradient icon chip */
+.u-qa-strip .u-qa-btn i {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  box-shadow: 0 6px 12px -4px var(--c2);
+  transition: transform .25s ease;
+}
+
+/* Soft colored glow in the corner */
+.u-qa-strip .u-qa-btn::after {
+  content: "";
+  position: absolute;
+  right: -24px;
+  top: -24px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  opacity: .12;
+  pointer-events: none;
+  transition: transform .3s ease, opacity .3s ease;
+}
+
+/* Hover (desktop) and press (mobile) */
+.u-qa-strip .u-qa-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 24px -10px var(--c2);
+}
+.u-qa-strip .u-qa-btn:hover i { transform: rotate(-8deg) scale(1.08); }
+.u-qa-strip .u-qa-btn:hover::after { transform: scale(1.8); opacity: .18; }
+.u-qa-strip .u-qa-btn:active { transform: scale(.96); }
+
+/* Mobile: 2 equal cards per row, icon on top */
+@media (max-width: 575px) {
+  .u-qa-strip {
+    gap: 10px;
+    padding: 14px;
+    border-radius: 20px;
+  }
+  .u-qa-strip .u-qa-btn {
+    flex: 0 0 calc(50% - 5px);
+    width: calc(50% - 5px);
+    min-width: 0;
+    max-width: calc(50% - 5px);
+    min-height: 92px;
+    flex-direction: column;
+    /* stretch (not flex-start) so the label gets the card width and wraps
+       instead of running past the edge */
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.3;
+    border-radius: 18px !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  .u-qa-strip .u-qa-btn i {
+    align-self: flex-start;   /* keep the icon chip small, top-left */
+  }
+}
+
+/* Very small phones: single column */
+@media (max-width: 340px) {
+  .u-qa-strip .u-qa-btn {
+    flex-basis: 100%;
+    width: 100%;
+    max-width: 100%;
+    min-height: 56px;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Gentle entrance animation */
+@keyframes u-pop {
+  from { opacity: 0; transform: translateY(10px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+.u-qa-strip .u-qa-btn:nth-of-type(2) { animation-delay: .06s; }
+.u-qa-strip .u-qa-btn:nth-of-type(3) { animation-delay: .12s; }
+.u-qa-strip .u-qa-btn:nth-of-type(4) { animation-delay: .18s; }
+.u-qa-strip .u-qa-btn:nth-of-type(5) { animation-delay: .24s; }
+.u-qa-strip .u-qa-btn:nth-of-type(6) { animation-delay: .30s; }
+.u-qa-strip .u-qa-btn:nth-of-type(n+7) { animation-delay: .36s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .u-qa-strip .u-qa-btn { animation: none; }
+}
+
 </style>
 <?php $__env->stopPush(); ?>
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CoverageMapController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DesignationController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Hr\EmployeeExitController;
 use App\Http\Controllers\Admin\FieldLogController;
 use App\Http\Controllers\Admin\FranchiseSalesReportController;
 use App\Http\Controllers\Admin\InvoiceController;
@@ -24,7 +25,6 @@ use App\Http\Controllers\Hr\EmployeeExitController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UnifiedDashboardController;
-use App\Http\Controllers\Admin\MyCommissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -166,10 +166,13 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:employees.view')
             ->name('employees.clearSearch');
 
+<<<<<<< HEAD
         Route::get('employees/export', [EmployeeController::class, 'export'])
             ->middleware('permission:employees.export|employees.view')
             ->name('employees.export');
 
+=======
+>>>>>>> 2209f714d33bf3b60344c0b951a41fddbfbe8515
         /*
         | Employee History — career timeline, performance, and resignation /
         | termination records. `hr.auth` signs the SPC user into the HR module
@@ -768,7 +771,6 @@ Route::middleware(['auth', 'admin'])
         Route::post('associate-leave', [AssociateLeaveController::class, 'store'])->name('associate-leave.store');
         Route::post('associate-leave/{leave}/cancel', [AssociateLeaveController::class, 'cancel'])->name('associate-leave.cancel');
         Route::post('associate-leave/{leave}/decide', [AssociateLeaveController::class, 'decide'])->name('associate-leave.decide');
-        Route::get('my-commission', [MyCommissionController::class, 'index'])->name('my-commission.index');
 
     });
 

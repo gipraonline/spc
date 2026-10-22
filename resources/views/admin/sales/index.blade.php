@@ -289,8 +289,13 @@ html {
 
 @media (max-width: 768px) {
     .widgets-grid {
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(2, 1fr);
     }
+
+    .widget-card {
+    flex-direction: column;
+    text-align: center;
+}
 }
 </style>
 @endpush

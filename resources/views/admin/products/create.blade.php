@@ -3,11 +3,11 @@
 @section('content')
 <style>
 :root {
-    --primary-green: #5E8D3D;
-    --accent-orange: #7CA243;
+    --primary-green: #1b6b49;
+    --accent-orange: #2f8a63;
     --bg-light: #fbfbfb;
     --text-dark: #2d3436;
-    --border-color: #e9ecef;
+    --border-color: #eaeeea;
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
@@ -40,7 +40,7 @@
 .form-section-title {
     font-size: 15px;
     font-weight: 800;
-    color: #5E8D3D;
+    color: #1b6b49;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 1.5rem;
@@ -69,14 +69,14 @@
 .form-control:focus,
 .form-select:focus {
     border-color: var(--primary-green);
-    box-shadow: 0 0 0 4px rgba(94, 141, 61, 0.1);
+    box-shadow: 0 0 0 4px rgba(14, 61, 38, 0.1);
     background-color: #fff;
 }
 
 
 #incentive_percentages {
     background-color: #f7fafc;
-    border: 1.5px solid #edf2f7;
+    border: 1.5px solid #eef2ee;
     border-radius: 12px;
     padding: 1.5rem;
     margin-top: 1rem;
@@ -95,7 +95,7 @@
     background: #fff;
     padding: 1rem;
     border-radius: 10px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e2e9e2;
 }
 
 /* Percentage input styling */
@@ -120,7 +120,7 @@
 .btn-create-custom:hover {
     background: #ce2a2a;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(94, 141, 61, 0.3);
+    box-shadow: 0 4px 12px rgba(14, 61, 38, 0.3);
 }
 
 .btn-cancel-custom {
@@ -136,7 +136,7 @@
     gap: 12px;
     padding: 12px 18px;
     background: #fff;
-    border: 1px solid #edf2f7;
+    border: 1px solid #eef2ee;
     border-radius: 10px;
     width: fit-content;
     cursor: pointer;

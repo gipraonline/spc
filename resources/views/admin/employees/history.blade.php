@@ -4,27 +4,27 @@
 
 @push('styles')
 <style>
-.eh { --brand:#4E7A33; --brand-strong:#0E5239; --brand-ink:#1F3D14; --brand-soft:#E4F3EB; --brand-softer:#F2F9F5;
-      --line:rgba(18,58,40,.13); --line-soft:rgba(18,58,40,.07); --text:#22352C; --muted:#61756B;
-      --ok:#116A38; --ok-bg:#DCF3E4; --warn:#9A5B0B; --warn-bg:#FCF0D8; --bad:#942B2B; --bad-bg:#FBE7E4;
-      font-family:'Outfit',sans-serif; color:var(--text); padding:24px clamp(16px,3vw,32px) 12px; }
-.eh h2,.eh h3,.eh h4 { font-family:'Kanit',sans-serif; color:var(--brand-ink); margin:0; }
+.eh { --brand:#17694a; --brand-strong:#0e3d26; --brand-ink:#08301e; --brand-soft:#e7efe9; --brand-softer:#f4f7f4;
+      --line:rgba(14,61,38,.13); --line-soft:rgba(14,61,38,.07); --text:#101a14; --muted:#6e7a71;
+      --ok:#0e6b43; --ok-bg:#dff0e6; --warn:#9A5B0B; --warn-bg:#FCF0D8; --bad:#942B2B; --bad-bg:#FBE7E4;
+      font-family:'Plus Jakarta Sans',sans-serif; color:var(--text); padding:24px clamp(16px,3vw,32px) 12px; }
+.eh h2,.eh h3,.eh h4 { font-family:'Plus Jakarta Sans',sans-serif; color:var(--brand-ink); margin:0; }
 .eh-top { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
 .eh-back { color:var(--brand); font-weight:600; font-size:13px; text-decoration:none; }
 .eh-back:hover { text-decoration:underline; }
 .eh-actions { display:flex; gap:8px; flex-wrap:wrap; }
 .eh-btn { height:38px; padding:0 15px; border-radius:11px; border:1px solid var(--brand); background:var(--brand-softer); color:var(--brand);
-          font:500 12.5px/1 'Outfit',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:7px; text-decoration:none; }
+          font:500 12.5px/1 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:7px; text-decoration:none; }
 .eh-btn:hover { background:var(--brand); color:#fff; }
-.eh-btn-primary { background:linear-gradient(135deg,#5E8D3D,#1F5C2E); color:#fff; border-color:transparent; }
+.eh-btn-primary { background:linear-gradient(135deg,#1b6b49,#0e3d26); color:#fff; border-color:transparent; }
 .eh-btn-primary:hover { filter:brightness(1.07); color:#fff; }
 .eh-btn-danger { border-color:#C23A3A; background:#C23A3A; color:#fff; }
 .eh-btn-danger:hover { filter:brightness(1.08); background:#C23A3A; color:#fff; }
 
-.eh-hero { background:linear-gradient(135deg,#0E5239 0%,#1F5C2E 55%,#4E7A33 130%); color:#fff; border-radius:18px; padding:22px 26px;
+.eh-hero { background:linear-gradient(135deg,#0e3d26 0%,#0e3d26 55%,#17694a 130%); color:#fff; border-radius:18px; padding:22px 26px;
            display:flex; gap:18px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
 .eh-avatar { width:66px; height:66px; border-radius:18px; background:rgba(255,255,255,.18); border:2px solid rgba(255,255,255,.35);
-             display:flex; align-items:center; justify-content:center; font:600 24px/1 'Kanit',sans-serif; flex-shrink:0; }
+             display:flex; align-items:center; justify-content:center; font:600 24px/1 'Plus Jakarta Sans',sans-serif; flex-shrink:0; }
 .eh-hero h2 { color:#fff; font-size:21px; }
 .eh-hero .sub { color:rgba(255,255,255,.85); font-size:13.5px; margin-top:3px; }
 .eh-chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
@@ -39,11 +39,11 @@
 .eh-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:16px; }
 .eh-kpi { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
 .eh-kpi small { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
-.eh-kpi b { display:block; font:600 20px/1.3 'Kanit',sans-serif; color:var(--brand-ink); margin-top:2px; }
+.eh-kpi b { display:block; font:600 20px/1.3 'Plus Jakarta Sans',sans-serif; color:var(--brand-ink); margin-top:2px; }
 .eh-kpi span { font-size:12px; color:var(--muted); }
 
 .eh-tabs { display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid var(--line); margin-bottom:16px; }
-.eh-tab { border:0; background:none; padding:10px 16px; font:500 13px/1 'Outfit',sans-serif; color:var(--muted); cursor:pointer; border-bottom:3px solid transparent; }
+.eh-tab { border:0; background:none; padding:10px 16px; font:500 13px/1 'Plus Jakarta Sans',sans-serif; color:var(--muted); cursor:pointer; border-bottom:3px solid transparent; }
 .eh-tab.active { color:var(--brand); border-bottom-color:var(--brand); font-weight:600; }
 .eh-panel { display:none; } .eh-panel.active { display:block; }
 
@@ -55,7 +55,7 @@
 .eh-note { background:var(--brand-softer); border:1px solid var(--line-soft); border-radius:12px; padding:11px 14px; margin-top:10px; font-size:13.5px; white-space:pre-line; }
 .eh-muted { color:var(--muted); font-size:13px; }
 .eh table { width:100%; border-collapse:collapse; font-size:13px; }
-.eh th { text-align:left; padding:8px 10px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:#5B6E63; background:#F7FBF8; border-bottom:1px solid var(--line-soft); }
+.eh th { text-align:left; padding:8px 10px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:#5B6E63; background:#f7faf7; border-bottom:1px solid var(--line-soft); }
 .eh td { padding:9px 10px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
 .eh-scroll { overflow-x:auto; }
 
@@ -72,7 +72,7 @@
 .eh-fgrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 16px; }
 .eh-field.full { grid-column:1/-1; }
 .eh-field label { display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:4px; }
-.eh-field input:not([type=checkbox]), .eh-field select, .eh-field textarea { width:100%; border:1px solid var(--line); border-radius:10px; padding:9px 11px; font:13px 'Outfit',sans-serif; background:#fff; }
+.eh-field input:not([type=checkbox]), .eh-field select, .eh-field textarea { width:100%; border:1px solid var(--line); border-radius:10px; padding:9px 11px; font:13px 'Plus Jakarta Sans',sans-serif; background:#fff; }
 .eh-field textarea { resize:vertical; }
 .eh-check { display:flex !important; gap:8px; align-items:center; font-weight:400 !important; color:var(--text) !important; margin:4px 0 !important; }
 .eh-hint { color:var(--muted); font-size:12px; }
@@ -382,7 +382,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content eh" style="padding:0;">
             <div class="modal-header">
-                <h5 class="modal-title" style="font-family:'Kanit',sans-serif;">Record resignation / termination — {{ $name }}</h5>
+                <h5 class="modal-title" style="font-family:'Plus Jakarta Sans',sans-serif;">Record resignation / termination — {{ $name }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

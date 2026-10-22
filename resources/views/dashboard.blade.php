@@ -3,11 +3,11 @@
 @push('styles')
 <style>
 :root {
-    --brand: #5E8D3D;
+    --brand: #1b6b49;
     --brand-dark: #083b25;
     --brand-mid: #087a4d;
-    --primary: #7CA243;
-    --primary-light: #ecfdf5;
+    --primary: #2f8a63;
+    --primary-light: #eef7f1;
 
     --text: #14251c;
     --text-soft: #30443a;
@@ -24,17 +24,17 @@
     --orange: #ea580c;
     --orange-light: #fff7ed;
 
-    --blue: #0284c7;
+    --blue: #0b6e75;
     --blue-light: #eff8ff;
 
-    --purple: #7c3aed;
+    --purple: #035055;
     --purple-light: #f5f3ff;
 
     --red: #dc2626;
     --red-light: #fef2f2;
 
     --green: #16a34a;
-    --green-light: #ecfdf5;
+    --green-light: #eef7f1;
 
     --shadow-xs: 0 1px 3px rgba(15, 81, 50, .035);
     --shadow-sm: 0 5px 18px rgba(15, 81, 50, .055);
@@ -57,7 +57,7 @@
     padding: 28px;
     background:
         radial-gradient(circle at 100% 0%,
-            rgba(94, 141, 61, .075),
+            rgba(14, 61, 38, .075),
             transparent 27%),
         radial-gradient(circle at 0% 45%,
             rgba(15, 81, 50, .035),
@@ -120,7 +120,7 @@
         radial-gradient(circle at 72% 100%,
             rgba(255, 255, 255, .07),
             transparent 25%),
-        linear-gradient(135deg, #5E8D3D, #1F5C2E);
+        linear-gradient(135deg, #1b6b49, #0e3d26);
 
     box-shadow:
         0 18px 42px rgba(15, 81, 50, .16);
@@ -331,7 +331,7 @@
 
 .dashboard-card {
     background:
-        linear-gradient(145deg, #ffffff 0%, #fbfdfc 100%);
+        linear-gradient(145deg, #ffffff 0%, #fbfdfb 100%);
     border: 1px solid #dfe9e4;
     box-shadow:
         0 3px 12px rgba(15, 81, 50, .045),
@@ -359,13 +359,13 @@
 .attendance-card {
     background:
         radial-gradient(circle at 100% 100%,
-            rgba(94, 141, 61, .09),
+            rgba(14, 61, 38, .09),
             transparent 38%),
         linear-gradient(145deg, #ffffff, #f8fcfa);
 }
 
 .attendance-card:nth-child(1) {
-    border-left: 4px solid #7CA243;
+    border-left: 4px solid #2f8a63;
 }
 
 .attendance-card:nth-child(2) {
@@ -385,7 +385,7 @@
             transparent 38%),
         linear-gradient(145deg, #ffffff, #faf9ff);
 
-    border-left: 4px solid #7c3aed;
+    border-left: 4px solid #035055;
 }
 
 
@@ -396,7 +396,7 @@
 .sales-card {
     background:
         radial-gradient(circle at 100% 100%,
-            rgba(94, 141, 61, .075),
+            rgba(14, 61, 38, .075),
             transparent 42%),
         linear-gradient(145deg, #ffffff, #f8fcfa);
 }
@@ -438,7 +438,7 @@
 .order-card.approved {
     background:
         radial-gradient(circle at 100% 100%,
-            rgba(94, 141, 61, .08),
+            rgba(14, 61, 38, .08),
             transparent 40%),
         linear-gradient(145deg, #ffffff, #f7fcfa);
 }
@@ -495,15 +495,15 @@
             transparent 42%),
         linear-gradient(145deg, #ffffff, #f8fbfd);
 
-    border-top: 3px solid #0284c7;
+    border-top: 3px solid #0b6e75;
 }
 
 .payment-card:nth-child(2) {
-    border-top-color: #7CA243;
+    border-top-color: #2f8a63;
 }
 
 .payment-card:nth-child(3) {
-    border-top-color: #7c3aed;
+    border-top-color: #035055;
 }
 
 .payment-card:nth-child(4) {
@@ -583,7 +583,7 @@
 
     border-radius: 50%;
 
-    background: rgba(94, 141, 61, .035);
+    background: rgba(14, 61, 38, .035);
 }
 
 .attendance-icon {
@@ -713,7 +713,7 @@
 
     border-radius: 50%;
 
-    background: rgba(94, 141, 61, .035);
+    background: rgba(14, 61, 38, .035);
 
     pointer-events: none;
 }
@@ -740,7 +740,7 @@
 
 .sales-icon.customers {
     background: #e8f7ef;
-    color: #7CA243;
+    color: #2f8a63;
 }
 
 .sales-icon.today {
@@ -750,7 +750,7 @@
 
 .sales-icon.total {
     background: #eaf5fc;
-    color: #0284c7;
+    color: #0b6e75;
 }
 
 .sales-card>div:last-child {
@@ -972,7 +972,7 @@
 }
 
 .delivered .order-icon {
-    background: #ecfdf5;
+    background: #eef7f1;
     color: #16a34a;
 }
 
@@ -981,16 +981,16 @@
 }
 
 .delivered::after {
-    background: #ecfdf5;
+    background: #eef7f1;
 }
 
 .completed .order-icon {
     background: #dff8ec;
-    color: #1F5C2E;
+    color: #0e3d26;
 }
 
 .completed::before {
-    background: #1F5C2E;
+    background: #0e3d26;
 }
 
 .completed::after {
@@ -1020,7 +1020,7 @@
         radial-gradient(circle at 90% 10%,
             rgba(255, 255, 255, .13),
             transparent 28%),
-        linear-gradient(135deg, #5E8D3D, #1F5C2E);
+        linear-gradient(135deg, #1b6b49, #0e3d26);
 
     border: none;
 
@@ -1264,7 +1264,7 @@
 ========================================================= */
 
 .card-link:focus-visible {
-    outline: 3px solid rgba(94, 141, 61, .22);
+    outline: 3px solid rgba(14, 61, 38, .22);
     outline-offset: 4px;
     border-radius: 18px;
 }
@@ -1511,7 +1511,7 @@
 .sales-trend-header p {
     margin: 5px 0 0;
 
-    color: #81908b;
+    color: #828d85;
 
     font-size: 10px;
     line-height: 1.4;
@@ -1540,7 +1540,7 @@
 .sales-trend-summary span {
     display: block;
 
-    color: #81908b;
+    color: #828d85;
 
     font-size: 8px;
     line-height: 1.2;
@@ -2753,17 +2753,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     gradient.addColorStop(
         0,
-        'rgba(94, 141, 61, 0.24)'
+        'rgba(14, 61, 38, 0.24)'
     );
 
     gradient.addColorStop(
         0.55,
-        'rgba(94, 141, 61, 0.08)'
+        'rgba(14, 61, 38, 0.08)'
     );
 
     gradient.addColorStop(
         1,
-        'rgba(94, 141, 61, 0)'
+        'rgba(14, 61, 38, 0)'
     );
 
 
@@ -2820,7 +2820,7 @@ document.addEventListener('DOMContentLoaded', function() {
             context.setLineDash([4, 4]);
 
             context.strokeStyle =
-                'rgba(94, 141, 61, 0.22)';
+                'rgba(14, 61, 38, 0.22)';
 
             context.stroke();
 
@@ -2875,7 +2875,7 @@ document.addEventListener('DOMContentLoaded', function() {
             );
 
             context.fillStyle =
-                'rgba(94, 141, 61, 0.10)';
+                'rgba(14, 61, 38, 0.10)';
 
             context.fill();
 
@@ -2986,7 +2986,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 data: numericValues,
 
-                borderColor: '#7CA243',
+                borderColor: '#2f8a63',
 
                 backgroundColor: gradient,
 
@@ -3009,11 +3009,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 pointBackgroundColor: '#ffffff',
 
-                pointBorderColor: '#7CA243',
+                pointBorderColor: '#2f8a63',
 
                 pointBorderWidth: 2,
 
-                pointHoverBackgroundColor: '#7CA243',
+                pointHoverBackgroundColor: '#2f8a63',
 
                 pointHoverBorderColor: '#ffffff',
 
@@ -3143,7 +3143,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     ticks: {
 
-                        color: '#81908b',
+                        color: '#828d85',
 
                         font: {
 
@@ -3185,7 +3185,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     ticks: {
 
-                        color: '#81908b',
+                        color: '#828d85',
 
                         padding: 8,
 
@@ -3276,7 +3276,7 @@ document.addEventListener('DOMContentLoaded', function() {
             message.style.background =
                 '#f8fbf9';
             message.style.color =
-                '#81908b';
+                '#828d85';
             message.style.fontSize =
                 '10px';
             message.style.fontWeight =

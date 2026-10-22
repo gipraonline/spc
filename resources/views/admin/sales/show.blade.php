@@ -8,7 +8,7 @@
 }
 
 .form-section {
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e4eae4;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 25px;
@@ -24,7 +24,7 @@
 }
 
 .form-box {
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e4eae4;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 25px;
@@ -36,7 +36,7 @@
     font-weight: 600;
     color: #086a0e;
     padding-bottom: 10px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e4eae4;
     margin-bottom: 20px;
 }
 
@@ -53,7 +53,7 @@
 }
 
 .payment-option:hover {
-    background: #f8f9fa;
+    background: #f7f9f7;
 }
 
 .payment-option input[type="radio"] {

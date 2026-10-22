@@ -260,7 +260,7 @@
 {{-- STYLES --}}
 <style>
 .kpi-row {
-    background: #f8fafc;
+    background: #f6f9f6;
     padding: 12px;
     border-radius: 18px;
 }

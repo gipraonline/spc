@@ -21,7 +21,7 @@
     --fl-line: rgba(18, 58, 40, .1);
     --fl-grad: linear-gradient(135deg, #5E8D3D, #1F5C2E);
     --fl-wash: linear-gradient(45deg, #CBFFCD, transparent 60%);
-    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
 }
 
 .spc-fl h1,
@@ -35,7 +35,7 @@
 .spc-fl .fl-task-name,
 .spc-fl .modal-title,
 .spc-fl .fl-step-num {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 /* ---------- Hero ---------- */
@@ -89,7 +89,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: .18em;
@@ -141,7 +141,7 @@
 }
 
 .fl-clockchip b {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-size: 15px;
     font-weight: 600;
     letter-spacing: .02em;
@@ -323,7 +323,7 @@
     border: 1.5px solid #E3EDE3;
     min-height: 46px;
     font-size: 14px;
-    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
 }
 
 .spc-fl textarea.form-control {
@@ -408,7 +408,7 @@
     color: var(--fl-olive);
     font-size: 11.5px;
     font-weight: 700;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 .fl-taskrow .fl-tdel {
@@ -658,7 +658,7 @@
     color: var(--fl-olive);
     font-size: 12px;
     font-weight: 700;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 .fl-task-name {
@@ -775,7 +775,7 @@
 }
 
 .fl-empty b {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-size: 15px;
     color: var(--fl-ink);
     display: block;
@@ -922,7 +922,7 @@
 }
 
 .fl-co-state b {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 .fl-co-cta {
@@ -939,7 +939,7 @@
 }
 
 .fl-co-cta b {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-size: 14px;
     color: var(--fl-ink);
     display: block;
@@ -1058,7 +1058,7 @@
 .fl-sumstrip .sv {
     display: block;
     margin-top: 4px;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-size: 19px;
     font-weight: 600;
     color: var(--fl-forest);
@@ -1160,7 +1160,7 @@
 
 /* Hide native check-in tiles' page bg clash */
 .spc-fl .readonly-field {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 </style>
 
@@ -1726,7 +1726,7 @@
 
                 <div class="fl-prog-info">
 
-                    <strong style="font-family:var(--font-head,'Kanit',sans-serif);font-size:15px;color:var(--fl-ink);">
+                    <strong style="font-family:var(--font-head,'Plus Jakarta Sans',sans-serif);font-size:15px;color:var(--fl-ink);">
                         Today's Progress
                     </strong>
 

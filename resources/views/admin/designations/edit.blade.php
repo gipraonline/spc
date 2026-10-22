@@ -4,11 +4,11 @@
 <style>
 /* Premium Design Tokens */
 :root {
-    --primary-green: #5E8D3D;
-    --accent-orange: #5E8D3D;
-    --deep-slate: #1e293b;
+    --primary-green: #1b6b49;
+    --accent-orange: #1b6b49;
+    --deep-slate: #1b241e;
     --border-radius-lg: 18px;
-    --input-shadow: 0 8px 20px rgba(94, 141, 61, 0.05);
+    --input-shadow: 0 8px 20px rgba(14, 61, 38, 0.05);
     --card-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
 }
 
@@ -50,7 +50,7 @@
 /* Field Group Styling */
 .form-label {
     font-weight: 700;
-    color: #475569;
+    color: #46514a;
     font-size: 0.9rem;
     margin-bottom: 0.8rem;
 }
@@ -59,7 +59,7 @@
 .form-select {
     border-radius: 12px;
     padding: 0.9rem 1.2rem;
-    background-color: #f8fafc;
+    background-color: #f6f9f6;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
     color: var(--deep-slate);
@@ -82,15 +82,15 @@
     font-weight: 800;
     color: #fff;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 20px rgba(94, 141, 61, 0.15);
+    box-shadow: 0 10px 20px rgba(14, 61, 38, 0.15);
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
 .btn-create-action:hover {
-    background: #1F5C2E;
-    box-shadow: 0 12px 25px rgba(94, 141, 61, 0.25);
+    background: #0e3d26;
+    box-shadow: 0 12px 25px rgba(14, 61, 38, 0.25);
     transform: translateY(-2px);
 }
 
@@ -98,13 +98,13 @@
     border-radius: 12px;
     padding: 14px 30px;
     font-weight: 700;
-    border: 2px solid #f1f5f9;
-    color: #64748b;
+    border: 2px solid #eef2ee;
+    color: #6b756d;
     transition: all 0.2s ease;
 }
 
 .btn-cancel-action:hover {
-    background: #f1f5f9;
+    background: #eef2ee;
 }
 
 /* Validation Spacing */
@@ -122,7 +122,7 @@
     padding: 16px 18px;
     margin-bottom: 14px;
 }
-.dash-cards-box .grp-title { font-weight: 700; color: #1F5C2E; }
+.dash-cards-box .grp-title { font-weight: 700; color: #0e3d26; }
 .dash-cards-box a.dash-card-toggle { font-weight: 600; font-size: 0.8rem; color: var(--primary-green); text-decoration: none; }
 .dash-cards-box a.dash-card-toggle:hover { text-decoration: underline; }
 .dash-cards-box .form-check-input:checked { background-color: var(--primary-green); border-color: var(--primary-green); }

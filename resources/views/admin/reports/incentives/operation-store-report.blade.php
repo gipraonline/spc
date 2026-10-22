@@ -9,8 +9,8 @@
 }
 
 :root {
-    --primary-green: #5E8D3D;
-    --accent-orange: #5E8D3D;
+    --primary-green: #1b6b49;
+    --accent-orange: #1b6b49;
     --card-shadow: 0 10px 25px rgba(0, 0, 0, .04);
     --border-radius: 12px;
 }
@@ -26,14 +26,14 @@
 
 .card-title-custom {
     font-weight: 700;
-    color: #2c3e50;
+    color: #1b3a2c;
     letter-spacing: -.5px;
 }
 
 .form-label {
     font-weight: 600;
     font-size: .85rem;
-    color: #64748b;
+    color: #6b756d;
     margin-bottom: .5rem;
 }
 
@@ -41,7 +41,7 @@
 .form-select {
     border-radius: 8px;
     padding: .7rem 1rem;
-    border: 1.5px solid #eef2f6;
+    border: 1.5px solid #f0f3f0;
     background: #fdfdfe;
 }
 
@@ -52,7 +52,7 @@
 }
 
 .btn-filter {
-    background: #1F5C2E;
+    background: #0e3d26;
     color: #fff;
     border: none;
     border-radius: 12px;
@@ -70,8 +70,8 @@
 
 .btn-export {
     background: #fff;
-    color: #5E8D3D;
-    border: 2px solid #5E8D3D;
+    color: #1b6b49;
+    border: 2px solid #1b6b49;
     border-radius: 12px;
     padding: 14px 32px;
     font-size: 1.05rem;
@@ -80,7 +80,7 @@
 }
 
 .btn-export:hover {
-    background: #1F5C2E;
+    background: #0e3d26;
     color: #fff;
 }
 
@@ -126,17 +126,17 @@
 }
 
 .bg-indigo {
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    background: linear-gradient(135deg, #1b6b49, #14543a);
     color: #fff;
 }
 
 .bg-emerald {
-    background: linear-gradient(135deg, #A8CB6A, #7CA243);
+    background: linear-gradient(135deg, #86c4a4, #2f8a63);
     color: #fff;
 }
 
 .bg-sky {
-    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    background: linear-gradient(135deg, #0ea5e9, #0b6e75);
     color: #fff;
 }
 
@@ -153,20 +153,20 @@
 }
 
 .store-code {
-    background: #eef2ff;
-    color: #4f46e5;
+    background: #eef4f0;
+    color: #14543a;
     font-weight: 700;
     padding: 3px 10px;
     border-radius: 6px;
 }
 
 .amount-sale {
-    color: #0284c7;
+    color: #0b6e75;
     font-weight: 700;
 }
 
 .amount-incentive {
-    color: #7CA243;
+    color: #2f8a63;
     font-weight: 700;
 }
 </style>

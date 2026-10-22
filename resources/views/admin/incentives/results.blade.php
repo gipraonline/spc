@@ -3,10 +3,10 @@
 @section('content')
 <style>
     :root {
-        --primary-green: #5E8D3D;
-        --accent-orange: #5E8D3D;
-        --deep-blue: #5E8D3D;
-        --bg-light: #f8f9fa;
+        --primary-green: #1b6b49;
+        --accent-orange: #1b6b49;
+        --deep-blue: #1b6b49;
+        --bg-light: #f7f9f7;
         --border-radius: 12px;
         --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     }
@@ -70,7 +70,7 @@
     /* Main Breakdown Container */
     .breakdown-card {
         background: #fff;
-        border: 1px solid #e9ecef;
+        border: 1px solid #eaeeea;
         border-radius: var(--border-radius);
         box-shadow: var(--shadow);
         overflow: hidden;
@@ -79,7 +79,7 @@
     .breakdown-header {
         background: #fff;
         padding: 1.5rem 2rem;
-        border-bottom: 2px solid #f8f9fa;
+        border-bottom: 2px solid #f7f9f7;
         border-top: 4px solid var(--primary-green);
     }
 
@@ -108,7 +108,7 @@
 
     .pool-summary-box {
         background: #fcfcfc;
-        border: 1px dashed #e2e8f0;
+        border: 1px dashed #e2e9e2;
         padding: 15px 20px;
         border-radius: 10px;
         margin-bottom: 1.5rem;
@@ -119,34 +119,34 @@
     .table-custom {
         border-radius: 10px;
         overflow: hidden;
-        border: 1px solid #f1f5f9;
+        border: 1px solid #eef2ee;
         margin-bottom: 0;
     }
 
     .table-custom thead {
-        background: #f8fafc;
+        background: #f6f9f6;
     }
 
     .table-custom th {
         font-size: 0.8rem;
         text-transform: uppercase;
         font-weight: 700;
-        color: #64748b;
+        color: #6b756d;
         padding: 12px 20px;
-        border-bottom: 2px solid #f1f5f9;
+        border-bottom: 2px solid #eef2ee;
     }
 
     .table-custom td {
         padding: 14px 20px;
         vertical-align: middle;
         font-weight: 500;
-        color: #334155;
+        color: #2f3a33;
     }
 
     .currency-symbol {
         font-family: inherit;
         font-weight: 600;
-        color: #94a3b8;
+        color: #97a299;
         margin-right: 2px;
     }
 

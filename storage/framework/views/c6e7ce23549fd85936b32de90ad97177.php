@@ -1,6 +1,6 @@
 <?php $__env->startSection('content'); ?>
 <style>
-.al-page { padding: 8px 4px 40px; font-family: 'Outfit', sans-serif; color: #22352C; }
+.al-page { padding: 8px 4px 40px; font-family: 'Plus Jakarta Sans', sans-serif; color: #22352C; }
 .al-page h2 { font-size: 22px; font-weight: 600; margin: 0 0 4px; color: #1F3D14; }
 .al-sub { color: #61756B; font-size: 13px; margin-bottom: 18px; }
 .al-card { background: #fff; border: 1px solid rgba(18,58,40,.13); border-radius: 14px; padding: 18px; margin-bottom: 18px; box-shadow: 0 1px 2px rgba(10,61,44,.05); }

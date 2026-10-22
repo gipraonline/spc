@@ -5,7 +5,7 @@
 :root {
     --primary: #15386e;
     --primary-glow: rgba(16, 185, 129, 0.3);
-    --secondary: #6366f1;
+    --secondary: #1b6b49;
     --dark-surface: #0f172a;
     --light-surface: rgba(255, 255, 255, 0.9);
     --glass-border: rgba(255, 255, 255, 0.2);
@@ -34,7 +34,7 @@
 
 /* Hero Header */
 .hero-header {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f6f9f6 100%);
     padding: 1rem 2.5rem;
     position: relative;
     overflow: hidden;
@@ -46,7 +46,7 @@
 /* Dynamic Data Badge */
 .data-badge-premium {
     background: white;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e2e9e2;
     padding: 12px 24px;
     border-radius: 20px;
     display: flex;
@@ -91,8 +91,8 @@
 }
 
 .btn-premium-launch:disabled {
-    background: #e2e8f0;
-    color: #94a3b8;
+    background: #e2e9e2;
+    color: #97a299;
     box-shadow: none;
     cursor: not-allowed;
 }
@@ -137,7 +137,7 @@
 .table-premium thead th {
 
     background: transparent;
-    color: #94a3b8;
+    color: #97a299;
     font-weight: 700;
     text-transform: uppercase;
     font-size: 0.75rem;
@@ -147,7 +147,7 @@
 }
 
 .table-premium tbody tr {
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #eef2ee;
     transition: all 0.2s ease;
 }
 
@@ -176,7 +176,7 @@
 
 .status-done {
     background: rgba(16, 185, 129, 0.1);
-    color: #7CA243;
+    color: #2f8a63;
 }
 
 .status-err {
@@ -195,7 +195,7 @@
 }
 
 .table-responsive::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
+    background: #e2e9e2;
     border-radius: 10px;
 }
 
@@ -203,7 +203,7 @@
 
     font-weight: 700;
     color: var(--dark-surface);
-    background: #f8fafc;
+    background: #f6f9f6;
     padding: 4px 10px;
     border-radius: 8px;
     font-size: 0.85rem;
@@ -212,7 +212,7 @@
 .sales-stat {
     font-size: 1.25rem;
     font-weight: 300;
-    color: #334155;
+    color: #2f3a33;
 }
 
 .sales-stat b {

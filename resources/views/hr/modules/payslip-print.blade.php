@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" type="image/png" href="{{ asset('dist/images/logos/fav.png') }}" />
     <title>Payslip — {{ $payslip->employee->user->name }} — {{ $payslip->payrollRun->monthLabel() }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root{
             --brand:#4E7A33; --brand-strong:#1F3D14; --brand-soft:#E4F3EB;
             --line:rgba(18,58,40,0.14); --text:#22352C; --text-dim:#61756B;
-            --sans:'Outfit',-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-            --head:'Kanit',sans-serif;
+            --sans:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+            --head:'Plus Jakarta Sans',sans-serif;
         }
         body{font-family:var(--sans);color:var(--text);max-width:760px;margin:48px auto;padding:0 20px;}
         .slip-head{display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--brand);padding-bottom:14px;margin-bottom:6px;}

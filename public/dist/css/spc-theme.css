@@ -1,0 +1,3006 @@
+/* ==========================================================================
+   SPC Universal — reference theme ("Forest & Sage")
+   Matches the client reference: deep forest green (#0E3D26) on a soft sage
+   canvas (#EEF2EE), white rounded surfaces, pill-shaped controls and the
+   Plus Jakarta Sans typeface. Loaded LAST on every shell so it wins over the
+   legacy Evergreen / Mordenize rules without touching any logic.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- tokens */
+:root {
+    --spc-paper: #EEF2EE;
+    --spc-paper-deep: #E6EBE6;
+    --spc-surface: #FFFFFF;
+
+    --spc-forest: #0E3D26;
+    --spc-forest-mid: #14543A;
+    --spc-forest-deep: #082E1D;
+    --spc-teal: #035055;
+    --spc-soft: #E7EFE9;
+    --spc-softer: #F4F7F4;
+
+    --spc-ink: #101A14;
+    --spc-muted: #6E7A71;
+    --spc-line: rgba(14, 61, 38, .12);
+    --spc-line-soft: rgba(14, 61, 38, .07);
+    --spc-shadow: 0 10px 26px -18px rgba(8, 46, 29, .38);
+    --spc-shadow-lg: 0 24px 54px -26px rgba(8, 46, 29, .45);
+    --spc-radius: 20px;
+    --spc-radius-sm: 14px;
+
+    --spc-ok: #0E6B43;
+    --spc-ok-soft: #DFF0E6;
+    --spc-warn: #8A5A10;
+    --spc-warn-soft: #FBF0D9;
+    --spc-bad: #B42318;
+    --spc-bad-soft: #FBE7E4;
+
+    --spc-grad: linear-gradient(135deg, #14543A 0%, #0E3D26 58%, #0A2E1C 100%);
+    --spc-grad-hero: linear-gradient(140deg, #11502F 0%, #0E3D26 52%, #082E1D 100%);
+
+    /* legacy Evergreen variable names used all over the app */
+    --spc-brand: #0E3D26;
+    --spc-brand-strong: #0E3D26;
+    --spc-brand-ink: #101A14;
+    --spc-brand-bright: #1B6B49;
+    --spc-brand-glow: rgba(14, 61, 38, .28);
+    --spc-brand-soft: #E7EFE9;
+    --spc-brand-softer: #F4F7F4;
+
+    /* HR shell variable names */
+    --brand: #0E3D26;
+    --brand-strong: #0E3D26;
+    --brand-ink: #101A14;
+    --brand-deep: #082E1D;
+    --brand-bright: #1B6B49;
+    --brand-glow: rgba(14, 61, 38, .28);
+    --brand-soft: #E7EFE9;
+    --brand-softer: #F4F7F4;
+    --paper: #EEF2EE;
+    --surface: #FFFFFF;
+    --line: rgba(14, 61, 38, .12);
+    --line-soft: rgba(14, 61, 38, .07);
+    --text: #101A14;
+    --text-muted: #6E7A71;
+    --radius: 20px;
+    --radius-sm: 14px;
+    --shadow-sm: 0 1px 2px rgba(8, 46, 29, .05);
+    --shadow-md: 0 10px 26px -18px rgba(8, 46, 29, .38);
+    --shadow-lg: 0 24px 54px -26px rgba(8, 46, 29, .45);
+
+    --font-head: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+    --font-body: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+
+    /* auth / recovery shell variable names */
+    --primary-blue: #0E3D26;
+    --primary-red: #0E3D26;
+    --accent-glow: rgba(14, 61, 38, .16);
+    --bg-color: #EEF2EE;
+    --bg: #EEF2EE;
+    --card-bg: #FFFFFF;
+    --text-dark: #101A14;
+    --text-grey: #6E7A71;
+    --ink: #101A14;
+    --input-border: rgba(14, 61, 38, .14);
+    --danger: #B42318;
+    --danger-bg: #FBE7E4;
+    --ok-bg: #DFF0E6;
+    --shadow-soft: 0 18px 40px -24px rgba(8, 46, 29, .35);
+    --shadow-glow: 0 0 20px rgba(14, 61, 38, .16);
+
+    /* unified dashboard tokens */
+    --u-brand: #0E3D26;
+    --u-brand-dark: #082E1D;
+    --u-brand-mid: #14543A;
+    --u-hr: #035055;
+    --u-hr-light: #E6F1F2;
+    --u-text: #101A14;
+    --u-muted: #6E7A71;
+    --u-surface: #FFFFFF;
+    --u-border: rgba(14, 61, 38, .1);
+    --u-radius: 20px;
+    --u-shadow: 0 10px 26px -20px rgba(8, 46, 29, .35);
+}
+
+/* ------------------------------------------------------------------ base */
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body,
+body[data-theme],
+.page-wrapper,
+.body-wrapper {
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif !important;
+    background: var(--spc-paper) !important;
+    color: var(--spc-ink) !important;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: -.005em;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* the old shells painted decorative gradients behind everything — flatten */
+body::before,
+body::after {
+    background: none !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.card-title,
+.page-main-title,
+.card-title-custom,
+.font-head,
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6,
+.card-header-styled h5,
+th.border-bottom-0 h6 {
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif !important;
+    color: var(--spc-ink);
+    font-weight: 800 !important;
+    letter-spacing: -.02em !important;
+    -webkit-text-fill-color: currentColor !important;
+    background: none !important;
+    background-image: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    text-transform: none;
+}
+
+h1 {
+    font-size: 26px;
+}
+
+h2 {
+    font-size: 23px;
+}
+
+h3 {
+    font-size: 20px;
+}
+
+h4 {
+    font-size: 18px;
+}
+
+h5 {
+    font-size: 16.5px;
+}
+
+h6 {
+    font-size: 15px;
+}
+
+p,
+span,
+div,
+li,
+td,
+th,
+label,
+input,
+select,
+textarea,
+button,
+a {
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+}
+
+a {
+    color: var(--spc-forest);
+}
+
+a:hover {
+    color: var(--spc-forest-mid);
+}
+
+.text-muted,
+.form-text {
+    color: var(--spc-muted) !important;
+}
+
+/* Headings that sit on the deep-green heroes stay light, exactly like the
+   reference's featured card (specificity wins over the base heading colour). */
+.u-hero h1,
+.u-hero h2,
+.u-hero h3,
+.u-hero h4,
+.dash-hero h1,
+.dash-hero h2,
+.dash-hero h3,
+.page-hero h1,
+.page-hero h2,
+.page-hero h3,
+.hero h1,
+.hero h2,
+.hero h3,
+.bg-dark h1,
+.bg-dark h2,
+.bg-dark h3 {
+    color: #fff !important;
+}
+
+.u-hero p,
+.dash-hero p,
+.page-hero p,
+.hero p {
+    color: rgba(255, 255, 255, .82) !important;
+}
+
+/* --------------------------------------------------------- page structure */
+/* the topbar is sticky now, so the old fixed-header offset would leave a
+   dead band above the content — pull the page up under it */
+.body-wrapper>.container-fluid {
+    padding: 18px 26px 34px !important;
+}
+
+.container,
+.container-fluid,
+.container-lg,
+.container-md,
+.container-sm,
+.container-xl {
+    --bs-gutter-x: 1.5rem;
+}
+
+/* --------------------------------------------------------------- top bar */
+header.app-header {
+    background: rgba(238, 242, 238, .92) !important;
+    border-bottom: 1px solid var(--spc-line-soft) !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+header.app-header .navbar,
+header.app-header .navbar.navbar-light {
+    min-height: 72px;
+    height: 72px;
+    padding: 0 26px;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.topbar-title .eyebrow {
+    color: var(--spc-muted);
+    font-size: 10px;
+    letter-spacing: .16em;
+    font-weight: 700;
+}
+
+.topbar-title .eyebrow::before {
+    background: var(--spc-forest);
+}
+
+.topbar-title h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--spc-ink) !important;
+    letter-spacing: -.025em;
+}
+
+header.app-header .navbar-nav {
+    gap: 10px;
+}
+
+header.app-header .navbar-nav .nav-item .nav-link,
+header.app-header .nav-link {
+    height: 44px !important;
+    width: 44px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--spc-line) !important;
+    background: var(--spc-surface) !important;
+    color: var(--spc-ink) !important;
+    box-shadow: var(--spc-shadow);
+    font-size: 15px;
+}
+
+header.app-header .nav-link i,
+header.app-header .nav-link i::before,
+header.app-header .nav-link svg {
+    font-size: 19px !important;
+    color: var(--spc-ink) !important;
+    position: static;
+    transform: none;
+}
+
+header.app-header .nav-link:hover,
+header.app-header .nav-link:focus {
+    background: var(--spc-soft) !important;
+    border-color: var(--spc-forest) !important;
+    color: var(--spc-forest) !important;
+}
+
+header.app-header .nav-link .badge {
+    border: 2px solid var(--spc-paper);
+    background: var(--spc-bad) !important;
+}
+
+.topbar-user {
+    border-radius: 999px;
+    padding: 5px 16px 5px 6px;
+    border: 1px solid var(--spc-line);
+    background: var(--spc-surface);
+    box-shadow: var(--spc-shadow);
+}
+
+.topbar-user .topbar-avatar {
+    border-radius: 999px;
+    width: 36px;
+    height: 36px;
+    background: var(--spc-grad);
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 700;
+}
+
+.topbar-who b {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 700;
+    color: var(--spc-ink);
+}
+
+header.app-header .dropdown-menu {
+    border-radius: 20px;
+    border: 1px solid var(--spc-line);
+    box-shadow: var(--spc-shadow-lg);
+    background: var(--spc-surface);
+    padding: 12px;
+}
+
+.user-panel-link {
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.user-panel-link i,
+.user-panel-link svg {
+    color: var(--spc-forest);
+}
+
+.user-panel-signout {
+    border-radius: 999px;
+    font-weight: 700;
+    background: var(--spc-softer);
+    border: 1px solid var(--spc-line);
+}
+
+/* Brand mark in the header (same asset the sidebar uses) */
+.topbar-logo {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: 44px;
+    padding: 0 14px;
+    background: var(--spc-surface) !important;
+    border: 1px solid var(--spc-line) !important;
+    border-radius: 999px !important;
+    box-shadow: var(--spc-shadow);
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.topbar-logo:hover {
+    border-color: var(--spc-forest) !important;
+}
+
+.topbar-logo img {
+    display: block;
+    height: 22px;
+    width: auto;
+}
+
+/* The ⋯ (collapse) button keeps the same tile language as the bell */
+header.app-header .navbar-toggler,
+.navbar-toggler {
+    width: 44px;
+    height: 44px;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--spc-line) !important;
+    border-radius: 999px !important;
+    background: var(--spc-surface) !important;
+    color: var(--spc-ink) !important;
+    box-shadow: var(--spc-shadow);
+    order: 3;
+}
+
+header.app-header .navbar-toggler .p-2,
+header.app-header .navbar-toggler span {
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+header.app-header .navbar-toggler i,
+header.app-header .navbar-toggler i::before {
+    color: var(--spc-ink) !important;
+    font-size: 19px !important;
+}
+
+header.app-header .navbar-toggler:hover,
+header.app-header .navbar-toggler[aria-expanded="true"] {
+    background: var(--spc-forest) !important;
+    border-color: var(--spc-forest) !important;
+}
+
+header.app-header .navbar-toggler:hover i,
+header.app-header .navbar-toggler:hover i::before,
+header.app-header .navbar-toggler[aria-expanded="true"] i,
+header.app-header .navbar-toggler[aria-expanded="true"] i::before {
+    color: #fff !important;
+}
+
+/* --------------------------------------------------------------- sidebar */
+body #main-wrapper aside.left-sidebar,
+aside.left-sidebar {
+    background: var(--spc-surface) !important;
+    background-image: none !important;
+    border-right: 1px solid var(--spc-line-soft) !important;
+    box-shadow: none !important;
+}
+
+.left-sidebar .brand-logo {
+    padding: 18px 16px 10px;
+}
+
+.left-sidebar .scroll-sidebar {
+    padding: 6px 14px 26px !important;
+}
+
+.sidebar-nav ul .nav-small-cap {
+    margin: 20px 12px 6px;
+}
+
+.sidebar-nav ul .nav-small-cap .hide-menu {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    color: var(--spc-muted);
+}
+
+.sidebar-nav ul .nav-small-cap::after {
+    background: linear-gradient(90deg, var(--spc-line), transparent);
+}
+
+.sidebar-nav ul .sidebar-item {
+    margin: 3px 0;
+}
+
+.sidebar-nav ul .sidebar-item .sidebar-link {
+    border-radius: 999px;
+    padding: 11px 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #3F4A43;
+}
+
+.sidebar-nav ul .sidebar-item .sidebar-link:hover {
+    background: var(--spc-softer);
+    color: var(--spc-forest);
+}
+
+.sidebar-nav ul .sidebar-item.selected>.sidebar-link,
+.sidebar-nav ul .sidebar-item.selected>.sidebar-link.active,
+.sidebar-nav ul .sidebar-item>.sidebar-link.active {
+    background: var(--spc-grad) !important;
+    color: #fff !important;
+    box-shadow: 0 10px 20px -12px rgba(8, 46, 29, .6);
+}
+
+.sidebar-nav ul .sidebar-item.selected>.sidebar-link::before,
+.sidebar-nav ul .sidebar-item>.sidebar-link.active::before {
+    display: none !important;
+}
+
+/* ----------------------------------------------------------------- cards */
+.card,
+.filter-card-wrapper,
+.card.bg-white,
+.card.w-100.position-relative.overflow-hidden {
+    background: var(--spc-surface) !important;
+    background-image: none !important;
+    border: 1px solid var(--spc-line-soft) !important;
+    border-radius: var(--spc-radius) !important;
+    box-shadow: var(--spc-shadow) !important;
+    backdrop-filter: none !important;
+}
+
+.card.w-100.position-relative.overflow-hidden {
+    border-top: 1px solid var(--spc-line-soft) !important;
+}
+
+.card.w-100.position-relative.overflow-hidden::after {
+    display: none !important;
+}
+
+.card.w-100.position-relative.overflow-hidden:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 38px -22px rgba(8, 46, 29, .5) !important;
+    border-color: var(--spc-line) !important;
+}
+
+.card-body {
+    padding: 20px 22px;
+}
+
+.card-header,
+.card-footer {
+    background: transparent !important;
+    border-color: var(--spc-line-soft) !important;
+    padding: 16px 22px;
+}
+
+.card-title,
+.page-main-title,
+.card-title-custom {
+    font-size: 20px;
+    font-weight: 800 !important;
+    color: var(--spc-ink) !important;
+    margin-bottom: 2px;
+}
+
+.card-header-styled {
+    border-bottom: 1px solid var(--spc-line-soft) !important;
+    padding: 18px 22px;
+}
+
+/* --------------------------------------------------------------- buttons */
+.btn {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    border-radius: 999px !important;
+    padding: 10px 20px;
+    font-size: 14.5px;
+    letter-spacing: -.01em;
+    transition: transform .12s, filter .15s, background .15s, color .15s;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary,
+.buttonSpc,
+.btn-filter,
+.btn-creative-filter,
+.btn-success,
+.btn-dark {
+    background: var(--spc-grad) !important;
+    background-image: var(--spc-grad) !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: 0 12px 22px -14px rgba(8, 46, 29, .7);
+}
+
+.btn-primary:hover,
+.buttonSpc:hover,
+.btn-filter:hover,
+.btn-creative-filter:hover,
+.btn-success:hover,
+.btn-dark:hover {
+    filter: brightness(1.12);
+    color: #fff !important;
+}
+
+.btn-primary *,
+.buttonSpc *,
+.btn-filter *,
+.btn-creative-filter * {
+    color: inherit !important;
+}
+
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-dark,
+.btn-outline-success,
+.btn-secondary,
+.btn-light,
+.btn-white,
+.btn-outline-info,
+.btn-info {
+    background: var(--spc-surface) !important;
+    border: 1.5px solid var(--spc-line) !important;
+    color: var(--spc-forest) !important;
+    box-shadow: none;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-outline-dark:hover,
+.btn-outline-success:hover,
+.btn-secondary:hover,
+.btn-light:hover,
+.btn-white:hover,
+.btn-outline-info:hover,
+.btn-info:hover {
+    background: var(--spc-soft) !important;
+    border-color: var(--spc-forest) !important;
+    color: var(--spc-forest) !important;
+}
+
+.btn-danger,
+.btn-outline-danger {
+    border-color: rgba(180, 35, 24, .35) !important;
+}
+
+.btn-sm {
+    padding: 7px 15px;
+    font-size: 13px;
+}
+
+.btn-lg {
+    padding: 14px 26px;
+    font-size: 16px;
+}
+
+/* page-level button classes (employee-*-btn, submit-btn, …) follow the
+   reference's pill language too */
+button:not(.btn-close):not(.modal-close):not(.close),
+input[type="submit"],
+input[type="button"],
+.btn,
+[class*="-btn"],
+[class*="-button"] {
+    border-radius: 999px !important;
+}
+
+.btn-icon,
+.btn-circle {
+    border-radius: 999px !important;
+}
+
+/* pill chips / filter tabs (reference: white pill with forest border) */
+.nav-pills .nav-link,
+.pill,
+.chip,
+.filter-pill,
+.premium-tab,
+.spc-tab,
+.btn-group>.btn {
+    border-radius: 999px !important;
+}
+
+.nav-pills .nav-link {
+    background: var(--spc-surface);
+    border: 1.5px solid var(--spc-line);
+    color: var(--spc-muted);
+    font-weight: 700;
+    padding: 9px 20px;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show>.nav-link {
+    background: var(--spc-forest) !important;
+    border-color: var(--spc-forest) !important;
+    color: #fff !important;
+}
+
+.btn-group>.btn:not(:last-child) {
+    border-radius: 999px !important;
+    margin-right: 8px;
+}
+
+/* ---------------------------------------------------------------- forms */
+.form-control,
+.form-select,
+.styled-select,
+.styled-textbox,
+.select2-container--default .select2-selection--single,
+select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="search"],
+textarea {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    border-radius: 14px !important;
+    border: 1.5px solid var(--spc-line) !important;
+    background: var(--spc-surface) !important;
+    color: var(--spc-ink) !important;
+    font-size: 15.5px !important;
+    font-weight: 600;
+    min-height: 48px;
+    padding: 11px 16px;
+    box-shadow: none !important;
+}
+
+.form-select {
+    padding-right: 40px;
+}
+
+textarea.form-control {
+    min-height: 110px;
+}
+
+.form-control::placeholder,
+input::placeholder {
+    color: #9AA69D;
+    font-weight: 500;
+}
+
+.form-control:focus,
+.form-select:focus,
+.styled-select:focus,
+.select2-container--default.select2-container--focus .select2-selection--single {
+    border-color: var(--spc-forest) !important;
+    box-shadow: 0 0 0 4px rgba(14, 61, 38, .1) !important;
+    background: var(--spc-surface) !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--spc-forest);
+    border-color: var(--spc-forest);
+}
+
+.form-label,
+.custom-filter-group label,
+label {
+    font-weight: 700;
+    color: var(--spc-ink);
+    font-size: 13px;
+}
+
+.filter-card-wrapper {
+    padding: 20px 22px;
+}
+
+.filter-header-sub {
+    font-size: 12px;
+    letter-spacing: .12em;
+    color: var(--spc-muted);
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+.icon-box {
+    background: var(--spc-soft) !important;
+    color: var(--spc-forest) !important;
+    border-radius: 12px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 24px;
+    color: var(--spc-ink);
+}
+
+/* ---------------------------------------------------------------- tables */
+.table-responsive,
+.table-responsive-custom,
+.premium-table-container {
+    border-radius: var(--spc-radius);
+}
+
+table.table {
+    background: transparent;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 0;
+}
+
+table.table thead th,
+table th,
+th.border-bottom-0 h6 {
+    background: var(--spc-forest-deep) !important;
+    background-image: none !important;
+    color: #fff !important;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    padding: 14px 16px !important;
+    border: none !important;
+    white-space: nowrap;
+}
+
+table.table thead th:first-child {
+    border-radius: 14px 0 0 14px;
+}
+
+table.table thead th:last-child {
+    border-radius: 0 14px 14px 0;
+}
+
+table.table tbody td,
+table td {
+    padding: 14px 16px !important;
+    color: var(--spc-ink) !important;
+    font-weight: 600;
+    font-size: 14px;
+    border: none !important;
+    border-bottom: 1px solid var(--spc-line-soft) !important;
+    vertical-align: middle;
+    background: transparent;
+}
+
+table.table tbody tr:hover,
+table.table tbody tr:hover>*,
+.table-hover>tbody>tr:hover>* {
+    background: var(--spc-softer) !important;
+    --bs-table-bg-state: transparent !important;
+}
+
+table.table .text-muted,
+table .text-muted {
+    color: var(--spc-muted) !important;
+    font-weight: 600;
+}
+
+/* tables that don't use .table still get the reference palette */
+table:not(.table) th {
+    background: var(--spc-forest-deep) !important;
+    background-image: none !important;
+    color: #fff !important;
+}
+
+table:not(.table) td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--spc-line-soft);
+    color: var(--spc-ink);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+table:not(.table) tbody tr:hover td {
+    background: var(--spc-softer);
+}
+
+.table>:not(caption)>*>* {
+    border-color: var(--spc-line-soft) !important;
+    box-shadow: none !important;
+}
+
+table.table .badge {
+    border-radius: 999px !important;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .01em;
+}
+
+/* --------------------------------------------------------------- badges */
+.badge {
+    border-radius: 999px !important;
+    font-weight: 800;
+    letter-spacing: .01em;
+    padding: 6px 12px;
+}
+
+.badge.bg-success,
+.badge.bg-info,
+.badge.bg-warning,
+.badge.bg-danger,
+.badge.bg-secondary,
+.badge.bg-light,
+table.table .badge.bg-success,
+table.table .badge.bg-warning,
+table.table .badge.bg-danger,
+table.table .badge.bg-info,
+table.table .badge.bg-secondary {
+    border: none;
+}
+
+table.table .badge.bg-success,
+.badge.bg-success {
+    background: var(--spc-ok-soft) !important;
+    color: var(--spc-ok) !important;
+}
+
+table.table .badge.bg-warning,
+.badge.bg-warning {
+    background: var(--spc-warn-soft) !important;
+    color: var(--spc-warn) !important;
+}
+
+table.table .badge.bg-danger,
+.badge.bg-danger {
+    background: var(--spc-bad-soft) !important;
+    color: var(--spc-bad) !important;
+}
+
+table.table .badge.bg-info,
+.badge.bg-info {
+    background: #E4EEEF !important;
+    color: var(--spc-teal) !important;
+}
+
+table.table .badge.bg-secondary,
+.badge.bg-secondary {
+    background: var(--spc-soft) !important;
+    color: #4A554D !important;
+}
+
+/* ----------------------------------------------------------- pagination */
+.pagination {
+    gap: 6px;
+}
+
+.page-link,
+.active>.page-link,
+.page-link.active {
+    border-radius: 999px !important;
+    border: 1px solid var(--spc-line) !important;
+    color: var(--spc-forest) !important;
+    background: var(--spc-surface) !important;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: center;
+    padding: 8px 13px;
+}
+
+.active>.page-link,
+.page-link.active {
+    background: var(--spc-forest) !important;
+    border-color: var(--spc-forest) !important;
+    color: #fff !important;
+}
+
+.page-link:hover {
+    background: var(--spc-soft) !important;
+    color: var(--spc-forest) !important;
+}
+
+/* --------------------------------------------------------- modals/alerts */
+.modal-content {
+    border-radius: var(--spc-radius) !important;
+    border: 1px solid var(--spc-line) !important;
+    box-shadow: var(--spc-shadow-lg);
+    overflow: hidden;
+}
+
+.modal-header {
+    background: var(--spc-surface) !important;
+    background-image: none !important;
+    border-bottom: 1px solid var(--spc-line-soft) !important;
+    padding: 18px 22px;
+}
+
+.modal-header .modal-title,
+.modal-header h5,
+.modal-header h5 * {
+    color: var(--spc-ink) !important;
+    font-weight: 800 !important;
+}
+
+.modal-header .btn-close {
+    filter: none;
+    opacity: .6;
+}
+
+.modal-body {
+    padding: 22px;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--spc-line-soft);
+    padding: 16px 22px;
+}
+
+.alert {
+    border-radius: var(--spc-radius-sm);
+    border: 1px solid var(--spc-line);
+    font-weight: 600;
+}
+
+.alert-success {
+    background: var(--spc-ok-soft) !important;
+    color: var(--spc-ok) !important;
+}
+
+.alert-danger {
+    background: var(--spc-bad-soft) !important;
+    color: var(--spc-bad) !important;
+}
+
+.alert-warning {
+    background: var(--spc-warn-soft) !important;
+    color: var(--spc-warn) !important;
+}
+
+/* the search box on filterable pages draws its own frame — the generic
+   input rule must not paint a second box inside it ("double search") */
+.employee-search {
+    position: relative;
+    height: 48px !important;
+    max-width: 100%;
+    display: flex !important;
+    align-items: center;
+    gap: 9px;
+    border: 1.5px solid var(--spc-line) !important;
+    border-radius: 999px !important;
+    padding: 0 18px !important;
+    background: var(--spc-surface) !important;
+}
+
+.employee-search:focus-within {
+    border-color: var(--spc-forest) !important;
+    box-shadow: 0 0 0 4px rgba(14, 61, 38, .1) !important;
+}
+
+.employee-search input,
+.employee-search input.form-control,
+.input-group input.form-control,
+.input-group .form-control {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: var(--spc-ink);
+}
+
+.employee-search span {
+    color: var(--spc-muted) !important;
+    font-size: 15px !important;
+}
+
+.employee-filters select {
+    min-height: 48px !important;
+    height: auto !important;
+    border: 1.5px solid var(--spc-line) !important;
+    border-radius: 999px !important;
+    background: var(--spc-surface) !important;
+    color: var(--spc-ink) !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    padding: 0 40px 0 18px !important;
+}
+
+/* ---------------------------------------------------- HR shell surfaces */
+.shell,
+.hr-shell,
+.hr-content,
+.content-wrap {
+    background: var(--spc-paper);
+}
+
+.hr-shell .topbar,
+.topbar {
+    background: rgba(238, 242, 238, .92) !important;
+    border-bottom: 1px solid var(--spc-line-soft) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.topbar .hamburger,
+.hamburger,
+.nav-icon {
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--spc-line) !important;
+    background: var(--spc-surface) !important;
+    color: var(--spc-ink) !important;
+    box-shadow: var(--spc-shadow);
+    font-size: 16px;
+}
+
+.hamburger i,
+.nav-icon i {
+    font-size: 17px !important;
+    color: var(--spc-ink) !important;
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+}
+
+.topbar h1 {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.025em !important;
+    color: var(--spc-ink) !important;
+}
+
+.topbar .eyebrow {
+    color: var(--spc-muted) !important;
+    font-weight: 700;
+}
+
+/* stat tiles / ring cards → clean white surfaces like the reference */
+.stat-tile,
+.stat-tile:hover,
+.ring-card,
+.ring-card:hover,
+.metric-card,
+.metric-card:hover,
+.table-card {
+    background: var(--spc-surface) !important;
+    background-image: none !important;
+    border: 1px solid var(--spc-line-soft) !important;
+    border-radius: 20px !important;
+    box-shadow: var(--spc-shadow) !important;
+}
+
+.stat-tile .st-ico,
+.widget-head .wh-ico,
+.ring-card .ring {
+    background: var(--spc-grad) !important;
+    background-image: var(--spc-grad) !important;
+    border-radius: 14px !important;
+}
+
+.stat-tile::before {
+    display: none !important;
+}
+
+.stat-tile b {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.02em;
+    color: var(--spc-ink) !important;
+}
+
+.stat-tile span {
+    font-size: 11px !important;
+    letter-spacing: .08em !important;
+    color: var(--spc-muted) !important;
+}
+
+/* reference buttons are bold */
+button,
+input[type="submit"],
+input[type="button"],
+[class*="btn"],
+[class*="button"] {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+}
+
+.widget-head h3,
+.widget-head h4,
+.card>h3 {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.02em !important;
+    color: var(--spc-ink) !important;
+}
+
+.widget-head p {
+    font-size: 13px !important;
+    color: var(--spc-muted) !important;
+}
+
+.tc-body,
+.table-card,
+.panel,
+.surface,
+.list-card {
+    border-radius: var(--spc-radius) !important;
+    border-color: var(--spc-line-soft) !important;
+}
+
+/* HR sidebar is a light rail in the reference palette */
+.hr-sidebar,
+aside.sidebar {
+    background: var(--spc-surface) !important;
+}
+
+/* --------------------------------------------------- mobile bottom dock */
+.spc-mnav-inner {
+    background: var(--spc-surface) !important;
+    border: 1px solid var(--spc-line) !important;
+    border-radius: 26px !important;
+    box-shadow: 0 18px 40px -18px rgba(8, 46, 29, .45) !important;
+    padding: 9px 8px !important;
+    gap: 4px !important;
+    /* 5 or 6 dock items both spread evenly across one row */
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
+    max-width: 560px !important;
+}
+
+.spc-mnav a {
+    border-radius: 18px !important;
+    padding: 8px 2px 7px !important;
+    color: var(--spc-muted) !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    gap: 5px !important;
+}
+
+.spc-mnav a i {
+    font-size: 18px !important;
+}
+
+.spc-mnav a.active {
+    color: var(--spc-forest) !important;
+}
+
+.spc-mnav a.active::before {
+    display: none !important;
+}
+
+.spc-mnav a.active i {
+    background: var(--spc-grad) !important;
+    width: 38px !important;
+    height: 34px !important;
+    border-radius: 12px !important;
+    font-size: 15px !important;
+    color: #fff !important;
+    box-shadow: 0 10px 18px -10px rgba(8, 46, 29, .6) !important;
+}
+
+.spc-mnav .mnav-raise .mnav-ico {
+    background: var(--spc-grad) !important;
+    border-radius: 18px !important;
+    width: 48px !important;
+    height: 48px !important;
+    border: 3px solid var(--spc-paper) !important;
+    animation: none !important;
+    box-shadow: 0 14px 26px -12px rgba(8, 46, 29, .65) !important;
+}
+
+/* ------------------------------------------------ dashboard (u-*) shell */
+.u-hero,
+.dash-hero,
+.page-hero {
+    border-radius: 22px !important;
+    background: var(--spc-grad-hero) !important;
+    background-image: var(--spc-grad-hero) !important;
+    box-shadow: 0 22px 46px -28px rgba(8, 46, 29, .55) !important;
+}
+
+.u-hero h2,
+.dash-hero-text h2 {
+    font-size: 25px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.02em !important;
+}
+
+/* featured tile: first KPI is the deep-green card from the reference */
+.u-kpi-grid .u-kpi-card:first-child {
+    background: var(--spc-grad-hero) !important;
+    background-image: var(--spc-grad-hero) !important;
+    border-color: transparent !important;
+    box-shadow: 0 18px 34px -22px rgba(8, 46, 29, .6) !important;
+}
+
+.u-kpi-grid .u-kpi-card:first-child .u-kpi-label {
+    color: rgba(255, 255, 255, .72) !important;
+}
+
+.u-kpi-grid .u-kpi-card:first-child .u-kpi-value {
+    color: #fff !important;
+}
+
+.u-kpi-grid .u-kpi-card:first-child .u-kpi-ico {
+    background: rgba(255, 255, 255, .16) !important;
+    box-shadow: none !important;
+    color: #fff !important;
+}
+
+.u-hero .u-ci-btn {
+    background: #fff !important;
+    color: var(--spc-forest) !important;
+    border-radius: 999px !important;
+    font-weight: 800;
+}
+
+.u-hero .u-ci-btn.out {
+    background: rgba(255, 255, 255, .14) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, .3);
+}
+
+.u-hero .u-ci-done,
+.u-hero .u-ci-status a,
+.u-hero .u-hero-date,
+.u-hero strong {
+    color: #fff !important;
+}
+
+.u-kpi-card,
+.u-card,
+.u-qa-strip,
+.u-ticker {
+    background: var(--spc-surface) !important;
+    background-image: none !important;
+    border: 1px solid var(--spc-line-soft) !important;
+    border-radius: 20px !important;
+    box-shadow: var(--spc-shadow) !important;
+}
+
+.u-kpi-card {
+    padding: 18px !important;
+    border-top: 1px solid var(--spc-line-soft) !important;
+}
+
+/* the dashed deco rings belong to the old look — drop them */
+.u-kpi-card::after,
+.u-card::after,
+.stat-tile::after,
+.metric-card::after {
+    display: none !important;
+}
+
+.u-kpi-value {
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+}
+
+.u-kpi-label {
+    font-size: 11.5px !important;
+    letter-spacing: .06em !important;
+}
+
+.u-kpi-ico {
+    border-radius: 14px !important;
+    background: var(--spc-grad) !important;
+}
+
+.u-qa-strip {
+    padding: 14px 16px !important;
+}
+
+.u-qa-btn {
+    border-radius: 999px !important;
+    font-weight: 700 !important;
+    border: 1px solid var(--spc-line) !important;
+    background: var(--spc-surface) !important;
+    color: var(--spc-forest) !important;
+}
+
+.u-qa-btn:hover {
+    background: var(--spc-soft) !important;
+}
+
+.u-eyebrow {
+    font-weight: 800 !important;
+    letter-spacing: .14em !important;
+    color: var(--spc-muted) !important;
+}
+
+.u-eyebrow .dot {
+    background: var(--spc-forest) !important;
+}
+
+/* reference palette: no purple/indigo accents on the dashboard tiles */
+.u-order-shipped {
+    --oc: #0B6E75 !important;
+}
+
+.u-order-card .n {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.u-order-card .l {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* auth card + primary action follow the reference pill language */
+.auth-card,
+.login-card,
+.card-logo {
+    border-radius: 24px !important;
+}
+
+.auth-card::before,
+.auth-card::after {
+    display: none !important;
+}
+
+.copy,
+.footer-text,
+.auth-footer {
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif !important;
+    color: var(--spc-muted) !important;
+}
+
+.submit-btn,
+.btn-login,
+button[type="submit"].submit-btn {
+    border-radius: 999px !important;
+    background: var(--spc-grad) !important;
+    font-weight: 800 !important;
+}
+
+.form-group input,
+.input-wrapper input {
+    border-radius: 14px !important;
+}
+
+/* --------------------------------------------------- misc legacy fixes */
+.card-title,
+.page-main-title {
+    background: none !important;
+    -webkit-text-fill-color: currentColor !important;
+}
+
+#employee_search {
+    color: var(--spc-forest);
+    background: var(--spc-surface);
+}
+
+.btn-filter {
+    padding: 11px 26px;
+}
+
+.trend-neutral {
+    color: #4A554D;
+    background: var(--spc-soft);
+}
+
+.breadcrumb-item+.breadcrumb-item::before {
+    color: var(--spc-muted);
+}
+
+hr {
+    border-color: var(--spc-line-soft);
+    opacity: 1;
+}
+
+::selection {
+    background: var(--spc-forest);
+    color: #fff;
+}
+
+/* ================= BIGGER, EASIER MOBILE UI (client request) ============= */
+@media (min-width: 992px) {
+
+    /* the ⋯ button only exists for the mobile menu — keep it hidden on
+       desktop, where bell + user sit inline in the bar */
+    header.app-header .navbar-toggler {
+        display: none !important;
+    }
+}
+
+@media (max-width: 991.98px) {
+
+    /* Header stays one row: the ⋯ menu opens as a floating panel below it
+       instead of re-flowing (and breaking) the header bar. */
+    header.app-header .navbar {
+        height: auto !important;
+        min-height: 62px !important;
+        flex-wrap: nowrap !important;
+        position: relative !important;
+        padding: 8px 14px !important;
+        gap: 10px !important;
+    }
+
+    header.app-header .topbar-left {
+        flex-wrap: nowrap !important;
+        gap: 10px !important;
+        min-width: 0 !important;
+    }
+
+    header.app-header .topbar-logo {
+        height: 40px;
+        padding: 0 12px;
+    }
+
+    header.app-header .topbar-logo img {
+        height: 19px;
+    }
+
+    header.app-header #navbarNav,
+    header.app-header #navbarNav.navbar-collapse {
+        display: none !important;
+        position: absolute !important;
+        top: calc(100% + 6px) !important;
+        right: 12px !important;
+        left: auto !important;
+        width: max-content;
+        min-width: 190px;
+        max-width: calc(100vw - 24px);
+        flex: none !important;
+        background: var(--spc-surface) !important;
+        border: 1px solid var(--spc-line) !important;
+        border-radius: 20px !important;
+        box-shadow: var(--spc-shadow-lg) !important;
+        padding: 10px !important;
+        z-index: 70;
+    }
+
+    header.app-header #navbarNav.show,
+    header.app-header #navbarNav.navbar-collapse.show {
+        display: block !important;
+    }
+
+    header.app-header #navbarNav .d-flex {
+        justify-content: flex-end !important;
+    }
+
+    header.app-header #navbarNav .navbar-nav {
+        gap: 10px !important;
+        justify-content: flex-end !important;
+    }
+
+    /* keep clear of the taller dock */
+    .body-wrapper {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    .body-wrapper>.container-fluid {
+        padding: 12px 14px 26px !important;
+    }
+
+    .spc-mnav-inner {
+        max-width: 100% !important;
+        border-radius: 24px !important;
+    }
+
+    .spc-mnav a {
+        font-size: 10.5px !important;
+    }
+
+    .spc-mnav a i {
+        font-size: 17px !important;
+    }
+
+    header.app-header .navbar {
+        height: 66px;
+        min-height: 66px;
+        padding: 0 14px;
+    }
+}
+
+@media (max-width: 767.98px) {
+
+    /* --- type scale up: the previous UI felt cramped on phones --- */
+    body {
+        font-size: 16px;
+        line-height: 1.62;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 21px;
+    }
+
+    h3 {
+        font-size: 19px;
+    }
+
+    h4 {
+        font-size: 17.5px;
+    }
+
+    h5 {
+        font-size: 16.5px;
+    }
+
+    h6 {
+        font-size: 15.5px;
+    }
+
+    .card-title,
+    .page-main-title,
+    .card-title-custom {
+        font-size: 19px !important;
+    }
+
+    /* reference-style 2x2 stat grid on phones — every tile the same height */
+    .u-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+    }
+
+    .u-kpi-card {
+        padding: 15px !important;
+        gap: 11px !important;
+        min-height: 112px;
+        align-items: center !important;
+    }
+
+    .u-kpi-card>div {
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+    }
+
+    .u-kpi-card .u-kpi-ico {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 14px !important;
+    }
+
+    .u-kpi-ico {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 12px !important;
+    }
+
+    /* numbers never break mid-value — they scale down to fit instead */
+    .u-kpi-value {
+        font-size: clamp(21px, 5.9vw, 26px) !important;
+        white-space: nowrap !important;
+        overflow-wrap: normal !important;
+        word-break: keep-all !important;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.15;
+        letter-spacing: -.02em;
+    }
+
+    /* Long values (e.g. ₹7,858.98) shrink a step instead of clipping */
+    .u-kpi-value.sz-sm {
+        font-size: clamp(16px, 4.6vw, 22px) !important;
+    }
+
+    .u-kpi-value.sz-xs {
+        font-size: clamp(13px, 3.8vw, 17px) !important;
+    }
+
+    .u-order-card {
+        padding: 15px 15px !important;
+        border-radius: 18px !important;
+    }
+
+    .u-order-card .n {
+        font-size: 23px !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    .u-order-card .l {
+        font-size: 11px !important;
+        letter-spacing: .07em;
+    }
+
+    .u-kpi-label {
+        font-size: 10.5px !important;
+        line-height: 1.35;
+    }
+
+    .stat-tile {
+        padding: 16px !important;
+        gap: 12px !important;
+    }
+
+    .stat-tile b {
+        font-size: 24px !important;
+    }
+
+    .stat-tile span {
+        font-size: 10.5px !important;
+    }
+
+    .stat-tiles {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    /* payment mode cards also sit 2-per-row on phones (reference layout) */
+    .u-payment-grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    .u-hero,
+    .dash-hero,
+    .page-hero {
+        padding: 22px 18px !important;
+        border-radius: 22px !important;
+    }
+
+    .u-hero h2,
+    .dash-hero-text h2 {
+        font-size: 22px !important;
+    }
+
+    .u-hero p,
+    .dash-hero-text p,
+    .page-hero-text p {
+        font-size: 14.5px !important;
+    }
+
+    .topbar-title h1 {
+        font-size: 17.5px;
+    }
+
+    .topbar-title .eyebrow {
+        font-size: 9px;
+    }
+
+    /* --- roomier surfaces --- */
+    .card-body {
+        padding: 18px 16px;
+    }
+
+    .card-header,
+    .card-footer,
+    .card-header-styled {
+        padding: 15px 16px;
+    }
+
+    .card,
+    .filter-card-wrapper,
+    .card.w-100.position-relative.overflow-hidden {
+        border-radius: 18px !important;
+    }
+
+    .filter-card-wrapper {
+        padding: 16px;
+    }
+
+    .row {
+        --bs-gutter-x: 1rem;
+        --bs-gutter-y: 1rem;
+    }
+
+    /* --- controls big enough to tap --- */
+    .btn {
+        font-size: 15px;
+        padding: 12px 20px;
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        font-size: 14px;
+        padding: 10px 16px;
+        min-height: 40px;
+    }
+
+    .form-control,
+    .form-select,
+    .styled-select,
+    .styled-textbox,
+    select,
+    input,
+    textarea {
+        font-size: 16px !important;
+        min-height: 50px !important;
+        border-radius: 14px !important;
+    }
+
+    .employee-search input,
+    .input-group .form-control {
+        font-size: 16px !important;
+        min-height: 0 !important;
+    }
+
+    .form-label,
+    .custom-filter-group label {
+        font-size: 14px;
+    }
+
+    .nav-pills .nav-link {
+        font-size: 14.5px;
+        padding: 10px 18px;
+    }
+
+    /* --- table cards: bigger type + more breathing room --- */
+    table.table tr {
+        border-radius: 18px !important;
+        margin-bottom: 14px;
+    }
+
+    /* column-wise record cards: label above value, like the reference */
+    table.table td {
+        box-sizing: border-box;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        gap: 2px !important;
+        padding: 12px 16px !important;
+        font-size: 15px !important;
+        line-height: 1.45;
+        text-align: left !important;
+        border-bottom: 1px dashed var(--spc-line-soft) !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    table.table td::before {
+        font-size: 10.5px !important;
+        letter-spacing: .08em;
+        font-weight: 700;
+        color: var(--spc-muted);
+    }
+
+    table.table td>* {
+        text-align: left !important;
+    }
+
+    table.table td>span,
+    table.table td>div {
+        width: 100%;
+    }
+
+    /* --- every other data table (employee-table, plain tables) gets the
+           same record-card treatment: label above value, stacked --- */
+    table:not(.table) {
+        background: transparent;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    table:not(.table) thead,
+    .keep-table-scroll thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    table:not(.table),
+    table:not(.table) tbody {
+        display: block;
+        width: 100%;
+    }
+
+    table:not(.table) tr {
+        box-sizing: border-box;
+        display: block;
+        width: 100%;
+        background: var(--spc-surface);
+        border: 1px solid var(--spc-line-soft);
+        border-radius: 18px;
+        box-shadow: var(--spc-shadow);
+        margin: 0 0 12px;
+        overflow: hidden;
+    }
+
+    table:not(.table) td {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 2px;
+        width: 100%;
+        border: none !important;
+        border-bottom: 1px dashed var(--spc-line-soft) !important;
+        padding: 12px 16px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--spc-ink);
+        text-align: left;
+        white-space: normal !important;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        line-height: 1.45;
+    }
+
+    table:not(.table) tr>td:last-child {
+        border-bottom: none !important;
+    }
+
+    table:not(.table) td::before {
+        content: attr(data-label);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--spc-muted);
+    }
+
+    table:not(.table) td:empty {
+        display: none;
+    }
+
+    table:not(.table) td[colspan] {
+        display: block;
+        text-align: center !important;
+        padding: 22px 16px;
+        color: var(--spc-muted);
+    }
+
+    table:not(.table) td[colspan]::before {
+        content: none;
+    }
+
+    table:not(.table) td>* {
+        min-width: 0;
+        max-width: 100%;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        text-align: left;
+    }
+
+    /* opt-out: wrappers that own their own horizontal scroll keep tables */
+    .keep-table-scroll table,
+    .keep-table-scroll table tbody,
+    .keep-table-scroll table tr,
+    .keep-table-scroll table td {
+        display: revert;
+        width: auto;
+        border-collapse: collapse;
+    }
+
+    .keep-table-scroll table td::before {
+        content: none;
+    }
+
+    .keep-table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table.table td .btn {
+        min-width: 110px;
+        font-size: 14px;
+    }
+
+    .spc-mnav a {
+        font-size: 11px !important;
+        padding: 9px 2px 8px !important;
+    }
+
+    .spc-mnav a i {
+        font-size: 19px !important;
+    }
+
+    .spc-mnav .mnav-raise .mnav-ico {
+        width: 52px !important;
+        height: 52px !important;
+        font-size: 19px !important;
+    }
+
+    .topbar-user .topbar-avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .dropdown-menu {
+        font-size: 15px;
+    }
+
+    .badge {
+        font-size: 11.5px;
+        padding: 7px 13px;
+    }
+
+    /* rows of actions wrap instead of pushing buttons off-screen */
+    .employee-search {
+        width: 100% !important;
+    }
+
+    .employee-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+
+    .employee-filters {
+        justify-content: flex-start !important;
+    }
+
+    .d-flex.gap-2,
+    .filter-action-container,
+    .form-actions,
+    .btn-row,
+    .action-row {
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    .d-flex.gap-2>.btn,
+    .d-flex.gap-2>a.btn,
+    .filter-action-container>.btn,
+    .form-actions>.btn {
+        flex: 1 1 40% !important;
+        width: auto !important;
+        min-width: 128px;
+    }
+
+    /* HR tables: let cells wrap instead of forcing a sideways scroll */
+    table {
+        min-width: 0 !important;
+    }
+
+    table th,
+    table td {
+        white-space: normal !important;
+    }
+
+    table th {
+        font-size: 10.5px !important;
+        padding: 12px 12px !important;
+    }
+
+    table td {
+        font-size: 14px !important;
+        padding: 12px 12px !important;
+    }
+
+    .card table,
+    .table-card .tc-body,
+    .employee-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ---- rich record-card tables (.employee-table, table.table) ----
+       Override the stacked-label default above with a richer card:
+       a header row (code eyebrow · identity+status) over label:value fields.
+       These selectors must beat the table:not(.table) rules above, so they
+       restate every property they set (source order wins at equal specificity). */
+    table.employee-table tr,
+    table.table tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        position: relative;
+    }
+
+    /* status pill closes the header line. No margin-left:auto and no
+       align-self — either would push it to its own line. It stays inline,
+       right after the identity, on the same wrapping row. */
+    table.employee-table td:has(.employee-status),
+    table.table td:has(.employee-status) {
+        order: -1;
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        margin-left: auto;
+        align-self: flex-start;
+        border-bottom: 1px solid var(--spc-line-soft) !important;
+    }
+
+    /* identity cell leads the header line: its label becomes a stacked
+       eyebrow (column) above the avatar+name row. It must NOT grow — a
+       flex-basis of 0 + no grow keeps it content-sized so the status pill
+       can share the same line (a growing item claims the whole line and
+       wraps every later sibling to its own row). The code cell folds in
+       here too (order 1, same group) so all three share one line. */
+    table.employee-table td:has(.employee-person),
+    table.table td:has(.employee-person),
+    table.employee-table td.employee-id,
+    table.table td.employee-id {
+        order: -1;
+        flex: 1 1 0 !important;
+        width: auto !important;
+        min-width: 0 !important;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 5px;
+        border-bottom: 1px solid var(--spc-line-soft) !important;
+    }
+
+    /* the label above the identity row becomes a full-width eyebrow so its
+       long inline text can't inflate the cell's min-content basis */
+    table.employee-table td:has(.employee-person)::before,
+    table.table td:has(.employee-person)::before {
+        display: block;
+        width: 100%;
+        flex: 0 0 auto;
+    }
+
+    /* the avatar+name row inside the identity cell stays horizontal */
+    table.employee-table td .employee-person,
+    table.table td .employee-person {
+        flex-direction: row;
+        align-items: center;
+        gap: 11px;
+        width: 100%;
+    }
+
+    /* the code is a compact eyebrow chip that sits inline before the name
+       on the header line — no own line, no full-width flex-basis */
+    table.employee-table td.employee-id,
+    table.table td.employee-id {
+        flex-direction: column;
+        justify-content: center;
+        font-weight: 800;
+        letter-spacing: .04em;
+        color: var(--spc-muted);
+    }
+
+    /* drop the redundant row-number cell on these card tables.
+       :not([colspan]) keeps empty-state message rows visible (their
+       data-label mirrors the first column and would otherwise vanish). */
+    table:is(.employee-table, .table, .spc-table) td:not([colspan]):is(
+        [data-label="Sl No"],
+        [data-label="SL No"],
+        [data-label="No"],
+        [data-label="No."],
+        [data-label="Sr No"],
+        [data-label="#"]
+    ) {
+        display: none !important;
+    }
+
+    /* action cell becomes a full-width footer row */
+    table.employee-table td:has(.employee-actions),
+    table.table td:has(.employee-actions),
+    table.employee-table td:has(.ea-link),
+    table.table td:has(.ea-link),
+    table.employee-table td[data-label="Actions"],
+    table.table td[data-label="Actions"],
+    table.employee-table td[data-label="Action"],
+    table.table td[data-label="Action"],
+    table.spc-table td[data-label="Actions"],
+    table.spc-table td[data-label="Action"] {
+        order: 10;
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px !important;
+        background: var(--spc-softer) !important;
+        border-bottom: none !important;
+        border-top: 1px solid var(--spc-line-soft) !important;
+    }
+
+    table.employee-table td .employee-name,
+    table.table td .employee-name {
+        font-weight: 700;
+        color: var(--spc-ink);
+    }
+}
+
+@media (max-width: 400px) {
+    .spc-mnav a span:last-child {
+        font-size: 10px;
+    }
+}
+
+/* --------------------------------------------------------------- motion */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .001ms !important;
+        transition-duration: .001ms !important;
+    }
+}
+
+/* ============================================ client reference widgets
+   Kisanic concept — one theme for desktop + mobile:
+     · label sits top-left, sentence case, near-black
+     · circular icon badge pinned top-right
+     · big number anchored to the bottom of the card
+     · first tile of every grid stays the deep-green feature card
+   CSS only — no markup or logic changes. ================================ */
+.u-kpi-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    padding: 20px !important;
+    min-height: 142px !important;
+    text-align: left;
+}
+
+.u-kpi-card>div:not(.u-kpi-ico) {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.u-kpi-card .u-kpi-ico {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: 1px solid var(--spc-line) !important;
+    color: var(--spc-forest) !important;
+    box-shadow: none !important;
+    font-size: 16px !important;
+}
+
+.u-kpi-card.hr-kpi .u-kpi-ico {
+    background: transparent !important;
+    border: 1px solid rgba(11, 110, 117, .35) !important;
+    color: #0B6E75 !important;
+    box-shadow: none !important;
+}
+
+.u-kpi-label {
+    text-transform: none !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.3 !important;
+    color: var(--spc-ink) !important;
+    padding-right: 46px;
+    margin-top: 0 !important;
+}
+
+.u-kpi-value {
+    font-size: clamp(30px, 2.6vw, 38px) !important;
+    font-weight: 800 !important;
+    letter-spacing: -.03em !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+    text-align: left !important;
+    font-variant-numeric: tabular-nums;
+    margin-top: 0 !important;
+}
+
+/* long values (₹7,858.98 …) step down a size instead of clipping */
+.u-kpi-value.sz-sm {
+    font-size: clamp(23px, 2vw, 28px) !important;
+}
+
+.u-kpi-value.sz-xs {
+    font-size: clamp(18px, 1.5vw, 22px) !important;
+}
+
+/* feature card: white label + white circular badge on the deep green tile */
+.u-kpi-grid .u-kpi-card:first-child .u-kpi-label {
+    color: #fff !important;
+}
+
+.u-kpi-grid .u-kpi-card:first-child .u-kpi-ico {
+    background: #fff !important;
+    border-color: #fff !important;
+    color: var(--spc-forest) !important;
+    box-shadow: none !important;
+}
+
+/* ---- order-lifecycle tiles follow the same language ---- */
+.u-order-card {
+    min-height: 118px;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+}
+
+.u-order-card .l {
+    order: -1;
+    text-transform: none !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.3 !important;
+    color: var(--spc-ink) !important;
+    margin-right: 52px !important;
+}
+
+.u-order-card .n {
+    font-size: clamp(26px, 2.4vw, 34px) !important;
+    letter-spacing: -.02em !important;
+    line-height: 1.1 !important;
+    margin-right: 44px !important;
+}
+
+.u-order-card .i {
+    width: 40px !important;
+    height: 40px !important;
+    top: 14px !important;
+    right: 14px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: 1px solid var(--spc-line) !important;
+    color: var(--oc, #1b6b49) !important;
+    box-shadow: none !important;
+    font-size: 15px !important;
+}
+
+/* ---- phone sizing: same layout, tighter scale ---- */
+@media (max-width: 767.98px) {
+    .u-kpi-card {
+        padding: 16px !important;
+        min-height: 122px !important;
+    }
+
+    .u-kpi-card .u-kpi-ico {
+        top: 14px !important;
+        right: 14px !important;
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 14px !important;
+    }
+
+    .u-kpi-label {
+        font-size: 13.5px !important;
+        padding-right: 42px;
+    }
+
+    .u-kpi-value {
+        font-size: clamp(28px, 7.4vw, 32px) !important;
+    }
+
+    .u-kpi-value.sz-sm {
+        font-size: clamp(21px, 6vw, 25px) !important;
+    }
+
+    .u-kpi-value.sz-xs {
+        font-size: clamp(16px, 4.8vw, 19px) !important;
+    }
+
+    .u-order-card {
+        padding: 15px !important;
+        min-height: 108px !important;
+    }
+
+    .u-order-card .l {
+        font-size: 13px !important;
+        margin-right: 46px !important;
+    }
+
+    .u-order-card .n {
+        font-size: clamp(24px, 6.8vw, 28px) !important;
+        margin-right: 38px !important;
+    }
+
+    .u-order-card .i {
+        width: 36px !important;
+        height: 36px !important;
+        top: 10px !important;
+        right: 10px !important;
+        font-size: 14px !important;
+    }
+}
+
+/* ============================================ HR module stat tiles
+   Same Kisanic language for the HR widgets (classes .stat-tile inside
+   the HR layout): label top-left · circular icon badge top-right ·
+   big number anchored bottom. CSS only — no markup or logic changes.
+   The hero strip (.ph-stat) is a banner header, not a card — untouched. */
+.stat-tile {
+    position: relative;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    padding: 17px 18px !important;
+    min-height: 118px;
+    text-align: left;
+}
+
+.stat-tile .st-ico {
+    position: absolute !important;
+    top: 14px !important;
+    right: 14px !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: 1px solid var(--line) !important;
+    color: var(--brand, #17694a) !important;
+    box-shadow: none !important;
+    font-size: 15px !important;
+}
+
+.stat-tile.alt .st-ico {
+    border-color: rgba(192, 126, 8, .35) !important;
+    color: #C07E08 !important;
+}
+
+.stat-tile.warn .st-ico {
+    border-color: rgba(192, 52, 52, .35) !important;
+    color: #C03434 !important;
+}
+
+.stat-tile.info .st-ico {
+    border-color: rgba(11, 110, 117, .35) !important;
+    color: #0B6E75 !important;
+}
+
+.stat-tile span {
+    order: -1;
+    text-transform: none !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.3 !important;
+    color: var(--text, #101a14) !important;
+    margin-right: 46px;
+    margin-bottom: 6px;
+}
+
+.stat-tile b {
+    font-size: clamp(26px, 2.4vw, 32px) !important;
+    font-weight: 800 !important;
+    letter-spacing: -.02em;
+    line-height: 1.05 !important;
+    color: var(--brand-ink, #08301e) !important;
+    margin-top: 0 !important;
+    white-space: nowrap;
+}
+
+/* ---- phone sizing: same layout, tighter scale ---- */
+@media (max-width: 767.98px) {
+    .stat-tile {
+        padding: 15px 15px !important;
+        min-height: 108px;
+    }
+
+    .stat-tile .st-ico {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 14px !important;
+    }
+
+    .stat-tile span {
+        font-size: 13px !important;
+        margin-right: 42px;
+    }
+
+    .stat-tile b {
+        font-size: clamp(24px, 6.8vw, 28px) !important;
+    }
+}
+
+/* ================= MOBILE SIDEBAR DRAWER + DOCK "MORE" =================
+   The theme hides the sidebar on phones with .left-sidebar{left:-270px} and
+   reveals it with .show-sidebar .left-sidebar{left:0}, but only below 1023px
+   — the 992–1023px band is left unstyled, so we close that gap and give the
+   drawer a proper slide + backdrop. The dock's "More" button toggles the
+   show-sidebar class (see partials/mobile-bottom-nav.blade.php). */
+@media (max-width: 1023.98px) {
+    .left-sidebar {
+        left: -270px;
+        transition: left .28s cubic-bezier(.4, 0, .2, 1);
+        z-index: 1050;
+    }
+
+    #main-wrapper.show-sidebar .left-sidebar {
+        left: 0 !important;
+        box-shadow: var(--spc-shadow-lg) !important;
+    }
+
+    /* dim the page behind the open drawer; tapping it closes the drawer */
+    .spc-sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1045;
+        background: rgba(8, 46, 29, .45);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        animation: spcBackdropIn .2s ease;
+    }
+
+    @keyframes spcBackdropIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .left-sidebar,
+        .spc-sidebar-backdrop {
+            transition: none;
+            animation: none;
+        }
+    }
+}
+
+/* backdrop element stays hidden until the drawer opens */
+.spc-sidebar-backdrop[hidden] {
+    display: none !important;
+}
+
+/* ---------------- restyle the dock's "More" button ----------------
+   The dock's layout + sizing live in the layout's inline media query as
+   `.spc-mnav a{…}`. The More item is now a <button>, so those rules don't
+   match it — mirror them here with higher specificity so they win from an
+   earlier cascade position. */
+.spc-mnav .mnav-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px !important;
+    padding: 8px 2px 7px !important;
+    border: 0;
+    background: none;
+    color: var(--spc-muted) !important;
+    font-family: inherit;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0;
+    line-height: 1.2;
+    border-radius: 18px !important;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.spc-mnav .mnav-more i {
+    font-size: 18px !important;
+}
+
+/* the "More" tile mirrors the active tile while the drawer is open */
+.spc-mnav .mnav-more[aria-expanded="true"] {
+    color: var(--spc-forest) !important;
+}
+
+.spc-mnav .mnav-more[aria-expanded="true"] i {
+    background: var(--spc-grad) !important;
+    width: 38px !important;
+    height: 34px !important;
+    border-radius: 12px !important;
+    color: #fff !important;
+}
+
+/* match the layout's responsive font tweaks so More never over/under-sizes */
+@media (max-width: 991.98px) {
+
+    .spc-mnav .mnav-more {
+        font-size: 10.5px !important;
+    }
+
+    .spc-mnav .mnav-more i {
+        font-size: 17px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+
+    .spc-mnav .mnav-more {
+        font-size: 11px !important;
+        padding: 9px 2px 8px !important;
+    }
+
+    .spc-mnav .mnav-more i {
+        font-size: 19px !important;
+    }
+
+    .spc-mnav .mnav-more span:last-child {
+        font-size: 10px;
+    }
+}
+
+/* ==================== CREATIVE MOBILE DOCK (Kisanic glass) ====================
+   Restyles the existing dock markup only — frosted glass capsule, soft icon
+   chips behind every tile, a full pill behind the active item, and a focus
+   ring on the raised Orders button. Pure presentation; no structure changes. */
+@media (max-width: 991.98px) {
+    .spc-mnav-inner {
+        background: linear-gradient(165deg, rgba(255, 255, 255, .94), rgba(244, 247, 244, .88)) !important;
+        backdrop-filter: blur(16px) saturate(1.5) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(1.5) !important;
+        border: 1px solid rgba(255, 255, 255, .85) !important;
+        box-shadow:
+            0 20px 45px -16px rgba(8, 46, 29, .5),
+            0 2px 8px rgba(8, 46, 29, .08),
+            inset 0 1px 0 rgba(255, 255, 255, .9) !important;
+        border-radius: 26px !important;
+    }
+
+    /* every tile gets a soft chip behind its icon */
+    .spc-mnav a i,
+    .spc-mnav .mnav-more i {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 26px;
+        border-radius: 9px;
+        background: rgba(227, 239, 231, .5);
+        transition: background .18s, transform .18s, box-shadow .18s;
+    }
+
+    .spc-mnav a:hover i,
+    .spc-mnav .mnav-more:hover i {
+        background: rgba(227, 239, 231, .9);
+    }
+
+    /* active item = full pill + gradient icon chip + bold forest label */
+    .spc-mnav a.active,
+    .spc-mnav .mnav-more[aria-expanded="true"] {
+        background: linear-gradient(135deg, rgba(227, 239, 231, .95), rgba(244, 247, 244, .9)) !important;
+        box-shadow: inset 0 0 0 1px rgba(14, 61, 38, .10) !important;
+        color: var(--spc-forest) !important;
+        font-weight: 800 !important;
+    }
+
+    .spc-mnav a.active i,
+    .spc-mnav .mnav-more[aria-expanded="true"] i {
+        background: var(--spc-grad) !important;
+        color: #fff !important;
+        box-shadow: 0 8px 14px -6px rgba(14, 61, 38, .55) !important;
+    }
+
+    .spc-mnav a:active,
+    .spc-mnav .mnav-more:active {
+        transform: scale(.92);
+    }
+
+    /* raised Orders button gains a soft sage focus ring */
+    .spc-mnav .mnav-raise .mnav-ico {
+        box-shadow:
+            0 14px 26px -10px rgba(8, 46, 29, .55),
+            0 0 0 4px rgba(227, 239, 231, .6),
+            inset 0 1.5px 0 rgba(255, 255, 255, .35) !important;
+    }
+}
+
+/* ============== TIDY FILTER TOOLBARS ON PHONES (Kisanic) ==============
+   The filter rows wrapped raggedly (uneven pills across broken rows).
+   A uniform auto-fit grid gives every control an equal, aligned cell;
+   the final primary action spans the full width. CSS only. */
+@media (max-width: 767.98px) {
+    .employee-filters {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)) !important;
+        gap: 10px !important;
+        align-items: stretch !important;
+        justify-content: stretch !important;
+    }
+
+    .employee-filters > * {
+        width: 100% !important;
+        min-width: 0;
+        margin: 0 !important;
+    }
+
+    .employee-filters > button,
+    .employee-filters > a {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 46px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .employee-filters > .employee-add:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ---- Kisanic palette for dashboard widget icon chips ----
+   The sales dashboard hard-coded Tailwind orange/blue/purple/olive chips.
+   Remap every modifier to the Forest & Sage accents so inner pages stay
+   on the Kisanic theme at any width. Presentation only. */
+.widget-icon.green-dark {
+    background-color: #0E3D26 !important;
+}
+
+.widget-icon.green-emerald {
+    background-color: #1B6B49 !important;
+}
+
+.widget-icon.orange {
+    background-color: #C07E08 !important;
+}
+
+.widget-icon.blue {
+    background-color: #0B6E75 !important;
+}
+
+.widget-icon.purple {
+    background-color: #14543A !important;
+}
+
+/* ==================== REFERENCE DOCK (client screenshot) ====================
+   Full-pill white capsule · plain gray icons · the center Orders tile is a
+   large green circle floating above the bar with a dot + green label below.
+   Restyles the existing markup only — no structural changes. */
+@media (max-width: 991.98px) {
+    .spc-mnav-inner {
+        border-radius: 999px !important;
+        padding: 10px 12px 9px !important;
+    }
+
+    /* plain icons — drop the sage chips from the previous pass */
+    .spc-mnav a i,
+    .spc-mnav .mnav-more i {
+        width: auto !important;
+        height: auto !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+    }
+
+    .spc-mnav a:hover i,
+    .spc-mnav .mnav-more:hover i {
+        background: transparent !important;
+    }
+
+    /* raised center item: circle floats above the bar, label stays on the
+       normal baseline with a small dot between them */
+    .spc-mnav .mnav-raise {
+        margin-top: 0 !important;
+    }
+
+    .spc-mnav .mnav-raise .mnav-ico {
+        width: 54px !important;
+        height: 54px !important;
+        border-radius: 50% !important;
+        margin-top: -40px !important;
+        margin-bottom: 3px !important;
+        border: 3px solid #fff !important;
+        background: linear-gradient(160deg, #137A50 0%, #0E6B43 55%, #0B5A38 100%) !important;
+        box-shadow: 0 12px 24px -8px rgba(8, 46, 29, .55), inset 0 2px 0 rgba(255, 255, 255, .25) !important;
+        animation: none !important;
+    }
+
+    .spc-mnav .mnav-raise span:last-child {
+        margin-top: 0 !important;
+        position: relative;
+    }
+
+    .spc-mnav .mnav-raise span:last-child::before {
+        content: "";
+        position: absolute;
+        top: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--spc-forest);
+    }
+}
+
+/* raised FAB keeps its own treatment even when Orders is the active route:
+   no sage pill behind it, no inner icon chip — white glyph on the green
+   circle, green label + dot (exactly like the reference). */
+@media (max-width: 991.98px) {
+    .spc-mnav .mnav-raise.active {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .spc-mnav .mnav-raise i {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: auto !important;
+        height: auto !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: #fff !important;
+        font-size: 21px !important;
+    }
+
+    .spc-mnav .mnav-raise.active span:last-child {
+        color: var(--spc-forest) !important;
+    }
+}
+
+/* ============== ALIGNMENT: filter/action toolbars (all pages) ============== */
+
+/* Refine-search rows (Filter · Reset · Export): Reset carried an inline
+   width:200px that shrank until its icon wrapped onto its own line, and its
+   height drifted from the others. Make every button in these rows a single
+   centered line at one shared height. :has() keeps the scope to rows that
+   actually contain a creative-filter button. */
+.d-flex.gap-2:has(> .btn-creative-filter) > .btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+    width: auto !important;
+    height: 54px !important;
+    min-height: 54px !important;
+}
+
+/* Mobile filter grid: the select grew to 85px while buttons stayed fixed at
+   46px, and implicit rows stretched to fill. Force one shared control height,
+   content-sized rows, and let every child fit its cell. */
+@media (max-width: 767.98px) {
+    .employee-filters {
+        height: auto !important;
+        align-content: start !important;
+    }
+
+    .employee-filters > * {
+        min-width: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    .employee-filters > select,
+    .employee-filters > button,
+    .employee-filters > a {
+        height: 52px !important;
+        min-height: 52px !important;
+    }
+}
+
+/* ---- shared filter-row control height (desktop and up) ----
+   Selects rendered 48px while the buttons beside them stayed 41px, leaving
+   the toolbar ragged. One height for every control in the row. Declared
+   BEFORE the mobile restatement below it so phones keep the 52px grid. */
+.employee-filters > select,
+.employee-filters > button,
+.employee-filters > a {
+    height: 48px !important;
+    min-height: 48px !important;
+}
+
+/* phones keep the tighter uniform grid (declared last so it wins ≤767) */
+@media (max-width: 767.98px) {
+    .employee-filters > select,
+    .employee-filters > button,
+    .employee-filters > a {
+        height: 52px !important;
+        min-height: 52px !important;
+    }
+}
+
+/* filter selects: show more of their option text inside the narrow grid cell */
+@media (max-width: 767.98px) {
+    .employee-filters > select {
+        font-size: 14px !important;
+        padding: 0 32px 0 14px !important;
+    }
+}
+
+/* ============ ACTIVE-STATE ELEVATION FOLLOWS THE SELECTED MENU ============
+   Previously the Orders tile always wore the FAB treatment (green circle +
+   dot + green label), so it read as "active" on every page while the real
+   active item showed a clunky dark chip. Now whichever menu is selected
+   floats up as the green circle with dot + green label, and Orders reverts
+   to a plain gray item unless you are actually on the Orders page. */
+@media (max-width: 991.98px) {
+    /* the elevated item sits on the bare capsule — no pill behind it */
+    .spc-mnav a.active {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* active item icon = floating green circle (all items except Orders,
+       which already owns one through .mnav-ico) */
+    .spc-mnav a.active:not(.mnav-raise) i {
+        width: 54px !important;
+        height: 54px !important;
+        border-radius: 50% !important;
+        margin-top: -40px !important;
+        margin-bottom: 3px !important;
+        border: 3px solid #fff !important;
+        background: linear-gradient(160deg, #137A50 0%, #0E6B43 55%, #0B5A38 100%) !important;
+        color: #fff !important;
+        font-size: 21px !important;
+        box-shadow: 0 12px 24px -8px rgba(8, 46, 29, .55), inset 0 2px 0 rgba(255, 255, 255, .25) !important;
+    }
+
+    /* green bold label + dot under every elevated item */
+    .spc-mnav a.active span:last-child {
+        position: relative;
+        color: var(--spc-forest) !important;
+        font-weight: 800 !important;
+    }
+
+    .spc-mnav a.active span:last-child::before {
+        content: "";
+        position: absolute;
+        top: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--spc-forest);
+    }
+
+    /* Orders is a plain item unless it is the active page: drop the circle,
+       ring, shadow, animation and dot it used to show permanently */
+    .spc-mnav .mnav-raise:not(.active) {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .spc-mnav .mnav-raise:not(.active) .mnav-ico {
+        width: auto !important;
+        height: auto !important;
+        border-radius: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        animation: none !important;
+        font-size: 17px !important;
+        color: var(--spc-muted) !important;
+    }
+
+    .spc-mnav .mnav-raise:not(.active) .mnav-ico i {
+        color: var(--spc-muted) !important;
+        font-size: inherit !important;
+    }
+
+    .spc-mnav .mnav-raise:not(.active) span:last-child::before {
+        display: none !important;
+    }
+}
+
+
+@media screen and (max-width:600px) {
+   a#headerCollapse {
+    display: none !important;
+} 
+
+.filter-card-wrapper {
+        margin: 0 !important;
+        padding: 10px !important;
+    }
+}
+/* ============ EMPLOYEE RECORDS CARD: DE-CONGEST THE HEADER ============
+   Long names + emails fought the code chip and status pill for one line,
+   so text broke mid-word. The code now takes its own full-width eyebrow
+   line above, identity + status share the next line, and name/email stay
+   single-line with an ellipsis instead of wrapping anywhere. */
+@media (max-width: 767.98px) {
+    table.employee-table td.employee-id,
+    table.table td.employee-id {
+        order: -3;
+        flex: 0 0 100% !important;
+        width: 100% !important;
+    }
+
+    table.employee-table td:has(.employee-person),
+    table.table td:has(.employee-person) {
+        order: -2;
+    }
+
+    table.employee-table td:has(.employee-status),
+    table.table td:has(.employee-status) {
+        order: -1;
+    }
+
+    table.employee-table .employee-person,
+    table.table .employee-person {
+        min-width: 0;
+        gap: 11px;
+    }
+
+    table.employee-table .employee-person>div,
+    table.table .employee-person>div {
+        min-width: 0;
+    }
+
+    table.employee-table .employee-avatar,
+    table.table .employee-avatar {
+        flex-shrink: 0;
+    }
+
+    table.employee-table .employee-name,
+    table.table .employee-name,
+    table.employee-table .employee-email,
+    table.table .employee-email {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+}

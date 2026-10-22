@@ -130,12 +130,12 @@
                     </div>
                     <?php
                         $maxPayroll = max(1, $payrollByDept->max('gross'));
-                        $barTones = ['#5E8D3D','#7CA243','#5CCFA6','#8CDfC1','#B8E8D6'];
+                        $barTones = ['#1b6b49','#2f8a63','#5CCFA6','#8CDfC1','#B8E8D6'];
                     ?>
                     <?php $__currentLoopData = $payrollByDept; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="bar-row">
                             <span class="bar-label"><?php echo e($d->department); ?></span>
-                            <div class="bar-track"><div class="bar-fill" style="width:<?php echo e(round($d->gross / $maxPayroll * 100)); ?>%;background:linear-gradient(90deg,#1F5C2E,<?php echo e($barTones[$loop->index % 5]); ?>);"></div></div>
+                            <div class="bar-track"><div class="bar-fill" style="width:<?php echo e(round($d->gross / $maxPayroll * 100)); ?>%;background:linear-gradient(90deg,#0e3d26,<?php echo e($barTones[$loop->index % 5]); ?>);"></div></div>
                             <span class="bar-value">₹<?php echo e(number_format($d->gross,0)); ?></span>
                         </div>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

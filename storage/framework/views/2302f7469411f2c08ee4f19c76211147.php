@@ -169,7 +169,7 @@
                     <?php elseif($rs === 'rejected'): ?>
                         <div class="flash-errors">This requisition was rejected<?php echo e($selectedRequisition->decision_remarks ? ': '.$selectedRequisition->decision_remarks : '.'); ?></div>
                     <?php elseif($rs === 'closed'): ?>
-                        <div class="flash" style="background:#EDF3EF;color:#52645B;border-color:rgba(18,58,40,.1);">Closed &mdash; all <?php echo e($selectedRequisition->openings); ?> <?php echo e($selectedRequisition->openings == 1 ? 'opening is' : 'openings are'); ?> filled.</div>
+                        <div class="flash" style="background:#EDF3EF;color:#52645B;border-color:rgba(14,61,38,.1);">Closed &mdash; all <?php echo e($selectedRequisition->openings); ?> <?php echo e($selectedRequisition->openings == 1 ? 'opening is' : 'openings are'); ?> filled.</div>
                     <?php endif; ?>
 
                     <div class="section-head" style="margin-top:24px;">
@@ -180,7 +180,7 @@
                         <?php $__currentLoopData = ['applied'=>'Applied','shortlisted'=>'Shortlisted','interviewed'=>'Interviewed','offered'=>'Offered','hired'=>'Hired']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stage => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="pipe-col">
                                 <div class="pipe-head">
-                                    <span class="ph-dot" style="background:<?php echo e(['applied'=>'#8FA79B','shortlisted'=>'#5E8D3D','interviewed'=>'#1D6FA5','offered'=>'#A16207','hired'=>'#0E5239'][$stage]); ?>;"></span>
+                                    <span class="ph-dot" style="background:<?php echo e(['applied'=>'#8FA79B','shortlisted'=>'#1b6b49','interviewed'=>'#035055','offered'=>'#A16207','hired'=>'#0e3d26'][$stage]); ?>;"></span>
                                     <h4><?php echo e($label); ?></h4>
                                     <span><?php echo e(($pipeline[$stage] ?? collect())->count()); ?></span>
                                 </div>
@@ -214,7 +214,7 @@
                                     </div>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 <?php if(($pipeline[$stage] ?? collect())->isEmpty()): ?>
-                                    <div style="text-align:center;padding:14px 6px;color:#A7C9B8;font-size:11.5px;"><i class="fa-regular fa-circle" style="opacity:.6;"></i></div>
+                                    <div style="text-align:center;padding:14px 6px;color:#b7d2c4;font-size:11.5px;"><i class="fa-regular fa-circle" style="opacity:.6;"></i></div>
                                 <?php endif; ?>
                             </div>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

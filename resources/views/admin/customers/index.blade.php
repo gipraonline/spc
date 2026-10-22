@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
-    href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
 @endpush
 
@@ -27,8 +27,8 @@
     --warn-soft: #FCF0D8;
     --bad-soft: #FBE7E4;
     --shadow-sm: 0 1px 2px rgba(10, 61, 44, .05);
-    --font-head: 'Kanit', sans-serif;
-    --font-body: 'Outfit', sans-serif;
+    --font-head: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
     padding: 24px clamp(16px, 3vw, 32px) 8px;
     font-family: var(--font-body);
     color: var(--text);

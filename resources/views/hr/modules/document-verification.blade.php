@@ -129,7 +129,7 @@ dialog.dv-dialog {
 }
 
 dialog.dv-dialog::backdrop {
-    background: rgba(8, 48, 31, .55);
+    background: rgba(8, 46, 29, .55);
     backdrop-filter: blur(3px);
 }
 

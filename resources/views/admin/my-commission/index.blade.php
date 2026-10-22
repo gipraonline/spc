@@ -2,7 +2,7 @@
 
 @section('content')
 <style>
-.mc-page { padding: 8px 4px 40px; font-family: 'Outfit', sans-serif; color: #22352C; }
+.mc-page { padding: 8px 4px 40px; font-family: 'Plus Jakarta Sans', sans-serif; color: #22352C; }
 .mc-page h2 { font-size: 22px; font-weight: 600; margin: 0 0 4px; color: #1F3D14; }
 .mc-sub { color: #61756B; font-size: 13px; margin-bottom: 18px; }
 .mc-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 18px; }

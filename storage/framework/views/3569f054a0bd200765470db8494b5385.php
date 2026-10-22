@@ -15,31 +15,31 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
        :root {
-                --primary-blue: #4E7A33;
-                --primary-red: #1F5C2E;
-                --accent-glow: rgba(94, 141, 61, 0.16);
+                --primary-blue: #17694a;
+                --primary-red: #0e3d26;
+                --accent-glow: rgba(14, 61, 38, 0.16);
                 --bg-color: #f4faf6;
                 --card-bg: #ffffff;
-                --text-dark: #1F3D14;
-                --text-grey: #61756B;
-                --input-border: #dde8e1;
-                --shadow-soft: 0 20px 40px rgba(10, 61, 44, 0.10);
-                --shadow-glow: 0 0 20px rgba(94, 141, 61, 0.18);
+                --text-dark: #08301e;
+                --text-grey: #6e7a71;
+                --input-border: #dde5de;
+                --shadow-soft: 0 20px 40px rgba(8, 46, 29, 0.10);
+                --shadow-glow: 0 0 20px rgba(14, 61, 38, 0.18);
             }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         h1, h2, h3, h4 {
-            font-family: 'Kanit', 'Outfit', sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
@@ -267,7 +267,7 @@
             padding: 15px;
             border-radius: 12px;
             border: none;
-            background: linear-gradient(135deg, #5E8D3D, #1F5C2E);
+            background: linear-gradient(135deg, #1b6b49, #0e3d26);
             color: white;
             font-size: 16px;
             font-weight: 700;
@@ -406,6 +406,13 @@
             color: #000;
         }
     </style>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo e(asset('dist/css/spc-theme.css')); ?>?v=23">
 </head>
 
 <body>

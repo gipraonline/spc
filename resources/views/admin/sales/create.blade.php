@@ -7,21 +7,21 @@
 <style>
 /* =====================================================================
        SALES ORDER FORM — SPC "Evergreen" edition
-       Palette: olive #5E8D3D · forest #1F5C2E · leaf #7CA243
-                accents #A8CB6A/#C2DC96 · mint wash #CBFFCD (45deg)
+       Palette: olive #1b6b49 · forest #0e3d26 · leaf #2f8a63
+                accents #86c4a4/#a9d6bd · mint wash #e3efe7 (45deg)
        ===================================================================== */
 .so-wrap {
-    --so-olive: #5E8D3D;
-    --so-forest: #1F5C2E;
-    --so-leaf: #7CA243;
-    --so-acc: #A8CB6A;
-    --so-acc2: #C2DC96;
-    --so-ink: #123A28;
-    --so-mut: #5F7A6C;
-    --so-line: rgba(18, 58, 40, .1);
-    --so-grad: linear-gradient(135deg, #5E8D3D, #1F5C2E);
-    --so-wash: linear-gradient(45deg, #CBFFCD, transparent 60%);
-    font-family: var(--font-body, 'Outfit', sans-serif);
+    --so-olive: #1b6b49;
+    --so-forest: #0e3d26;
+    --so-leaf: #2f8a63;
+    --so-acc: #86c4a4;
+    --so-acc2: #a9d6bd;
+    --so-ink: #0e3d26;
+    --so-mut: #5f7266;
+    --so-line: rgba(14, 61, 38, .1);
+    --so-grad: linear-gradient(135deg, #1b6b49, #0e3d26);
+    --so-wash: linear-gradient(45deg, #e3efe7, transparent 60%);
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
 }
 
 .so-wrap h1,
@@ -32,7 +32,7 @@
 .so-wrap .section-title,
 .so-wrap .form-section-header,
 .so-wrap .modal-title {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 /* ---------- Page hero ---------- */
@@ -42,7 +42,7 @@
     border-radius: 22px;
     background:
         radial-gradient(340px 240px at 88% -12%, rgba(255, 255, 255, .16), transparent 60%),
-        radial-gradient(420px 320px at -14% 116%, rgba(203, 255, 205, .34), transparent 55%),
+        radial-gradient(420px 320px at -14% 116%, rgba(227, 239, 231, .34), transparent 55%),
         var(--so-grad);
     color: #fff;
     padding: 24px 28px;
@@ -77,7 +77,7 @@
     right: 26px;
     bottom: 14px;
     font-size: 60px;
-    color: rgba(203, 255, 205, .28);
+    color: rgba(227, 239, 231, .28);
     transform: rotate(-8deg);
     pointer-events: none;
 }
@@ -86,12 +86,12 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: .18em;
     text-transform: uppercase;
-    color: #D8F5C8;
+    color: #d6eadf;
     background: rgba(255, 255, 255, .12);
     border: 1px solid rgba(255, 255, 255, .22);
     border-radius: 999px;
@@ -103,7 +103,7 @@
     width: 16px;
     height: 2px;
     border-radius: 2px;
-    background: #D8F5C8;
+    background: #d6eadf;
 }
 
 .so-hero-title {
@@ -115,7 +115,7 @@
 }
 
 .so-hero-sub {
-    color: #D9EEDC;
+    color: #dcece1;
     font-size: 13px;
     margin: 0;
 }
@@ -152,7 +152,7 @@
     align-items: center;
     justify-content: center;
     font-size: 10px;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 /* ---------- Alerts ---------- */
@@ -174,7 +174,7 @@
 
 .so-alert.ok {
     background: #F1FBEE;
-    border-color: #D6EDCB;
+    border-color: #d8e9de;
     color: #2C5B34;
 }
 
@@ -193,7 +193,7 @@
 .so-wrap .card {
     border-radius: 18px;
     border: 1px solid var(--so-line);
-    box-shadow: 0 6px 20px -12px rgba(18, 58, 40, .18);
+    box-shadow: 0 6px 20px -12px rgba(14, 61, 38, .18);
     background: #fff;
 }
 
@@ -246,7 +246,7 @@
     padding: 22px !important;
     margin-bottom: 20px !important;
     background: #fff !important;
-    box-shadow: 0 6px 20px -14px rgba(18, 58, 40, .16);
+    box-shadow: 0 6px 20px -14px rgba(14, 61, 38, .16);
     position: relative;
     overflow: hidden;
 }
@@ -306,7 +306,7 @@
     content: "";
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, rgba(94, 141, 61, .3), transparent);
+    background: linear-gradient(90deg, rgba(14, 61, 38, .3), transparent);
 }
 
 /* ---------- Labels & inputs ---------- */
@@ -321,20 +321,20 @@
 
 .so-wrap .form-control,
 .so-wrap .form-select {
-    border: 1.5px solid #E3EDE3;
+    border: 1.5px solid #e7efe9;
     border-radius: 12px;
     min-height: 44px;
     padding: 9px 14px;
     font-size: 14px;
     color: #2F4A3C;
-    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
     transition: border-color .15s, box-shadow .15s;
 }
 
 .so-wrap .form-control:focus,
 .so-wrap .form-select:focus {
     border-color: var(--so-leaf);
-    box-shadow: 0 0 0 3.5px rgba(94, 141, 61, .14);
+    box-shadow: 0 0 0 3.5px rgba(14, 61, 38, .14);
     outline: none;
 }
 
@@ -348,8 +348,8 @@
     background: var(--so-wash), #F4FBF3 !important;
     color: var(--so-forest) !important;
     font-weight: 700;
-    border-color: #D6EDCB !important;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    border-color: #d8e9de !important;
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     letter-spacing: .03em;
 }
 
@@ -365,7 +365,7 @@
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    border: 1.5px solid #E3EDE3;
+    border: 1.5px solid #e7efe9;
     border-radius: 14px;
     padding: 11px 18px;
     margin: 0 10px 10px 0;
@@ -387,7 +387,7 @@
 .payment-option:has(input:checked) {
     background: var(--so-wash), #F1F9EC;
     border-color: var(--so-olive);
-    box-shadow: 0 8px 18px -10px rgba(94, 141, 61, .55);
+    box-shadow: 0 8px 18px -10px rgba(14, 61, 38, .55);
 }
 
 .payment-option input[type="radio"],
@@ -501,7 +501,7 @@
 .so-wrap #productTable tbody td input[readonly] {
     background: #F4F8F2;
     border-color: #E7F0E2;
-    color: #5F7A6C;
+    color: #5f7266;
 }
 
 .so-wrap .removeRow {
@@ -535,7 +535,7 @@
 
 /* ---------- Summary (bill card) ---------- */
 .so-bill {
-    border: 1.5px solid #DCEBD5;
+    border: 1.5px solid #dde9e1;
     border-radius: 18px;
     overflow: hidden;
     background: #fff;
@@ -549,7 +549,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-weight: 600;
     color: var(--so-forest);
     font-size: 14.5px;
@@ -586,12 +586,12 @@
     background: #FBFDF9 !important;
     border-color: #E7F0E2 !important;
     color: var(--so-forest) !important;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 .so-bill .summary-line.highlight-green {
     background: var(--so-wash), #F1F9EC;
-    border: 1px solid #D6EDCB;
+    border: 1px solid #d8e9de;
     border-radius: 13px;
     padding: 11px 12px;
     margin-top: 10px;
@@ -608,7 +608,7 @@
     font-size: 17px;
     font-weight: 700;
     background: #fff !important;
-    border-color: #D6EDCB !important;
+    border-color: #d8e9de !important;
 }
 
 /* ---------- Customer toggle ---------- */
@@ -618,7 +618,7 @@
     max-width: 100%;
     padding: 7px;
     background: #F1F7EE;
-    border: 1px solid #DCEBD5;
+    border: 1px solid #dde9e1;
     border-radius: 18px;
     margin: 0 auto 20px;
 }
@@ -666,7 +666,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-weight: 600;
     color: var(--so-forest);
     font-size: 14px;
@@ -767,7 +767,7 @@
         border: 1.5px solid var(--so-line);
         border-radius: 16px;
         background: #FBFDF9;
-        box-shadow: 0 6px 16px -12px rgba(18, 58, 40, .25);
+        box-shadow: 0 6px 16px -12px rgba(14, 61, 38, .25);
     }
 
     .so-wrap #productTable tbody td {
@@ -818,9 +818,9 @@
         align-self: center;
         font-size: 13px;
         font-weight: 700;
-        color: #1F5C2E;
+        color: #0e3d26;
         padding-bottom: 10px;
-        border-bottom: 1px dashed #DCEBD5;
+        border-bottom: 1px dashed #dde9e1;
         margin-bottom: 2px;
     }
 
@@ -831,7 +831,7 @@
         justify-content: flex-end;
         align-items: center;
         padding-bottom: 10px !important;
-        border-bottom: 1px dashed #DCEBD5 !important;
+        border-bottom: 1px dashed #dde9e1 !important;
         margin-bottom: 2px;
     }
 
@@ -921,13 +921,13 @@
     .so-wrap #productTable tbody td:nth-child(12) input {
         font-weight: 700;
         font-size: 15px;
-        color: #1F5C2E;
+        color: #0e3d26;
         background: #E4F5DC !important;
         border-color: #A9CD94;
     }
 
     .so-wrap #productTable tbody td:nth-child(12)::before {
-        color: #1F5C2E;
+        color: #0e3d26;
     }
 }
 
@@ -996,13 +996,13 @@
         border-radius: 16px;
         overflow: hidden;
         background: #fff;
-        box-shadow: 0 6px 16px -10px rgba(18, 58, 40, .2);
+        box-shadow: 0 6px 16px -10px rgba(14, 61, 38, .2);
     }
 
     .so-wrap #productTable tbody tr.existing-product-row td:first-child,
     .so-wrap #productTable tbody tr.new-product-row td:first-child {
         background: var(--so-wash), #F3FAF0;
-        border-bottom: 1px dashed #DCEBD5;
+        border-bottom: 1px dashed #dde9e1;
     }
 
     .so-wrap #productTable tbody td {
@@ -1549,7 +1549,7 @@ use Illuminate\Support\Facades\Crypt;
                                 </div>
                                 <div class="col-md-3">
                                     <small id="lookupMessage" class="fw-semibold"
-                                        style="color:var(--so-olive, #5E8D3D);"></small>
+                                        style="color:var(--so-olive, #1b6b49);"></small>
                                 </div>
                             </div>
                         </div>
@@ -1995,7 +1995,7 @@ use Illuminate\Support\Facades\Crypt;
                     @csrf
                     @method('PUT')
 
-                    <div class="modal-header" style="background: linear-gradient(135deg, #5E8D3D, #1F5C2E);">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #1b6b49, #0e3d26);">
                         <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>

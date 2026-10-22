@@ -1,6 +1,9 @@
 
 <div class="topbar">
     <div class="topbar-left">
+        <a class="topbar-logo" href="<?php echo e(route('dashboard')); ?>" aria-label="SPC Universal home">
+            <img src="<?php echo e(asset('dist/images/logos/spclogo.png')); ?>" alt="SPC">
+        </a>
         <button type="button" class="hamburger" onclick="document.getElementById('appShell').classList.toggle('sidebar-open')" aria-label="Toggle menu">
             <i class="fa-solid fa-bars"></i>
         </button>

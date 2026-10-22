@@ -114,13 +114,13 @@
 
 <style>
     /* Restyle the HR shell's sidebar — "Evergreen mint" creative look.
-       Soft mint wash (45deg #CBFFCD) over white, green accents everywhere. */
+       Soft mint wash (45deg #e3efe7) over white, green accents everywhere. */
     .sidebar.spc-side{
-        --spc-primary:#5E8D3D; --spc-primary-strong:#1F5C2E; --spc-primary-soft:#E4F3EB;
-        --spc-text:#3D5247; --spc-line:rgba(18,58,40,.1);
+        --spc-primary:#1b6b49; --spc-primary-strong:#0e3d26; --spc-primary-soft:#e7efe9;
+        --spc-text:#3D5247; --spc-line:rgba(14,61,38,.1);
         background:
-            linear-gradient(45deg, #CBFFCD, transparent 62%),
-            radial-gradient(420px 320px at -20% 108%, rgba(94,141,61,.14), transparent 55%),
+            linear-gradient(45deg, #e3efe7, transparent 62%),
+            radial-gradient(420px 320px at -20% 108%, rgba(14,61,38,.14), transparent 55%),
             linear-gradient(175deg, #FFFFFF 0%, #F4FBF6 60%, #ECF7F0 100%);
         color:var(--spc-text);
         border-right:1px solid var(--spc-line); box-shadow:none;
@@ -131,7 +131,7 @@
     .spc-brand{position:relative; display:flex; align-items:center; justify-content:center; padding:22px 20px 12px;}
     .spc-brand img{height:54px; max-width:180px; width:auto; object-fit:contain; display:block;}
     .sidebar.spc-side .sidebar-close{
-        background:rgba(255,255,255,.65); border:1px solid rgba(18,58,40,.14); color:var(--spc-primary-strong);
+        background:rgba(255,255,255,.65); border:1px solid rgba(14,61,38,.14); color:var(--spc-primary-strong);
         position:absolute; right:12px; top:50%; transform:translateY(-50%);
     }
 
@@ -141,7 +141,7 @@
         font-family:var(--font-body); font-size:10px; font-weight:700;
         letter-spacing:.14em; text-transform:uppercase; color:#3E8A66;
     }
-    .spc-cap::after{content:""; flex:1; height:1px; background:linear-gradient(90deg, rgba(94,141,61,.35), transparent);}
+    .spc-cap::after{content:""; flex:1; height:1px; background:linear-gradient(90deg, rgba(14,61,38,.35), transparent);}
     .spc-link{
         display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px;
         font-family:var(--font-body); font-size:13.5px; font-weight:500; line-height:1.3;
@@ -150,10 +150,10 @@
     }
     .spc-link svg{width:19px; height:19px; flex-shrink:0; stroke-width:1.75; transition:transform .16s;}
     .spc-link span:not(.spc-badge){min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-    .spc-link:hover{background:rgba(94,141,61,.1); color:var(--spc-primary-strong);}
+    .spc-link:hover{background:rgba(14,61,38,.1); color:var(--spc-primary-strong);}
     .spc-link:hover svg{transform:translateY(-1px) scale(1.06);}
     .spc-link.active{
-        background:linear-gradient(135deg,#5E8D3D,#1F5C2E); color:#fff; font-weight:600;
+        background:linear-gradient(135deg,#1b6b49,#0e3d26); color:#fff; font-weight:600;
         box-shadow:0 10px 20px -8px rgba(14,107,75,.55), inset 0 1.5px 0 rgba(255,255,255,.25);
     }
     .spc-link.active svg{stroke:#fff;}

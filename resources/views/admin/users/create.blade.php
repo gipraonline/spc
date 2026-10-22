@@ -8,11 +8,11 @@
     ========================================================= */
 .create-user-page {
     --card-radius: 16px;
-    --soft-bg: #f8fafc;
+    --soft-bg: #f6f9f6;
     --border-color: #e9edf3;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --text-muted: #94a3b8;
+    --text-primary: #1b241e;
+    --text-secondary: #6b756d;
+    --text-muted: #97a299;
 }
 
 .create-user-page .card {
@@ -24,7 +24,7 @@
        Page Header
     ========================================================= */
 .page-header-card {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f6f9f6 100%);
 }
 
 .page-title {
@@ -62,7 +62,7 @@
 
 .form-card-header {
     padding: 20px 24px;
-    border-bottom: 1px solid #eef2f7;
+    border-bottom: 1px solid #eff3ef;
     background: #fff;
 }
 
@@ -99,7 +99,7 @@
 .form-label {
     font-size: .78rem;
     font-weight: 700;
-    color: #334155;
+    color: #2f3a33;
     margin-bottom: 7px;
 }
 
@@ -110,17 +110,17 @@
 .input-group-text {
     min-width: 44px;
     justify-content: center;
-    background: #f8fafc;
-    border-color: #dfe5ec;
-    color: #94a3b8;
+    background: #f6f9f6;
+    border-color: #e1e7e1;
+    color: #97a299;
 }
 
 .form-control,
 .form-select {
     min-height: 43px;
-    border-color: #dfe5ec;
+    border-color: #e1e7e1;
     font-size: .84rem;
-    color: #334155;
+    color: #2f3a33;
     box-shadow: none !important;
     transition: all .2s ease;
 }
@@ -132,8 +132,8 @@
 }
 
 .form-control[readonly] {
-    background-color: #f8fafc;
-    color: #64748b;
+    background-color: #f6f9f6;
+    color: #6b756d;
     cursor: not-allowed;
 }
 
@@ -162,8 +162,8 @@
     margin-top: 10px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: #f8fafc;
-    border: 1px solid #eef2f7;
+    background: #f6f9f6;
+    border: 1px solid #eff3ef;
 }
 
 .employee-preview.active {
@@ -196,7 +196,7 @@
 .employee-preview-value {
     font-size: .78rem;
     font-weight: 600;
-    color: #475569;
+    color: #46514a;
 }
 
 /* =========================================================
@@ -206,8 +206,8 @@
     margin-top: 12px;
     padding: 12px 14px;
     border-radius: 10px;
-    background: #f8fafc;
-    border: 1px solid #eef2f7;
+    background: #f6f9f6;
+    border: 1px solid #eff3ef;
 }
 
 .role-info-title {
@@ -216,13 +216,13 @@
     gap: 7px;
     font-size: .75rem;
     font-weight: 700;
-    color: #475569;
+    color: #46514a;
     margin-bottom: 4px;
 }
 
 .role-info-text {
     font-size: .72rem;
-    color: #94a3b8;
+    color: #97a299;
     line-height: 1.5;
 }
 
@@ -260,7 +260,7 @@
     ========================================================= */
 .form-footer {
     padding: 18px 24px;
-    border-top: 1px solid #eef2f7;
+    border-top: 1px solid #eff3ef;
     background: #fafbfc;
 }
 

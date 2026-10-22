@@ -4,19 +4,19 @@
 
 @section('content')
 <style>
-.tk-card{background:#fff;border:1px solid rgba(18,58,40,.1);border-radius:16px;box-shadow:0 6px 20px -14px rgba(18,58,40,.25);}
-.tk-people{max-height:260px;overflow:auto;border:1px solid #E3EDE3;border-radius:12px;padding:8px 12px;background:#FAFDF8;}
+.tk-card{background:#fff;border:1px solid rgba(14,61,38,.1);border-radius:16px;box-shadow:0 6px 20px -14px rgba(14,61,38,.25);}
+.tk-people{max-height:260px;overflow:auto;border:1px solid #e7efe9;border-radius:12px;padding:8px 12px;background:#FAFDF8;}
 .tk-people label{display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer;}
 .tk-prio input{display:none;}
-.tk-prio label{border:1.5px solid #E3EDE3;border-radius:12px;padding:9px 18px;font-weight:600;cursor:pointer;color:#5F7A6C;}
+.tk-prio label{border:1.5px solid #e7efe9;border-radius:12px;padding:9px 18px;font-weight:600;cursor:pointer;color:#5f7266;}
 .tk-prio input:checked + label{color:#fff;border-color:transparent;}
 .tk-prio .p-low:checked + label{background:#6c757d;} .tk-prio .p-medium:checked + label{background:#0aa2c0;}
 .tk-prio .p-high:checked + label{background:#e0a21c;} .tk-prio .p-urgent:checked + label{background:#c0392b;}
 </style>
 
 <div class="mb-3">
-    <a href="{{ route('admin.tasks.index') }}" class="text-decoration-none" style="color:#1F5C2E"><i class="bi bi-arrow-left"></i> Back to tasks</a>
-    <h4 class="fw-semibold mt-1 mb-0" style="color:#1F5C2E">{{ $editing ? 'Edit task' : 'Assign a task' }}</h4>
+    <a href="{{ route('admin.tasks.index') }}" class="text-decoration-none" style="color:#0e3d26"><i class="bi bi-arrow-left"></i> Back to tasks</a>
+    <h4 class="fw-semibold mt-1 mb-0" style="color:#0e3d26">{{ $editing ? 'Edit task' : 'Assign a task' }}</h4>
 </div>
 
 @if($errors->any())

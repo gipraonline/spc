@@ -1,15 +1,15 @@
 <?php $__env->startPush('styles'); ?>
 <style>
 :root {
-    --u-brand: #4E7A33;
-    --u-brand-dark: #1F5C2E;
-    --u-brand-mid: #5E8D3D;
+    --u-brand: #17694a;
+    --u-brand-dark: #0e3d26;
+    --u-brand-mid: #1b6b49;
     --u-hr: #0E7490;
     --u-hr-light: #eff8ff;
-    --u-text: #22352C;
-    --u-muted: #61756B;
+    --u-text: #101a14;
+    --u-muted: #6e7a71;
     --u-surface: #ffffff;
-    --u-border: #dde8e1;
+    --u-border: #dde5de;
     --u-radius: 16px;
     --u-shadow: 0 5px 18px rgba(15, 81, 50, .08);
 }
@@ -18,9 +18,9 @@
     position: relative;
     overflow: hidden;
     background:
-        radial-gradient(420px 200px at 92% -20%, rgba(124, 162, 67, .38), transparent 60%),
-        radial-gradient(360px 220px at -6% 120%, rgba(124, 162, 67, .22), transparent 55%),
-        linear-gradient(135deg, #4E7A33, var(--u-brand-dark));
+        radial-gradient(420px 200px at 92% -20%, rgba(47, 138, 99, .38), transparent 60%),
+        radial-gradient(360px 220px at -6% 120%, rgba(47, 138, 99, .22), transparent 55%),
+        linear-gradient(135deg, #17694a, var(--u-brand-dark));
     border-radius: 20px;
     padding: 26px 30px;
     color: #fff;
@@ -30,7 +30,7 @@
     flex-wrap: wrap;
     gap: 14px;
     margin-bottom: 18px;
-    box-shadow: 0 28px 60px -24px rgba(8, 48, 31, .45);
+    box-shadow: 0 28px 60px -24px rgba(8, 46, 29, .45);
 }
 
 /* floating deco rings + seedling watermark — matches the HR hero language */
@@ -54,7 +54,7 @@
     right: 26px;
     bottom: -34px;
     font-size: 110px;
-    color: rgba(124, 162, 67, .13);
+    color: rgba(47, 138, 99, .13);
     pointer-events: none;
 }
 
@@ -62,7 +62,7 @@
     margin: 0 0 4px;
     font-weight: 600;
     font-size: 23px;
-    font-family: 'Kanit', 'Outfit', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans', sans-serif;
     letter-spacing: .01em;
     position: relative;
     z-index: 1;
@@ -157,7 +157,7 @@
     color: var(--u-text);
     text-decoration: none;
     background:
-        linear-gradient(45deg, rgba(203, 255, 205, .4), transparent 60%),
+        linear-gradient(45deg, rgba(227, 239, 231, .4), transparent 60%),
         #fff;
     display: inline-flex;
     align-items: center;
@@ -175,8 +175,8 @@
     align-items: center;
     justify-content: center;
     font-size: 12px;
-    background: var(--u-brand-light, #E4F3EB);
-    background: #E4F3EB;
+    background: var(--u-brand-light, #e7efe9);
+    background: #e7efe9;
     color: var(--u-brand);
     transition: all .18s;
 }
@@ -184,25 +184,25 @@
 .u-qa-btn:hover {
     transform: translateY(-3px);
     color: var(--u-brand-dark);
-    border-color: rgba(94, 141, 61, .5);
-    box-shadow: 0 14px 26px -12px rgba(8, 48, 31, .4);
+    border-color: rgba(14, 61, 38, .5);
+    box-shadow: 0 14px 26px -12px rgba(8, 46, 29, .4);
     text-decoration: none;
 }
 
 .u-qa-btn:hover i {
-    background: linear-gradient(135deg, #7CA243, #1F5C2E);
+    background: linear-gradient(135deg, #2f8a63, #0e3d26);
     color: #fff;
     transform: rotate(-7deg) scale(1.08);
     box-shadow: 0 8px 14px -6px rgba(14, 107, 75, .55);
 }
 
 .u-qa-btn.hr:hover {
-    color: #1D6FA5;
+    color: #035055;
     border-color: rgba(79, 163, 224, .5);
 }
 
 .u-qa-btn.hr:hover i {
-    background: linear-gradient(135deg, #4FA3E0, #1D6FA5);
+    background: linear-gradient(135deg, #0b6e75, #035055);
     color: #fff;
     box-shadow: 0 8px 14px -6px rgba(29, 111, 165, .55);
 }
@@ -264,7 +264,7 @@
     width: 64px;
     height: 1.5px;
     border-radius: 2px;
-    background: linear-gradient(90deg, rgba(94, 141, 61, .45), transparent);
+    background: linear-gradient(90deg, rgba(14, 61, 38, .45), transparent);
     margin-left: 4px;
 }
 
@@ -293,7 +293,7 @@
     position: relative;
     overflow: hidden;
     background:
-        linear-gradient(45deg, rgba(203, 255, 205, .45), transparent 55%),
+        linear-gradient(45deg, rgba(227, 239, 231, .45), transparent 55%),
         var(--u-surface);
     border: 1px solid var(--u-border);
     border-radius: 16px;
@@ -315,7 +315,7 @@
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    border: 1.5px dashed rgba(94, 141, 61, .32);
+    border: 1.5px dashed rgba(14, 61, 38, .32);
     opacity: .75;
     transition: transform .3s;
     pointer-events: none;
@@ -323,8 +323,8 @@
 
 .u-kpi-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 22px 40px -18px rgba(8, 48, 31, .4);
-    border-color: rgba(94, 141, 61, .45);
+    box-shadow: 0 22px 40px -18px rgba(8, 46, 29, .4);
+    border-color: rgba(14, 61, 38, .45);
 }
 
 .u-kpi-card:hover::after {
@@ -343,7 +343,7 @@
     align-items: center;
     justify-content: center;
     color: #fff;
-    background: linear-gradient(135deg, #7CA243, #1F5C2E);
+    background: linear-gradient(135deg, #2f8a63, #0e3d26);
     font-size: 16px;
     flex-shrink: 0;
     box-shadow: 0 10px 18px -8px rgba(14, 107, 75, .55), inset 0 1.5px 0 rgba(255, 255, 255, .3);
@@ -355,7 +355,7 @@
 }
 
 .u-kpi-card.hr-kpi .u-kpi-ico {
-    background: linear-gradient(135deg, #4FA3E0, #1D6FA5);
+    background: linear-gradient(135deg, #0b6e75, #035055);
     box-shadow: 0 10px 18px -8px rgba(29, 111, 165, .5), inset 0 1.5px 0 rgba(255, 255, 255, .3);
 }
 
@@ -401,7 +401,7 @@
 
 .u-order-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 12px;
 }
 
@@ -415,9 +415,9 @@
     flex-direction: column;
     gap: 3px;
     background:
-        linear-gradient(45deg, rgba(203, 255, 205, .35), transparent 60%),
+        linear-gradient(45deg, rgba(227, 239, 231, .35), transparent 60%),
         #fff;
-    border: 1px solid #dde8e1;
+    border: 1px solid #dde5de;
     box-shadow: 0 5px 18px rgba(15, 81, 50, .08);
     transition: transform .2s, box-shadow .2s, border-color .2s;
 }
@@ -430,7 +430,7 @@
     top: 0;
     bottom: 0;
     width: 4px;
-    background: var(--oc, #5E8D3D);
+    background: var(--oc, #1b6b49);
     opacity: .9;
 }
 
@@ -447,15 +447,15 @@
     justify-content: center;
     font-size: 13px;
     color: #fff;
-    background: var(--oc, #5E8D3D);
-    box-shadow: 0 8px 14px -8px rgba(8, 48, 31, .5), inset 0 1.5px 0 rgba(255, 255, 255, .3);
+    background: var(--oc, #1b6b49);
+    box-shadow: 0 8px 14px -8px rgba(8, 46, 29, .5), inset 0 1.5px 0 rgba(255, 255, 255, .3);
     transition: transform .2s;
 }
 
 .u-order-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 36px -16px rgba(8, 48, 31, .38);
-    border-color: rgba(94, 141, 61, .45);
+    box-shadow: 0 20px 36px -16px rgba(8, 46, 29, .38);
+    border-color: rgba(14, 61, 38, .45);
 }
 
 .u-order-card:hover .i {
@@ -465,7 +465,7 @@
 .u-order-card .n {
     font-size: 21px;
     font-weight: 800;
-    font-family: 'Kanit', 'Outfit', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans', sans-serif;
     color: var(--u-brand-dark);
     margin-right: 34px;
 }
@@ -480,7 +480,7 @@
 
 /* per-status accent colors (used by --oc) */
 .u-order-total {
-    --oc: #1F5C2E;
+    --oc: #0e3d26;
 }
 
 .u-order-pending {
@@ -492,7 +492,7 @@
 }
 
 .u-order-dispatched {
-    --oc: #1D6FA5;
+    --oc: #035055;
 }
 
 .u-order-shipped {
@@ -504,7 +504,7 @@
 }
 
 .u-order-completed {
-    --oc: #4E7A33;
+    --oc: #17694a;
 }
 
 .u-order-returned {
@@ -592,7 +592,7 @@
 }
 
 .u-payment-bar .paid-fill {
-    background: linear-gradient(90deg, #A8CB6A, #7CA243);
+    background: linear-gradient(90deg, #86c4a4, #2f8a63);
     height: 100%;
 }
 
@@ -642,11 +642,11 @@
 }
 
 .u-payment-stat.paid .l {
-    color: #1F5C2E;
+    color: #0e3d26;
 }
 
 .u-payment-stat.paid .v {
-    color: #7CA243;
+    color: #2f8a63;
 }
 
 /* Right-hand "at a glance" rail */
@@ -817,12 +817,12 @@
 }
 
 .u-review-btn.approve {
-    color: #7CA243;
+    color: #2f8a63;
     border-color: #a7f3d0;
 }
 
 .u-review-btn.approve:hover {
-    background: #ecfdf5;
+    background: #eef7f1;
 }
 
 .u-review-btn.reject {
@@ -940,6 +940,15 @@
     font-size: 12px;
     color: var(--u-text);
     white-space: nowrap;
+}
+
+
+@media screen and (max-width:767px) {
+    .u-order-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
 }
 
 .u-ticker-item b {
@@ -1093,7 +1102,7 @@
     position: relative;
     overflow: hidden;
     background:
-        linear-gradient(45deg, rgba(203, 255, 205, .3), transparent 55%),
+        linear-gradient(45deg, rgba(227, 239, 231, .3), transparent 55%),
         var(--u-surface);
 }
 
@@ -1105,7 +1114,7 @@
     width: 88px;
     height: 88px;
     border-radius: 50%;
-    border: 1.5px dashed rgba(94, 141, 61, .28);
+    border: 1.5px dashed rgba(14, 61, 38, .28);
     opacity: .8;
     pointer-events: none;
 }
@@ -1643,13 +1652,13 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 datasets: [{
                     label: 'Sales (₹)',
                     data: <?php echo json_encode($salesTrendValues, 15, 512) ?>,
-                    borderColor: '#5E8D3D',
+                    borderColor: '#1b6b49',
                     backgroundColor: 'rgba(15,81,50,0.08)',
                     borderWidth: 2.5,
                     tension: 0.35,
                     fill: true,
                     pointRadius: 3,
-                    pointBackgroundColor: '#5E8D3D',
+                    pointBackgroundColor: '#1b6b49',
                 }],
             },
             options: {
@@ -1688,7 +1697,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 labels: <?php echo json_encode($orderStatusChart['labels'], 15, 512) ?>,
                 datasets: [{
                     data: <?php echo json_encode($orderStatusChart['values'], 15, 512) ?>,
-                    backgroundColor: ['#f59e0b', '#A8CB6A', '#3b82f6', '#8b5cf6', '#14b8a6',
+                    backgroundColor: ['#f59e0b', '#86c4a4', '#3b82f6', '#0b6e75', '#14b8a6',
                         '#0ea5e9', '#ef4444'
                     ],
                     borderWidth: 2,

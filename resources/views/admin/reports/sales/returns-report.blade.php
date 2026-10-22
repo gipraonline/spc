@@ -4,7 +4,7 @@
 
 <style>
 :root {
-    --primary-blue: #5E8D3D;
+    --primary-blue: #1b6b49;
     --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
     --border-radius: 12px;
 }
@@ -19,7 +19,7 @@
 
 .card-title-custom {
     font-weight: 700;
-    color: #2c3e50;
+    color: #1b3a2c;
 }
 
 .btn-filter {

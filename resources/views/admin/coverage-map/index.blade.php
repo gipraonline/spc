@@ -4,7 +4,7 @@
 <style>
 .cm{--sink:#1F3D14;--smut:#61756B;--sline:rgba(18,58,40,.12);}
 .cm-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
-.cm-head h2{margin:0;font-family:var(--font-head,'Kanit',sans-serif);font-size:22px;font-weight:600;color:var(--sink);}
+.cm-head h2{margin:0;font-family:var(--font-head,'Plus Jakarta Sans',sans-serif);font-size:22px;font-weight:600;color:var(--sink);}
 .cm-head p{margin:4px 0 0;font-size:13px;color:var(--smut);}
 .cm-head select{height:40px;border:1px solid #d5dde3;border-radius:10px;padding:0 12px;background:#fff;}
 .cm-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;}

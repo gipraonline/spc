@@ -105,7 +105,7 @@
                 if (v.length >= 12) score++;                   // length is a bonus
                 var pct = Math.min(100, Math.round(score / 5 * 100));
                 bar.style.width = (v ? Math.max(pct, 12) : 0) + '%';
-                bar.style.background = score <= 2 ? '#e53935' : score === 3 ? '#f9a825' : '#1F5C2E';
+                bar.style.background = score <= 2 ? '#e53935' : score === 3 ? '#f9a825' : '#0e3d26';
             }
             function match() {
                 if (!cf.value) { msg.textContent = ''; msg.className = 'match'; return; }
@@ -122,7 +122,7 @@
                     var show = input.type === 'password';
                     input.type = show ? 'text' : 'password';
                     t.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-                    t.style.color = show ? '#1F5C2E' : '';
+                    t.style.color = show ? '#0e3d26' : '';
                 });
             });
 

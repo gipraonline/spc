@@ -370,7 +370,7 @@
 .card-header {
     padding: 20px 24px;
     background: #fff;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid #eaeeea;
 }
 
 .card-body {
@@ -396,7 +396,7 @@
 
 .form-label {
     font-weight: 600;
-    color: #495057;
+    color: #4a544c;
 }
 
 .form-control {
@@ -408,7 +408,7 @@
 
 .form-control:focus {
 
-    border-color: #696cff;
+    border-color: #17694a;
     box-shadow: 0 0 0 .15rem rgba(105, 108, 255, .15);
 }
 
@@ -419,7 +419,7 @@
 
 .accordion-item {
 
-    border: 1px solid #e9ecef;
+    border: 1px solid #eaeeea;
     border-radius: 10px !important;
     overflow: hidden;
     margin-bottom: 16px;
@@ -441,8 +441,8 @@
 
 .accordion-button:not(.collapsed) {
 
-    background: #eef2ff;
-    color: #696cff;
+    background: #eef4f0;
+    color: #17694a;
 }
 
 .accordion-button:focus {
@@ -469,9 +469,9 @@
 
 .role-card-header {
 
-    background: #f8f9fa;
+    background: #f7f9f7;
     font-weight: 600;
-    color: #495057;
+    color: #4a544c;
 }
 
 
@@ -493,8 +493,8 @@
 
 .custom-check .form-check-input:checked {
 
-    background-color: #696cff;
-    border-color: #696cff;
+    background-color: #17694a;
+    border-color: #17694a;
 }
 
 .custom-check .form-check-label {
@@ -502,7 +502,7 @@
     margin-left: 8px;
     font-weight: 500;
     cursor: pointer;
-    color: #495057;
+    color: #4a544c;
 }
 
 
@@ -518,8 +518,8 @@
 
 .btn-primary {
 
-    background: #696cff;
-    border-color: #696cff;
+    background: #17694a;
+    border-color: #17694a;
     min-width: 160px;
 }
 
@@ -547,7 +547,7 @@
 
 .badge-count {
 
-    background: #696cff;
+    background: #17694a;
     color: #fff;
     border-radius: 20px;
     font-size: 12px;
@@ -589,7 +589,7 @@ hr {
 
 .form-check:hover {
 
-    background: #f8f9fa;
+    background: #f7f9f7;
 }
 
 

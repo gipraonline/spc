@@ -3,11 +3,11 @@
 @section('content')
 <style>
 :root {
-    --primary-green: #5E8D3D;
-    --accent-orange: #7CA243;
+    --primary-green: #1b6b49;
+    --accent-orange: #2f8a63;
     --bg-light: #fbfbfb;
     --text-dark: #2d3436;
-    --border-color: #e9ecef;
+    --border-color: #eaeeea;
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
@@ -42,7 +42,7 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: #f1f5f9;
+    background: #eef2ee;
 }
 
 /* Form Fields */
@@ -66,13 +66,13 @@
 .form-select:focus {
     border-color: var(--primary-green);
     background-color: #fff;
-    box-shadow: 0 0 0 4px rgba(94, 141, 61, 0.08);
+    box-shadow: 0 0 0 4px rgba(14, 61, 38, 0.08);
 }
 
 /* Incentive Split Styling */
 #incentive_percentages {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background-color: #f6f9f6;
+    border: 1px solid #e2e9e2;
     border-radius: 12px;
     padding: 1.5rem;
     margin-top: 1rem;
@@ -88,7 +88,7 @@
     background: #fff;
     padding: 12px 15px;
     border-radius: 10px;
-    border: 1px solid #edf2f7;
+    border: 1px solid #eef2ee;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -96,7 +96,7 @@
 
 .pct-label {
     font-weight: 800;
-    color: #64748b;
+    color: #6b756d;
     font-size: 0.7rem;
     text-transform: uppercase;
 }
@@ -109,7 +109,7 @@
 
 .pct-symbol {
     font-weight: 800;
-    color: #94a3b8;
+    color: #97a299;
     font-size: 0.9rem;
 }
 
@@ -122,11 +122,11 @@
     font-weight: 700;
     color: #fff;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(94, 141, 61, 0.2);
+    box-shadow: 0 4px 12px rgba(14, 61, 38, 0.2);
 }
 
 .btn-update-item:hover {
-    background: #1F5C2E;
+    background: #0e3d26;
     transform: translateY(-2px);
 }
 
@@ -137,7 +137,7 @@
     gap: 12px;
     padding: 12px 18px;
     background: #fff;
-    border: 1px solid #edf2f7;
+    border: 1px solid #eef2ee;
     border-radius: 10px;
     width: fit-content;
 }

@@ -4,13 +4,13 @@
 
 @section('content')
 <style>
-.tk-card{background:#fff;border:1px solid rgba(18,58,40,.1);border-radius:16px;box-shadow:0 6px 20px -14px rgba(18,58,40,.25);}
-.tk-meta{font-size:12px;color:#5F7A6C;}
-.tk-bar{height:9px;border-radius:5px;background:#E3EDE3;overflow:hidden;}
-.tk-bar i{display:block;height:100%;background:#5E8D3D;}
-.tk-tl{border-left:2px solid #DCEBD5;margin-left:6px;padding-left:16px;}
+.tk-card{background:#fff;border:1px solid rgba(14,61,38,.1);border-radius:16px;box-shadow:0 6px 20px -14px rgba(14,61,38,.25);}
+.tk-meta{font-size:12px;color:#5f7266;}
+.tk-bar{height:9px;border-radius:5px;background:#e7efe9;overflow:hidden;}
+.tk-bar i{display:block;height:100%;background:#1b6b49;}
+.tk-tl{border-left:2px solid #dde9e1;margin-left:6px;padding-left:16px;}
 .tk-tl .item{position:relative;padding-bottom:14px;}
-.tk-tl .item:before{content:"";position:absolute;left:-23px;top:4px;width:12px;height:12px;border-radius:50%;background:#5E8D3D;border:2px solid #fff;}
+.tk-tl .item:before{content:"";position:absolute;left:-23px;top:4px;width:12px;height:12px;border-radius:50%;background:#1b6b49;border:2px solid #fff;}
 .tk-overdue{color:#B3261E;font-weight:600;}
 </style>
 
@@ -27,8 +27,8 @@
 
 <div class="mb-3 d-flex flex-wrap justify-content-between align-items-start gap-2">
     <div>
-        <a href="{{ route('admin.tasks.index') }}" class="text-decoration-none" style="color:#1F5C2E"><i class="bi bi-arrow-left"></i> Back to tasks</a>
-        <h4 class="fw-semibold mt-1 mb-1" style="color:#1F5C2E">{{ $task->title }}</h4>
+        <a href="{{ route('admin.tasks.index') }}" class="text-decoration-none" style="color:#0e3d26"><i class="bi bi-arrow-left"></i> Back to tasks</a>
+        <h4 class="fw-semibold mt-1 mb-1" style="color:#0e3d26">{{ $task->title }}</h4>
         <div class="d-flex flex-wrap gap-2 align-items-center">
             <span class="badge {{ \App\Models\Task::priorityBadge($task->priority) }}">{{ \App\Models\Task::PRIORITIES[$task->priority] }} priority</span>
             <span class="badge {{ \App\Models\Task::statusBadge($overall) }}">{{ $task->overallLabel() }}</span>
@@ -79,7 +79,7 @@
         {{-- My status --}}
         @if($mine && ! $task->isCancelled())
             <div class="tk-card p-4 mb-3" style="border-color:#BFD9A9">
-                <h6 class="fw-semibold" style="color:#1F5C2E"><i class="bi bi-person-check"></i> Update my status</h6>
+                <h6 class="fw-semibold" style="color:#0e3d26"><i class="bi bi-person-check"></i> Update my status</h6>
                 <div class="mb-2">Current: <span class="badge {{ \App\Models\Task::statusBadge($mine->status) }}">{{ \App\Models\Task::STATUSES[$mine->status] }}</span></div>
                 @can('tasks.update-status')
                 <form method="POST" action="{{ route('admin.tasks.status', $task) }}" class="row g-2">
@@ -105,7 +105,7 @@
         {{-- Assignees --}}
         <div class="tk-card mb-3">
             <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-                <h6 class="fw-semibold mb-0" style="color:#1F5C2E">Assigned employees</h6>
+                <h6 class="fw-semibold mb-0" style="color:#0e3d26">Assigned employees</h6>
                 @if($assignees->count() < $totalAssignees)
                     <span class="tk-meta">Showing {{ $assignees->count() }} of {{ $totalAssignees }} — people in your reporting line</span>
                 @endif
@@ -135,7 +135,7 @@
     {{-- History --}}
     <div class="col-lg-4">
         <div class="tk-card p-4">
-            <h6 class="fw-semibold mb-3" style="color:#1F5C2E">History</h6>
+            <h6 class="fw-semibold mb-3" style="color:#0e3d26">History</h6>
             <div class="tk-tl">
                 @forelse($updates as $u)
                     <div class="item">

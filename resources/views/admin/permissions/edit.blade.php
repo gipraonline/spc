@@ -135,7 +135,7 @@
 
 .form-label {
     font-weight: 600;
-    color: #495057;
+    color: #4a544c;
 }
 
 .form-control {
@@ -145,12 +145,12 @@
 }
 
 .form-control:focus {
-    border-color: #696cff;
+    border-color: #17694a;
     box-shadow: 0 0 0 .15rem rgba(105, 108, 255, .15);
 }
 
 .input-group-text {
-    background: #f8f9fa;
+    background: #f7f9f7;
     border: 1px solid #d9dee3;
     border-right: 0;
     border-radius: 8px 0 0 8px;

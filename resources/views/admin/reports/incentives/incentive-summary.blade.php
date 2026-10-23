@@ -336,15 +336,15 @@
 }
 
 .table thead th {
-    background: #f8fafc;
-    color: #495057;
+    background: #f6f9f6;
+    color: #4a544c;
     text-transform: uppercase;
     font-size: 12px;
     letter-spacing: .5px;
 }
 
 .table tbody tr:hover {
-    background: #f8f9fa;
+    background: #f7f9f7;
 }
 
 .card {

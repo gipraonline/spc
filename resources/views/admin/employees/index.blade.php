@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
-    href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
 @endpush
 
@@ -27,8 +27,8 @@
     --warn-soft: #FCF0D8;
     --bad-soft: #FBE7E4;
     --shadow-sm: 0 1px 2px rgba(10, 61, 44, .05);
-    --font-head: 'Kanit', sans-serif;
-    --font-body: 'Outfit', sans-serif;
+    --font-head: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
     padding: 24px clamp(16px, 3vw, 32px) 8px;
     font-family: var(--font-body);
     color: var(--text);
@@ -948,7 +948,7 @@ document.getElementById('employeeProfileModal').addEventListener('show.bs.modal'
     --line-soft: rgba(18, 58, 40, .07);
     --text: #22352C;
     --text-muted: #61756B;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     color: var(--text);
     border: 0;
     border-radius: 20px;
@@ -1006,7 +1006,7 @@ document.getElementById('employeeProfileModal').addEventListener('show.bs.modal'
     display: flex;
     align-items: center;
     justify-content: center;
-    font: 600 26px/1 'Kanit', sans-serif;
+    font: 600 26px/1 'Plus Jakarta Sans', sans-serif;
     letter-spacing: .03em;
 }
 
@@ -1018,7 +1018,7 @@ document.getElementById('employeeProfileModal').addEventListener('show.bs.modal'
 
 .epv-hero-text h5 {
     margin: 0;
-    font: 600 22px/1.2 'Kanit', sans-serif;
+    font: 600 22px/1.2 'Plus Jakarta Sans', sans-serif;
     color: #fff;
     word-break: break-word;
 }
@@ -1071,7 +1071,7 @@ document.getElementById('employeeProfileModal').addEventListener('show.bs.modal'
     align-items: center;
     gap: 8px;
     margin: 4px 0 12px;
-    font: 600 11.5px/1 'Kanit', sans-serif;
+    font: 600 11.5px/1 'Plus Jakarta Sans', sans-serif;
     letter-spacing: .09em;
     text-transform: uppercase;
     color: var(--brand);
@@ -1167,7 +1167,7 @@ document.getElementById('employeeProfileModal').addEventListener('show.bs.modal'
     border: 0;
     border-radius: 12px;
     cursor: pointer;
-    font: 500 13px/1 'Outfit', sans-serif;
+    font: 500 13px/1 'Plus Jakarta Sans', sans-serif;
     color: #fff;
     background: linear-gradient(135deg, #5E8D3D, #1F5C2E);
     box-shadow: 0 10px 20px -10px rgba(94, 141, 61, .5);

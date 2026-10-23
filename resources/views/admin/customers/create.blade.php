@@ -4,26 +4,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
-    href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
 <style>
 /* ===== Add / Edit Customer — same visual language as the Employee Records module ===== */
 .employee-page.efp {
-    --brand: #4E7A33;
-    --brand-strong: #0E5239;
-    --brand-ink: #1F3D14;
-    --brand-bright: #5E8D3D;
-    --brand-glow: rgba(94, 141, 61, .35);
-    --brand-soft: #E4F3EB;
-    --brand-softer: #F2F9F5;
-    --line: rgba(18, 58, 40, 0.13);
-    --line-soft: rgba(18, 58, 40, 0.07);
-    --text: #22352C;
-    --text-muted: #61756B;
+    --brand: #17694a;
+    --brand-strong: #0e3d26;
+    --brand-ink: #08301e;
+    --brand-bright: #1b6b49;
+    --brand-glow: rgba(14, 61, 38, .35);
+    --brand-soft: #e7efe9;
+    --brand-softer: #f4f7f4;
+    --line: rgba(14, 61, 38, 0.13);
+    --line-soft: rgba(14, 61, 38, 0.07);
+    --text: #101a14;
+    --text-muted: #6e7a71;
     --bad: #C23A3A;
-    --shadow-sm: 0 1px 2px rgba(10, 61, 44, .05);
-    --font-head: 'Kanit', sans-serif;
-    --font-body: 'Outfit', sans-serif;
+    --shadow-sm: 0 1px 2px rgba(8, 46, 29, .05);
+    --font-head: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
     padding: 24px clamp(16px, 3vw, 32px) 8px;
     font-family: var(--font-body);
     color: var(--text);
@@ -68,7 +68,7 @@
 
 /* Left panel */
 .efp-side {
-    background: linear-gradient(160deg, #0E5239 0%, #1F5C2E 55%, #4E7A33 125%);
+    background: linear-gradient(160deg, #0e3d26 0%, #0e3d26 55%, #17694a 125%);
     color: #fff;
     padding: 28px 22px;
 }
@@ -176,7 +176,7 @@
     gap: 6px;
     font-size: 12.5px;
     font-weight: 600;
-    color: #3B5246;
+    color: #3f4a43;
     margin-bottom: 6px;
 }
 .efp-field > label i { color: var(--brand); font-size: 15px; }
@@ -191,18 +191,18 @@
     font-size: 13.5px;
     font-weight: 400;
     color: var(--text);
-    background-color: #FBFDFC;
+    background-color: #fbfdfb;
     box-shadow: none;
     transition: border-color .2s, box-shadow .2s, background-color .2s;
 }
 .efp-field .form-select { padding-right: 34px; }
 .efp-field textarea.form-control { height: auto; min-height: 92px; padding: 10px 12px; resize: vertical; }
-.efp-field .form-control::placeholder { color: #98A9A0; }
+.efp-field .form-control::placeholder { color: #97a299; }
 .efp-field .form-control:focus,
 .efp-field .form-select:focus {
     border-color: var(--brand-bright);
     background-color: #fff;
-    box-shadow: 0 0 0 3.5px rgba(94, 141, 61, .14);
+    box-shadow: 0 0 0 3.5px rgba(14, 61, 38, .14);
     outline: 0;
 }
 .efp-field .form-control:disabled,
@@ -251,7 +251,7 @@
 .efp-btn-secondary { background: var(--brand-softer); color: var(--brand); border-color: var(--line); }
 .efp-btn-secondary:hover { background: var(--brand-soft); color: var(--brand-strong); }
 .efp-btn-primary {
-    background: linear-gradient(135deg, #5E8D3D, #1F5C2E);
+    background: linear-gradient(135deg, #1b6b49, #0e3d26);
     color: #fff;
     box-shadow: 0 10px 20px -10px var(--brand-glow);
 }

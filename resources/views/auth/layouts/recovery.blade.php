@@ -9,26 +9,26 @@
     <link rel="shortcut icon" type="image/png" href="{{ asset('dist/images/logos/fav.png') }}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --green-700: #1F3D14;
-            --green-600: #4E7A33;
-            --green-500: #5E8D3D;
-            --green-100: #E4F3EB;
-            --green-50: #F2F9F5;
-            --ink: #22352C;
-            --muted: #61756B;
-            --line: #dde8e1;
+            --green-700: #08301e;
+            --green-600: #17694a;
+            --green-500: #1b6b49;
+            --green-100: #e7efe9;
+            --green-50: #f4f7f4;
+            --ink: #101a14;
+            --muted: #6e7a71;
+            --line: #dde5de;
             --danger: #C03434;
             --danger-bg: #FBE7E4;
-            --ok-bg: #DCF3E4;
-            --bg: #F0F5F1;
+            --ok-bg: #dff0e6;
+            --bg: #eef2ee;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        h1, h2, h3, h4, .step .label { font-family: 'Kanit', 'Outfit', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        h1, h2, h3, h4, .step .label { font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans', sans-serif; }
 
         body {
             background: var(--bg);
@@ -152,7 +152,7 @@
 
         .btn {
             width: 100%; padding: 15px; border: 0; border-radius: 12px; cursor: pointer;
-            background: linear-gradient(135deg, var(--green-500), #1F5C2E);
+            background: linear-gradient(135deg, var(--green-500), #0e3d26);
             color: #fff; font-size: 16px; font-weight: 700; letter-spacing: .2px;
             box-shadow: 0 12px 24px rgba(14,107,75,.26);
             transition: transform .25s cubic-bezier(.175,.885,.32,1.275), box-shadow .25s, opacity .2s;
@@ -190,6 +190,13 @@
             * { animation: none !important; transition: none !important; }
         }
     </style>
+    {{-- Client reference theme — forest green + sage canvas, Plus Jakarta Sans --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('dist/css/spc-theme.css') }}?v=23">
     @stack('styles')
 </head>
 

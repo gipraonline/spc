@@ -3,15 +3,15 @@
 @push('styles')
 <style>
 :root {
-    --u-brand: #4E7A33;
-    --u-brand-dark: #1F5C2E;
-    --u-brand-mid: #5E8D3D;
+    --u-brand: #17694a;
+    --u-brand-dark: #0e3d26;
+    --u-brand-mid: #1b6b49;
     --u-hr: #0E7490;
     --u-hr-light: #eff8ff;
-    --u-text: #22352C;
-    --u-muted: #61756B;
+    --u-text: #101a14;
+    --u-muted: #6e7a71;
     --u-surface: #ffffff;
-    --u-border: #dde8e1;
+    --u-border: #dde5de;
     --u-radius: 16px;
     --u-shadow: 0 5px 18px rgba(15, 81, 50, .08);
 }
@@ -20,9 +20,9 @@
     position: relative;
     overflow: hidden;
     background:
-        radial-gradient(420px 200px at 92% -20%, rgba(124, 162, 67, .38), transparent 60%),
-        radial-gradient(360px 220px at -6% 120%, rgba(124, 162, 67, .22), transparent 55%),
-        linear-gradient(135deg, #4E7A33, var(--u-brand-dark));
+        radial-gradient(420px 200px at 92% -20%, rgba(47, 138, 99, .38), transparent 60%),
+        radial-gradient(360px 220px at -6% 120%, rgba(47, 138, 99, .22), transparent 55%),
+        linear-gradient(135deg, #17694a, var(--u-brand-dark));
     border-radius: 20px;
     padding: 26px 30px;
     color: #fff;
@@ -32,7 +32,7 @@
     flex-wrap: wrap;
     gap: 14px;
     margin-bottom: 18px;
-    box-shadow: 0 28px 60px -24px rgba(8, 48, 31, .45);
+    box-shadow: 0 28px 60px -24px rgba(8, 46, 29, .45);
 }
 
 /* floating deco rings + seedling watermark — matches the HR hero language */
@@ -56,7 +56,7 @@
     right: 26px;
     bottom: -34px;
     font-size: 110px;
-    color: rgba(124, 162, 67, .13);
+    color: rgba(47, 138, 99, .13);
     pointer-events: none;
 }
 
@@ -64,7 +64,7 @@
     margin: 0 0 4px;
     font-weight: 600;
     font-size: 23px;
-    font-family: 'Kanit', 'Outfit', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans', sans-serif;
     letter-spacing: .01em;
     position: relative;
     z-index: 1;
@@ -128,27 +128,7 @@
 }
 
 /* Quick actions strip — right under the hero, first thing scanned */
-.u-qa-strip {
-    background: var(--u-surface);
-    border: 1px solid var(--u-border);
-    border-radius: 14px;
-    box-shadow: var(--u-shadow);
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-}
 
-.u-qa-strip .u-qa-eyebrow {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .4px;
-    color: var(--u-muted);
-    margin-right: 4px;
-}
 
 .u-qa-btn {
     border: 1px solid var(--u-border);
@@ -159,7 +139,7 @@
     color: var(--u-text);
     text-decoration: none;
     background:
-        linear-gradient(45deg, rgba(203, 255, 205, .4), transparent 60%),
+        linear-gradient(45deg, rgba(227, 239, 231, .4), transparent 60%),
         #fff;
     display: inline-flex;
     align-items: center;
@@ -177,8 +157,8 @@
     align-items: center;
     justify-content: center;
     font-size: 12px;
-    background: var(--u-brand-light, #E4F3EB);
-    background: #E4F3EB;
+    background: var(--u-brand-light, #e7efe9);
+    background: #e7efe9;
     color: var(--u-brand);
     transition: all .18s;
 }
@@ -186,25 +166,25 @@
 .u-qa-btn:hover {
     transform: translateY(-3px);
     color: var(--u-brand-dark);
-    border-color: rgba(94, 141, 61, .5);
-    box-shadow: 0 14px 26px -12px rgba(8, 48, 31, .4);
+    border-color: rgba(14, 61, 38, .5);
+    box-shadow: 0 14px 26px -12px rgba(8, 46, 29, .4);
     text-decoration: none;
 }
 
 .u-qa-btn:hover i {
-    background: linear-gradient(135deg, #7CA243, #1F5C2E);
+    background: linear-gradient(135deg, #2f8a63, #0e3d26);
     color: #fff;
     transform: rotate(-7deg) scale(1.08);
     box-shadow: 0 8px 14px -6px rgba(14, 107, 75, .55);
 }
 
 .u-qa-btn.hr:hover {
-    color: #1D6FA5;
+    color: #035055;
     border-color: rgba(79, 163, 224, .5);
 }
 
 .u-qa-btn.hr:hover i {
-    background: linear-gradient(135deg, #4FA3E0, #1D6FA5);
+    background: linear-gradient(135deg, #0b6e75, #035055);
     color: #fff;
     box-shadow: 0 8px 14px -6px rgba(29, 111, 165, .55);
 }
@@ -266,7 +246,7 @@
     width: 64px;
     height: 1.5px;
     border-radius: 2px;
-    background: linear-gradient(90deg, rgba(94, 141, 61, .45), transparent);
+    background: linear-gradient(90deg, rgba(14, 61, 38, .45), transparent);
     margin-left: 4px;
 }
 
@@ -295,7 +275,7 @@
     position: relative;
     overflow: hidden;
     background:
-        linear-gradient(45deg, rgba(203, 255, 205, .45), transparent 55%),
+        linear-gradient(45deg, rgba(227, 239, 231, .45), transparent 55%),
         var(--u-surface);
     border: 1px solid var(--u-border);
     border-radius: 16px;
@@ -317,7 +297,7 @@
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    border: 1.5px dashed rgba(94, 141, 61, .32);
+    border: 1.5px dashed rgba(14, 61, 38, .32);
     opacity: .75;
     transition: transform .3s;
     pointer-events: none;
@@ -325,8 +305,8 @@
 
 .u-kpi-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 22px 40px -18px rgba(8, 48, 31, .4);
-    border-color: rgba(94, 141, 61, .45);
+    box-shadow: 0 22px 40px -18px rgba(8, 46, 29, .4);
+    border-color: rgba(14, 61, 38, .45);
 }
 
 .u-kpi-card:hover::after {
@@ -345,7 +325,7 @@
     align-items: center;
     justify-content: center;
     color: #fff;
-    background: linear-gradient(135deg, #7CA243, #1F5C2E);
+    background: linear-gradient(135deg, #2f8a63, #0e3d26);
     font-size: 16px;
     flex-shrink: 0;
     box-shadow: 0 10px 18px -8px rgba(14, 107, 75, .55), inset 0 1.5px 0 rgba(255, 255, 255, .3);
@@ -357,7 +337,7 @@
 }
 
 .u-kpi-card.hr-kpi .u-kpi-ico {
-    background: linear-gradient(135deg, #4FA3E0, #1D6FA5);
+    background: linear-gradient(135deg, #0b6e75, #035055);
     box-shadow: 0 10px 18px -8px rgba(29, 111, 165, .5), inset 0 1.5px 0 rgba(255, 255, 255, .3);
 }
 
@@ -403,7 +383,7 @@
 
 .u-order-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 12px;
 }
 
@@ -417,9 +397,9 @@
     flex-direction: column;
     gap: 3px;
     background:
-        linear-gradient(45deg, rgba(203, 255, 205, .35), transparent 60%),
+        linear-gradient(45deg, rgba(227, 239, 231, .35), transparent 60%),
         #fff;
-    border: 1px solid #dde8e1;
+    border: 1px solid #dde5de;
     box-shadow: 0 5px 18px rgba(15, 81, 50, .08);
     transition: transform .2s, box-shadow .2s, border-color .2s;
 }
@@ -432,7 +412,7 @@
     top: 0;
     bottom: 0;
     width: 4px;
-    background: var(--oc, #5E8D3D);
+    background: var(--oc, #1b6b49);
     opacity: .9;
 }
 
@@ -449,15 +429,15 @@
     justify-content: center;
     font-size: 13px;
     color: #fff;
-    background: var(--oc, #5E8D3D);
-    box-shadow: 0 8px 14px -8px rgba(8, 48, 31, .5), inset 0 1.5px 0 rgba(255, 255, 255, .3);
+    background: var(--oc, #1b6b49);
+    box-shadow: 0 8px 14px -8px rgba(8, 46, 29, .5), inset 0 1.5px 0 rgba(255, 255, 255, .3);
     transition: transform .2s;
 }
 
 .u-order-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 36px -16px rgba(8, 48, 31, .38);
-    border-color: rgba(94, 141, 61, .45);
+    box-shadow: 0 20px 36px -16px rgba(8, 46, 29, .38);
+    border-color: rgba(14, 61, 38, .45);
 }
 
 .u-order-card:hover .i {
@@ -467,7 +447,7 @@
 .u-order-card .n {
     font-size: 21px;
     font-weight: 800;
-    font-family: 'Kanit', 'Outfit', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans', sans-serif;
     color: var(--u-brand-dark);
     margin-right: 34px;
 }
@@ -482,7 +462,7 @@
 
 /* per-status accent colors (used by --oc) */
 .u-order-total {
-    --oc: #1F5C2E;
+    --oc: #0e3d26;
 }
 
 .u-order-pending {
@@ -494,7 +474,7 @@
 }
 
 .u-order-dispatched {
-    --oc: #1D6FA5;
+    --oc: #035055;
 }
 
 .u-order-shipped {
@@ -506,7 +486,7 @@
 }
 
 .u-order-completed {
-    --oc: #4E7A33;
+    --oc: #17694a;
 }
 
 .u-order-returned {
@@ -594,7 +574,7 @@
 }
 
 .u-payment-bar .paid-fill {
-    background: linear-gradient(90deg, #A8CB6A, #7CA243);
+    background: linear-gradient(90deg, #86c4a4, #2f8a63);
     height: 100%;
 }
 
@@ -644,11 +624,11 @@
 }
 
 .u-payment-stat.paid .l {
-    color: #1F5C2E;
+    color: #0e3d26;
 }
 
 .u-payment-stat.paid .v {
-    color: #7CA243;
+    color: #2f8a63;
 }
 
 /* Right-hand "at a glance" rail */
@@ -819,12 +799,12 @@
 }
 
 .u-review-btn.approve {
-    color: #7CA243;
+    color: #2f8a63;
     border-color: #a7f3d0;
 }
 
 .u-review-btn.approve:hover {
-    background: #ecfdf5;
+    background: #eef7f1;
 }
 
 .u-review-btn.reject {
@@ -944,6 +924,15 @@
     white-space: nowrap;
 }
 
+
+@media screen and (max-width:767px) {
+    .u-order-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+}
+
 .u-ticker-item b {
     font-weight: 700;
 }
@@ -1041,17 +1030,17 @@
 
 .u-hero,
 .u-ticker,
-.u-qa-strip {
+/* .u-qa-strip {
     animation: uRise .5s ease backwards;
-}
+} */
 
 .u-ticker {
     animation-delay: .08s;
 }
 
-.u-qa-strip {
+/* .u-qa-strip {
     animation-delay: .14s;
-}
+} */
 
 .u-eyebrow {
     animation: uRise .45s ease backwards;
@@ -1095,7 +1084,7 @@
     position: relative;
     overflow: hidden;
     background:
-        linear-gradient(45deg, rgba(203, 255, 205, .3), transparent 55%),
+        linear-gradient(45deg, rgba(227, 239, 231, .3), transparent 55%),
         var(--u-surface);
 }
 
@@ -1107,7 +1096,7 @@
     width: 88px;
     height: 88px;
     border-radius: 50%;
-    border: 1.5px dashed rgba(94, 141, 61, .28);
+    border: 1.5px dashed rgba(14, 61, 38, .28);
     opacity: .8;
     pointer-events: none;
 }
@@ -1123,6 +1112,208 @@
         animation: none;
     }
 }
+
+
+
+.u-qa-strip {
+  --ink: #1f2540;
+  --muted: #7a8199;
+  --card: #ffffff;
+
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;                 /* stops the strip growing past its parent */
+  overflow: hidden;
+
+  display: flex;                /* flex-wrap = buttons size to their content */
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0% 0%, #ffe9f3 0, transparent 45%),
+    radial-gradient(circle at 100% 100%, #e3f0ff 0, transparent 45%),
+    #fbfbff;
+  border: 1px solid #eef0fa;
+  box-shadow: 0 10px 30px -12px rgba(80, 90, 160, .25);
+}
+
+/* Label across the full width */
+.u-qa-strip .u-qa-eyebrow {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.u-qa-strip .u-qa-eyebrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff7eb3, #6c8cff);
+  box-shadow: 0 0 0 4px rgba(108, 140, 255, .15);
+}
+
+/* Divider between Sales group and HR group: its own full row */
+.u-qa-strip .u-qa-divider {
+  flex: 0 0 100%;
+  height: 1px;
+  margin: 2px 4px;
+  background: repeating-linear-gradient(
+    90deg, #dfe3f3 0 6px, transparent 6px 12px
+  );
+}
+
+/* Button card */
+.u-qa-strip .u-qa-btn {
+  --c1: #ff7eb3;
+  --c2: #ff758c;
+
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  /* size to content, but never wider than the strip */
+  flex: 0 1 auto;
+  min-width: 170px;
+  max-width: 100%;
+  min-height: 56px;
+  padding: 10px 18px 10px 14px;
+
+  border-radius: 18px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
+  overflow-wrap: anywhere;      /* very long words break instead of overflowing */
+  word-break: break-word;
+  border: 1px solid #eef0fa;
+  box-shadow: 0 4px 14px -6px rgba(31, 37, 64, .18);
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease;
+  -webkit-tap-highlight-color: transparent;
+  animation: u-pop .45s ease both;
+}
+
+/* Color cycle: works for any number of buttons */
+.u-qa-strip .u-qa-btn:nth-of-type(6n+1) { --c1: #ff9a6c; --c2: #ff5e8a; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n+2) { --c1: #6c8cff; --c2: #8e6cff; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n+3) { --c1: #2fd6a5; --c2: #19b4d4; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n+4) { --c1: #ffc857; --c2: #ff9f43; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n+5) { --c1: #ff7eb3; --c2: #ff758c; }
+.u-qa-strip .u-qa-btn:nth-of-type(6n)   { --c1: #5ec8ff; --c2: #4a8cff; }
+
+/* Gradient icon chip */
+.u-qa-strip .u-qa-btn i {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  box-shadow: 0 6px 12px -4px var(--c2);
+  transition: transform .25s ease;
+}
+
+/* Soft colored glow in the corner */
+.u-qa-strip .u-qa-btn::after {
+  content: "";
+  position: absolute;
+  right: -24px;
+  top: -24px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  opacity: .12;
+  pointer-events: none;
+  transition: transform .3s ease, opacity .3s ease;
+}
+
+/* Hover (desktop) and press (mobile) */
+.u-qa-strip .u-qa-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 24px -10px var(--c2);
+}
+.u-qa-strip .u-qa-btn:hover i { transform: rotate(-8deg) scale(1.08); }
+.u-qa-strip .u-qa-btn:hover::after { transform: scale(1.8); opacity: .18; }
+.u-qa-strip .u-qa-btn:active { transform: scale(.96); }
+
+/* Mobile: 2 equal cards per row, icon on top */
+@media (max-width: 575px) {
+  .u-qa-strip {
+    gap: 10px;
+    padding: 14px;
+    border-radius: 20px;
+  }
+  .u-qa-strip .u-qa-btn {
+    flex: 0 0 calc(50% - 5px);
+    width: calc(50% - 5px);
+    min-width: 0;
+    max-width: calc(50% - 5px);
+    min-height: 92px;
+    flex-direction: column;
+    /* stretch (not flex-start) so the label gets the card width and wraps
+       instead of running past the edge */
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.3;
+    border-radius: 18px !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  .u-qa-strip .u-qa-btn i {
+    align-self: flex-start;   /* keep the icon chip small, top-left */
+  }
+}
+
+/* Very small phones: single column */
+@media (max-width: 340px) {
+  .u-qa-strip .u-qa-btn {
+    flex-basis: 100%;
+    width: 100%;
+    max-width: 100%;
+    min-height: 56px;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Gentle entrance animation */
+@keyframes u-pop {
+  from { opacity: 0; transform: translateY(10px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+.u-qa-strip .u-qa-btn:nth-of-type(2) { animation-delay: .06s; }
+.u-qa-strip .u-qa-btn:nth-of-type(3) { animation-delay: .12s; }
+.u-qa-strip .u-qa-btn:nth-of-type(4) { animation-delay: .18s; }
+.u-qa-strip .u-qa-btn:nth-of-type(5) { animation-delay: .24s; }
+.u-qa-strip .u-qa-btn:nth-of-type(6) { animation-delay: .30s; }
+.u-qa-strip .u-qa-btn:nth-of-type(n+7) { animation-delay: .36s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .u-qa-strip .u-qa-btn { animation: none; }
+}
+
 </style>
 @endpush
 
@@ -1393,26 +1584,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
     </div>
     @endif
 
-    {{-- =========================================================
-     4. ANALYTICS — the two graphs, together as one "read the
-     trend" moment before the detail grids below
-========================================================= --}}
-    @if($show('sales_graphs'))
-    <div class="u-section">
-        <div class="u-section-head">
-            <h3><i class="fa-solid fa-chart-column"></i> Sales Graphs</h3>
-            <span class="u-sub">Last 7 days &middot; order mix</span>
-        </div>
-        <div class="u-chart-row">
-            <div class="u-card">
-                <div class="u-chart-wrap"><canvas id="uSalesTrendChart"></canvas></div>
-            </div>
-            <div class="u-card">
-                <div class="u-chart-wrap"><canvas id="uOrderStatusChart"></canvas></div>
-            </div>
-        </div>
-    </div>
-    @endif
+
 
     {{-- =========================================================
      5. MAIN CONTENT (left, operational detail) +
@@ -1541,6 +1713,26 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
 
         </div>
         @endif
+            {{-- =========================================================
+     4. ANALYTICS — the two graphs, together as one "read the
+     trend" moment before the detail grids below
+========================================================= --}}
+    @if($show('sales_graphs'))
+    <div class="u-section">
+        <div class="u-section-head">
+            <h3><i class="fa-solid fa-chart-column"></i> Sales Graphs</h3>
+            <span class="u-sub">Last 7 days &middot; order mix</span>
+        </div>
+        <div class="u-chart-row">
+            <div class="u-card">
+                <div class="u-chart-wrap"><canvas id="uSalesTrendChart"></canvas></div>
+            </div>
+            <div class="u-card">
+                <div class="u-chart-wrap"><canvas id="uOrderStatusChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+    @endif
 
         {{-- RIGHT RAIL — everything HR-actionable, grouped for a quick
          glance without needing to scroll through Sales detail --}}
@@ -1658,13 +1850,13 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 datasets: [{
                     label: 'Sales (₹)',
                     data: @json($salesTrendValues),
-                    borderColor: '#5E8D3D',
+                    borderColor: '#1b6b49',
                     backgroundColor: 'rgba(15,81,50,0.08)',
                     borderWidth: 2.5,
                     tension: 0.35,
                     fill: true,
                     pointRadius: 3,
-                    pointBackgroundColor: '#5E8D3D',
+                    pointBackgroundColor: '#1b6b49',
                 }],
             },
             options: {
@@ -1703,7 +1895,7 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
                 labels: @json($orderStatusChart['labels']),
                 datasets: [{
                     data: @json($orderStatusChart['values']),
-                    backgroundColor: ['#f59e0b', '#A8CB6A', '#3b82f6', '#8b5cf6', '#14b8a6',
+                    backgroundColor: ['#f59e0b', '#86c4a4', '#3b82f6', '#0b6e75', '#14b8a6',
                         '#0ea5e9', '#ef4444'
                     ],
                     borderWidth: 2,

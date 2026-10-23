@@ -473,8 +473,8 @@
 <style>
 .table thead th {
 
-    background: #f8f9fa;
-    color: #495057;
+    background: #f7f9f7;
+    color: #4a544c;
     text-transform: uppercase;
     font-size: 12px;
     font-weight: 600;
@@ -518,7 +518,7 @@
 .card-header {
 
     background: #fff;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid #eaeeea;
 
 }
 

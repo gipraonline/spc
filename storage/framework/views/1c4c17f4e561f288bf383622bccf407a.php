@@ -22,6 +22,57 @@
             <i class="fa-solid fa-users"></i><span>HR</span>
         </a>
         <?php endif; ?>
+
+        
+        <button type="button" class="mnav-more" data-spc-sidebar-toggle role="button" aria-expanded="false"
+            aria-controls="main-wrapper" aria-label="Open full menu">
+            <i class="fa-solid fa-ellipsis"></i><span>More</span>
+        </button>
     </div>
 </nav>
+
+
+<div class="spc-sidebar-backdrop" data-spc-sidebar-close hidden></div>
+
+<script>
+    (function() {
+        var wrapper = document.getElementById('main-wrapper');
+        if (!wrapper) return;
+        var backdrop = document.querySelector('.spc-sidebar-backdrop');
+        var toggles = document.querySelectorAll('[data-spc-sidebar-toggle]');
+
+        function setOpen(open) {
+            wrapper.classList.toggle('show-sidebar', open);
+            if (backdrop) backdrop.hidden = !open;
+            toggles.forEach(function(t) {
+                t.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+        }
+
+        function isOpen() {
+            return wrapper.classList.contains('show-sidebar');
+        }
+
+        toggles.forEach(function(t) {
+            t.addEventListener('click', function(e) {
+                e.preventDefault();
+                setOpen(!isOpen());
+            });
+        });
+
+        if (backdrop) {
+            backdrop.addEventListener('click', function() {
+                setOpen(false);
+            });
+        }
+
+        // Close the drawer when a nav link inside it is tapped
+        var links = wrapper.querySelectorAll('.sidebar-nav a');
+        links.forEach(function(a) {
+            a.addEventListener('click', function() {
+                setOpen(false);
+            });
+        });
+    })();
+</script>
 <?php /**PATH C:\xampp\htdocs\spc_new\resources\views/partials/mobile-bottom-nav.blade.php ENDPATH**/ ?>

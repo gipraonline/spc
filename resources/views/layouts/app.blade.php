@@ -30,7 +30,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
     <!-- Favicon -->
@@ -52,32 +52,32 @@
        page in the app (admin, sales, HR) feels like one product.
        ============================================================ */
     :root {
-        --spc-brand: #4E7A33;
-        --spc-brand-strong: #0E5239;
-        --spc-brand-ink: #1F3D14;
-        --spc-brand-bright: #5E8D3D;
-        --spc-brand-glow: rgba(94, 141, 61, .35);
-        --spc-brand-soft: #E4F3EB;
-        --spc-brand-softer: #F2F9F5;
-        --spc-grad: linear-gradient(135deg, #5E8D3D, #1F5C2E);
-        --spc-grad-hero: linear-gradient(135deg, #4E7A33 0%, #1F3D14 55%, #0F2B14 100%);
-        --spc-ink: #22352C;
-        --spc-muted: #61756B;
-        --spc-line: rgba(18, 58, 40, .13);
-        --spc-line-soft: rgba(18, 58, 40, .07);
+        --spc-brand: #17694a;
+        --spc-brand-strong: #0e3d26;
+        --spc-brand-ink: #08301e;
+        --spc-brand-bright: #1b6b49;
+        --spc-brand-glow: rgba(14, 61, 38, .35);
+        --spc-brand-soft: #e7efe9;
+        --spc-brand-softer: #f4f7f4;
+        --spc-grad: linear-gradient(135deg, #1b6b49, #0e3d26);
+        --spc-grad-hero: linear-gradient(135deg, #17694a 0%, #08301e 55%, #0F2B14 100%);
+        --spc-ink: #101a14;
+        --spc-muted: #6e7a71;
+        --spc-line: rgba(14, 61, 38, .13);
+        --spc-line-soft: rgba(14, 61, 38, .07);
         --spc-radius: 16px;
         --spc-radius-sm: 12px;
-        --spc-shadow: 0 14px 34px -16px rgba(10, 61, 44, .28);
-        --spc-shadow-lg: 0 28px 60px -24px rgba(8, 48, 31, .4);
+        --spc-shadow: 0 14px 34px -16px rgba(8, 46, 29, .28);
+        --spc-shadow-lg: 0 28px 60px -24px rgba(8, 46, 29, .4);
         --spc-ok: #15803D;
-        --spc-ok-soft: #DCF3E4;
+        --spc-ok-soft: #dff0e6;
         --spc-warn: #B45309;
         --spc-warn-soft: #FCF0D8;
         --spc-bad: #C03434;
         --spc-bad-soft: #FBE7E4;
         --spc-nav-h: 64px;
-        --font-head: 'Kanit', sans-serif;
-        --font-body: 'Outfit', sans-serif;
+        --font-head: 'Plus Jakarta Sans', sans-serif;
+        --font-body: 'Plus Jakarta Sans', sans-serif;
     }
 
     body {
@@ -85,10 +85,10 @@
         color: var(--spc-ink);
         font-size: 14.5px;
         background:
-            linear-gradient(45deg, rgba(203, 255, 205, .32), transparent 46%),
-            radial-gradient(1000px 460px at 90% -10%, rgba(94, 141, 61, 0.12), transparent 62%),
-            radial-gradient(760px 420px at -8% 108%, rgba(20, 108, 78, 0.1), transparent 58%),
-            #F0F5F1 !important;
+            linear-gradient(45deg, rgba(227, 239, 231, .32), transparent 46%),
+            radial-gradient(1000px 460px at 90% -10%, rgba(14, 61, 38, 0.12), transparent 62%),
+            radial-gradient(760px 420px at -8% 108%, rgba(10, 84, 58, 0.1), transparent 58%),
+            #eef2ee !important;
     }
 
     h1,
@@ -107,7 +107,7 @@
 
     .card-title,
     .page-main-title {
-        background: linear-gradient(45deg, #0E5239, #5E8D3D) !important;
+        background: linear-gradient(45deg, #0e3d26, #1b6b49) !important;
         -webkit-background-clip: text !important;
         background-clip: text !important;
         font-weight: 600 !important;
@@ -166,11 +166,11 @@
     /* Cards → mint-washed surface with green top accent (replaces blue) */
     .card {
         border-radius: var(--spc-radius);
-        background: linear-gradient(45deg, rgba(203, 255, 205, .28), transparent 55%), #fff;
+        background: linear-gradient(45deg, rgba(227, 239, 231, .28), transparent 55%), #fff;
     }
 
     .card.w-100.position-relative.overflow-hidden {
-        background: linear-gradient(45deg, rgba(203, 255, 205, .28), transparent 55%), #fff;
+        background: linear-gradient(45deg, rgba(227, 239, 231, .28), transparent 55%), #fff;
         border-radius: var(--spc-radius);
         box-shadow: var(--spc-shadow);
         backdrop-filter: none;
@@ -188,7 +188,7 @@
         width: 76px;
         height: 76px;
         border-radius: 50%;
-        border: 1.5px dashed rgba(94, 141, 61, .3);
+        border: 1.5px dashed rgba(14, 61, 38, .3);
         opacity: .75;
         transition: transform .3s;
         pointer-events: none;
@@ -196,8 +196,8 @@
 
     .card.w-100.position-relative.overflow-hidden:hover {
         transform: translateY(-4px);
-        box-shadow: 0 22px 40px -18px rgba(8, 48, 31, .42);
-        border-color: rgba(94, 141, 61, .45);
+        box-shadow: 0 22px 40px -18px rgba(8, 46, 29, .42);
+        border-color: rgba(14, 61, 38, .45);
     }
 
     .card.w-100.position-relative.overflow-hidden:hover::after {
@@ -206,7 +206,7 @@
 
     .filter-card-wrapper {
         border-radius: var(--spc-radius);
-        background: linear-gradient(45deg, rgba(203, 255, 205, .28), transparent 55%), #fff;
+        background: linear-gradient(45deg, rgba(227, 239, 231, .28), transparent 55%), #fff;
     }
 
     /* Tables → green gradient header, softer body text.
@@ -214,7 +214,7 @@
        dark-on-light header styles can never render invisibly on it. */
     table th,
     th.border-bottom-0 h6 {
-        background: linear-gradient(135deg, #5E8D3D, #1F5C2E) !important;
+        background: linear-gradient(135deg, #1b6b49, #0e3d26) !important;
         color: #fff !important;
     }
 
@@ -225,7 +225,7 @@
 
     .btn-outline-primary,
     .btn-outline-secondary {
-        border: 1.5px solid rgba(94, 141, 61, .45) !important;
+        border: 1.5px solid rgba(14, 61, 38, .45) !important;
         color: var(--spc-brand-strong) !important;
         background: #fff !important;
         border-radius: 12px !important;
@@ -244,7 +244,7 @@
     }
 
     table.table thead th {
-        background: linear-gradient(135deg, #5E8D3D, #1F5C2E) !important;
+        background: linear-gradient(135deg, #1b6b49, #0e3d26) !important;
         color: #fff !important;
         font-family: var(--font-body);
         font-size: 10.5px !important;
@@ -282,7 +282,7 @@
     }
 
     table.table tbody tr:hover {
-        background: #F4FAF7 !important;
+        background: #f4f8f4 !important;
     }
 
     table.table tbody tr:hover>* {
@@ -301,8 +301,8 @@
     }
 
     table.table .badge.bg-success {
-        background: #DCF3E4 !important;
-        color: #116A38 !important;
+        background: #dff0e6 !important;
+        color: #0e6b43 !important;
     }
 
     table.table .badge.bg-warning {
@@ -317,7 +317,7 @@
 
     table.table .badge.bg-info {
         background: #E3F0FA !important;
-        color: #1D6FA5 !important;
+        color: #035055 !important;
     }
 
     table.table .badge.bg-secondary {
@@ -349,7 +349,7 @@
     }
 
     .table-hover>tbody>tr:hover>* {
-        --bs-table-bg-state: #F4FAF7 !important;
+        --bs-table-bg-state: #f4f8f4 !important;
     }
 
     /* Modals + pagination follow the green identity */
@@ -377,7 +377,7 @@
     .form-select:focus,
     .styled-select:focus {
         border-color: var(--spc-brand-bright);
-        box-shadow: 0 0 0 3.5px rgba(94, 141, 61, .14) !important;
+        box-shadow: 0 0 0 3.5px rgba(14, 61, 38, .14) !important;
     }
 
     .icon-box {
@@ -389,11 +389,11 @@
     body #main-wrapper aside.left-sidebar,
     aside.left-sidebar {
         background:
-            linear-gradient(45deg, #CBFFCD, transparent 62%),
-            radial-gradient(420px 320px at -20% 108%, rgba(94, 141, 61, .14), transparent 55%),
+            linear-gradient(45deg, #e3efe7, transparent 62%),
+            radial-gradient(420px 320px at -20% 108%, rgba(14, 61, 38, .14), transparent 55%),
             linear-gradient(175deg, #FFFFFF 0%, #F4FBF6 60%, #ECF7F0 100%) !important;
         background-color: #F4FBF6 !important;
-        border-right: 1px solid rgba(18, 58, 40, .1);
+        border-right: 1px solid rgba(14, 61, 38, .1);
         box-shadow: none;
     }
 
@@ -423,7 +423,7 @@
         content: "";
         flex: 1;
         height: 1px;
-        background: linear-gradient(90deg, rgba(94, 141, 61, .35), transparent);
+        background: linear-gradient(90deg, rgba(14, 61, 38, .35), transparent);
     }
 
     .sidebar-nav ul .nav-small-cap-icon {
@@ -459,7 +459,7 @@
     }
 
     .sidebar-nav ul .sidebar-item .sidebar-link:hover {
-        background: rgba(94, 141, 61, .1);
+        background: rgba(14, 61, 38, .1);
         color: var(--spc-brand-strong);
     }
 
@@ -606,7 +606,7 @@
         background: #fff;
         color: var(--spc-muted);
         transition: all .16s;
-        box-shadow: 0 1px 2px rgba(10, 61, 44, .05);
+        box-shadow: 0 1px 2px rgba(8, 46, 29, .05);
     }
 
     header.app-header .nav-link:hover,
@@ -633,7 +633,7 @@
         border-radius: 13px;
         border: 1px solid var(--spc-line);
         background: #fff;
-        box-shadow: 0 1px 2px rgba(10, 61, 44, .05);
+        box-shadow: 0 1px 2px rgba(8, 46, 29, .05);
         transition: all .16s;
     }
 
@@ -653,7 +653,7 @@
         font-weight: 600;
         font-size: 13px;
         font-family: var(--font-head);
-        background: linear-gradient(135deg, #7CA243, #0C6B4B);
+        background: linear-gradient(135deg, #2f8a63, #0e3d26);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -806,7 +806,7 @@
     /* FILTER WRAPPER */
     .filter-card-wrapper {
         background: #fff;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #e4eae4;
         border-radius: 18px;
         padding: 24px;
     }
@@ -828,11 +828,11 @@
         width: 34px;
         height: 34px;
         border-radius: 10px;
-        background: #eef2ff;
+        background: #eef4f0;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #4f6df5;
+        color: #1b6b49;
     }
 
     /* LABEL */
@@ -841,20 +841,20 @@
         margin-bottom: 8px;
         font-size: 13px;
         font-weight: 600;
-        color: #64748b;
+        color: #6b756d;
     }
 
     /* INPUTS */
     .styled-select {
         height: 46px;
         border-radius: 12px;
-        border: 1px solid #dbe2ea;
+        border: 1px solid #dbe3db;
         font-size: 14px;
         font-weight: 500;
     }
 
     .styled-select:focus {
-        border-color: #4f6df5;
+        border-color: #1b6b49;
         box-shadow: 0 0 0 4px rgba(79, 109, 245, 0.08);
     }
 
@@ -869,7 +869,7 @@
         height: 46px;
         border-radius: 12px;
         border: none;
-        background: linear-gradient(90deg, #5b7cff 0%, #4f6df5 100%);
+        background: linear-gradient(90deg, #17694a 0%, #1b6b49 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -893,7 +893,7 @@
         justify-content: center;
         gap: 8px;
 
-        background: linear-gradient(135deg, #5d87ff 0%, #4f73f6 100%);
+        background: linear-gradient(135deg, #17694a 0%, #17694a 100%);
         border: none;
 
         transition: all 0.2s ease-in-out;
@@ -905,7 +905,7 @@
     }
 
     body {
-        background-color: #f1f5f9;
+        background-color: #eef2ee;
     }
 
     /* (legacy sidebar padding removed — unified sidebar handles spacing) */
@@ -915,7 +915,7 @@
     header.app-header {
         background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(10px);
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e9e2;
     }
 
     /* (legacy sidebar-link rules removed — the unified "Evergreen mint"
@@ -970,7 +970,7 @@
 
     .table-hover>tbody>tr:hover>* {
         --bs-table-color-state: var(--bs-table-hover-color);
-        --bs-table-bg-state: #f1f5f9;
+        --bs-table-bg-state: #eef2ee;
     }
 
     .border-bottom-0 {
@@ -1028,8 +1028,8 @@
     .page-link.active {
         z-index: 3;
         color: var(--bs-pagination-active-color);
-        background-color: #023f87;
-        border-color: #023f87;
+        background-color: #0e3d26;
+        border-color: #0e3d26;
     }
 
     .d-none.flex-sm-fill.d-sm-flex.align-items-sm-center.justify-content-sm-between {
@@ -1061,7 +1061,7 @@
     }
 
     .btn-filter {
-        background: #2f4b8f;
+        background: #0e3d26;
         color: #fff;
         padding: 10px 30px;
         border-radius: 6px;
@@ -1073,18 +1073,18 @@
 
     .btn-filter:hover {
         background: #fff;
-        color: #4a5a82;
+        color: #4a544c;
 
     }
 
     .card-title-custom {
         font-weight: 700;
-        color: #2c3e50;
+        color: #1b3a2c;
     }
 
     .trend-neutral {
-        color: #475569;
-        background: #e2e8f0;
+        color: #46514a;
+        background: #e2e9e2;
     }
 
     #store_results {
@@ -1129,16 +1129,30 @@
         box-shadow: none !important;
         outline: none;
         background: transparent;
-        color: #437ccb;
+        color: #17694a;
         font-weight: 500;
         font-size: 15px;
     }
+
+
+.employee-page{
+    padding: 0 !important;
+}
 
     #employee_search:focus {
         box-shadow: none !important;
         outline: none;
     }
     </style>
+
+    {{-- Client reference theme — forest green + sage canvas, Plus Jakarta Sans.
+         Loaded last in <head> so it overrides the Evergreen rules above. --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('dist/css/spc-theme.css') }}?v=23">
 </head>
 
 <body>
@@ -1245,6 +1259,9 @@
             <header class="app-header">
                 <nav class="navbar navbar-expand-lg navbar-light">
                     <div class="topbar-left">
+                        <a class="topbar-logo" href="{{ route('dashboard') }}" aria-label="SPC Universal home">
+                            <img src="{{ asset('dist/images/logos/spclogo.png') }}" alt="SPC">
+                        </a>
                         <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">
                             <i class="ti ti-menu-2"></i>
                         </a>
@@ -1382,7 +1399,7 @@
             </div>
             <p style="
     text-align: center;
-    color: #15386f;
+    color: #0e3d26;
     font-weight: 600;
 ">Copyright © 2026 All Rights Reserved.
 
@@ -1422,7 +1439,7 @@
         .btn-info,
         .btn-outline-info {
             background: #fff !important;
-            border: 1.5px solid rgba(94, 141, 61, .45) !important;
+            border: 1.5px solid rgba(14, 61, 38, .45) !important;
             color: var(--spc-brand-strong) !important;
             border-radius: 12px !important;
             font-weight: 600;
@@ -1456,13 +1473,19 @@
         }
 
         table.table tr {
-            display: block;
+            /* record-card row: wrapping flex so the rich header (code ·
+               identity · status) can share one line above the field cells
+               (matches the record-card block in spc-theme.css) */
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            position: relative;
             width: 100%;
             background:
-                linear-gradient(45deg, rgba(203, 255, 205, .25), transparent 60%), #fff;
+                linear-gradient(45deg, rgba(227, 239, 231, .25), transparent 60%), #fff;
             border: 1px solid var(--spc-line);
             border-radius: 16px;
-            box-shadow: 0 10px 24px -14px rgba(8, 48, 31, .35);
+            box-shadow: 0 10px 24px -14px rgba(8, 46, 29, .35);
             margin: 0 0 12px;
             overflow: hidden;
         }
@@ -1571,6 +1594,7 @@
         }
     }
 
+
     /* ============ Mobile bottom nav + phone polish ============ */
     .spc-mnav {
         display: none;
@@ -1598,9 +1622,9 @@
             background: linear-gradient(160deg, rgba(255, 255, 255, .96), rgba(255, 255, 255, .9));
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(18, 58, 40, .12);
+            border: 1px solid rgba(14, 61, 38, .12);
             border-radius: 20px;
-            box-shadow: 0 18px 42px -14px rgba(8, 48, 31, .45);
+            box-shadow: 0 18px 42px -14px rgba(8, 46, 29, .45);
             padding: 8px 6px;
         }
 
@@ -1645,12 +1669,12 @@
             right: 22%;
             height: 3px;
             border-radius: 0 0 4px 4px;
-            background: linear-gradient(90deg, #7CA243, #1F5C2E);
+            background: linear-gradient(90deg, #2f8a63, #0e3d26);
         }
 
         .spc-mnav a.active i {
             color: #fff;
-            background: linear-gradient(135deg, #7CA243, #1F5C2E);
+            background: linear-gradient(135deg, #2f8a63, #0e3d26);
             width: 30px;
             height: 30px;
             border-radius: 10px;
@@ -1673,13 +1697,13 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #7CA243, #1F5C2E);
+            background: linear-gradient(135deg, #2f8a63, #0e3d26);
             color: #fff;
             font-size: 17px;
             background-size: 180% 180%;
             animation: mnavShift 4.5s ease-in-out infinite;
-            box-shadow: 0 14px 26px -10px rgba(8, 48, 31, .55), inset 0 1.5px 0 rgba(255, 255, 255, .35);
-            border: 3px solid #F0F5F1;
+            box-shadow: 0 14px 26px -10px rgba(8, 46, 29, .55), inset 0 1.5px 0 rgba(255, 255, 255, .35);
+            border: 3px solid #eef2ee;
         }
 
         @keyframes mnavShift {
@@ -1748,7 +1772,7 @@
          mobile card-mode tables can show field names. Runs once per table. --}}
     <script>
     (function() {
-        document.querySelectorAll('table.table').forEach(function(tbl) {
+        document.querySelectorAll('table').forEach(function(tbl) {
             if (tbl.dataset.labelsDone) return;
             tbl.dataset.labelsDone = '1';
             var heads = tbl.querySelectorAll('thead th');
@@ -1764,6 +1788,35 @@
                 });
             });
         });
+    })();
+    </script>
+
+    {{-- Long KPI values (e.g. ₹7,858.98) shrink a step instead of clipping
+         their card on phones. Re-run safe: classes are only ever added. --}}
+    <script>
+    (function() {
+        function shrinkKpis() {
+            document.querySelectorAll('.u-kpi-value').forEach(function(el) {
+                var n = (el.textContent || '').trim().length;
+                if (n > 11) {
+                    el.classList.add('sz-xs');
+                    el.classList.remove('sz-sm');
+                } else if (n > 8) {
+                    el.classList.add('sz-sm');
+                    el.classList.remove('sz-xs');
+                }
+            });
+        }
+        shrinkKpis();
+        // Charts / AJAX can replace values after load — watch for it.
+        if (!window.__spcKpiWatch) {
+            window.__spcKpiWatch = true;
+            new MutationObserver(shrinkKpis).observe(document.body, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+        }
     })();
     </script>
 

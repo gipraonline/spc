@@ -5,7 +5,7 @@
     <link rel="shortcut icon" type="image/png" href="{{ asset('dist/images/logos/fav.png') }}" />
 <title>Employee file — {{ $viewed->user->name ?? $viewed->employee_code }}</title>
 <style>
-    :root{--ink:#1c2a22;--muted:#5d6b63;--line:#dfe7e2;--brand:#1F5C2E;--bad:#b42318;--warn:#b54708;--ok:#067647}
+    :root{--ink:#1c2a22;--muted:#5d6b63;--line:#dfe7e2;--brand:#0e3d26;--bad:#b42318;--warn:#b54708;--ok:#067647}
     *{box-sizing:border-box}
     body{font:13px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);margin:0;background:#f5f7f6}
     .page{max-width:900px;margin:24px auto;background:#fff;padding:32px 36px;border:1px solid var(--line);border-radius:12px}

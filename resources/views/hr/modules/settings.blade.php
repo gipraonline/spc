@@ -1141,7 +1141,7 @@
             .scope-opt:has(input:checked) {
                 border-color: var(--brand);
                 background: var(--brand-softer);
-                box-shadow: 0 0 0 3px rgba(94, 141, 61, .14);
+                box-shadow: 0 0 0 3px rgba(14, 61, 38, .14);
             }
 
             .scope-opt b {

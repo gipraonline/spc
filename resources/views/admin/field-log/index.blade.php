@@ -3,25 +3,28 @@
 @section('topbarTitle', 'Field Log')
 
 @section('content')
-
 <style>
-/* =====================================================================
-   FIELD LOG — SPC "Evergreen" edition
-   Palette: olive #5E8D3D · forest #1F5C2E · leaf #7CA243
-            accents #A8CB6A/#C2DC96 · mint wash #CBFFCD (45deg)
-   ===================================================================== */
+
+/* =========================================================
+   SPC FL – Full stylesheet (dark green gradient theme)
+   ========================================================= */
+
 .spc-fl {
-    --fl-olive: #5E8D3D;
-    --fl-forest: #1F5C2E;
-    --fl-leaf: #7CA243;
-    --fl-acc: #A8CB6A;
-    --fl-acc2: #C2DC96;
-    --fl-ink: #123A28;
-    --fl-mut: #5F7A6C;
+    --g6: #2f8f5b;
+    --fl-forest: #12492e;
+    --fl-deep: #0b3320;
+    --fl-olive: #2f8f5b;
+    --fl-leaf: #4fa774;
+    --fl-acc: #8fd0a8;
+    --fl-acc2: #bfe6cd;
+    --fl-ink: #0f3a28;
+    --fl-mut: #5f7a6c;
     --fl-line: rgba(18, 58, 40, .1);
-    --fl-grad: linear-gradient(135deg, #5E8D3D, #1F5C2E);
+    --fl-grad:
+        radial-gradient(110% 100% at 100% 0%, var(--g6), transparent 60%),
+        linear-gradient(160deg, #12492e, #0b3320);
     --fl-wash: linear-gradient(45deg, #CBFFCD, transparent 60%);
-    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
 }
 
 .spc-fl h1,
@@ -35,7 +38,7 @@
 .spc-fl .fl-task-name,
 .spc-fl .modal-title,
 .spc-fl .fl-step-num {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 /* ---------- Hero ---------- */
@@ -44,13 +47,13 @@
     overflow: hidden;
     border-radius: 22px;
     background:
-        radial-gradient(340px 240px at 88% -12%, rgba(255, 255, 255, .16), transparent 60%),
-        radial-gradient(420px 320px at -14% 116%, rgba(203, 255, 205, .34), transparent 55%),
+        radial-gradient(340px 240px at 88% -12%, rgba(255, 255, 255, .14), transparent 60%),
+        radial-gradient(420px 320px at -14% 116%, rgba(203, 255, 205, .18), transparent 55%),
         var(--fl-grad);
     color: #fff;
     padding: 26px 28px;
     margin-bottom: 18px;
-    box-shadow: 0 18px 40px -18px rgba(31, 92, 46, .55);
+    box-shadow: 0 18px 40px -18px rgba(11, 51, 32, .6);
 }
 
 .fl-hero::before {
@@ -89,7 +92,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: .18em;
@@ -141,7 +144,7 @@
 }
 
 .fl-clockchip b {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-size: 15px;
     font-weight: 600;
     letter-spacing: .02em;
@@ -177,7 +180,7 @@
 
 .fl-status .dot.live {
     background: var(--fl-olive);
-    box-shadow: 0 0 0 0 rgba(94, 141, 61, .5);
+    box-shadow: 0 0 0 0 rgba(47, 143, 91, .5);
     animation: flPulse 1.8s infinite;
 }
 
@@ -191,15 +194,15 @@
 
 @keyframes flPulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(94, 141, 61, .45);
+        box-shadow: 0 0 0 0 rgba(47, 143, 91, .45);
     }
 
     70% {
-        box-shadow: 0 0 0 9px rgba(94, 141, 61, 0);
+        box-shadow: 0 0 0 9px rgba(47, 143, 91, 0);
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(94, 141, 61, 0);
+        box-shadow: 0 0 0 0 rgba(47, 143, 91, 0);
     }
 }
 
@@ -323,7 +326,7 @@
     border: 1.5px solid #E3EDE3;
     min-height: 46px;
     font-size: 14px;
-    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
 }
 
 .spc-fl textarea.form-control {
@@ -333,7 +336,7 @@
 .spc-fl .form-control:focus,
 .spc-fl .form-select:focus {
     border-color: var(--fl-leaf);
-    box-shadow: 0 0 0 3.5px rgba(94, 141, 61, .14);
+    box-shadow: 0 0 0 3.5px rgba(47, 143, 91, .14);
 }
 
 .fl-readonly {
@@ -367,7 +370,7 @@
     color: #fff;
     font-size: 13px;
     font-weight: 600;
-    box-shadow: 0 6px 12px -6px rgba(31, 92, 46, .5);
+    box-shadow: 0 6px 12px -6px rgba(11, 51, 32, .55);
 }
 
 /* ---------- Task input rows ---------- */
@@ -386,7 +389,7 @@
 .fl-taskrow:focus-within {
     border-color: var(--fl-leaf);
     background: #fff;
-    box-shadow: 0 0 0 3.5px rgba(94, 141, 61, .1);
+    box-shadow: 0 0 0 3.5px rgba(47, 143, 91, .1);
 }
 
 .fl-taskrow .form-control {
@@ -408,7 +411,7 @@
     color: var(--fl-olive);
     font-size: 11.5px;
     font-weight: 700;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 .fl-taskrow .fl-tdel {
@@ -445,14 +448,14 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 10px 22px -10px rgba(31, 92, 46, .6) !important;
+    box-shadow: 0 10px 22px -10px rgba(11, 51, 32, .65) !important;
     transition: all .16s !important;
 }
 
 .spc-fl .btn-fl:hover {
     transform: translateY(-1.5px);
-    box-shadow: 0 14px 26px -10px rgba(31, 92, 46, .7) !important;
-    filter: brightness(1.06);
+    box-shadow: 0 14px 26px -10px rgba(11, 51, 32, .75) !important;
+    filter: brightness(1.1);
 }
 
 .spc-fl .btn-fl.big {
@@ -601,7 +604,7 @@
 
 .fl-chip .d.done {
     background: var(--fl-olive);
-    box-shadow: 0 0 0 3px rgba(94, 141, 61, .15);
+    box-shadow: 0 0 0 3px rgba(47, 143, 91, .15);
 }
 
 .fl-chip .d.prog {
@@ -621,7 +624,7 @@
 
 .spc-fl .fl-table thead th {
     background: var(--fl-grad) !important;
-    color: #fff !important;
+    color: #E4F5DA !important;
     font-size: 10.5px;
     text-transform: uppercase;
     letter-spacing: .09em;
@@ -658,7 +661,7 @@
     color: var(--fl-olive);
     font-size: 12px;
     font-weight: 700;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 .fl-task-name {
@@ -740,7 +743,7 @@
     background: var(--fl-grad);
     border-color: transparent;
     color: #fff;
-    box-shadow: 0 8px 16px -8px rgba(31, 92, 46, .6);
+    box-shadow: 0 8px 16px -8px rgba(11, 51, 32, .65);
 }
 
 .spc-fl .editTaskBtn:disabled {
@@ -775,7 +778,7 @@
 }
 
 .fl-empty b {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-size: 15px;
     color: var(--fl-ink);
     display: block;
@@ -805,7 +808,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 0 0 1px var(--fl-line), 0 12px 24px -14px rgba(31, 92, 46, .5);
+    box-shadow: inset 0 0 0 1px var(--fl-line), 0 12px 24px -14px rgba(11, 51, 32, .55);
 }
 
 .fl-ring::before {
@@ -922,7 +925,7 @@
 }
 
 .fl-co-state b {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 
 .fl-co-cta {
@@ -939,7 +942,7 @@
 }
 
 .fl-co-cta b {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-size: 14px;
     color: var(--fl-ink);
     display: block;
@@ -964,7 +967,9 @@
     color: #fff;
     position: relative;
     overflow: hidden;
-    background: radial-gradient(300px 160px at 90% -20%, rgba(255, 255, 255, .18), transparent 60%), var(--fl-grad);
+    background:
+        radial-gradient(300px 160px at 90% -20%, rgba(255, 255, 255, .18), transparent 60%),
+        var(--fl-grad);
 }
 
 .spc-fl .modal-header .m-ic {
@@ -1058,7 +1063,7 @@
 .fl-sumstrip .sv {
     display: block;
     margin-top: 4px;
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
     font-size: 19px;
     font-weight: 600;
     color: var(--fl-forest);
@@ -1160,7 +1165,7 @@
 
 /* Hide native check-in tiles' page bg clash */
 .spc-fl .readonly-field {
-    font-family: var(--font-head, 'Kanit', sans-serif);
+    font-family: var(--font-head, 'Plus Jakarta Sans', sans-serif);
 }
 </style>
 
@@ -1726,7 +1731,7 @@
 
                 <div class="fl-prog-info">
 
-                    <strong style="font-family:var(--font-head,'Kanit',sans-serif);font-size:15px;color:var(--fl-ink);">
+                    <strong style="font-family:var(--font-head,'Plus Jakarta Sans',sans-serif);font-size:15px;color:var(--fl-ink);">
                         Today's Progress
                     </strong>
 

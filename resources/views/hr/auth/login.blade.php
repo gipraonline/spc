@@ -5,6 +5,15 @@
     <link rel="shortcut icon" type="image/png" href="{{ asset('dist/images/logos/fav.png') }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign in · SPC Universal</title>
+
+    <!-- PWA: manifest + install/theme metadata (auto "Add to Home Screen") -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#166534">
+    <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SPC">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -220,5 +229,14 @@
     </div>
 
     <div class="page-foot"><span class="foot-dot"></span>&copy; {{ date('Y') }} SPC Universal &middot; Developed by Gipra Business Solutions Pvt Ltd</div>
+
+<!-- PWA: register the service worker (caching + installability) -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('{{ asset('service-worker.js') }}?v=1');
+        });
+    }
+</script>
 </body>
 </html>

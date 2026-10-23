@@ -107,6 +107,9 @@
 @section('content')
 @php
 use Illuminate\Support\Facades\Crypt;
+
+// true only for Office Administrator / Team Lead (set in LeadsController@index)
+$canSeeAll = $canSeeAll ?? false;
 @endphp
 <div class="spc-wrap">
     <div class="spc-heading">
@@ -128,8 +131,8 @@ use Illuminate\Support\Facades\Crypt;
         </div>
     @endif
 
-    <!-- Statistics -->
-    @if(isset($user) && $user->identifier != "FCA")
+    <!-- Statistics (Office Administrator / Team Lead only) -->
+    @if($canSeeAll)
     <div class="spc-stats" style="margin:0 0 18px;">
 
         <div class="spc-tile">
@@ -158,15 +161,18 @@ use Illuminate\Support\Facades\Crypt;
     <div class="spc-card">
         <!-- Filters -->
         <form method="GET" action="{{ route('admin.leads.index') }}" class="spc-toolbar">
-            @if(isset($user) && $user->identifier != "FCA")
+
+            {{-- Sales Person filter: Office Administrator / Team Lead only --}}
+            @if($canSeeAll)
                 <div class="spc-f">
-                    <label>Farm Care Advisors</label>
-                    <select name="n_fca_id" class="form-select mandatory">
-                        <option value="">Select Farm Care Adviser</option>
+                    <label>Sales Person</label>
+                    <select name="n_fca_id" class="form-select">
+                        <option value="">Select Sales Person</option>
 
                         @foreach($employees as $employee)
-                        <option value="{{ $employee->n_employee_id }}" {{isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''}}>
-                            {{ $employee->c_employee_name ?? '' }}
+                        <option value="{{ $employee->n_employee_id }}"
+                            {{ (string) request('n_fca_id') === (string) $employee->n_employee_id ? 'selected' : '' }}>
+                            {{ $employee->c_employee_name ?? '' }}@if($employee->identifier) ({{ $employee->identifier }})@endif
                         </option>
                         @endforeach
                     </select>
@@ -202,13 +208,9 @@ use Illuminate\Support\Facades\Crypt;
                 <label>Status</label>
                 <select name="status" class="form-select">
                     <option value="">All Status</option>
-                    <option value="New">New</option>
-                    <option value="Contacted">Contacted</option>
-                    <option value="Interested">Interested</option>
-                    <option value="Follow-up">Follow-up</option>
-                    <option value="Negotiation">Negotiation</option>
-                    <option value="Won">Won</option>
-                    <option value="Lost">Lost</option>
+                    @foreach(['New','Contacted','Interested','Follow-up','Negotiation','Won','Lost'] as $s)
+                        <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ $s }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -235,8 +237,8 @@ use Illuminate\Support\Facades\Crypt;
                         <th>Status</th>
                         <th>Next Follow-up</th>
                         <th>Priority</th>
-                        @if(isset($user) && $user->identifier != "FCA")
-                          <th>Farm Care Advisor</th>
+                        @if($canSeeAll)
+                          <th>Sales Person</th>
                         @endif
                         <th>Remarks</th>
 
@@ -286,7 +288,7 @@ use Illuminate\Support\Facades\Crypt;
                                 <span class="spc-pill {{ $prClass }}">{{ $lead->priority }}</span>
                             </td>
 
-                            @if(isset($user) && $user->identifier != "FCA")
+                            @if($canSeeAll)
                                 <td>{{ $lead->fca->c_employee_name ?? '' }}</td>
                             @endif
 

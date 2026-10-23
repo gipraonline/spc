@@ -1633,15 +1633,15 @@ class SalesController extends Controller
 
             'c_customer_name' => 'required|string|max:255',
             'n_mobile' => ['required', 'regex:/^[6-9]\d{9}$/'],
-            'n_whatsapp' => ['required', 'regex:/^[6-9]\d{9}$/'],
-            'c_email' => ['required', 'email', 'max:255'],
+            'n_whatsapp' => ['nullable', 'regex:/^[6-9]\d{9}$/'],
+            'c_email' => ['nullable', 'email', 'max:255'],
             'c_address' => 'required|string|max:1000',
             'c_post_office' => 'required|string|max:255',
             'customer_state_id' => 'required|integer|exists:states,n_state_id',
             'customer_district_id' => 'required|integer|exists:districts,id',
             'c_thaluk' => 'required|string|max:255',
             'c_pincode' => 'required|digits:6',
-            'c_status' => 'required|in:Y,N',
+            'c_status' => 'nullable|in:Y,N',
 
             /* Order location (address -> map pin). Optional, never half-filled. */
             'latitude' => 'nullable|required_with:longitude|numeric|between:-90,90',
@@ -1664,7 +1664,7 @@ class SalesController extends Controller
             'n_panchayath_id' => ['nullable', 'integer', 'exists:panchayaths,id'],
             'nearest_franchise_id' => ['required_unless:order_type,company', 'nullable', 'integer', 'exists:store_masters,n_store_id'],
 
-            'payment_status' => ['required_unless:c_mode_of_payment,Paid to Franchise', 'nullable', 'in:pending,paid'],
+            'payment_status' => [ 'nullable', 'in:pending,paid'],
 
             'c_transaction_id' => [
                 'nullable',

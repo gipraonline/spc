@@ -1651,7 +1651,7 @@ unset($__errorArgs, $__bag); ?>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">WhatsApp Number *</label>
+                                <label class="form-label">WhatsApp Number(Optional)</label>
                                 <input type="text" maxlength="10" name="n_whatsapp" id="n_whatsapp"
                                     value="<?php echo e(old('n_whatsapp', isset($sale) ? $sale->customer?->n_whatsapp : '')); ?>"
                                     class="form-control" placeholder="WhatsApp Number">
@@ -1668,7 +1668,7 @@ unset($__errorArgs, $__bag); ?>
                             </div>
 
                             <div class="col-md-12">
-                                <label class="form-label">Email *</label>
+                                <label class="form-label">Email(Optional)</label>
                                 <input type="email" name="c_email" id="c_email"
                                     value="<?php echo e(old('c_email', isset($sale) ? $sale->customer?->c_email : '')); ?>"
                                     class="form-control" placeholder="example@domain.com">
@@ -1705,27 +1705,7 @@ endif;
 unset($__errorArgs, $__bag); ?>
                             </div>
 
-                            <div class="col-md-4">
-                                <label for="c_post_office" class="form-label">
-                                    Post Office *
-                                </label>
-                                <input type="text" id="c_post_office" name="c_post_office"
-                                    value="<?php echo e(old('c_post_office',isset($sale) ? $sale->customer?->c_post_office : '')); ?>"
-                                    class="form-control" placeholder="Post Office">
-
-                                <?php $__errorArgs = ['c_post_office'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="text-danger mt-1"><?php echo e($message); ?></div>
-                                <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-
-                            </div>
-
+                            
                             <div class="col-md-4">
                                 <label for="n_state_id" class="form-label">State *</label>
                                 <select name="customer_state_id" id="n_state_id" class="form-select">
@@ -1800,6 +1780,28 @@ unset($__errorArgs, $__bag); ?>
                             </div>
 
                             <div class="col-md-4">
+                                <label for="c_post_office" class="form-label">
+                                    Post Office *
+                                </label>
+                                <input type="text" id="c_post_office" name="c_post_office"
+                                    value="<?php echo e(old('c_post_office',isset($sale) ? $sale->customer?->c_post_office : '')); ?>"
+                                    class="form-control" placeholder="Post Office">
+
+                                <?php $__errorArgs = ['c_post_office'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                            </div>
+
+
+                            <div class="col-md-4">
                                 <label for="c_pincode" class="form-label">Pincode *</label>
                                 <input type="text" id="c_pincode" name="c_pincode" maxlength="6"
                                     value="<?php echo e(old('c_pincode', isset($sale) ? $sale->customer?->c_pincode : '')); ?>"
@@ -1872,100 +1874,24 @@ unset($__errorArgs, $__bag); ?>
                                     style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;">
                                 </div>
                             </div>
-                        </div> <!-- Customer Status -->
-                        <div class="form-section-header">
-                            <i class="ti ti-checkup-list"></i> Customer Status
-                        </div>
-
-                        <div class="row g-4 mb-2">
-                            <div class="col-md-4">
-                                <label for="c_status" class="form-label">
-                                    Status <span class="text-danger">*</span>
-                                </label>
-                                <select id="c_status" name="c_status" class="form-select mandatory">
-                                    <option value="">Select Status</option>
-                                    <option value="Y"
-                                        <?php echo e(old('c_status', isset($sale) ? ($sale->customer?->c_status ?? 'Y') : 'Y') == 'Y' ? 'selected' : ''); ?>>
-                                        Active</option>
-                                    <option value="N"
-                                        <?php echo e(old('c_status', isset($sale) ? $sale->customer?->c_status : '') == 'N' ? 'selected' : ''); ?>>
-                                        Inactive</option>
-                                </select>
-                                <?php $__errorArgs = ['c_status'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="text-danger mt-1"><?php echo e($message); ?></div>
-                                <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                            </div>
-                        </div>
+                        </div> 
+                        
+                       
+                    <div class="d-none">
+                        <select id="c_status" name="c_status" class="form-select mandatory">
+                            <option value="">Select Status</option>
+                            <option value="Y"
+                                <?php echo e(old('c_status', isset($sale) ? ($sale->customer?->c_status ?? 'Y') : 'Y') == 'Y' ? 'selected' : ''); ?>>
+                                Active</option>
+                            <option value="N"
+                                <?php echo e(old('c_status', isset($sale) ? $sale->customer?->c_status : '') == 'N' ? 'selected' : ''); ?>>
+                                Inactive</option>
+                        </select>
                     </div>
 
-                    <!-- Section 4: Payment Details -->
-                    <div class="form-box so-section mb-4">
-                        <div class="form-section-header section-title mb-3">
-                            <span class="t-ic"><i class="ti ti-credit-card"></i></span> Payment Details
-                        </div>
+                   
 
-                        <div class="row mb-4 align-items-center">
-                            <label class="col-md-3 col-form-label fw-semibold">Mode of Payment *</label>
-
-                            <div class="col-md-9 d-flex flex-wrap">
-                                <div class="payment-option">
-                                    <input class="form-check-input mandatory mode_of_payment" type="radio"
-                                        name="c_mode_of_payment" id="cod" value="Cash on Delivery"
-                                        data-message="Please Choose a Payment Mode"
-                                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on Delivery" ? 'checked' : ''); ?>>
-                                    <label for="cod" class="mb-0">
-                                        <i class="ti ti-truck"></i> Cash on Delivery
-                                    </label>
-                                </div>
-
-                                <?php if(isset($isTelecaller) && $isTelecaller==false): ?>
-                                <div class="payment-option">
-                                    <input class="form-check-input mode_of_payment" type="radio"
-                                        name="c_mode_of_payment" id="upi" value="UPI"
-                                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : ''); ?>>
-                                    <label for="upi" class="mb-0">
-                                        <i class="ti ti-brand-google-pay"></i> UPI
-                                    </label>
-                                </div>
-
-                                <div class="payment-option">
-                                    <input class="form-check-input mode_of_payment" type="radio"
-                                        name="c_mode_of_payment" id="bkd" value="Bank Deposit"
-                                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : ''); ?>>
-                                    <label for="bkd" class="mb-0">
-                                        <i class="ti ti-building-bank"></i> Bank Deposit
-                                    </label>
-                                </div>
-                                <?php endif; ?>
-
-                                <div class="payment-option">
-                                    <input class="form-check-input mode_of_payment" type="radio"
-                                        name="c_mode_of_payment" id="pf" value="Paid to Franchise"
-                                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : ''); ?>>
-                                    <label for="pf" class="mb-0">
-                                        <i class="ti ti-cash"></i> Paid to Franchise
-                                    </label>
-                                </div>
-                                <div class="text-danger mt-1 fs-2" id="payment_mode_error">
-                                    <?php $__errorArgs = ['c_mode_of_payment'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?></div>
-                            </div>
-                        </div>
-
-                        <div class="row g-4 mt-1" id="ps">
+                        <div class="row g-4 mt-1 d-none" id="ps">
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Payment Status</label>
                                 <select name="payment_status" id="payment_status"
@@ -2127,6 +2053,67 @@ unset($__errorArgs, $__bag); ?>
                             </div>
                         </div>
                     </div>
+
+
+                     <!-- Section 4: Payment Details -->
+                    <div class="form-box so-section mb-4">
+                        <div class="form-section-header section-title mb-3">
+                            <span class="t-ic"><i class="ti ti-credit-card"></i></span> Payment Details
+                        </div>
+
+                        <div class="row mb-4 align-items-center">
+                            <label class="col-md-3 col-form-label fw-semibold">Mode of Payment *</label>
+
+                            <div class="col-md-9 d-flex flex-wrap">
+                                <div class="payment-option">
+                                    <input class="form-check-input mandatory mode_of_payment" type="radio"
+                                        name="c_mode_of_payment" id="cod" value="Cash on Delivery"
+                                        data-message="Please Choose a Payment Mode"
+                                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Cash on Delivery" ? 'checked' : ''); ?>>
+                                    <label for="cod" class="mb-0">
+                                        <i class="ti ti-truck"></i> Cash on Delivery
+                                    </label>
+                                </div>
+
+                                <?php if(isset($isTelecaller) && $isTelecaller==false): ?>
+                                <div class="payment-option">
+                                    <input class="form-check-input mode_of_payment" type="radio"
+                                        name="c_mode_of_payment" id="upi" value="UPI"
+                                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "UPI" ? 'checked' : ''); ?>>
+                                    <label for="upi" class="mb-0">
+                                        <i class="ti ti-brand-google-pay"></i> UPI
+                                    </label>
+                                </div>
+
+                                <div class="payment-option">
+                                    <input class="form-check-input mode_of_payment" type="radio"
+                                        name="c_mode_of_payment" id="bkd" value="Bank Deposit"
+                                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Bank Deposit" ? 'checked' : ''); ?>>
+                                    <label for="bkd" class="mb-0">
+                                        <i class="ti ti-building-bank"></i> Bank Deposit
+                                    </label>
+                                </div>
+                                <?php endif; ?>
+
+                                <div class="payment-option">
+                                    <input class="form-check-input mode_of_payment" type="radio"
+                                        name="c_mode_of_payment" id="pf" value="Paid to Franchise"
+                                        <?php echo e(old('c_mode_of_payment', $sale->c_mode_of_payment ?? '') == "Paid to Franchise" ? 'checked' : ''); ?>>
+                                    <label for="pf" class="mb-0">
+                                        <i class="ti ti-cash"></i> Paid to Franchise
+                                    </label>
+                                </div>
+                                <div class="text-danger mt-1 fs-2" id="payment_mode_error">
+                                    <?php $__errorArgs = ['c_mode_of_payment'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?></div>
+                            </div>
+                        </div>
 
                 </fieldset>
 

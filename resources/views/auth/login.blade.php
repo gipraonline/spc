@@ -3,6 +3,29 @@
 
 <head>
     <title>Sign in · SPC Universal</title>
+
+    <!-- PWA: manifest + install/theme metadata (auto "Add to Home Screen") -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#166534">
+    <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SPC">
+
+    <!-- PWA: capture the native install prompt as early as possible -->
+    <script>
+        window.__spcDeferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', function (e) {
+            e.preventDefault();
+            window.__spcDeferredPrompt = e;
+            window.dispatchEvent(new Event('spc:install-ready'));
+        });
+        window.addEventListener('appinstalled', function () {
+            window.__spcDeferredPrompt = null;
+            try { localStorage.setItem('spc-install-done', '1'); } catch (err) {}
+        });
+    </script>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="handheldfriendly" content="true" />
@@ -516,6 +539,337 @@
     </script>
 
     <!-- PWA: register the service worker (caching + installability) -->
+    <!-- PWA: mobile-only "Install SPC App" bottom sheet — uses the native
+         prompt when the browser offers one, platform instructions otherwise. -->
+    <style>
+        .spc-install-sheet {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .spc-install-sheet.is-open {
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .spc-install-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(9, 26, 17, .55);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+
+        .spc-install-sheet.is-open .spc-install-backdrop {
+            opacity: 1;
+        }
+
+        .spc-install-card {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+            background: #fff;
+            border-radius: 26px 26px 0 0;
+            padding: 26px 22px calc(22px + env(safe-area-inset-bottom, 0px));
+            box-shadow: 0 -18px 50px rgba(9, 26, 17, .3);
+            transform: translateY(110%);
+            transition: transform .38s cubic-bezier(.16, 1, .3, 1);
+            text-align: center;
+        }
+
+        .spc-install-sheet.is-open .spc-install-card {
+            transform: translateY(0);
+        }
+
+        .spc-install-x {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 50%;
+            background: #eef3ef;
+            color: #47614f;
+            font-size: 17px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .spc-install-badge {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 14px;
+            padding: 4px;
+            border-radius: 21px;
+            background: radial-gradient(110% 100% at 100% 0%, rgba(255, 255, 255, .16), transparent 60%), linear-gradient(160deg, #12492e, #0b3320);
+            box-shadow: 0 12px 30px rgba(18, 73, 46, .38);
+        }
+
+        .spc-install-badge img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 17px;
+            background: #fff;
+        }
+
+        .spc-install-card h3 {
+            margin: 0 0 6px;
+            font-size: 21px;
+            font-weight: 800;
+            color: #0d2b1c;
+        }
+
+        .spc-install-sub {
+            margin: 0 auto 18px;
+            max-width: 300px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #5d6f64;
+        }
+
+        .spc-install-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            min-height: 52px;
+            border: 0;
+            border-radius: 16px;
+            background: radial-gradient(110% 100% at 100% 0%, rgba(255, 255, 255, .16), transparent 60%), linear-gradient(160deg, #12492e, #0b3320);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(18, 73, 46, .32);
+            transition: transform .12s ease;
+        }
+
+        .spc-install-btn:active {
+            transform: scale(.98);
+        }
+
+        .spc-install-later {
+            width: 100%;
+            margin-top: 8px;
+            min-height: 44px;
+            border: 0;
+            background: transparent;
+            color: #6b7d72;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .spc-install-steps {
+            text-align: left;
+            background: #f2f7f3;
+            border: 1px solid #dde9e0;
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+
+        .spc-install-steps ol {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            counter-reset: spc-step;
+        }
+
+        .spc-install-steps li {
+            counter-increment: spc-step;
+            position: relative;
+            padding: 9px 0 9px 40px;
+            font-size: 14.5px;
+            line-height: 1.45;
+            color: #31473a;
+        }
+
+        .spc-install-steps li + li {
+            border-top: 1px dashed #d8e4db;
+        }
+
+        .spc-install-steps li::before {
+            content: counter(spc-step);
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(160deg, #12492e, #0b3320);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spc-install-steps li i {
+            color: #166534;
+            margin-right: 6px;
+        }
+
+        /* Variant toggles rely on the hidden attribute — author display
+           rules would otherwise override it. */
+        [hidden] {
+            display: none !important;
+        }
+
+        /* Phones only — never on desktop */
+        @media (min-width: 768px) {
+            .spc-install-sheet {
+                display: none !important;
+            }
+        }
+    </style>
+
+    <div class="spc-install-sheet" id="spcInstallSheet" role="dialog" aria-modal="true"
+        aria-labelledby="spcInstallTitle" aria-hidden="true">
+        <div class="spc-install-backdrop" data-install-dismiss></div>
+        <div class="spc-install-card">
+            <button type="button" class="spc-install-x" data-install-dismiss aria-label="Close">&times;</button>
+            <div class="spc-install-badge"><img src="{{ asset('icons/icon-192.png') }}" alt="SPC app icon"></div>
+            <h3 id="spcInstallTitle">Install SPC App</h3>
+            <p class="spc-install-sub">Get quick access to our website directly from your home screen.</p>
+
+            <div id="spcInstallNative" hidden>
+                <button type="button" class="spc-install-btn" id="spcInstallBtn">
+                    <i class="fa-solid fa-plus"></i> Add to Home Screen
+                </button>
+            </div>
+
+            <div class="spc-install-steps" id="spcInstallSteps" hidden>
+                <ol id="spcInstallStepsList"></ol>
+            </div>
+
+            <button type="button" class="spc-install-btn" id="spcInstallGotIt" hidden>Got it</button>
+            <button type="button" class="spc-install-later" data-install-dismiss>Maybe later</button>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var SHEET = 'spc-install-sheet-shown';
+            var DONE = 'spc-install-done';
+            var MONTH = 30 * 24 * 60 * 60 * 1000;
+            var sheet = document.getElementById('spcInstallSheet');
+            if (!sheet) return;
+
+            function store(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
+            function read(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+
+            // Phones only; never nag when already installed or recently asked.
+            var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+            var mobile = window.matchMedia('(max-width: 767.98px)').matches;
+            var lastShown = parseInt(read(SHEET) || '0', 10) || 0;
+            if (!mobile || read(DONE) || standalone || Date.now() - lastShown < MONTH) return;
+
+            var ua = navigator.userAgent;
+            var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            var isAndroid = /Android/.test(ua);
+
+            var nativeWrap = document.getElementById('spcInstallNative');
+            var steps = document.getElementById('spcInstallSteps');
+            var stepsList = document.getElementById('spcInstallStepsList');
+            var gotIt = document.getElementById('spcInstallGotIt');
+            var btn = document.getElementById('spcInstallBtn');
+
+            var STEPS = {
+                ios: [
+                    ['fa-arrow-up-from-bracket', 'Tap the <strong>Share</strong> button in the Safari toolbar'],
+                    ['fa-plus-square', 'Choose <strong>Add to Home Screen</strong> from the list'],
+                    ['fa-check', 'Tap <strong>Add</strong> — the SPC icon appears on your home screen']
+                ],
+                android: [
+                    ['fa-ellipsis-vertical', 'Tap the <strong>⋮ menu</strong> in the corner of Chrome'],
+                    ['fa-download', 'Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>'],
+                    ['fa-check', 'Tap <strong>Install</strong> — done!']
+                ],
+                generic: [
+                    ['fa-ellipsis-vertical', 'Open your browser\'s <strong>menu</strong>'],
+                    ['fa-plus', 'Choose <strong>Add to Home screen</strong>'],
+                    ['fa-check', 'Confirm — the SPC icon appears on your home screen']
+                ]
+            };
+
+            function open(variant) {
+                store(SHEET, String(Date.now())); // at most once a month
+                if (variant === 'native') {
+                    nativeWrap.hidden = false;
+                    steps.hidden = true;
+                    gotIt.hidden = true;
+                } else {
+                    nativeWrap.hidden = true;
+                    var rows = isIOS ? STEPS.ios : (isAndroid ? STEPS.android : STEPS.generic);
+                    stepsList.innerHTML = rows.map(function (r) {
+                        return '<li><i class="fa-solid ' + r[0] + '"></i>' + r[1] + '</li>';
+                    }).join('');
+                    steps.hidden = false;
+                    gotIt.hidden = false;
+                }
+                sheet.classList.add('is-open');
+                sheet.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function close() {
+                sheet.classList.remove('is-open');
+                sheet.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            Array.prototype.forEach.call(sheet.querySelectorAll('[data-install-dismiss]'), function (el) {
+                el.addEventListener('click', close);
+            });
+            gotIt.addEventListener('click', close);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && sheet.classList.contains('is-open')) close();
+            });
+
+            // Native path: hand the captured prompt to Chrome and honour the choice.
+            btn.addEventListener('click', function () {
+                var promptEvent = window.__spcDeferredPrompt;
+                close();
+                if (!promptEvent) return;
+                window.__spcDeferredPrompt = null;
+                promptEvent.prompt();
+                promptEvent.userChoice.then(function (choice) {
+                    if (choice && choice.outcome === 'accepted') store(DONE, '1');
+                });
+            });
+
+            var shown = false;
+            function show(variant) {
+                if (shown) return;
+                shown = true;
+                open(variant);
+            }
+
+            // Give the native prompt a moment to arrive, then fall back to
+            // the how-to steps (iPhone Safari never fires the event).
+            if (window.__spcDeferredPrompt) {
+                show('native');
+            } else {
+                window.addEventListener('spc:install-ready', function () { show('native'); }, { once: true });
+                setTimeout(function () { show(window.__spcDeferredPrompt ? 'native' : 'steps'); }, 3500);
+            }
+        })();
+    </script>
+
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {

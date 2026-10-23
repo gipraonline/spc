@@ -127,7 +127,6 @@
 
 /* Quick actions strip — right under the hero, first thing scanned */
 
-
 .u-qa-btn {
     border: 1px solid var(--u-border);
     border-radius: 13px;
@@ -1574,7 +1573,6 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good
         <?php endif; ?>
     </div>
     <?php endif; ?>
-
 
 
     

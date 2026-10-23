@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>@yield('title', 'Forgot Password') | SPC</title>
+
+    <!-- PWA: install/theme metadata -->
+    <meta name="theme-color" content="#166534">
+    <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="SPC">
     <link rel="shortcut icon" type="image/png" href="{{ asset('dist/images/logos/fav.png') }}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">

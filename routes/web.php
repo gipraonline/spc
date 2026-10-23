@@ -26,6 +26,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UnifiedDashboardController;
 use App\Http\Controllers\Admin\MyCommissionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\IndiaPostTrackingController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -81,8 +82,10 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])
         ->name('profile.update');
 
+    Route::get('/indiapost/track/{articleNumber}', [IndiaPostTrackingController::class, 'single']);
+    Route::post('/indiapost/track', [IndiaPostTrackingController::class, 'bulk']);
 });
-
+    
 /*
 |--------------------------------------------------------------------------
 | Admin Routes

@@ -899,11 +899,11 @@ var CFG = window.SO_CFG || {};
 
             if (selected.value === 'existing') {
                 lookupCard.classList.remove('d-none');
-            } else {
-                lookupCard.classList.add('d-none');
-                $("#c_customer_code").val(
-                    CFG.customerCode);
-            }
+            }else {
+        lookupCard.classList.add('d-none');
+        $("#c_customer_code").val(CFG.customerCode);
+        $("#n_customer_id").val('');
+    }
         }
 
         if (newCustomer) newCustomer.addEventListener('change', toggleCustomerType);
@@ -941,6 +941,8 @@ var CFG = window.SO_CFG || {};
                             $('[name="c_email"]').val(data.customer.c_email || '');
                             $('[name="c_address"]').val(data.customer.c_address || '');
                             $('[name="c_pincode"]').val(data.customer.c_pincode || '');
+                            $('[name="c_post_office"]').val(data.customer.c_post_office || '');
+                            $('[name="c_thaluk"]').val(data.customer.c_thaluk || '');
 
                             if (data.customer.n_state_id) {
                                 $('#n_state_id').val(data.customer.n_state_id);

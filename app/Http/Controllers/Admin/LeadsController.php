@@ -15,6 +15,20 @@ use Illuminate\Support\Facades\Validator;
 
 class LeadsController extends Controller
 {
+    /**
+     * Roles (roles.identifier) that can see ALL leads.
+     * ⚠️ Make sure these match the real values in your roles table:
+     *    SELECT id, name, identifier FROM roles;
+     */
+    private const ALL_LEADS_ROLES = ['OFFICE_ADMIN', 'TL'];
+
+    /**
+     * Designations (designation_masters.identifier) listed in the "Sales Person" filter.
+     * ⚠️ Make sure these match the real values:
+     *    SELECT n_designation_id, identifier FROM designation_masters;
+     */
+    private const SALES_DESIGNATIONS = ['FCA', 'FCO', 'TC'];
+
     private function isFca(): bool
     {
         return Auth::check()
@@ -32,15 +46,125 @@ class LeadsController extends Controller
             );
     }
 
-    public function index(Request $request)
+    /**
+     * Office Administrator and Team Lead can see every lead.
+     */
+    private function seesAllLeads(): bool
+    {
+        return Auth::check()
+            && Auth::user()->roles()
+                ->whereIn('identifier', self::ALL_LEADS_ROLES)
+                ->exists();
+    }
+
+    /**
+     * Base query limited to what the logged-in user may see.
+     * - Office Administrator / Team Lead : all leads
+     * - Everyone else (FCA, FCO, Telecaller): only leads they created
+     */
+    private function scopedLeads()
     {
         $query = Lead::query();
 
-        // FCA: only own leads created/assigned for today
-        if ($this->isFca()) {
-            $query->where('n_fca_id', Auth::user()->n_employee_id);
-            // ->whereDate('d_visit_date', Carbon::today());
+        if ($this->seesAllLeads()) {
+            return $query;
         }
+
+        $user = Auth::user();
+
+        // Own entries, plus leads a manager recorded against this person
+        return $query->where(function ($w) use ($user) {
+            $w->where('created_by', $user->n_role_id);
+
+            if ($user->n_employee_id) {
+                $w->orWhere('n_fca_id', $user->n_employee_id);
+            }
+        });
+    }
+
+    private function fcaEmployees()
+    {
+        return Admin::join(
+            'employee_masters as em',
+            'em.n_employee_id',
+            '=',
+            'admins.n_employee_id'
+        )
+            ->join(
+                'designation_masters as dm',
+                'dm.n_designation_id',
+                '=',
+                'em.n_designation_id'
+            )
+            ->where('em.c_status', 'Y')
+            ->where('dm.identifier', 'FCA')
+            ->select(
+                'em.n_employee_id',
+                'em.c_employee_name',
+                'dm.identifier'
+            )
+            ->get();
+    }
+
+    /**
+     * All active sales people (FCA / FCO / Telecaller).
+     * Used only for the "Sales Person" filter shown to Office Administrator / Team Lead.
+     */
+    private function salesPersons()
+    {
+        return Admin::join(
+            'employee_masters as em',
+            'em.n_employee_id',
+            '=',
+            'admins.n_employee_id'
+        )
+            ->join(
+                'designation_masters as dm',
+                'dm.n_designation_id',
+                '=',
+                'em.n_designation_id'
+            )
+            ->where('em.c_status', 'Y')
+            ->whereIn('dm.identifier', self::SALES_DESIGNATIONS)
+            ->select(
+                'em.n_employee_id',
+                'em.c_employee_name',
+                'dm.identifier'
+            )
+            ->orderBy('em.c_employee_name')
+            ->get();
+    }
+
+    private function currentUser()
+    {
+        return Admin::join('model_has_roles as mr', 'mr.model_id', 'admins.n_role_id')
+            ->join('roles', 'roles.id', 'mr.role_id')
+            ->where('admins.n_role_id', Auth::user()->n_role_id)
+            ->first();
+    }
+
+    public function index(Request $request)
+    {
+        // Only the leads this user is allowed to see
+        $query = $this->scopedLeads();
+
+        // Statistics (based on the same visibility scope)
+        $totalLeads = $this->scopedLeads()->count();
+
+        $pendingFollowups = $this->scopedLeads()
+            ->whereDate('next_followup_date', '<=', Carbon::today())
+            ->whereNotIn('c_lead_status', ['Won', 'Lost'])
+            ->count();
+
+        $readyToBuy = $this->scopedLeads()
+            ->whereIn('c_lead_status', ['Interested', 'Negotiation'])
+            ->count();
+
+        $newCustomers = $this->scopedLeads()
+            ->where('c_customer_type', 'new')
+            ->count();
+
+        $canSeeAll = $this->seesAllLeads();
 
         // Search: Customer / Mobile
         if ($request->filled('search')) {
@@ -54,8 +178,7 @@ class LeadsController extends Controller
             });
         }
 
-        // FCA
-
+        // FCA (filter only narrows the already-scoped query)
         if ($request->filled('n_fca_id')) {
 
             $query->where('n_fca_id', $request->n_fca_id);
@@ -90,27 +213,8 @@ class LeadsController extends Controller
             );
         }
 
-        // Employees
-        $employees = Admin::join(
-            'employee_masters as em',
-            'em.n_employee_id',
-            '=',
-            'admins.n_employee_id'
-        )
-            ->join(
-                'designation_masters as dm',
-                'dm.n_designation_id',
-                '=',
-                'em.n_designation_id'
-            )
-            ->where('em.c_status', 'Y')
-            ->where('dm.identifier', 'FCA')
-            ->select(
-                'em.n_employee_id',
-                'em.c_employee_name',
-                'dm.identifier'
-            )
-            ->get();
+        // Sales persons filter list (Office Administrator / Team Lead only)
+        $employees = $canSeeAll ? $this->salesPersons() : collect();
 
         // Leads
         $leads = $query
@@ -119,130 +223,68 @@ class LeadsController extends Controller
             ->withQueryString();
 
         // User
-        $user = Admin::join(
-            'model_has_roles as mr',
-            'mr.model_id',
-            '=',
-            'admins.n_role_id'
-        )
-            ->join(
-                'roles',
-                'roles.id',
-                '=',
-                'mr.role_id'
-            )
-            ->where(
-                'admins.n_role_id',
-                Auth::user()->n_role_id
-            )
-            ->first();
+        $user = $this->currentUser();
 
         return view(
             'admin.leads.index',
-            compact('leads', 'user', 'employees')
+            compact(
+                'leads',
+                'user',
+                'employees',
+                'totalLeads',
+                'pendingFollowups',
+                'readyToBuy',
+                'newCustomers',
+                'canSeeAll'
+            )
         );
     }
 
     public function create()
     {
-        $employees = Admin::join(
-            'employee_masters as em',
-            'em.n_employee_id',
-            '=',
-            'admins.n_employee_id'
-        )
-            ->join(
-                'designation_masters as dm',
-                'dm.n_designation_id',
-                '=',
-                'em.n_designation_id'
-            )
-            ->where('em.c_status', 'Y')
-            ->where('dm.identifier', 'FCA')
-            ->select(
-                'em.n_employee_id',
-                'em.c_employee_name',
-                'dm.identifier'
-            )
-            ->get();
+        $employees = $this->seesAllLeads() ? $this->salesPersons() : collect();
 
         $states = State::where('status', '1')->get();
         $lead = new Lead;
-        $user = Admin::join('model_has_roles as mr', 'mr.model_id', 'admins.n_role_id')
-            ->join('roles', 'roles.id', 'mr.role_id')
-            ->where('admins.n_role_id', Auth::user()->n_role_id)->first();
+        $user = $this->currentUser();
         $viewMode = 'Off';
+        $canSeeAll = $this->seesAllLeads();
 
-        return view('admin.leads.create', compact('states', 'lead', 'user', 'viewMode', 'employees'));
+        return view('admin.leads.create', compact('states', 'lead', 'user', 'viewMode', 'employees', 'canSeeAll'));
     }
 
     public function show(Request $request, $id)
     {
-        $employees = Admin::join(
-            'employee_masters as em',
-            'em.n_employee_id',
-            '=',
-            'admins.n_employee_id'
-        )
-            ->join(
-                'designation_masters as dm',
-                'dm.n_designation_id',
-                '=',
-                'em.n_designation_id'
-            )
-            ->where('em.c_status', 'Y')
-            ->where('dm.identifier', 'FCA')
-            ->select(
-                'em.n_employee_id',
-                'em.c_employee_name',
-                'dm.identifier'
-            )
-            ->get();
+        $employees = $this->seesAllLeads() ? $this->salesPersons() : collect();
 
         $id = Crypt::decryptString($id);
-        $lead = Lead::with('fca')->findOrFail($id);
-        $states = State::where('status', 1)->get();
-        $user = Admin::join('model_has_roles as mr', 'mr.model_id', 'admins.n_role_id')
-            ->join('roles', 'roles.id', 'mr.role_id')
-            ->where('admins.n_role_id', Auth::user()->n_role_id)->first();
-        $viewMode = 'On';
 
-        return view('admin.leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees'));
+        // Scoped: a user cannot open someone else's lead by editing the URL
+        $lead = $this->scopedLeads()->with('fca')->findOrFail($id);
+
+        $states = State::where('status', 1)->get();
+        $user = $this->currentUser();
+        $viewMode = 'On';
+        $canSeeAll = $this->seesAllLeads();
+
+        return view('admin.leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees', 'canSeeAll'));
     }
 
     public function edit(Request $request, $id)
     {
-        $employees = Admin::join(
-            'employee_masters as em',
-            'em.n_employee_id',
-            '=',
-            'admins.n_employee_id'
-        )
-            ->join(
-                'designation_masters as dm',
-                'dm.n_designation_id',
-                '=',
-                'em.n_designation_id'
-            )
-            ->where('em.c_status', 'Y')
-            ->where('dm.identifier', 'FCA')
-            ->select(
-                'em.n_employee_id',
-                'em.c_employee_name',
-                'dm.identifier'
-            )
-            ->get();
+        $employees = $this->seesAllLeads() ? $this->salesPersons() : collect();
 
         $id = Crypt::decryptString($id);
-        $lead = Lead::with('fca')->findOrFail($id);
+
+        // Scoped: a user cannot edit someone else's lead
+        $lead = $this->scopedLeads()->with('fca')->findOrFail($id);
+
         $states = State::where('status', 1)->get();
-        $user = Admin::join('model_has_roles as mr', 'mr.model_id', 'admins.n_role_id')
-            ->join('roles', 'roles.id', 'mr.role_id')
-            ->where('admins.n_role_id', Auth::user()->n_role_id)->first();
+        $user = $this->currentUser();
         $viewMode = 'Off';
+        $canSeeAll = $this->seesAllLeads();
 
-        return view('admin.leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees'));
-
+        return view('admin.leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees', 'canSeeAll'));
     }
 
     public function existingCustomer(Request $request)
@@ -289,6 +331,13 @@ class LeadsController extends Controller
             'priority' => 'required|in:Low,Medium,High,Urgent',
 
             'remarks' => 'nullable|string',
+
+            // Office Administrator / Team Lead must choose a Sales Person
+            'n_fca_id' => $this->seesAllLeads()
+                ? 'required|exists:employee_masters,n_employee_id'
+                : 'nullable',
+        ], [
+            'n_fca_id.required' => 'Please select a Sales Person.',
         ]);
 
         if ($validator->fails()) {
@@ -323,6 +372,12 @@ class LeadsController extends Controller
             'updated_by' => Auth::user()->n_role_id,
         ];
 
+        // Office Administrator / Team Lead choose the Sales Person.
+        // FCA / FCO / Telecaller are always recorded against themselves.
+        $data['n_fca_id'] = $this->seesAllLeads() && $request->filled('n_fca_id')
+            ? $request->n_fca_id
+            : Auth::user()->n_employee_id;
+
         if ($id == null) {
 
             // Create
@@ -336,8 +391,13 @@ class LeadsController extends Controller
 
         } else {
 
-            // Update
-            $lead = Lead::findOrFail($id);
+            // Update (scoped: only leads this user can see)
+            $lead = $this->scopedLeads()->findOrFail($id);
+
+            // Only managers may change the Sales Person on edit
+            if (! $this->seesAllLeads()) {
+                unset($data['n_fca_id']);
+            }
 
             $lead->update($data);
 
@@ -350,6 +410,12 @@ class LeadsController extends Controller
 
     public function destroy(Lead $lead)
     {
+        // Block deleting leads outside the user's visibility
+        abort_unless(
+            $this->scopedLeads()->whereKey($lead->getKey())->exists(),
+            403
+        );
+
         $lead->delete();
 
         return redirect()->route('admin.leads.index')->with('success', 'Leads entry deleted successfully.');

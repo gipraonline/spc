@@ -511,6 +511,15 @@
             input.attr('type', input.attr('type') === 'password' ? 'text' : 'password');
         });
     </script>
+
+    <!-- PWA: register the service worker (caching + installability) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('<?php echo e(asset('service-worker.js')); ?>?v=1');
+            });
+        }
+    </script>
 </body>
 
 </html>

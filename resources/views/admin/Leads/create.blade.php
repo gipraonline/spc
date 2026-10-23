@@ -124,6 +124,9 @@
 @section('content')
 @php
 use Illuminate\Support\Facades\Crypt;
+
+// true only for Office Administrator / Team Lead (set in LeadsController)
+$canSeeAll = $canSeeAll ?? false;
 @endphp
 <div class="spc-wrap">
 <div class="spc-heading">
@@ -159,20 +162,27 @@ use Illuminate\Support\Facades\Crypt;
             <input type="hidden" name="n_lead_id" value="{{$lead->n_lead_id}}">
 
 
+            {{-- Sales Person: Office Administrator / Team Lead only.
+                 FCA / FCO / Telecaller are recorded automatically against themselves. --}}
+            @if($canSeeAll)
+                <div class="mb-4" style="max-width:420px;">
+                    <label for="n_fca_id" class="form-label">Sales Person <span class="text-danger">*</span></label>
+                    <select name="n_fca_id" id="n_fca_id" class="form-select mandatory"
+                            data-message="Please select Sales Person"
+                            {{ isset($viewMode) && $viewMode == 'On' ? 'disabled' : '' }}>
+                        <option value="">Select Sales Person</option>
 
-            @if(isset($user) && $user->identifier != "FCA")
-                <div class="customer-toggle mb-4">
-                    <select name="n_fca_id" class="form-control mandatory">
-                                    <option value="">Select Farm Care Adviser</option>
-
-                                    @foreach($employees as $employee)
-                                    <option value="{{ $employee->n_employee_id }}" {{isset($lead->n_fca_id) && $lead->n_fca_id==$employee->n_employee_id ? "selected": ''}}>
-                                        {{ $employee->c_employee_name }}
-                                    </option>
-                                    @endforeach
+                        @foreach($employees as $employee)
+                        <option value="{{ $employee->n_employee_id }}"
+                            {{ (string) old('n_fca_id', $lead->n_fca_id ?? '') === (string) $employee->n_employee_id ? 'selected' : '' }}>
+                            {{ $employee->c_employee_name }}@if($employee->identifier) ({{ $employee->identifier }})@endif
+                        </option>
+                        @endforeach
                     </select>
+                    <div class="text-danger mt-1 fs-2"></div>
                 </div>
             @endif
+
             <!-- Customer Type -->
             <div class="customer-toggle mb-4">
 

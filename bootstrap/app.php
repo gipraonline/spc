@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\ForceHttps;
 use App\Http\Middleware\Hr\EnsureHrAdmin;
 use App\Http\Middleware\Hr\EnsureUserSelected;
 use Illuminate\Foundation\Application;
@@ -30,6 +31,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // PWA: redirect plain-http requests to HTTPS before any cookie or
+        // session work happens (dev hosts are exempt — see the class).
+        $middleware->prependToGroup('web', ForceHttps::class);
 
         // Runs after the session/auth are resolved, on every web request.
         $middleware->appendToGroup('web', EnsureAccountIsActive::class);

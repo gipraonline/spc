@@ -17,8 +17,17 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="handheldfriendly" content="true" />
+
+    <!-- PWA: manifest + install/theme metadata (auto "Add to Home Screen") -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#166534">
+    <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SPC">
     <meta name="MobileOptimized" content="width" />
-    <meta name="description" content="Central Bazaar Incentive Admin" />
+    <meta name="description" content="Spc" />
     <meta name="author" content="" />
     <meta name="keywords" content="Incentive" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -1820,6 +1829,15 @@
     })();
     </script>
 
+
+    <!-- PWA: register the service worker (caching + installability) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('{{ asset('service-worker.js') }}?v=1');
+            });
+        }
+    </script>
 
     @stack('scripts')
 </body>

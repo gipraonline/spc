@@ -85,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/indiapost/track/{articleNumber}', [IndiaPostTrackingController::class, 'single']);
     Route::post('/indiapost/track', [IndiaPostTrackingController::class, 'bulk']);
 });
-    
+
 /*
 |--------------------------------------------------------------------------
 | Admin Routes
@@ -453,7 +453,7 @@ Route::middleware(['auth', 'admin'])
             ->middleware('permission:sales-orders.view-details')
             ->name('salesorders.show');
 
-        Route::put('salesorders/approval', [SalesController::class, 'approve'])
+        Route::post('salesorders/approval', [SalesController::class, 'approve'])
             ->middleware('permission:sales-orders.approval')
             ->name('salesorders.approval.save');
 

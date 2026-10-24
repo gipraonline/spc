@@ -1951,14 +1951,18 @@ use Illuminate\Support\Facades\Crypt;
 
                 <!-- Action Buttons -->
                 <div class="mt-4 d-flex gap-2 flex-wrap">
+                    @if(isset($viewmode) && $viewmode=="off")
+
+                                <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
+                                    id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
+                                <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
+
+                    @endif
+                </div>
+                <div class="mt-4 d-flex gap-2 flex-wrap">
+
                     @if(isset($viewmode) && $viewmode=="on")
-                    @can('sales-orders.approval')
-                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
-                        data-bs-toggle="modal" data-bs-target="#approveModal" data-bs-dismiss="modal"
-                        data-id="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
-                        Approve
-                    </button>
-                    @endcan
+
 
                     @if(isset($sale) && $sale->n_sl_no)
                     <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
@@ -1981,7 +1985,47 @@ use Illuminate\Support\Facades\Crypt;
         </div>
     </div>
 
+    <!-- Approval Modal -->
+    <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
+                    @csrf
+                    @method('PUT')
 
+                    <div class="modal-header" style="background: linear-gradient(135deg, #1b6b49, #0e3d26);">
+                        <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" name="sales_id" id="sales_id"
+                            value="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
+
+                        <div class="mb-3">
+                            <label class="form-label">Remarks <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="remarks" id="approval_remarks" rows="3"
+                                required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Approval Status <span class="text-danger">*</span></label>
+                            <select class="form-select" name="status" id="approval_status" required>
+                                <option value="">Select Status</option>
+                                <option value="Approved">Approve</option>
+                                <option value="Rejected">Reject</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn buttonSpc" id="approvalSubmit">Submit</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     @php
     $soFranchisesJson = json_encode(collect($franchises ?? [])->map(function ($f) {
         return [

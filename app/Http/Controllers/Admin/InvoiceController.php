@@ -7,6 +7,7 @@ use App\Models\CompanySetting;
 use App\Models\SalesOrder;
 use App\Services\InvoiceCalculationService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Crypt;
 
 class InvoiceController extends Controller
 {
@@ -19,7 +20,13 @@ class InvoiceController extends Controller
      */
     public function preview($id)
     {
-        $order = $this->loadOrder($id);
+        try {
+            $saleId = Crypt::decryptString($id);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            abort(404, 'Invalid sales order ID.');
+        }
+
+        $order = $this->loadOrder($saleId);
 
         return view('admin.pdf.invoice-preview', $this->viewData($order));
     }
@@ -30,7 +37,13 @@ class InvoiceController extends Controller
      */
     public function download($id)
     {
-        $order = $this->loadOrder($id);
+        try {
+            $saleId = Crypt::decryptString($id);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            abort(404, 'Invalid sales order ID.');
+        }
+
+        $order = $this->loadOrder($saleId);
 
         if (strtolower($order->approval?->status ?? '') !== 'approved') {
             return redirect()->back()->with('error', 'Invoice can be generated only after the order is approved.');

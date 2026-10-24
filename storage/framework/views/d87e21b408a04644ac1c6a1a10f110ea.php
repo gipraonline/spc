@@ -387,6 +387,89 @@ html {
     flex-direction: column;
     text-align: center;
 }
+
+    .approval-form-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding-top: 20px;
+        margin-top: 20px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    /* Common button design */
+    .approval-form-actions .btn {
+        min-height: 42px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        box-shadow: none;
+        transition: all 0.2s ease;
+    }
+
+    /* Submit: primary action */
+    .approval-form-actions #approvalSubmit {
+        background: #166534;
+        color: #fff;
+        border: 1px solid #166534;
+    }
+
+    /* Other action buttons */
+    .approval-form-actions .popup-action-btn {
+        background: #fff;
+        color: #166534;
+        border: 1px solid #cbd5d1;
+    }
+
+    .approval-form-actions .popup-action-btn:hover {
+        background: #f0fdf4;
+        border-color: #166534;
+    }
+
+    /* Cancel */
+    .approval-form-actions .btn-cancel {
+        margin-left: auto;
+        background: transparent;
+        color: #64748b;
+        border: 1px solid transparent;
+    }
+
+    .approval-form-actions .btn-cancel:hover {
+        background: #f1f5f9;
+        color: #334155;
+    }
+
+    /* Tablet */
+    @media (max-width: 768px) {
+        .approval-form-actions {
+            gap: 8px;
+        }
+
+        .approval-form-actions .btn {
+            padding: 9px 12px;
+            font-size: 12px;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+        .approval-form-actions .btn {
+            flex: 1 1 calc(50% - 8px);
+            white-space: normal;
+        }
+
+        .approval-form-actions .btn-cancel {
+            margin-left: 0;
+        }
+    }
+
 }
 </style>
 <?php $__env->stopPush(); ?>
@@ -640,7 +723,7 @@ html {
                         <th scope="col">Payment Status</th>
                         <th scope="col">Order Status</th>
                         <th scope="col">Approval Status</th>
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any([ 'sales-orders.edit', 'sales-orders.delete'])): ?>
                         <th scope="col">Actions</th>
                         <?php endif; ?>
                     </tr>
@@ -732,7 +815,7 @@ html {
                             $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
                             ?>
 
-                           <button type="button"
+                            <button type="button"
                                 class="btn btn-sm
                                     badge-status <?php echo e(strtolower($approvalStatus) === 'approved' ? 'approved' :
                                     (strtolower($approvalStatus) === 'rejected' ? 'rejected' : 'pending')); ?>"
@@ -747,7 +830,7 @@ html {
 
                         </td>
 
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.edit', 'sales-orders.delete'])): ?>
                         <td>
                             <div class="dropdown dropstart">
                                 <a href="#" class="text-muted p-1" id="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>"
@@ -755,14 +838,7 @@ html {
                                     <i class="ti ti-dots-vertical fs-6"></i>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>">
-                                    <li>
-                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.view-details')): ?>
-                                        <a class="dropdown-item d-flex align-items-center gap-3"
-                                            href="<?php echo e(route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no))); ?>">
-                                            <i class="fs-4 ti ti-eye text-primary"></i>View Details
-                                        </a>
-                                        <?php endif; ?>
-                                    </li>
+
                                     <li>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.edit')): ?>
                                         <a class="dropdown-item d-flex align-items-center gap-3"
@@ -958,17 +1034,31 @@ html {
                     </div>
 
                     <div class="modal-footer approval-modal-footer">
-                        <button type="submit"
-                                class="btn buttonSpc"
-                                id="approvalSubmit">
-                            Submit
-                        </button>
+                        <div class="approval-form-actions">
+                            <button type="submit" class="btn buttonSpc" id="approvalSubmit">
+                                <i class="ti ti-check"></i> Submit
+                            </button>
 
-                        <button type="button"
-                                class="btn btn-outline-secondary"
+                            <button type="button" class="btn buttonSpc popup-action-btn"
+                                data-action="view-details">
+                                <i class="ti ti-eye"></i> View Details
+                            </button>
+                            <?php if(!empty($isOfficeAdmin) && strtolower($sale->approval?->status ?? '') === 'approved'): ?>
+                                <button type="button" class="btn buttonSpc popup-action-btn"
+                                    data-action="order-summary">
+                                    <i class="ti ti-file-text"></i> Order Preview
+                                </button>
+
+                                <button type="button" class="btn buttonSpc popup-action-btn"
+                                    data-action="generate-invoice">
+                                    <i class="ti ti-download"></i> Download Invoice
+                                </button>
+                            <?php endif; ?>
+                            <button type="button" class="btn btn-cancel"
                                 data-bs-dismiss="modal">
-                            Cancel
-                        </button>
+                                Cancel
+                            </button>
+                        </div>
                     </div>
 
                 </form>
@@ -991,7 +1081,20 @@ html {
         window.openStatusPopup = function (button) {
             window.currentApprovalButton = button;
 
-            $('#sales_id').val(button.dataset.id || '');
+            const saleId = button.dataset.id || '';
+            const approvalStatus = (button.dataset.status || 'pending').toLowerCase();
+
+            // The ID is already encrypted in Blade
+            $('#sales_id').val(saleId);
+
+            // Set the selected order ID for popup action buttons
+            $('.popup-action-btn').attr('data-id', saleId);
+
+            // Show invoice-related actions only for approved orders
+            document.querySelectorAll('.office-admin-action').forEach(function (action) {
+                action.hidden = approvalStatus !== 'approved';
+            });
+
             $('#approval_status').val('');
             $('#approval_remarks').val('');
         };
@@ -1076,6 +1179,43 @@ html {
                 }
             });
         });
+
+
+
+        $(document).on('click', '.popup-action-btn', function () {
+            const saleId = this.dataset.id;
+            const action = this.dataset.action;
+
+            if (!saleId) {
+                alert('Sales order ID is missing.');
+                return;
+            }
+
+            let url = '';
+
+            switch (action) {
+                case 'view-details':
+                    url = <?php echo json_encode(route('admin.salesorders.show', ['id' => '__ID__']), 512) ?>;
+                    break;
+
+                case 'order-summary':
+                    url = <?php echo json_encode(route('admin.invoice-orders.preview', ['id' => '__ID__']), 512) ?>;
+                    break;
+
+                case 'generate-invoice':
+                    url = <?php echo json_encode(route('admin.invoice.download', ['id' => '__ID__']), 512) ?>;
+                    break;
+
+                default:
+                    return;
+            }
+
+            url = url.replace('__ID__', encodeURIComponent(saleId));
+
+            window.location.href = url;
+        });
+
+
 
         // Existing Sales Order Update modal logic
         $('#salesUpdateModal').on('show.bs.modal', function (event) {

@@ -1705,7 +1705,7 @@ endif;
 unset($__errorArgs, $__bag); ?>
                             </div>
 
-                            
+
                             <div class="col-md-4">
                                 <label for="n_state_id" class="form-label">State *</label>
                                 <select name="customer_state_id" id="n_state_id" class="form-select">
@@ -1874,8 +1874,8 @@ unset($__errorArgs, $__bag); ?>
                                     style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;">
                                 </div>
                             </div>
-                        </div> 
-                        
+                        </div>
+
                        
                     <div class="d-none">
                         <select id="c_status" name="c_status" class="form-select mandatory">
@@ -1889,7 +1889,7 @@ unset($__errorArgs, $__bag); ?>
                         </select>
                     </div>
 
-                   
+
 
                         <div class="row g-4 mt-1 d-none" id="ps">
                             <div class="col-md-4">
@@ -2119,14 +2119,18 @@ unset($__errorArgs, $__bag); ?></div>
 
                 <!-- Action Buttons -->
                 <div class="mt-4 d-flex gap-2 flex-wrap">
-                    <?php if(isset($viewmode) && $viewmode=="on"): ?>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.approval')): ?>
-                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
-                        data-bs-toggle="modal" data-bs-target="#approveModal" data-bs-dismiss="modal"
-                        data-id="<?php echo e(Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '')); ?>">
-                        Approve
-                    </button>
+                    <?php if(isset($viewmode) && $viewmode=="off"): ?>
+
+                                <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
+                                    id="btn_create"><?php echo e(isset($sale->n_sl_no) ? 'Update' : 'Create'); ?></button>
+                                <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Cancel</a>
+
                     <?php endif; ?>
+                </div>
+                <div class="mt-4 d-flex gap-2 flex-wrap">
+
+                    <?php if(isset($viewmode) && $viewmode=="on"): ?>
+
 
                     <?php if(isset($sale) && $sale->n_sl_no): ?>
                     <a href="<?php echo e(route('admin.invoice-orders.preview', $sale->n_sl_no)); ?>" class="btn mt-1 buttonSpc">
@@ -2233,7 +2237,8 @@ unset($__errorArgs, $__bag); ?></div>
     <?php $__env->startPush('scripts'); ?>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    
+
     <script src="<?php echo e(asset('js/sales-order-create.js')); ?>?v=<?php echo e(@filemtime(public_path('js/sales-order-create.js'))); ?>"></script>
     <?php $__env->stopPush(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\spc_new\resources\views/admin/sales/create.blade.php ENDPATH**/ ?>

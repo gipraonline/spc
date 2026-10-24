@@ -2170,9 +2170,11 @@ class SalesController extends Controller
             }
         });
 
-        return redirect()
-            ->back()
-            ->with('success', 'Approval completed successfully.');
+        return response()->json([
+            'success' => true,
+            'status' => $request->status,
+            'message' => 'Approval status updated successfully.',
+        ]);
     }
 
     /**

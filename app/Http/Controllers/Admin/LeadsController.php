@@ -226,7 +226,7 @@ class LeadsController extends Controller
         $user = $this->currentUser();
 
         return view(
-            'admin.leads.index',
+            'admin.Leads.index',
             compact(
                 'leads',
                 'user',
@@ -250,7 +250,7 @@ class LeadsController extends Controller
         $viewMode = 'Off';
         $canSeeAll = $this->seesAllLeads();
 
-        return view('admin.leads.create', compact('states', 'lead', 'user', 'viewMode', 'employees', 'canSeeAll'));
+        return view('admin.Leads.create', compact('states', 'lead', 'user', 'viewMode', 'employees', 'canSeeAll'));
     }
 
     public function show(Request $request, $id)
@@ -267,7 +267,7 @@ class LeadsController extends Controller
         $viewMode = 'On';
         $canSeeAll = $this->seesAllLeads();
 
-        return view('admin.leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees', 'canSeeAll'));
+        return view('admin.Leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees', 'canSeeAll'));
     }
 
     public function edit(Request $request, $id)
@@ -284,7 +284,7 @@ class LeadsController extends Controller
         $viewMode = 'Off';
         $canSeeAll = $this->seesAllLeads();
 
-        return view('admin.leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees', 'canSeeAll'));
+        return view('admin.Leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees', 'canSeeAll'));
     }
 
     public function existingCustomer(Request $request)
@@ -402,7 +402,7 @@ class LeadsController extends Controller
             $lead->update($data);
 
             return redirect()
-                ->route('admin.leads.index')
+                ->route('admin.Leads.index')
                 ->with('success', 'Lead updated successfully.');
         }
 
@@ -418,6 +418,6 @@ class LeadsController extends Controller
 
         $lead->delete();
 
-        return redirect()->route('admin.leads.index')->with('success', 'Leads entry deleted successfully.');
+        return redirect()->route('admin.Leads.index')->with('success', 'Leads entry deleted successfully.');
     }
 }

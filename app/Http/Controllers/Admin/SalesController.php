@@ -951,7 +951,7 @@ class SalesController extends Controller
                 'shippedOrders',
                 'deliveredOrders',
                 'returnedOrders',
-                'requestedStatus'
+                'requestedStatus',
             )
         ));
     }

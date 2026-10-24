@@ -290,10 +290,12 @@ html {
     font-size: 14px;
 }
 
-/* Modal */
+/* ============================================================
+   APPROVAL MODAL
+   ============================================================ */
 .approval-modal-dialog {
     width: calc(100% - 32px);
-    max-width: 500px;
+    max-width: 560px;
     margin: 16px auto;
 }
 
@@ -325,19 +327,97 @@ html {
     resize: vertical;
 }
 
+/* Footer: one full-width wrapper that holds all the actions */
 .approval-modal-footer {
+    display: block;
+    padding: 16px 20px 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.approval-modal-footer > * {
+    margin: 0;
+}
+
+/* Actions row (applies on ALL screen sizes now) */
+.approval-form-actions {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 10px;
-    padding: 16px 20px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
 }
 
-.approval-modal-footer .btn {
-    min-height: 44px;
-    padding: 10px 18px;
+/* Common button design (overrides .buttonSpc / .btn globals) */
+.approval-form-actions .btn {
+    flex: 0 0 auto;
+    width: auto;
+    height: auto;
+    min-height: 42px;
+    margin: 0;
+    padding: 9px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    box-shadow: none;
+    transform: none;
 }
 
-/* Small mobile screens */
+.approval-form-actions .btn i {
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* Submit: primary action (solid green) */
+.approval-form-actions #approvalSubmit {
+    background: #166534 !important;
+    color: #ffffff !important;
+    border: 1px solid #166534 !important;
+}
+
+.approval-form-actions #approvalSubmit:hover {
+    background: #0e3d26 !important;
+    border-color: #0e3d26 !important;
+}
+
+/* Secondary actions: View Details / Order Preview / Download Invoice (outlined) */
+.approval-form-actions .popup-action-btn {
+    background: #ffffff !important;
+    color: #166534 !important;
+    border: 1px solid #cbd5d1 !important;
+}
+
+.approval-form-actions .popup-action-btn:hover {
+    background: #f0fdf4 !important;
+    border-color: #166534 !important;
+}
+
+/* Cancel: pushed to the far right on desktop */
+.approval-form-actions .btn-cancel {
+    margin-left: auto;
+    background: transparent !important;
+    color: #64748b !important;
+    border: 1px solid transparent !important;
+}
+
+.approval-form-actions .btn-cancel:hover {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+}
+
+/* Mobile: neat 2-column grid
+   Row 1: Submit (full width)
+   Row 2: View Details | Order Preview
+   Row 3: Download Invoice (full width, or half if alone)
+   Row 4: Cancel (full width) */
 @media (max-width: 576px) {
     .approval-modal-dialog {
         width: calc(100% - 20px);
@@ -354,14 +434,32 @@ html {
     }
 
     .approval-modal-footer {
-        display: flex;
-        flex-direction: column;
-        padding: 12px 16px 16px;
+        padding: 14px 16px 16px;
     }
 
-    .approval-modal-footer .btn {
+    .approval-form-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .approval-form-actions .btn {
         width: 100%;
-        margin: 0;
+        min-height: 44px;
+        padding: 9px 8px !important;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .approval-form-actions #approvalSubmit,
+    .approval-form-actions .btn-cancel,
+    .approval-form-actions .popup-action-btn[data-action="generate-invoice"] {
+        grid-column: 1 / -1;
+    }
+
+    .approval-form-actions .btn-cancel {
+        margin-left: 0;
+        border: 1px solid #e2e8f0 !important;
     }
 
     .approval-status-btn {
@@ -384,92 +482,9 @@ html {
     }
 
     .widget-card {
-    flex-direction: column;
-    text-align: center;
-}
-
-    .approval-form-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        padding-top: 20px;
-        margin-top: 20px;
-        border-top: 1px solid #e5e7eb;
+        flex-direction: column;
+        text-align: center;
     }
-
-    /* Common button design */
-    .approval-form-actions .btn {
-        min-height: 42px;
-        padding: 10px 15px;
-        border-radius: 8px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 7px;
-        font-size: 13px;
-        font-weight: 600;
-        white-space: nowrap;
-        box-shadow: none;
-        transition: all 0.2s ease;
-    }
-
-    /* Submit: primary action */
-    .approval-form-actions #approvalSubmit {
-        background: #166534;
-        color: #fff;
-        border: 1px solid #166534;
-    }
-
-    /* Other action buttons */
-    .approval-form-actions .popup-action-btn {
-        background: #fff;
-        color: #166534;
-        border: 1px solid #cbd5d1;
-    }
-
-    .approval-form-actions .popup-action-btn:hover {
-        background: #f0fdf4;
-        border-color: #166534;
-    }
-
-    /* Cancel */
-    .approval-form-actions .btn-cancel {
-        margin-left: auto;
-        background: transparent;
-        color: #64748b;
-        border: 1px solid transparent;
-    }
-
-    .approval-form-actions .btn-cancel:hover {
-        background: #f1f5f9;
-        color: #334155;
-    }
-
-    /* Tablet */
-    @media (max-width: 768px) {
-        .approval-form-actions {
-            gap: 8px;
-        }
-
-        .approval-form-actions .btn {
-            padding: 9px 12px;
-            font-size: 12px;
-        }
-    }
-
-    /* Mobile */
-    @media (max-width: 480px) {
-        .approval-form-actions .btn {
-            flex: 1 1 calc(50% - 8px);
-            white-space: normal;
-        }
-
-        .approval-form-actions .btn-cancel {
-            margin-left: 0;
-        }
-    }
-
 }
 </style>
 <?php $__env->stopPush(); ?>

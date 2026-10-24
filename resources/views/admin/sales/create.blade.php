@@ -1630,7 +1630,7 @@ use Illuminate\Support\Facades\Crypt;
                                 @enderror
                             </div>
 
-                            
+
                             <div class="col-md-4">
                                 <label for="n_state_id" class="form-label">State *</label>
                                 <select name="customer_state_id" id="n_state_id" class="form-select">
@@ -1748,8 +1748,8 @@ use Illuminate\Support\Facades\Crypt;
                                     style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;">
                                 </div>
                             </div>
-                        </div> 
-                        
+                        </div>
+
                        {{-- Customer Status: hidden from the UI, value still submitted --}}
                     <div class="d-none">
                         <select id="c_status" name="c_status" class="form-select mandatory">
@@ -1763,7 +1763,7 @@ use Illuminate\Support\Facades\Crypt;
                         </select>
                     </div>
 
-                   
+
 
                         <div class="row g-4 mt-1 d-none" id="ps">
                             <div class="col-md-4">
@@ -1981,47 +1981,7 @@ use Illuminate\Support\Facades\Crypt;
         </div>
     </div>
 
-    <!-- Approval Modal -->
-    <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="POST" id="approveForm" action="{{ route('admin.salesorders.approval.save') }}">
-                    @csrf
-                    @method('PUT')
 
-                    <div class="modal-header" style="background: linear-gradient(135deg, #1b6b49, #0e3d26);">
-                        <h5 class="modal-title text-white" id="approveModalLabel">Approval</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <input type="hidden" name="sales_id" id="sales_id"
-                            value="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
-
-                        <div class="mb-3">
-                            <label class="form-label">Remarks <span class="text-danger">*</span></label>
-                            <textarea class="form-control" name="remarks" id="approval_remarks" rows="3"
-                                required></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Approval Status <span class="text-danger">*</span></label>
-                            <select class="form-select" name="status" id="approval_status" required>
-                                <option value="">Select Status</option>
-                                <option value="Approved">Approve</option>
-                                <option value="Rejected">Reject</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="submit" class="btn buttonSpc" id="approvalSubmit">Submit</button>
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
     @php
     $soFranchisesJson = json_encode(collect($franchises ?? [])->map(function ($f) {
         return [
@@ -2065,6 +2025,6 @@ use Illuminate\Support\Facades\Crypt;
     @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    
+
     <script src="{{ asset('js/sales-order-create.js') }}?v={{ @filemtime(public_path('js/sales-order-create.js')) }}"></script>
     @endpush

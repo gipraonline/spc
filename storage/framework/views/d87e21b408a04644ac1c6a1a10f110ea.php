@@ -735,24 +735,16 @@ html {
                            <button type="button"
                                 class="btn btn-sm
                                     badge-status <?php echo e(strtolower($approvalStatus) === 'approved' ? 'approved' :
-                                    (strtolower($approvalStatus) === 'rejected' ? 'rejected' : '')); ?>
-
+                                    (strtolower($approvalStatus) === 'rejected' ? 'rejected' : 'pending')); ?>"
                                 data-id="<?php echo e(Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '')); ?>"
                                 data-status="<?php echo e($approvalStatus); ?>"
                                 data-bs-toggle="modal"
                                 data-bs-target="#approveModal"
                                 onclick="openStatusPopup(this)">
-                                <?php echo e(ucfirst($approvalStatus ?: 'Pending')); ?>
+                                <?php echo e(ucfirst($approvalStatus ?? 'Pending')); ?>
 
                             </button>
 
-                            <?php if($approvalStatus == 'approved'): ?>
-                            <span class="badge-status approved">Approved</span>
-                            <?php elseif($approvalStatus == 'rejected'): ?>
-                            <span class="badge-status rejected">Rejected</span>
-                            <?php else: ?>
-                            <span class="badge-status pending">Pending</span>
-                            <?php endif; ?>
                         </td>
 
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])): ?>
@@ -1040,17 +1032,17 @@ html {
                             button.dataset.status = status;
 
                             button.classList.remove(
-                                'btn-success',
-                                'btn-danger',
-                                'btn-secondary'
+                                'approved',
+                                'rejected',
+                                'pending'
                             );
 
                             if (status === 'approved') {
-                                button.classList.add('btn-success');
+                                button.classList.add('approved');
                             } else if (status === 'rejected') {
-                                button.classList.add('btn-danger');
+                                button.classList.add('rejected');
                             } else {
-                                button.classList.add('btn-secondary');
+                                button.classList.add('pending');
                             }
                         }
                         // Close approval modal

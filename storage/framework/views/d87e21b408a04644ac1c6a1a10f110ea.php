@@ -1058,13 +1058,14 @@ html {
                                 data-action="view-details">
                                 <i class="ti ti-eye"></i> View Details
                             </button>
-                            <?php if(!empty($isOfficeAdmin) && strtolower($sale->approval?->status ?? '') === 'approved'): ?>
-                                <button type="button" class="btn buttonSpc popup-action-btn"
+
+                            <?php if(!empty($isOfficeAdmin)): ?>
+                                <button type="button" class="btn buttonSpc popup-action-btn office-admin-action"
                                     data-action="order-summary">
                                     <i class="ti ti-file-text"></i> Order Preview
                                 </button>
 
-                                <button type="button" class="btn buttonSpc popup-action-btn"
+                                <button type="button" class="btn buttonSpc popup-action-btn office-admin-action"
                                     data-action="generate-invoice">
                                     <i class="ti ti-download"></i> Download Invoice
                                 </button>
@@ -1086,10 +1087,10 @@ html {
 
 <?php $__env->startPush('scripts'); ?>
 
+
 <script>
     $(document).ready(function () {
 
-        // Store the exact approval button clicked
         window.currentApprovalButton = null;
 
         // Open approval popup
@@ -1097,20 +1098,20 @@ html {
             window.currentApprovalButton = button;
 
             const saleId = button.dataset.id || '';
-            const approvalStatus = (button.dataset.status || 'pending').toLowerCase();
+            const approvalStatus = (button.dataset.status || '')
+                .trim()
+                .toLowerCase();
 
-            // The ID is already encrypted in Blade
+            // Store the selected sales order ID
             $('#sales_id').val(saleId);
-
-            // Set the selected order ID for popup action buttons
             $('.popup-action-btn').attr('data-id', saleId);
 
-            // Show invoice-related actions only for approved orders
+            // Show invoice actions only for approved orders
             document.querySelectorAll('.office-admin-action').forEach(function (action) {
                 action.hidden = approvalStatus !== 'approved';
             });
 
-            $('#approval_status').val('');
+            //$('#approval_status').val('');
             $('#approval_remarks').val('');
         };
 
@@ -1135,13 +1136,12 @@ html {
                 dataType: 'json',
 
                 success: function (response) {
-
                     if (response.success) {
-
-                        // Update only the button that opened this modal
                         if (window.currentApprovalButton) {
                             const button = window.currentApprovalButton;
-                            const status = String(response.status || '').toLowerCase();
+                            const status = String(response.status || '')
+                                .trim()
+                                .toLowerCase();
 
                             button.textContent = status
                                 ? status.charAt(0).toUpperCase() + status.slice(1)
@@ -1155,23 +1155,19 @@ html {
                                 'pending'
                             );
 
-                            if (status === 'approved') {
-                                button.classList.add('approved');
-                            } else if (status === 'rejected') {
-                                button.classList.add('rejected');
-                            } else {
-                                button.classList.add('pending');
-                            }
+                            button.classList.add(
+                                status === 'approved' || status === 'rejected'
+                                    ? status
+                                    : 'pending'
+                            );
                         }
-                        // Close approval modal
-                        const modalElement =
-                            document.getElementById('approveModal');
+
+                        const modalElement = document.getElementById('approveModal');
 
                         bootstrap.Modal
                             .getOrCreateInstance(modalElement)
                             .hide();
 
-                        // Clear the saved reference after updating
                         window.currentApprovalButton = null;
                     } else {
                         alert(response.message ||
@@ -1190,13 +1186,13 @@ html {
 
                 complete: function () {
                     submitButton.disabled = false;
-                    submitButton.textContent = 'Submit';
+                    submitButton.innerHTML =
+                        '<i class="ti ti-check"></i> Submit';
                 }
             });
         });
 
-
-
+        // Handle popup action buttons
         $(document).on('click', '.popup-action-btn', function () {
             const saleId = this.dataset.id;
             const action = this.dataset.action;
@@ -1230,11 +1226,8 @@ html {
             window.location.href = url;
         });
 
-
-
         // Existing Sales Order Update modal logic
         $('#salesUpdateModal').on('show.bs.modal', function (event) {
-
             const button = event.relatedTarget;
 
             if (!button) {
@@ -1250,6 +1243,7 @@ html {
 
     });
 </script>
+
 
 <?php $__env->stopPush(); ?>
 

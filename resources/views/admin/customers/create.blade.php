@@ -335,7 +335,7 @@
                 </div>
 
                 <div class="efp-field span-3">
-                    <label><i class="ti ti-brand-whatsapp"></i>WhatsApp Number</label>
+                    <label><i class="ti ti-brand-whatsapp"></i>WhatsApp Number(Optional)</label>
                     <input type="text" maxlength="10" name="n_whatsapp" value="{{ old('n_whatsapp') }}"
                         class="form-control">
                     @error('n_whatsapp')
@@ -344,7 +344,7 @@
                 </div>
 
                 <div class="efp-field">
-                    <label><i class="ti ti-mail"></i>Email</label>
+                    <label><i class="ti ti-mail"></i>Email(Optional)</label>
                     <input type="email" name="c_email" value="{{ old('c_email') }}" class="form-control">
                     @error('c_email')
                     <div class="text-danger efp-err">{{ $message }}</div>
@@ -364,14 +364,7 @@
                     @enderror
                 </div>
 
-                <div class="efp-field span-2">
-                    <label for="c_post_office"><i class="ti ti-mailbox"></i>Post Office</label>
-                    <input type="text" id="c_post_office" name="c_post_office" maxlength="6" value="{{ old('c_post_office') }}"
-                        class="form-control" placeholder="Post Office">
-                    @error('c_post_office')
-                    <div class="text-danger efp-err">{{ $message }}</div>
-                    @enderror
-                </div>
+                
 
                 <div class="efp-field span-2">
                     <label for="n_state_id"><i class="ti ti-map-2"></i>State</label>
@@ -401,9 +394,18 @@
 
                 <div class="efp-field span-3">
                     <label for="c_thaluk"><i class="ti ti-building-community"></i>Thaluk</label>
-                    <input type="text" id="c_thaluk" name="c_thaluk" maxlength="6" value="{{ old('c_thaluk') }}"
+                    <input type="text" id="c_thaluk" name="c_thaluk" value="{{ old('c_thaluk') }}"
                         class="form-control" placeholder="Thaluk">
                     @error('c_thaluk')
+                    <div class="text-danger efp-err">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="efp-field span-2">
+                    <label for="c_post_office"><i class="ti ti-mailbox"></i>Post Office</label>
+                    <input type="text" id="c_post_office" name="c_post_office" value="{{ old('c_post_office') }}"
+                        class="form-control" placeholder="Post Office">
+                    @error('c_post_office')
                     <div class="text-danger efp-err">{{ $message }}</div>
                     @enderror
                 </div>

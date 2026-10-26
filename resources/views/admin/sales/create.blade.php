@@ -1039,6 +1039,80 @@
         content: "";
     }
 }
+
+/* ===== Button spacing + shape + mobile column fix (CSS only) ===== */
+
+/* 1. Space around the Create / Cancel row so it never touches the panel edge */
+body .so-wrap {
+    padding-bottom: 28px;
+}
+body .so-wrap #frm_create > .mt-4.d-flex {
+    padding: 4px 4px 24px !important;
+    margin-top: 24px !important;
+}
+
+/* 2. One consistent button shape (no pill/oval, no wrapping text) */
+body .so-wrap .buttonSpc,
+body .so-wrap #addRow,
+body .so-wrap #btn_create,
+body .so-wrap .btn-outline-secondary {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px;
+    min-height: 46px;
+    padding: 10px 22px !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    border-radius: 12px !important;
+    box-sizing: border-box;
+}
+body .so-wrap #btn_create {
+    width: auto !important;      /* removes the inline width:150px */
+    min-width: 150px;
+}
+
+/* 3. Mobile: buttons stack in a clean column */
+@media screen and (max-width: 767px) {
+
+    /* Wrapper of the two location buttons becomes a column */
+    body .so-wrap .d-flex:has(> #soGetLocationBtn) {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    body .so-wrap #soGetLocationBtn,
+    body .so-wrap #soToggleMapBtn {
+        width: 100% !important;
+        flex: 0 0 auto !important;
+        white-space: normal !important;   /* allow wrapping only if the screen is tiny */
+    }
+
+    /* Find Customer button */
+    body .so-wrap #lookupBtn {
+        width: 100% !important;
+        margin-top: 10px;
+    }
+
+    /* Create + Cancel: equal width, side by side */
+    body .so-wrap #frm_create > .mt-4.d-flex {
+        flex-wrap: nowrap !important;
+        padding: 4px 2px 28px !important;
+    }
+    body .so-wrap #btn_create,
+    body .so-wrap #frm_create > .mt-4.d-flex .btn-outline-secondary {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        width: auto !important;
+    }
+
+    /* Modal buttons */
+    body .so-wrap .modal-footer .btn {
+        flex: 1 1 0;
+    }
+}
 </style>
 
 <style>
@@ -1782,57 +1856,6 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
                         </div>
 
-                        <!-- Payment Details Extra Fields -->
-                        <div class="row g-4 mt-1" id="paymet-proofs">
-                            <div class="col-md-4">
-                                <label class="form-label">Amount to Pay *</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light text-success fw-bold">₹</span>
-                                    <input type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
-                                        id="n_amount_to_pay" class="form-control fw-bold text-success"
-                                        value="{{ old('n_amount_to_pay', $sale->n_amount_to_pay ?? '') }}" readonly>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Transaction ID *</label>
-                                <input type="text" id="c_transaction_id" name="c_transaction_id"
-                                    value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
-                                    data-message="Please Enter Transaction id" class="form-control"
-                                    placeholder="Enter Transaction / UTR / Reference No">
-                                <div class="text-danger mt-1 fs-2">@error('c_transaction_id'){{ $message }}@enderror
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Transaction Proof
-                                    @if(!isset($sale) || !$sale->payment_image)
-                                    <span class="text-danger">*</span>
-                                    @endif
-                                </label>
-
-                                <input type="file" id="payment_image" name="payment_image"
-                                    data-message="Please Enter Transaction Proof" class="form-control" accept="image/*">
-                                <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
-                                <div class="text-danger mt-1 fs-2">@error('payment_image'){{ $message }}@enderror</div>
-
-                                <div class="mt-3" id="payment_preview_container">
-                                    <img id="payment_image_preview"
-                                        src="{{ isset($sale) && $sale->payment_image ? route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) : '' }}"
-                                        alt="Transaction Proof Preview" class="img-thumbnail"
-                                        style="{{ isset($sale) && $sale->payment_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
-
-                                    @if(isset($sale) && $sale->payment_image)
-                                    <br>
-                                    <button type="button" id="remove_payment_image_btn"
-                                        class="btn btn-danger btn-sm mt-2">
-                                        Remove Image
-                                    </button>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Section 6: Franchise / Company Details Section -->
@@ -1947,10 +1970,62 @@ use Illuminate\Support\Facades\Crypt;
                             </div>
                         </div>
 
+                        <!-- Payment Details Extra Fields -->
+                        <div class="row g-4 mt-1" id="paymet-proofs">
+                            <div class="col-md-4">
+                                <label class="form-label">Amount to Pay *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-success fw-bold">₹</span>
+                                    <input type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
+                                        id="n_amount_to_pay" class="form-control fw-bold text-success "
+                                        value="{{ old('n_amount_to_pay', $sale->n_amount_to_pay ?? '') }}" readonly>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Transaction ID *</label>
+                                <input type="text" id="c_transaction_id" name="c_transaction_id"
+                                    value="{{ old('c_transaction_id', $sale->c_transaction_id ?? '') }}"
+                                    data-message="Please Enter Transaction id" class="form-control"
+                                    placeholder="Enter Transaction / UTR / Reference No">
+                                <div class="text-danger mt-1 fs-2">@error('c_transaction_id'){{ $message }}@enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Transaction Proof
+                                    @if(!isset($sale) || !$sale->payment_image)
+                                    <span class="text-danger">*</span>
+                                    @endif
+                                </label>
+
+                                <input type="file" id="payment_image" name="payment_image"
+                                    data-message="Please Enter Transaction Proof" class="form-control" accept="image/*">
+                                <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
+                                <div class="text-danger mt-1 fs-2">@error('payment_image'){{ $message }}@enderror</div>
+
+                                <div class="mt-3" id="payment_preview_container">
+                                    <img id="payment_image_preview"
+                                        src="{{ isset($sale) && $sale->payment_image ? route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) : '' }}"
+                                        alt="Transaction Proof Preview" class="img-thumbnail"
+                                        style="{{ isset($sale) && $sale->payment_image ? '' : 'display:none;' }} width:50px; height:50px; object-fit:cover;">
+
+                                    @if(isset($sale) && $sale->payment_image)
+                                    <br>
+                                    <button type="button" id="remove_payment_image_btn"
+                                        class="btn btn-danger btn-sm mt-2">
+                                        Remove Image
+                                    </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                     </div>
                 </fieldset>
 
                 <!-- Action Buttons -->
-                <div class="mt-4 d-flex gap-2 flex-wrap">
+                <div style="justify-content: center;" class="mt-4 d-flex gap-2 flex-wrap">
                     @if(isset($viewmode) && $viewmode=="off")
 
                                 <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
@@ -1959,28 +2034,7 @@ use Illuminate\Support\Facades\Crypt;
 
                     @endif
                 </div>
-                <div class="mt-4 d-flex gap-2 flex-wrap">
 
-                    @if(isset($viewmode) && $viewmode=="on")
-
-
-                    @if(isset($sale) && $sale->n_sl_no)
-                    <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
-                        Order Summary Preview
-                    </a>
-                    @if(!empty($isOfficeAdmin) && strtolower($sale->approval?->status ?? '') === 'approved')
-                    <a href="{{ route('admin.invoice.download', $sale->n_sl_no) }}">
-                        <button type="button" class="btn buttonSpc" style="height:61px;margin-top: 4px;">Generate
-                            Invoice</button>
-                    </a>
-                    @endif
-                    @endif
-                    @else
-                    <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
-                        id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
-                    <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                    @endif
-                </div>
             </form>
         </div>
     </div>

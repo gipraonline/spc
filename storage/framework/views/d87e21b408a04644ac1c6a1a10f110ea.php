@@ -826,23 +826,39 @@ html {
                         </td>
 
                         <td>
-                            <?php
-                            $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
-                            ?>
+                            <?php if(!empty($isOfficeAdmin)): ?>
+                                <?php
+                                $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
+                                ?>
 
-                            <button type="button"
-                                class="btn btn-sm
-                                    badge-status <?php echo e(strtolower($approvalStatus) === 'approved' ? 'approved' :
-                                    (strtolower($approvalStatus) === 'rejected' ? 'rejected' : 'pending')); ?>"
-                                data-id="<?php echo e(Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '')); ?>"
-                                data-status="<?php echo e($approvalStatus); ?>"
-                                data-bs-toggle="modal"
-                                data-bs-target="#approveModal"
-                                onclick="openStatusPopup(this)">
-                                <?php echo e(ucfirst($approvalStatus ?? 'Pending')); ?>
+                                <button type="button"
+                                    class="btn btn-sm
+                                        badge-status <?php echo e(strtolower($approvalStatus) === 'approved' ? 'approved' :
+                                        (strtolower($approvalStatus) === 'rejected' ? 'rejected' : 'pending')); ?>"
+                                    data-id="<?php echo e(Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '')); ?>"
+                                    data-status="<?php echo e($approvalStatus); ?>"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#approveModal"
+                                    onclick="openStatusPopup(this)">
+                                    <?php echo e(ucfirst($approvalStatus ?? 'Pending')); ?>
 
-                            </button>
+                                </button>
 
+
+                            <?php else: ?>
+
+                                <?php
+                                $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
+                                ?>
+                                <?php if($approvalStatus == 'approved'): ?>
+                                <span class="badge-status approved">Approved</span>
+                                <?php elseif($approvalStatus == 'rejected'): ?>
+                                <span class="badge-status rejected">Rejected</span>
+                                <?php else: ?>
+                                <span class="badge-status pending">Pending</span>
+                                <?php endif; ?>
+
+                            <?php endif; ?>
                         </td>
 
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sales-orders.edit', 'sales-orders.delete'])): ?>
@@ -853,7 +869,16 @@ html {
                                     <i class="ti ti-dots-vertical fs-6"></i>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton_<?php echo e($sale->n_sl_no); ?>">
-
+                                    <?php if(empty($isOfficeAdmin)): ?>
+                                        <li>
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.view-details')): ?>
+                                            <a class="dropdown-item d-flex align-items-center gap-3"
+                                                href="<?php echo e(route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no))); ?>">
+                                                <i class="fs-4 ti ti-eye text-primary"></i>View Details
+                                            </a>
+                                            <?php endif; ?>
+                                        </li>
+                                    <?php endif; ?>
                                     <li>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sales-orders.edit')): ?>
                                         <a class="dropdown-item d-flex align-items-center gap-3"

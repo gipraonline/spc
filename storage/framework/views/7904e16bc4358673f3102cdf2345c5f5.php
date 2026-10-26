@@ -1915,71 +1915,6 @@ unset($__errorArgs, $__bag); ?></div>
                             </div>
                         </div>
 
-                        <!-- Payment Details Extra Fields -->
-                        <div class="row g-4 mt-1" id="paymet-proofs">
-                            <div class="col-md-4">
-                                <label class="form-label">Amount to Pay *</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light text-success fw-bold">₹</span>
-                                    <input type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
-                                        id="n_amount_to_pay" class="form-control fw-bold text-success"
-                                        value="<?php echo e(old('n_amount_to_pay', $sale->n_amount_to_pay ?? '')); ?>" readonly>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Transaction ID *</label>
-                                <input type="text" id="c_transaction_id" name="c_transaction_id"
-                                    value="<?php echo e(old('c_transaction_id', $sale->c_transaction_id ?? '')); ?>"
-                                    data-message="Please Enter Transaction id" class="form-control"
-                                    placeholder="Enter Transaction / UTR / Reference No">
-                                <div class="text-danger mt-1 fs-2"><?php $__errorArgs = ['c_transaction_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Transaction Proof
-                                    <?php if(!isset($sale) || !$sale->payment_image): ?>
-                                    <span class="text-danger">*</span>
-                                    <?php endif; ?>
-                                </label>
-
-                                <input type="file" id="payment_image" name="payment_image"
-                                    data-message="Please Enter Transaction Proof" class="form-control" accept="image/*">
-                                <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
-                                <div class="text-danger mt-1 fs-2"><?php $__errorArgs = ['payment_image'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?></div>
-
-                                <div class="mt-3" id="payment_preview_container">
-                                    <img id="payment_image_preview"
-                                        src="<?php echo e(isset($sale) && $sale->payment_image ? route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) : ''); ?>"
-                                        alt="Transaction Proof Preview" class="img-thumbnail"
-                                        style="<?php echo e(isset($sale) && $sale->payment_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
-
-                                    <?php if(isset($sale) && $sale->payment_image): ?>
-                                    <br>
-                                    <button type="button" id="remove_payment_image_btn"
-                                        class="btn btn-danger btn-sm mt-2">
-                                        Remove Image
-                                    </button>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Section 6: Franchise / Company Details Section -->
@@ -2115,6 +2050,72 @@ unset($__errorArgs, $__bag); ?></div>
                             </div>
                         </div>
 
+                        <!-- Payment Details Extra Fields -->
+                        <div class="row g-4 mt-1" id="paymet-proofs">
+                            <div class="col-md-4">
+                                <label class="form-label">Amount to Pay *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-success fw-bold">₹</span>
+                                    <input type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
+                                        id="n_amount_to_pay" class="form-control fw-bold text-success "
+                                        value="<?php echo e(old('n_amount_to_pay', $sale->n_amount_to_pay ?? '')); ?>" readonly>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Transaction ID *</label>
+                                <input type="text" id="c_transaction_id" name="c_transaction_id"
+                                    value="<?php echo e(old('c_transaction_id', $sale->c_transaction_id ?? '')); ?>"
+                                    data-message="Please Enter Transaction id" class="form-control"
+                                    placeholder="Enter Transaction / UTR / Reference No">
+                                <div class="text-danger mt-1 fs-2"><?php $__errorArgs = ['c_transaction_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Transaction Proof
+                                    <?php if(!isset($sale) || !$sale->payment_image): ?>
+                                    <span class="text-danger">*</span>
+                                    <?php endif; ?>
+                                </label>
+
+                                <input type="file" id="payment_image" name="payment_image"
+                                    data-message="Please Enter Transaction Proof" class="form-control" accept="image/*">
+                                <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
+                                <div class="text-danger mt-1 fs-2"><?php $__errorArgs = ['payment_image'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?></div>
+
+                                <div class="mt-3" id="payment_preview_container">
+                                    <img id="payment_image_preview"
+                                        src="<?php echo e(isset($sale) && $sale->payment_image ? route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) : ''); ?>"
+                                        alt="Transaction Proof Preview" class="img-thumbnail"
+                                        style="<?php echo e(isset($sale) && $sale->payment_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
+
+                                    <?php if(isset($sale) && $sale->payment_image): ?>
+                                    <br>
+                                    <button type="button" id="remove_payment_image_btn"
+                                        class="btn btn-danger btn-sm mt-2">
+                                        Remove Image
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
                 </fieldset>
 
                 <!-- Action Buttons -->
@@ -2127,28 +2128,7 @@ unset($__errorArgs, $__bag); ?></div>
 
                     <?php endif; ?>
                 </div>
-                <div class="mt-4 d-flex gap-2 flex-wrap">
 
-                    <?php if(isset($viewmode) && $viewmode=="on"): ?>
-
-
-                    <?php if(isset($sale) && $sale->n_sl_no): ?>
-                    <a href="<?php echo e(route('admin.invoice-orders.preview', $sale->n_sl_no)); ?>" class="btn mt-1 buttonSpc">
-                        Order Summary Preview
-                    </a>
-                    <?php if(!empty($isOfficeAdmin) && strtolower($sale->approval?->status ?? '') === 'approved'): ?>
-                    <a href="<?php echo e(route('admin.invoice.download', $sale->n_sl_no)); ?>">
-                        <button type="button" class="btn buttonSpc" style="height:61px;margin-top: 4px;">Generate
-                            Invoice</button>
-                    </a>
-                    <?php endif; ?>
-                    <?php endif; ?>
-                    <?php else: ?>
-                    <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
-                        id="btn_create"><?php echo e(isset($sale->n_sl_no) ? 'Update' : 'Create'); ?></button>
-                    <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Cancel</a>
-                    <?php endif; ?>
-                </div>
             </form>
         </div>
     </div>

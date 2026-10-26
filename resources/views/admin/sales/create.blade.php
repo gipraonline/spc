@@ -1630,7 +1630,7 @@ use Illuminate\Support\Facades\Crypt;
                                 @enderror
                             </div>
 
-                            
+
                             <div class="col-md-4">
                                 <label for="n_state_id" class="form-label">State *</label>
                                 <select name="customer_state_id" id="n_state_id" class="form-select">
@@ -1748,8 +1748,8 @@ use Illuminate\Support\Facades\Crypt;
                                     style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;">
                                 </div>
                             </div>
-                        </div> 
-                        
+                        </div>
+
                        {{-- Customer Status: hidden from the UI, value still submitted --}}
                     <div class="d-none">
                         <select id="c_status" name="c_status" class="form-select mandatory">
@@ -1763,7 +1763,7 @@ use Illuminate\Support\Facades\Crypt;
                         </select>
                     </div>
 
-                   
+
 
                         <div class="row g-4 mt-1 d-none" id="ps">
                             <div class="col-md-4">
@@ -1951,14 +1951,18 @@ use Illuminate\Support\Facades\Crypt;
 
                 <!-- Action Buttons -->
                 <div class="mt-4 d-flex gap-2 flex-wrap">
+                    @if(isset($viewmode) && $viewmode=="off")
+
+                                <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
+                                    id="btn_create">{{isset($sale->n_sl_no) ? 'Update' : 'Create'}}</button>
+                                <a href="{{ route('admin.salesorders.index') }}" class="btn btn-outline-secondary">Cancel</a>
+
+                    @endif
+                </div>
+                <div class="mt-4 d-flex gap-2 flex-wrap">
+
                     @if(isset($viewmode) && $viewmode=="on")
-                    @can('sales-orders.approval')
-                    <button type="button" style="width:150px;position:relative;" class="btn mt-1 buttonSpc"
-                        data-bs-toggle="modal" data-bs-target="#approveModal" data-bs-dismiss="modal"
-                        data-id="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}">
-                        Approve
-                    </button>
-                    @endcan
+
 
                     @if(isset($sale) && $sale->n_sl_no)
                     <a href="{{ route('admin.invoice-orders.preview', $sale->n_sl_no) }}" class="btn mt-1 buttonSpc">
@@ -2065,6 +2069,6 @@ use Illuminate\Support\Facades\Crypt;
     @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    
+
     <script src="{{ asset('js/sales-order-create.js') }}?v={{ @filemtime(public_path('js/sales-order-create.js')) }}"></script>
     @endpush

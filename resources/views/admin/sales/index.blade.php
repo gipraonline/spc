@@ -280,6 +280,197 @@ html {
     scroll-behavior: smooth;
 }
 
+
+/* Approval status button */
+.approval-status-btn {
+    max-width: 100%;
+    min-height: 38px;
+    padding: 7px 16px;
+    border-radius: 20px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+}
+
+/* ============================================================
+   APPROVAL MODAL
+   ============================================================ */
+.approval-modal-dialog {
+    width: calc(100% - 32px);
+    max-width: 560px;
+    margin: 16px auto;
+}
+
+.approval-modal-content {
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.approval-modal-header {
+    background: linear-gradient(135deg, #1b6b49, #0e3d26);
+    padding: 16px 20px;
+}
+
+.approval-modal-body {
+    padding: 20px;
+}
+
+.approval-modal-body .form-control,
+.approval-modal-body .form-select {
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+}
+
+.approval-modal-body textarea.form-control {
+    min-height: 110px;
+    resize: vertical;
+}
+
+/* Footer: one full-width wrapper that holds all the actions */
+.approval-modal-footer {
+    display: block;
+    padding: 16px 20px 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.approval-modal-footer > * {
+    margin: 0;
+}
+
+/* Actions row (applies on ALL screen sizes now) */
+.approval-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Common button design (overrides .buttonSpc / .btn globals) */
+.approval-form-actions .btn {
+    flex: 0 0 auto;
+    width: auto;
+    height: auto;
+    min-height: 42px;
+    margin: 0;
+    padding: 9px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    box-shadow: none;
+    transform: none;
+}
+
+.approval-form-actions .btn i {
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* Submit: primary action (solid green) */
+.approval-form-actions #approvalSubmit {
+    background: #166534 !important;
+    color: #ffffff !important;
+    border: 1px solid #166534 !important;
+}
+
+.approval-form-actions #approvalSubmit:hover {
+    background: #0e3d26 !important;
+    border-color: #0e3d26 !important;
+}
+
+/* Secondary actions: View Details / Order Preview / Download Invoice (outlined) */
+.approval-form-actions .popup-action-btn {
+    background: #ffffff !important;
+    color: #166534 !important;
+    border: 1px solid #cbd5d1 !important;
+}
+
+.approval-form-actions .popup-action-btn:hover {
+    background: #f0fdf4 !important;
+    border-color: #166534 !important;
+}
+
+/* Cancel: pushed to the far right on desktop */
+.approval-form-actions .btn-cancel {
+    margin-left: auto;
+    background: transparent !important;
+    color: #64748b !important;
+    border: 1px solid transparent !important;
+}
+
+.approval-form-actions .btn-cancel:hover {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+}
+
+/* Mobile: neat 2-column grid
+   Row 1: Submit (full width)
+   Row 2: View Details | Order Preview
+   Row 3: Download Invoice (full width, or half if alone)
+   Row 4: Cancel (full width) */
+@media (max-width: 576px) {
+    .approval-modal-dialog {
+        width: calc(100% - 20px);
+        max-width: none;
+        margin: 10px auto;
+    }
+
+    .approval-modal-header {
+        padding: 14px 16px;
+    }
+
+    .approval-modal-body {
+        padding: 16px;
+    }
+
+    .approval-modal-footer {
+        padding: 14px 16px 16px;
+    }
+
+    .approval-form-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .approval-form-actions .btn {
+        width: 100%;
+        min-height: 44px;
+        padding: 9px 8px !important;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .approval-form-actions #approvalSubmit,
+    .approval-form-actions .btn-cancel,
+    .approval-form-actions .popup-action-btn[data-action="generate-invoice"] {
+        grid-column: 1 / -1;
+    }
+
+    .approval-form-actions .btn-cancel {
+        margin-left: 0;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+    .approval-status-btn {
+        min-height: 40px;
+        padding: 8px 12px;
+    }
+}
+
+
 /* Responsive Grid Breakpoints */
 @media (max-width: 1200px) {
     .widgets-grid {
@@ -293,9 +484,9 @@ html {
     }
 
     .widget-card {
-    flex-direction: column;
-    text-align: center;
-}
+        flex-direction: column;
+        text-align: center;
+    }
 }
 </style>
 @endpush
@@ -548,7 +739,7 @@ html {
                         <th scope="col">Payment Status</th>
                         <th scope="col">Order Status</th>
                         <th scope="col">Approval Status</th>
-                        @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
+                        @canany([ 'sales-orders.edit', 'sales-orders.delete'])
                         <th scope="col">Actions</th>
                         @endcanany
                     </tr>
@@ -613,6 +804,7 @@ html {
                             @php
                             $status = strtolower($sale->current_order_status ?? 'pending');
                             @endphp
+
                             @if($status == 'approved' )
                             <span class="badge-status approved">Order Approved</span>
                             @elseif($status == 'rejected')
@@ -637,16 +829,22 @@ html {
                             @php
                             $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
                             @endphp
-                            @if($approvalStatus == 'approved')
-                            <span class="badge-status approved">Approved</span>
-                            @elseif($approvalStatus == 'rejected')
-                            <span class="badge-status rejected">Rejected</span>
-                            @else
-                            <span class="badge-status pending">Pending</span>
-                            @endif
+
+                            <button type="button"
+                                class="btn btn-sm
+                                    badge-status {{ strtolower($approvalStatus) === 'approved' ? 'approved' :
+                                    (strtolower($approvalStatus) === 'rejected' ? 'rejected' : 'pending') }}"
+                                data-id="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}"
+                                data-status="{{ $approvalStatus }}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#approveModal"
+                                onclick="openStatusPopup(this)">
+                                {{ ucfirst($approvalStatus ?? 'Pending') }}
+                            </button>
+
                         </td>
 
-                        @canany(['sales-orders.view-details', 'sales-orders.edit', 'sales-orders.delete'])
+                        @canany(['sales-orders.edit', 'sales-orders.delete'])
                         <td>
                             <div class="dropdown dropstart">
                                 <a href="#" class="text-muted p-1" id="dropdownMenuButton_{{ $sale->n_sl_no }}"
@@ -654,14 +852,7 @@ html {
                                     <i class="ti ti-dots-vertical fs-6"></i>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton_{{ $sale->n_sl_no }}">
-                                    <li>
-                                        @can('sales-orders.view-details')
-                                        <a class="dropdown-item d-flex align-items-center gap-3"
-                                            href="{{ route('admin.salesorders.show', Crypt::encryptString($sale->n_sl_no)) }}">
-                                            <i class="fs-4 ti ti-eye text-primary"></i>View Details
-                                        </a>
-                                        @endcan
-                                    </li>
+
                                     <li>
                                         @can('sales-orders.edit')
                                         <a class="dropdown-item d-flex align-items-center gap-3"
@@ -760,6 +951,9 @@ html {
                         </div> --}}
 
                         <div class="col-md-6 mb-3">
+
+
+
                             <label class="form-label">Order Status</label>
                             <select name="c_order_status" class="form-select" required>
                                 <option value="">Select Status</option>
@@ -801,22 +995,266 @@ html {
     </div>
 </div>
 
+
+<!-- Approval Modal -->
+    <div class="modal fade" id="approveModal" tabindex="-1"
+        aria-labelledby="approveModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable approval-modal-dialog">
+            <div class="modal-content approval-modal-content">
+
+                <form method="POST" id="approveForm"
+                    action="{{ route('admin.salesorders.approval.save') }}">
+                    @csrf
+
+
+                    <div class="modal-header approval-modal-header">
+                        <h5 class="modal-title text-white" id="approveModalLabel">
+                            Approval
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body approval-modal-body">
+
+                        <input type="hidden" name="sales_id" id="sales_id">
+
+                        <div class="mb-3">
+                            <label for="approval_remarks" class="form-label">
+                                Remarks <span class="text-danger">*</span>
+                            </label>
+
+                            <textarea class="form-control"
+                                    name="remarks"
+                                    id="approval_remarks"
+                                    rows="4"
+                                    maxlength="1000"
+                                    placeholder="Enter remarks"
+                                    required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="approval_status" class="form-label">
+                                Approval Status <span class="text-danger">*</span>
+                            </label>
+
+                            <select class="form-select"
+                                    name="status"
+                                    id="approval_status"
+                                    required>
+                                <option value="">Select Status</option>
+                                <option value="Approved">Approve</option>
+                                <option value="Rejected">Reject</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer approval-modal-footer">
+                        <div class="approval-form-actions">
+                            <button type="submit" class="btn buttonSpc" id="approvalSubmit">
+                                <i class="ti ti-check"></i> Submit
+                            </button>
+
+                            <button type="button" class="btn buttonSpc popup-action-btn"
+                                data-action="view-details">
+                                <i class="ti ti-eye"></i> View Details
+                            </button>
+                            @if(!empty($isOfficeAdmin) && strtolower($sale->approval?->status ?? '') === 'approved')
+                                <button type="button" class="btn buttonSpc popup-action-btn"
+                                    data-action="order-summary">
+                                    <i class="ti ti-file-text"></i> Order Preview
+                                </button>
+
+                                <button type="button" class="btn buttonSpc popup-action-btn"
+                                    data-action="generate-invoice">
+                                    <i class="ti ti-download"></i> Download Invoice
+                                </button>
+                            @endif
+                            <button type="button" class="btn btn-cancel"
+                                data-bs-dismiss="modal">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
 @endsection
 
 @push('scripts')
+
 <script>
-$(document).ready(function() {
+    $(document).ready(function () {
 
-    $('#salesUpdateModal').on('show.bs.modal', function(event) {
+        // Store the exact approval button clicked
+        window.currentApprovalButton = null;
 
-        const button = event.relatedTarget;
+        // Open approval popup
+        window.openStatusPopup = function (button) {
+            window.currentApprovalButton = button;
 
-        const salesNumber = $(button).data('id');
+            const saleId = button.dataset.id || '';
+            const approvalStatus = (button.dataset.status || 'pending').toLowerCase();
 
-        var s = $('.n_sale_id').val(salesNumber);
-        //alert(salesNumber);
-        console.log(salesNumber);
+            // The ID is already encrypted in Blade
+            $('#sales_id').val(saleId);
+
+            // Set the selected order ID for popup action buttons
+            $('.popup-action-btn').attr('data-id', saleId);
+
+            // Show invoice-related actions only for approved orders
+            document.querySelectorAll('.office-admin-action').forEach(function (action) {
+                action.hidden = approvalStatus !== 'approved';
+            });
+
+            $('#approval_status').val('');
+            $('#approval_remarks').val('');
+        };
+
+        // Submit approval form
+        $('#approveForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const form = this;
+            const submitButton = document.getElementById('approvalSubmit');
+
+            if (submitButton.disabled) {
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: $(form).serialize(),
+                dataType: 'json',
+
+                success: function (response) {
+
+                    if (response.success) {
+
+                        // Update only the button that opened this modal
+                        if (window.currentApprovalButton) {
+                            const button = window.currentApprovalButton;
+                            const status = String(response.status || '').toLowerCase();
+
+                            button.textContent = status
+                                ? status.charAt(0).toUpperCase() + status.slice(1)
+                                : 'Pending';
+
+                            button.dataset.status = status;
+
+                            button.classList.remove(
+                                'approved',
+                                'rejected',
+                                'pending'
+                            );
+
+                            if (status === 'approved') {
+                                button.classList.add('approved');
+                            } else if (status === 'rejected') {
+                                button.classList.add('rejected');
+                            } else {
+                                button.classList.add('pending');
+                            }
+                        }
+                        // Close approval modal
+                        const modalElement =
+                            document.getElementById('approveModal');
+
+                        bootstrap.Modal
+                            .getOrCreateInstance(modalElement)
+                            .hide();
+
+                        // Clear the saved reference after updating
+                        window.currentApprovalButton = null;
+                    } else {
+                        alert(response.message ||
+                            'Approval update was not successful.');
+                    }
+                },
+
+                error: function (xhr) {
+                    console.error('Approval error:', xhr.responseText);
+
+                    alert(
+                        xhr.responseJSON?.message ||
+                        'Unable to update approval status. Please try again.'
+                    );
+                },
+
+                complete: function () {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Submit';
+                }
+            });
+        });
+
+
+
+        $(document).on('click', '.popup-action-btn', function () {
+            const saleId = this.dataset.id;
+            const action = this.dataset.action;
+
+            if (!saleId) {
+                alert('Sales order ID is missing.');
+                return;
+            }
+
+            let url = '';
+
+            switch (action) {
+                case 'view-details':
+                    url = @json(route('admin.salesorders.show', ['id' => '__ID__']));
+                    break;
+
+                case 'order-summary':
+                    url = @json(route('admin.invoice-orders.preview', ['id' => '__ID__']));
+                    break;
+
+                case 'generate-invoice':
+                    url = @json(route('admin.invoice.download', ['id' => '__ID__']));
+                    break;
+
+                default:
+                    return;
+            }
+
+            url = url.replace('__ID__', encodeURIComponent(saleId));
+
+            window.location.href = url;
+        });
+
+
+
+        // Existing Sales Order Update modal logic
+        $('#salesUpdateModal').on('show.bs.modal', function (event) {
+
+            const button = event.relatedTarget;
+
+            if (!button) {
+                return;
+            }
+
+            const salesNumber = $(button).data('id');
+
+            $('.n_sale_id').val(salesNumber);
+
+            console.log('Sales ID:', salesNumber);
+        });
+
     });
-})
 </script>
+
 @endpush

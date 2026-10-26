@@ -1,4 +1,6 @@
 <?php $__env->startPush('styles'); ?>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
 <style>
 .spc-wrap{--sb:var(--brand,#5E8D3D);--sb2:#1F5C2E;--ssoft:var(--brand-soft,#EEF5E6);--sink:#1F3D14;--smut:#61756B;--sline:rgba(18,58,40,.12);--g6:rgba(255,255,255,.16);}
 .spc-heading{margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;}
@@ -99,6 +101,13 @@
 .spc-section-title{padding:16px 24px;border-bottom:1px solid var(--sline);display:flex;align-items:center;gap:10px;font-family:var(--font-head,'Plus Jakarta Sans',sans-serif);font-weight:600;color:var(--sink);font-size:16px;background:linear-gradient(45deg,rgba(203,255,205,.25),transparent 60%),#fff;}
 .spc-section-title i{color:var(--sb);background:var(--ssoft);width:30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;}
 
+/* Searchable Sales Person filter (Select2) */
+.spc-toolbar .select2-container{width:100%!important;}
+.spc-toolbar .select2-container .select2-selection--single{height:45px;border-radius:12px;border:1px solid #d5dde3;display:flex;align-items:center;}
+.spc-toolbar .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered{padding-left:4px;font-size:14px;}
+.spc-toolbar .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+.spc-toolbar .select2-container--bootstrap-5.select2-container--open .select2-selection{border-color:var(--sb);box-shadow:0 0 0 3px rgba(94,141,61,.15);}
+
 </style>
 <?php $__env->stopPush(); ?>
 
@@ -106,8 +115,15 @@
 <?php
 use Illuminate\Support\Facades\Crypt;
 
-// true only for Office Administrator / Team Lead (set in LeadsController@index)
+// true only for Super Admin / National Sales Head / Office Administrator / Team Lead (set in LeadsController@index)
 $canSeeAll = $canSeeAll ?? false;
+
+// Labels for the Sales Person groups
+$designationLabels = [
+    'FCA' => 'Farm Care Advisor',
+    'FCO' => 'Farm Care Officer',
+    'TC'  => 'Tele Caller',
+];
 ?>
 <div class="spc-wrap">
     <div class="spc-heading">
@@ -130,7 +146,7 @@ $canSeeAll = $canSeeAll ?? false;
         </div>
     <?php endif; ?>
 
-    <!-- Statistics (Office Administrator / Team Lead only) -->
+    <!-- Statistics (Super Admin / National Sales Head / Office Administrator / Team Lead only) -->
     <?php if($canSeeAll): ?>
     <div class="spc-stats" style="margin:0 0 18px;">
 
@@ -165,14 +181,19 @@ $canSeeAll = $canSeeAll ?? false;
             <?php if($canSeeAll): ?>
                 <div class="spc-f">
                     <label>Sales Person</label>
-                    <select name="n_fca_id" class="form-select">
-                        <option value="">Select Sales Person</option>
+                    <select name="n_fca_id" id="filter_fca" class="form-select">
+                        <option value="">All Sales Persons</option>
 
-                        <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($employee->n_employee_id); ?>"
-                            <?php echo e((string) request('n_fca_id') === (string) $employee->n_employee_id ? 'selected' : ''); ?>>
-                            <?php echo e($employee->c_employee_name ?? ''); ?><?php if($employee->identifier): ?> (<?php echo e($employee->identifier); ?>)<?php endif; ?>
-                        </option>
+                        <?php $__currentLoopData = $employees->groupBy('identifier'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $designation => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <optgroup label="<?php echo e($designationLabels[$designation] ?? $designation); ?>">
+                                <?php $__currentLoopData = $group; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($employee->n_employee_id); ?>"
+                                    <?php echo e((string) request('n_fca_id') === (string) $employee->n_employee_id ? 'selected' : ''); ?>>
+                                    <?php echo e($employee->c_employee_name ?? ''); ?>
+
+                                </option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </optgroup>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
@@ -347,4 +368,21 @@ $canSeeAll = $canSeeAll ?? false;
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(function () {
+        if ($('#filter_fca').length) {
+            $('#filter_fca').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'All Sales Persons',
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    });
+</script>
+<?php $__env->stopPush(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/admin/Leads/index.blade.php ENDPATH**/ ?>

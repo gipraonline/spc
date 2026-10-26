@@ -1976,7 +1976,9 @@ use Illuminate\Support\Facades\Crypt;
                                 <label class="form-label">Amount to Pay *</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light text-success fw-bold">₹</span>
-                                    <input type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
+                                    <input style="    border: 1px solid #ccc !important;
+    border-radius: 0px 10px 10px 0px !important;
+    padding-left: 20px !important;" type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
                                         id="n_amount_to_pay" class="form-control fw-bold text-success "
                                         value="{{ old('n_amount_to_pay', $sale->n_amount_to_pay ?? '') }}" readonly>
                                 </div>

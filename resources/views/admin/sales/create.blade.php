@@ -1039,6 +1039,80 @@
         content: "";
     }
 }
+
+/* ===== Button spacing + shape + mobile column fix (CSS only) ===== */
+
+/* 1. Space around the Create / Cancel row so it never touches the panel edge */
+body .so-wrap {
+    padding-bottom: 28px;
+}
+body .so-wrap #frm_create > .mt-4.d-flex {
+    padding: 4px 4px 24px !important;
+    margin-top: 24px !important;
+}
+
+/* 2. One consistent button shape (no pill/oval, no wrapping text) */
+body .so-wrap .buttonSpc,
+body .so-wrap #addRow,
+body .so-wrap #btn_create,
+body .so-wrap .btn-outline-secondary {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px;
+    min-height: 46px;
+    padding: 10px 22px !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    border-radius: 12px !important;
+    box-sizing: border-box;
+}
+body .so-wrap #btn_create {
+    width: auto !important;      /* removes the inline width:150px */
+    min-width: 150px;
+}
+
+/* 3. Mobile: buttons stack in a clean column */
+@media screen and (max-width: 767px) {
+
+    /* Wrapper of the two location buttons becomes a column */
+    body .so-wrap .d-flex:has(> #soGetLocationBtn) {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    body .so-wrap #soGetLocationBtn,
+    body .so-wrap #soToggleMapBtn {
+        width: 100% !important;
+        flex: 0 0 auto !important;
+        white-space: normal !important;   /* allow wrapping only if the screen is tiny */
+    }
+
+    /* Find Customer button */
+    body .so-wrap #lookupBtn {
+        width: 100% !important;
+        margin-top: 10px;
+    }
+
+    /* Create + Cancel: equal width, side by side */
+    body .so-wrap #frm_create > .mt-4.d-flex {
+        flex-wrap: nowrap !important;
+        padding: 4px 2px 28px !important;
+    }
+    body .so-wrap #btn_create,
+    body .so-wrap #frm_create > .mt-4.d-flex .btn-outline-secondary {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        width: auto !important;
+    }
+
+    /* Modal buttons */
+    body .so-wrap .modal-footer .btn {
+        flex: 1 1 0;
+    }
+}
 </style>
 
 <style>
@@ -1951,7 +2025,7 @@ use Illuminate\Support\Facades\Crypt;
                 </fieldset>
 
                 <!-- Action Buttons -->
-                <div class="mt-4 d-flex gap-2 flex-wrap">
+                <div style="justify-content: center;" class="mt-4 d-flex gap-2 flex-wrap">
                     @if(isset($viewmode) && $viewmode=="off")
 
                                 <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"

@@ -20,7 +20,7 @@ class LeadsController extends Controller
      * ⚠️ Make sure these match the real values in your roles table:
      *    SELECT id, name, identifier FROM roles;
      */
-    private const ALL_LEADS_ROLES = ['OFFICE_ADMIN', 'TL'];
+    private const ALL_LEADS_ROLES = ['SUPER_ADMIN', 'NSH', 'OFFICE_ADMIN', 'TL'];
 
     /**
      * Designations (designation_masters.identifier) listed in the "Sales Person" filter.
@@ -386,7 +386,7 @@ class LeadsController extends Controller
             Lead::create($data);
 
             return redirect()
-                ->route('admin.leads.index')
+                ->route('admin.Leads.index')
                 ->with('success', 'Lead created successfully.');
 
         } else {

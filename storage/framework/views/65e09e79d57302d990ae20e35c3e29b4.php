@@ -1,7 +1,4 @@
 <?php $__env->startPush('styles'); ?>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-
 <style>
 /* =====================================================================
        SALES ORDER FORM — SPC "Evergreen" edition
@@ -1037,6 +1034,66 @@
         content: "";
     }
 }
+
+/* ===== Button spacing + shape + mobile column fix (CSS only) ===== */
+
+/* 1. Space around the Create / Cancel row so it never touches the panel edge */
+body .so-wrap {
+    padding-bottom: 28px;
+}
+body .so-wrap #frm_create > .mt-4.d-flex {
+    padding: 4px 4px 24px !important;
+    margin-top: 24px !important;
+}
+
+/* 2. One consistent button shape (no pill/oval, no wrapping text) */
+body .so-wrap .buttonSpc,
+body .so-wrap #addRow,
+body .so-wrap #btn_create,
+body .so-wrap .btn-outline-secondary {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px;
+    min-height: 46px;
+    padding: 10px 22px !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    border-radius: 12px !important;
+    box-sizing: border-box;
+}
+body .so-wrap #btn_create {
+    width: auto !important;      /* removes the inline width:150px */
+    min-width: 150px;
+}
+
+/* 3. Mobile: buttons stack in a clean column */
+@media screen and (max-width: 767px) {
+
+    /* Find Customer button */
+    body .so-wrap #lookupBtn {
+        width: 100% !important;
+        margin-top: 10px;
+    }
+
+    /* Create + Cancel: equal width, side by side */
+    body .so-wrap #frm_create > .mt-4.d-flex {
+        flex-wrap: nowrap !important;
+        padding: 4px 2px 28px !important;
+    }
+    body .so-wrap #btn_create,
+    body .so-wrap #frm_create > .mt-4.d-flex .btn-outline-secondary {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        width: auto !important;
+    }
+
+    /* Modal buttons */
+    body .so-wrap .modal-footer .btn {
+        flex: 1 1 0;
+    }
+}
 </style>
 
 <style>
@@ -1819,61 +1876,10 @@ unset($__errorArgs, $__bag); ?>
                             </div>
 
                             
-                            <div class="col-md-12">
-                                <div class="form-label mb-2"><i class="ti ti-current-location"></i> Location (from
-                                    address)</div>
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-md-3">
-                                        <label for="so_latitude" class="form-label">Latitude</label>
-                                        <input type="text" id="so_latitude" name="latitude"
-                                            value="<?php echo e(old('latitude', isset($sale) ? $sale->latitude : '')); ?>"
-                                            class="form-control" maxlength="20" placeholder="Latitude"
-                                            inputmode="decimal">
-                                        <?php $__errorArgs = ['latitude'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                        <div class="text-danger mt-1"><?php echo e($message); ?></div>
-                                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label for="so_longitude" class="form-label">Longitude</label>
-                                        <input type="text" id="so_longitude" name="longitude"
-                                            value="<?php echo e(old('longitude', isset($sale) ? $sale->longitude : '')); ?>"
-                                            class="form-control" maxlength="20" placeholder="Longitude"
-                                            inputmode="decimal">
-                                        <?php $__errorArgs = ['longitude'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                        <div class="text-danger mt-1"><?php echo e($message); ?></div>
-                                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                    </div>
-                                    <div class="col-md-6 d-flex flex-wrap gap-2">
-                                        <button type="button" id="soGetLocationBtn" class="btn buttonSpc">
-                                            <i class="ti ti-map-pin-search"></i> Get Location from Address
-                                        </button>
-                                        <button type="button" id="soToggleMapBtn" class="btn btn-outline-secondary">
-                                            <i class="ti ti-map-pin"></i> Select on Map
-                                        </button>
-                                    </div>
-                                </div>
-                                <div id="soLocationStatus" class="mt-2 small text-muted">
-                                    Fill in the address, state and district, then click "Get Location from Address". You
-                                    can drag the pin or click the map to fine-tune it.
-                                </div>
-                                <div id="soLocationMap"
-                                    style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;">
-                                </div>
-                            </div>
+                            <input type="hidden" id="so_latitude" name="latitude"
+                                value="<?php echo e(old('latitude', isset($sale) ? $sale->latitude : '')); ?>">
+                            <input type="hidden" id="so_longitude" name="longitude"
+                                value="<?php echo e(old('longitude', isset($sale) ? $sale->longitude : '')); ?>">
                         </div>
 
                        
@@ -1915,76 +1921,14 @@ unset($__errorArgs, $__bag); ?></div>
                             </div>
                         </div>
 
-                        <!-- Payment Details Extra Fields -->
-                        <div class="row g-4 mt-1" id="paymet-proofs">
-                            <div class="col-md-4">
-                                <label class="form-label">Amount to Pay *</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light text-success fw-bold">₹</span>
-                                    <input type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
-                                        id="n_amount_to_pay" class="form-control fw-bold text-success"
-                                        value="<?php echo e(old('n_amount_to_pay', $sale->n_amount_to_pay ?? '')); ?>" readonly>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Transaction ID *</label>
-                                <input type="text" id="c_transaction_id" name="c_transaction_id"
-                                    value="<?php echo e(old('c_transaction_id', $sale->c_transaction_id ?? '')); ?>"
-                                    data-message="Please Enter Transaction id" class="form-control"
-                                    placeholder="Enter Transaction / UTR / Reference No">
-                                <div class="text-danger mt-1 fs-2"><?php $__errorArgs = ['c_transaction_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">
-                                    Transaction Proof
-                                    <?php if(!isset($sale) || !$sale->payment_image): ?>
-                                    <span class="text-danger">*</span>
-                                    <?php endif; ?>
-                                </label>
-
-                                <input type="file" id="payment_image" name="payment_image"
-                                    data-message="Please Enter Transaction Proof" class="form-control" accept="image/*">
-                                <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
-                                <div class="text-danger mt-1 fs-2"><?php $__errorArgs = ['payment_image'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?></div>
-
-                                <div class="mt-3" id="payment_preview_container">
-                                    <img id="payment_image_preview"
-                                        src="<?php echo e(isset($sale) && $sale->payment_image ? route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) : ''); ?>"
-                                        alt="Transaction Proof Preview" class="img-thumbnail"
-                                        style="<?php echo e(isset($sale) && $sale->payment_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
-
-                                    <?php if(isset($sale) && $sale->payment_image): ?>
-                                    <br>
-                                    <button type="button" id="remove_payment_image_btn"
-                                        class="btn btn-danger btn-sm mt-2">
-                                        Remove Image
-                                    </button>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Section 6: Franchise / Company Details Section -->
                     <div class="form-box so-section mb-4" id="franchise-details">
-                        <?php if((isset($isAdmin) && $isAdmin==true) || (isset($isOfficeAdmin) && $isOfficeAdmin==true)): ?>
+                        
+                        <?php
+                        $__orderType = old('order_type', $sale->order_type ?? (!empty($sale->nearest_franchise_id) ? 'franchise' : ''));
+                        ?>
                         <div class="row mb-4">
                             <div class="col-md-12">
                                 <label class="form-label fw-bold">Order Type <span class="text-danger">*</span></label>
@@ -1992,14 +1936,16 @@ unset($__errorArgs, $__bag); ?></div>
                                     <div class="form-check">
                                         <input class="form-check-input mandatory" type="radio" name="order_type"
                                             id="company" value="company"
-                                            <?php echo e(old('order_type', $sale->order_type ?? '') == 'company' ? 'checked' : ''); ?>>
+                                            data-message="Please Choose the Order Type"
+                                            <?php echo e($__orderType == 'company' ? 'checked' : ''); ?>>
                                         <label class="form-check-label" for="company">Company</label>
                                     </div>
 
                                     <div class="form-check">
                                         <input class="form-check-input mandatory" type="radio" name="order_type"
                                             id="franchise_type" value="franchise"
-                                            <?php echo e(old('order_type', $sale->order_type ?? '') == 'franchise' ? 'checked' : ''); ?>>
+                                            data-message="Please Choose the Order Type"
+                                            <?php echo e($__orderType == 'franchise' ? 'checked' : ''); ?>>
                                         <label class="form-check-label" for="franchise_type">Franchise</label>
                                     </div>
                                 </div>
@@ -2015,7 +1961,6 @@ endif;
 unset($__errorArgs, $__bag); ?>
                             </div>
                         </div>
-                        <?php endif; ?>
 
                         <div id="franchise-location-details">
                             <div class="row g-4 mb-4">
@@ -2115,10 +2060,76 @@ unset($__errorArgs, $__bag); ?></div>
                             </div>
                         </div>
 
+                        <!-- Payment Details Extra Fields -->
+                        <div class="row g-4 mt-1" id="paymet-proofs">
+                            <div class="col-md-4">
+                                <label class="form-label">Amount to Pay *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-success fw-bold">₹</span>
+                                    <input type="text" name="n_amount_to_pay" data-message="Please Enter Amount to Pay"
+                                        id="n_amount_to_pay" class="form-control fw-bold text-success "
+                                        value="<?php echo e(old('n_amount_to_pay', $sale->n_amount_to_pay ?? '')); ?>" readonly>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Transaction ID *</label>
+                                <input type="text" id="c_transaction_id" name="c_transaction_id"
+                                    value="<?php echo e(old('c_transaction_id', $sale->c_transaction_id ?? '')); ?>"
+                                    data-message="Please Enter Transaction id" class="form-control"
+                                    placeholder="Enter Transaction / UTR / Reference No">
+                                <div class="text-danger mt-1 fs-2"><?php $__errorArgs = ['c_transaction_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Transaction Proof
+                                    <?php if(!isset($sale) || !$sale->payment_image): ?>
+                                    <span class="text-danger">*</span>
+                                    <?php endif; ?>
+                                </label>
+
+                                <input type="file" id="payment_image" name="payment_image"
+                                    data-message="Please Enter Transaction Proof" class="form-control" accept="image/*">
+                                <input type="hidden" name="remove_payment_image" id="remove_payment_image" value="0">
+                                <div class="text-danger mt-1 fs-2"><?php $__errorArgs = ['payment_image'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?></div>
+
+                                <div class="mt-3" id="payment_preview_container">
+                                    <img id="payment_image_preview"
+                                        src="<?php echo e(isset($sale) && $sale->payment_image ? route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) : ''); ?>"
+                                        alt="Transaction Proof Preview" class="img-thumbnail"
+                                        style="<?php echo e(isset($sale) && $sale->payment_image ? '' : 'display:none;'); ?> width:50px; height:50px; object-fit:cover;">
+
+                                    <?php if(isset($sale) && $sale->payment_image): ?>
+                                    <br>
+                                    <button type="button" id="remove_payment_image_btn"
+                                        class="btn btn-danger btn-sm mt-2">
+                                        Remove Image
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
                 </fieldset>
 
                 <!-- Action Buttons -->
-                <div class="mt-4 d-flex gap-2 flex-wrap">
+                <div style="justify-content: center;" class="mt-4 d-flex gap-2 flex-wrap">
                     <?php if(isset($viewmode) && $viewmode=="off"): ?>
 
                                 <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
@@ -2127,28 +2138,7 @@ unset($__errorArgs, $__bag); ?></div>
 
                     <?php endif; ?>
                 </div>
-                <div class="mt-4 d-flex gap-2 flex-wrap">
 
-                    <?php if(isset($viewmode) && $viewmode=="on"): ?>
-
-
-                    <?php if(isset($sale) && $sale->n_sl_no): ?>
-                    <a href="<?php echo e(route('admin.invoice-orders.preview', $sale->n_sl_no)); ?>" class="btn mt-1 buttonSpc">
-                        Order Summary Preview
-                    </a>
-                    <?php if(!empty($isOfficeAdmin) && strtolower($sale->approval?->status ?? '') === 'approved'): ?>
-                    <a href="<?php echo e(route('admin.invoice.download', $sale->n_sl_no)); ?>">
-                        <button type="button" class="btn buttonSpc" style="height:61px;margin-top: 4px;">Generate
-                            Invoice</button>
-                    </a>
-                    <?php endif; ?>
-                    <?php endif; ?>
-                    <?php else: ?>
-                    <button type="button" class="btn buttonSpc" style="width:150px;position:relative;"
-                        id="btn_create"><?php echo e(isset($sale->n_sl_no) ? 'Update' : 'Create'); ?></button>
-                    <a href="<?php echo e(route('admin.salesorders.index')); ?>" class="btn btn-outline-secondary">Cancel</a>
-                    <?php endif; ?>
-                </div>
             </form>
         </div>
     </div>
@@ -2235,10 +2225,6 @@ unset($__errorArgs, $__bag); ?></div>
 <?php $__env->stopSection(); ?>
 
     <?php $__env->startPush('scripts'); ?>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-
     <script src="<?php echo e(asset('js/sales-order-create.js')); ?>?v=<?php echo e(@filemtime(public_path('js/sales-order-create.js'))); ?>"></script>
     <?php $__env->stopPush(); ?>
-
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/admin/sales/create.blade.php ENDPATH**/ ?>

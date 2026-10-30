@@ -9,9 +9,9 @@
         'heroIcon' => 'fa-regular fa-building',
         'heroSummary' => 'Departments, designations and the company holiday calendar.',
         'heroStats' => [
-            ['label' => 'Departments', 'icon' => 'fa-solid fa-sitemap', 'value' => $departments->count()],
-            ['label' => 'Designations', 'icon' => 'fa-solid fa-briefcase', 'value' => $designations->count()],
-            ['label' => 'Holidays', 'icon' => 'fa-regular fa-calendar', 'value' => $holidays->count()],
+            ['label' => 'Departments', 'icon' => 'fa-solid fa-sitemap', 'value' => $departments->total()],
+            ['label' => 'Designations', 'icon' => 'fa-solid fa-briefcase', 'value' => $designations->total()],
+            ['label' => 'Holidays', 'icon' => 'fa-regular fa-calendar', 'value' => $holidays->total()],
         ],
     ])
 
@@ -23,7 +23,7 @@
         <div class="tabs">
             <button
                 type="button"
-                class="tab active"
+                class="tab {{ $activeTab === 'departments' ? 'active' : '' }}"
                 data-tab="departments"
                 onclick="hrTab(this, 'departments')"
             >
@@ -32,7 +32,7 @@
 
             <button
                 type="button"
-                class="tab"
+                class="tab {{ $activeTab === 'designations' ? 'active' : '' }}"
                 data-tab="designations"
                 onclick="hrTab(this, 'designations')"
             >
@@ -41,7 +41,7 @@
 
             <button
                 type="button"
-                class="tab"
+                class="tab {{ $activeTab === 'holidays' ? 'active' : '' }}"
                 data-tab="holidays"
                 onclick="hrTab(this, 'holidays')"
             >
@@ -54,7 +54,7 @@
             DEPARTMENTS
         ========================================================== --}}
         <div
-            class="tabpanel active"
+            class="tabpanel {{ $activeTab === 'departments' ? 'active' : '' }}"
             data-tabpanel="departments"
         >
             <div class="grid-2">
@@ -156,6 +156,21 @@
                             </tbody>
                         </table>
 
+                        {{-- Departments Pagination --}}
+                        @if ($departments->hasPages())
+                            <div style="margin-top:24px;padding:0 16px 16px;">
+
+                                <div style="text-align:center;color:#6b7280;font-size:13px;margin-bottom:12px;">
+                                    Showing {{ $departments->firstItem() }}
+                                    to {{ $departments->lastItem() }}
+                                    of {{ $departments->total() }} departments
+                                </div>
+
+                                {{ $departments->appends(['tab' => 'departments'])->links('vendor.pagination.hr') }}
+
+                            </div>
+                        @endif
+
                     </div>
                 </div>
 
@@ -243,7 +258,7 @@
             DESIGNATIONS
         ========================================================== --}}
         <div
-            class="tabpanel"
+            class="tabpanel {{ $activeTab === 'designations' ? 'active' : '' }}"
             data-tabpanel="designations"
         >
             <div class="grid-2">
@@ -301,7 +316,7 @@
                                                             &mdash;
                                                         </option>
 
-                                                        @foreach($departments as $dep)
+                                                        @foreach($departmentOptions as $dep)
                                                             <option
                                                                 value="{{ $dep->id }}"
                                                                 @selected($d->department_id === $dep->id)
@@ -377,6 +392,21 @@
                             </tbody>
                         </table>
 
+                        {{-- Designations Pagination --}}
+                        @if ($designations->hasPages())
+                            <div style="margin-top:24px;padding:0 16px 16px;">
+
+                                <div style="text-align:center;color:#6b7280;font-size:13px;margin-bottom:12px;">
+                                    Showing {{ $designations->firstItem() }}
+                                    to {{ $designations->lastItem() }}
+                                    of {{ $designations->total() }} designations
+                                </div>
+
+                                {{ $designations->appends(['tab' => 'designations'])->links('vendor.pagination.hr') }}
+
+                            </div>
+                        @endif
+
                     </div>
                 </div>
 
@@ -431,7 +461,7 @@
                                             &mdash;
                                         </option>
 
-                                        @foreach($departments as $dep)
+                                        @foreach($departmentOptions as $dep)
                                             <option
                                                 value="{{ $dep->id }}"
                                                 @selected(old('department_id') == $dep->id)
@@ -496,7 +526,7 @@
             HOLIDAYS
         ========================================================== --}}
         <div
-            class="tabpanel"
+            class="tabpanel {{ $activeTab === 'holidays' ? 'active' : '' }}"
             data-tabpanel="holidays"
         >
             <div class="grid-2">
@@ -593,6 +623,21 @@
                                 @endforelse
                             </tbody>
                         </table>
+
+                        {{-- Holidays Pagination --}}
+                        @if ($holidays->hasPages())
+                            <div style="margin-top:24px;padding:0 16px 16px;">
+
+                                <div style="text-align:center;color:#6b7280;font-size:13px;margin-bottom:12px;">
+                                    Showing {{ $holidays->firstItem() }}
+                                    to {{ $holidays->lastItem() }}
+                                    of {{ $holidays->total() }} holidays
+                                </div>
+
+                                {{ $holidays->appends(['tab' => 'holidays'])->links('vendor.pagination.hr') }}
+
+                            </div>
+                        @endif
 
                     </div>
                 </div>

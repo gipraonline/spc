@@ -977,7 +977,8 @@ var CFG = window.SO_CFG || {};
                                 `<option value="${d.id}">${d.district_name}</option>`);
                         });
                         if (selectedDistrict) {
-                            $('#n_district_id').val(selectedDistrict);
+                            // "change" lets the nearest-franchise search re-run for the loaded customer
+                            $('#n_district_id').val(selectedDistrict).trigger('change');
                         }
                     }
                 }
@@ -987,13 +988,6 @@ var CFG = window.SO_CFG || {};
 
 ;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Order location: address -> latitude / longitude (OpenStreetMap Nominatim)
-    | Same approach as Franchise > Add: try the most specific address first and
-    | fall back to broader areas; the user confirms / adjusts the pin on a map.
-    |--------------------------------------------------------------------------
-    */
     // Payment-mode + Order-type visibility (self-contained, works for Add / Edit / View Details)
     $(function() {
         const STORED_PAYMENT_IMAGE = CFG.hasPaymentImage;
@@ -1018,7 +1012,7 @@ var CFG = window.SO_CFG || {};
             const $radios = $('input[name="order_type"]');
             if (!$radios.length) {
                 return;
-            } // roles without Order Type always see the franchise
+            }
             const type = $radios.filter(':checked').val();
             const show = (type === 'franchise');
             $('#franchise-location-details').toggle(show);
@@ -1037,453 +1031,222 @@ var CFG = window.SO_CFG || {};
         applyOrderTypeVisibility();
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | Nearest franchise from the customer address
+    |--------------------------------------------------------------------------
+    | Runs when the "Franchise" Order Type radio is clicked (and again when the
+    | customer address changes while Franchise is selected):
+    |   1. customer address -> latitude / longitude (OpenStreetMap Nominatim),
+    |      stored in the hidden #so_latitude / #so_longitude fields
+    |   2. closest active franchise within spc.nearest_franchise_max_km is selected
+    |   3. if the address cannot be located, fall back to a District / State
+    |      match on the server
+    | A franchise picked by hand (or already saved on the order) is never overwritten.
+    */
     $(function() {
-        const $lat = $('#so_latitude'),
-            $lng = $('#so_longitude'),
-            $status = $('#soLocationStatus');
-        const $btn = $('#soGetLocationBtn'),
-            $mapBox = $('#soLocationMap');
-        const BTN_HTML = '<i class="ti ti-map-pin-search"></i> Get Location from Address';
-        const SO_VIEW = CFG.isView; // View Details = read-only
-        let map = null,
-            marker = null;
+        if (CFG.isView) { return; }
 
-        function say(type, html) {
-            $status.removeClass('text-muted text-success text-danger text-warning')
-                .addClass('text-' + type).html(html);
+        const $lat = $('#so_latitude'), $lng = $('#so_longitude');
+        const $franchise = $('#franchise'), $fHint = $('#soFranchiseHint'), $rank = $('#soFranchiseRank');
+        const FRANCHISES = CFG.franchises, MAX_KM = CFG.nearestMaxKm;
+
+        let franchiseManual = $franchise.val() !== ''; // saved or hand-picked franchise is never overwritten
+        let franchiseAutoSet = false;
+        let runId = 0, timer = null;
+
+        function say(type, text) {
+            $fHint.removeClass('text-muted text-success text-warning text-danger')
+                .addClass('text-' + type).text(text);
         }
 
-        function validCoords(lat, lng) {
-            return isFinite(lat) && isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 &&
-                $lat.val().toString().trim() !== '' && $lng.val().toString().trim() !== '';
+        function isFranchiseOrder() {
+            return $('input[name="order_type"]:checked').val() === 'franchise';
         }
 
-        function ensureMap(lat, lng, zoom) {
-            $mapBox.show();
-            if (!map) {
-                map = L.map('soLocationMap').setView([lat, lng], zoom);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(map);
-                map.on('click', function(e) {
-                    if (SO_VIEW) {
-                        return;
-                    }
-                    setLocation(e.latlng.lat, e.latlng.lng, 'manual');
-                });
-            } else {
-                map.setView([lat, lng], zoom);
-            }
-            setTimeout(function() {
-                map.invalidateSize();
-            }, 250);
+        function sel(id) {
+            const $o = $(id + ' option:selected');
+            return $o.length && $o.val() ? $o.text().trim() : '';
         }
 
-        function placeMarker(lat, lng) {
-            if (marker) {
-                marker.setLatLng([lat, lng]);
-                return;
-            }
-            marker = L.marker([lat, lng], {
-                draggable: !SO_VIEW
-            }).addTo(map);
-            marker.on('dragend', function() {
-                const p = marker.getLatLng();
-                setLocation(p.lat, p.lng, 'manual');
-            });
+        /* ---------- distance helpers ---------- */
+        function haversineKm(a, b, c, d) {
+            const R = 6371, r = Math.PI / 180, dLat = (c - a) * r, dLon = (d - b) * r;
+            const x = Math.sin(dLat / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin(dLon / 2) ** 2;
+            return 2 * R * Math.asin(Math.sqrt(x));
         }
-
-        // source: 'manual' | 'exact' | 'approx'
-        /*
-        | Nearest franchise autofill.
-        | Picks the closest active franchise (Haversine distance) to the order location and fills
-        | Order Type (if empty), State, District, Panchayath and Nearest Franchise from it - only
-        | when it is within NEAREST_FRANCHISE_MAX_KM. Every field stays editable: a franchise chosen
-        | by hand is never overwritten, and neither is an Order Type / location the user set by hand.
-        | Values are set without firing the State/District/Panchayath change handlers, because those
-        | reset the franchise list.
-        */
-        const NEAREST_FRANCHISE_MAX_KM = CFG.nearestMaxKm;
-        const FRANCHISES = CFG.franchises;
-        const FRANCHISE_READONLY = CFG.isView; // View Details
-        const $franchise = $('#franchise'),
-            $fHint = $('#soFranchiseHint');
-        let franchiseAutoSet = false; // current franchise value was set by this feature
-        let franchiseManual = false; // user picked a franchise by hand
-        let locationManual = false; // user picked state/district/panchayath by hand
-        let orderTypeAutoSet = false; // Order Type was set by this feature
-        let autoRun = 0; // ignores stale async results when the pin moves quickly
-
-        function haversineKm(lat1, lon1, lat2, lon2) {
-            const R = 6371,
-                rad = Math.PI / 180;
-            const dLat = (lat2 - lat1) * rad,
-                dLon = (lon2 - lon1) * rad;
-            const a = Math.sin(dLat / 2) ** 2 +
-                Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
-            return 2 * R * Math.asin(Math.sqrt(a));
-        }
-
-        function nearestFranchise(lat, lng) {
-            let best = null;
-            FRANCHISES.forEach(function(f) {
-                if (f.lat === null || f.lng === null || !isFinite(f.lat) || !isFinite(f.lng)) {
-                    return;
-                }
-                const d = haversineKm(lat, lng, f.lat, f.lng);
-                if (!best || d < best.km) {
-                    best = {
-                        f: f,
-                        km: d
-                    };
-                }
-            });
-            return best;
-        }
-
-        function fillOptions($sel, items, idKey, textKey, placeholder) {
-            $sel.empty().append('<option value="">' + placeholder + '</option>');
-            (items || []).forEach(function(x) {
-                $sel.append($('<option>').val(x[idKey]).text(x[textKey]));
-            });
-        }
-
-        // State / District / Panchayath are no longer on the form (the server takes them
-        // from the selected franchise), so there is nothing to fill here.
-        function fillFranchiseLocation(f, run) {}
-
-
-        /*
-        | Ranked suggestions: the closest franchises with their distance, one click to use.
-        | The closest is still auto-selected below; this just lets the user see and pick others.
-        */
-        const $rank = $('#soFranchiseRank');
 
         function rankFranchises(lat, lng, limit) {
-            const out = [];
-            FRANCHISES.forEach(function(f) {
-                if (f.lat === null || f.lng === null || !isFinite(f.lat) || !isFinite(f.lng)) {
-                    return;
-                }
-                out.push({
-                    f: f,
-                    km: haversineKm(lat, lng, f.lat, f.lng)
-                });
-            });
-            out.sort(function(a, b) {
-                return a.km - b.km;
-            });
-            return out.slice(0, limit);
+            return FRANCHISES
+                .filter(f => f.lat !== null && f.lng !== null && isFinite(f.lat) && isFinite(f.lng))
+                .map(f => ({ f: f, km: haversineKm(lat, lng, f.lat, f.lng) }))
+                .sort((a, b) => a.km - b.km)
+                .slice(0, limit);
+        }
+
+        function setFranchise(f) {
+            if (!$franchise.find('option[value="' + f.id + '"]').length) {
+                $franchise.append($('<option>').val(f.id).text(f.name));
+            }
+            $franchise.val(String(f.id)); // .val() does not fire "change", so it stays an "auto" choice
         }
 
         function renderRank(lat, lng) {
-            if (FRANCHISE_READONLY) {
-                return;
-            }
             const list = rankFranchises(lat, lng, 3);
-            if (!list.length) {
-                $rank.hide().empty();
-                return;
-            }
+            if (!list.length) { $rank.hide().empty(); return; }
             const selected = String($franchise.val() || '');
-            $rank.empty().show();
-            $rank.append('<div class="small fw-semibold mb-1">Nearest franchises</div>');
+            $rank.empty().show().append('<div class="small fw-semibold mb-1">Nearest franchises</div>');
             list.forEach(function(x, i) {
-                const far = x.km > NEAREST_FRANCHISE_MAX_KM;
                 const isSel = selected === String(x.f.id);
-                const $row = $(
-                        '<div class="d-flex justify-content-between align-items-center border rounded px-2 py-1 mb-1"></div>'
-                    )
-                    .css(isSel ? {
-                        borderColor: '#2f7d4f',
-                        background: 'rgba(47,125,79,.08)'
-                    } : {});
+                const $row = $('<div class="d-flex justify-content-between align-items-center border rounded px-2 py-1 mb-1"></div>')
+                    .css(isSel ? { borderColor: '#2f7d4f', background: 'rgba(47,125,79,.08)' } : {});
                 const $label = $('<div class="small"></div>')
                     .append($('<span class="fw-semibold"></span>').text(x.f.name))
                     .append($('<span class="text-muted ms-2"></span>').text(x.km.toFixed(1) + ' km'));
-                if (i === 0) {
-                    $label.append(' <span class="badge bg-success ms-1">Closest</span>');
-                }
-                if (far) {
-                    $label.append(' <span class="badge bg-warning text-dark ms-1">Far</span>');
-                }
+                if (i === 0) { $label.append(' <span class="badge bg-success ms-1">Closest</span>'); }
+                if (x.km > MAX_KM) { $label.append(' <span class="badge bg-warning text-dark ms-1">Far</span>'); }
                 const $btn = $('<button type="button" class="btn btn-sm btn-outline-success"></button>')
                     .text(isSel ? 'Selected' : 'Use').prop('disabled', isSel)
                     .on('click', function() {
-                        chooseFranchise(x.f, x.km);
+                        franchiseManual = true;
+                        franchiseAutoSet = false;
+                        setFranchise(x.f);
+                        say('success', 'Selected ' + x.f.name + ' (' + x.km.toFixed(1) + ' km away).');
+                        renderRank(lat, lng);
                     });
                 $row.append($label, $btn);
                 $rank.append($row);
             });
         }
 
-        function chooseFranchise(f, km) {
-            if (FRANCHISE_READONLY) {
-                return;
-            }
-            if (!$franchise.find('option[value="' + f.id + '"]').length) {
-                $franchise.append($('<option>').val(f.id).text(f.name));
-            }
-            $franchise.val(String(f.id)).trigger('change'); // counts as a manual choice
-            if (!$('input[name="order_type"]:checked').length && $('#franchise_type').length) {
-                $('#franchise_type').prop('checked', true).trigger('change');
-            }
-            fillFranchiseLocation(f, ++autoRun);
-            $fHint.removeClass('text-muted text-warning').addClass('text-success')
-                .text('Selected ' + f.name + ' (' + km.toFixed(1) + ' km away).');
-            renderRank(parseFloat($lat.val()), parseFloat($lng.val()));
-        }
+        /* ---------- address -> lat/lng (OpenStreetMap Nominatim) ---------- */
+        function geocodeAddress() {
+            const dfd = $.Deferred();
+            const address = $('#c_address').val().trim(), postOffice = $('#c_post_office').val().trim();
+            const thaluk = $('#c_thaluk').val().trim(), pincode = $('#c_pincode').val().trim();
+            const state = sel('#n_state_id'), district = sel('#n_district_id');
 
-        function autoFillFranchise(lat, lng) {
-            if (FRANCHISE_READONLY) {
-                return;
-            }
-            if (franchiseManual) {
-                renderRank(lat, lng);
-                return;
-            } // respect manual choice
-            const run = ++autoRun;
-            const best = nearestFranchise(lat, lng);
-            if (best && best.km <= NEAREST_FRANCHISE_MAX_KM) {
-                const f = best.f;
-                if (!$franchise.find('option[value="' + f.id + '"]').length) {
-                    $franchise.append($('<option>').val(f.id).text(f.name));
-                }
-                $franchise.val(String(f.id)).trigger('change.auto');
-                franchiseAutoSet = true;
+            if (!address || !state || !district) { return dfd.reject('missing').promise(); }
 
-                // Order Type: only when nothing is chosen yet
-                if (!$('input[name="order_type"]:checked').length && $('#franchise_type').length) {
-                    $('#franchise_type').prop('checked', true).trigger('change');
-                    orderTypeAutoSet = true;
-                }
-
-                fillFranchiseLocation(f, run);
-                $fHint.removeClass('text-muted text-warning').addClass('text-success')
-                    .text('Auto-selected nearest franchise (' + best.km.toFixed(1) +
-                        ' km away). You can change it manually.');
-                renderRank(lat, lng);
-            } else {
-                if (franchiseAutoSet) {
-                    $franchise.val('');
-                }
-                franchiseAutoSet = false;
-                $fHint.removeClass('text-muted text-success').addClass('text-warning')
-                    .text('No franchise found within ' + NEAREST_FRANCHISE_MAX_KM +
-                        ' km. Please select one manually.');
-                renderRank(lat, lng);
-            }
-        }
-
-        // Any hand-made selection locks out autofill for that field
-        $franchise.on('change', function(e) {
-            if (e.namespace === 'auto') {
-                return;
-            }
-            franchiseAutoSet = false;
-            franchiseManual = $franchise.val() !== '';
-            if (franchiseManual) {
-                $fHint.text('');
-            }
-        });
-        $('input[name="order_type"]').on('change', function(e) {
-            if (!e.isTrigger) {
-                orderTypeAutoSet = false;
-            }
-        });
-
-        // Values already saved on the order (edit page / validation error) count as chosen
-        if ($franchise.val()) {
-            franchiseManual = true;
-        }
-
-        // Edit page / validation error: show the ranking for the saved location
-        (function() {
-            const lat0 = parseFloat($lat.val()),
-                lng0 = parseFloat($lng.val());
-            if (validCoords(lat0, lng0)) {
-                renderRank(lat0, lng0);
-            }
-        })();
-
-        function setLocation(lat, lng, source, note) {
-            lat = parseFloat(lat);
-            lng = parseFloat(lng);
-            $lat.val(lat.toFixed(7));
-            $lng.val(lng.toFixed(7));
-            ensureMap(lat, lng, source === 'approx' ? 14 : 16);
-            placeMarker(lat, lng);
-            autoFillFranchise(lat, lng);
-            if (source === 'manual') {
-                say('success', '&#10003; Location selected on the map.');
-            } else if (source === 'approx') {
-                say('warning', '&#9888; Approximate location (' + note +
-                    '). Please drag the pin to the exact spot.');
-            } else {
-                say('success', '&#10003; Location found. Please verify the pin.');
-            }
-        }
-
-        function geocode(query) {
-            return $.ajax({
-                url: 'https://nominatim.openstreetmap.org/search',
-                type: 'GET',
-                dataType: 'json',
-                data: {
-                    q: query,
-                    format: 'json',
-                    limit: 1,
-                    countrycodes: 'in'
-                }
-            });
-        }
-
-        function selectedText(sel) {
-            const $o = $(sel + ' option:selected');
-            const t = $o.length && $o.val() ? $o.text().trim() : '';
-            return t;
-        }
-
-        $btn.on('click', function() {
-            const address = $('#c_address').val().trim();
-            const postOffice = $('#c_post_office').val().trim();
-            const thaluk = $('#c_thaluk').val().trim();
-            const pincode = $('#c_pincode').val().trim();
-            const state = selectedText('#n_state_id');
-            const district = selectedText('#n_district_id');
-
-            if (!address) {
-                say('danger', 'Please enter the address first.');
-                $('#c_address').focus();
-                return;
-            }
-            if (!state) {
-                say('danger', 'Please select a state.');
-                $('#n_state_id').focus();
-                return;
-            }
-            if (!district) {
-                say('danger', 'Please select a district.');
-                $('#n_district_id').focus();
-                return;
-            }
-
-            const join = (...parts) => parts.filter(Boolean).join(', ');
+            const join = (...p) => p.filter(Boolean).join(', ');
             const pin = /^\d{6}$/.test(pincode) ? pincode : '';
+            // most specific -> least specific
+            const attempts = [
+                join(address, postOffice, thaluk, district, state, pin, 'India'),
+                join(address, thaluk, district, state, 'India'),
+                join(postOffice, thaluk, district, state, pin, 'India'),
+                pin ? join(pin, 'India') : null,
+                join(thaluk, district, state, 'India'),
+                join(district, state, 'India')
+            ].filter(Boolean).filter((q, i, arr) => arr.indexOf(q) === i);
 
-            // most specific -> least specific; label is shown when a fallback is used
-            const attempts = [{
-                    q: join(address, postOffice, thaluk, district, state, pin, 'India'),
-                    label: null
-                },
-                {
-                    q: join(address, thaluk, district, state, 'India'),
-                    label: null
-                },
-                {
-                    q: join(postOffice, thaluk, district, state, pin, 'India'),
-                    label: 'matched by post office / taluk'
-                },
-                pin ? {
-                    q: join(pin, 'India'),
-                    label: 'matched by pincode ' + pin
-                } : null,
-                {
-                    q: join(thaluk, district, state, 'India'),
-                    label: 'matched by taluk'
-                },
-                {
-                    q: join(district, state, 'India'),
-                    label: 'matched by district only'
-                }
-            ].filter(Boolean).filter(function(a, i, arr) {
-                return arr.findIndex(b => b.q === a.q) === i;
-            });
-
-            $btn.prop('disabled', true).html('<i class="ti ti-loader-2"></i> Searching...');
-            say('muted', 'Finding location...');
-
-            function finish() {
-                $btn.prop('disabled', false).html(BTN_HTML);
-            }
-
-            function tryAt(i) {
-                if (i >= attempts.length) {
-                    finish();
-                    say('danger',
-                        'Location not found. Please check the address, or click "Select on Map" to pin it manually.'
-                    );
-                    return;
-                }
-                geocode(attempts[i].q).done(function(res) {
+            (function tryAt(i) {
+                if (i >= attempts.length) { dfd.reject('notfound'); return; }
+                $.ajax({
+                    url: 'https://nominatim.openstreetmap.org/search',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { q: attempts[i], format: 'json', limit: 1, countrycodes: 'in' }
+                }).done(function(res) {
                     if (res && res.length) {
-                        finish();
-                        setLocation(res[0].lat, res[0].lon, attempts[i].label ? 'approx' :
-                            'exact', attempts[i].label);
+                        dfd.resolve({ lat: parseFloat(res[0].lat), lng: parseFloat(res[0].lon) });
                     } else {
                         // Nominatim allows ~1 request/second
-                        setTimeout(function() {
-                            tryAt(i + 1);
-                        }, 1100);
+                        setTimeout(function() { tryAt(i + 1); }, 1100);
                     }
-                }).fail(function() {
-                    finish();
-                    say('danger',
-                        'Could not reach the location service. Check your connection, or click "Select on Map" to pin it manually.'
-                    );
-                });
-            }
-            tryAt(0);
-        });
+                }).fail(function() { dfd.reject('network'); });
+            })(0);
 
-        $('#soToggleMapBtn').on('click', function() {
-            if ($mapBox.is(':visible') && map) {
-                $mapBox.hide();
+            return dfd.promise();
+        }
+
+        /* ---------- fallback: match on district / state via the server ---------- */
+        function fallbackByDistrict(myRun) {
+            const stateId = $('#n_state_id').val(), districtId = $('#n_district_id').val();
+            if (franchiseManual || (!stateId && !districtId)) {
+                say('warning', 'Could not locate the address. Please select the franchise manually.');
                 return;
             }
-            const lat = parseFloat($lat.val()),
-                lng = parseFloat($lng.val());
-            if (validCoords(lat, lng)) {
-                ensureMap(lat, lng, 16);
-                placeMarker(lat, lng);
-            } else {
-                ensureMap(10.8505, 76.2711, 8); // Kerala, same default as the franchise form
-                say('muted', 'Click on the map to drop a pin.');
-            }
-        });
+            fetch(CFG.urlNearest, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CFG.csrf
+                },
+                body: JSON.stringify({ state_id: stateId, district_id: districtId })
+            }).then(r => r.json()).then(function(data) {
+                if (myRun !== runId || franchiseManual) { return; }
+                if (data.success && data.franchises && data.franchises.length) {
+                    const f = data.franchises[0];
+                    setFranchise({
+                        id: f.n_store_id,
+                        name: f.c_store_name + (f.c_store_code ? ' (' + f.c_store_code + ')' : '')
+                    });
+                    franchiseAutoSet = true;
+                    say('warning', 'Exact location not found; franchise selected by ' + data.matched_on + '. You can change it.');
+                } else {
+                    say('warning', 'No franchise found for this area. Please select one manually.');
+                }
+            }).catch(function() {
+                say('danger', 'Unable to find a franchise. Please select one manually.');
+            });
+        }
 
-        // Typed / pasted coordinates move the pin
-        $lat.add($lng).on('change', function() {
-            const lat = parseFloat($lat.val()),
-                lng = parseFloat($lng.val());
-            if ($lat.val().trim() === '' && $lng.val().trim() === '') {
-                return;
-            }
-            if (!validCoords(lat, lng)) {
-                say('danger', 'Enter a valid latitude (-90 to 90) and longitude (-180 to 180).');
-                return;
-            }
-            setLocation(lat, lng, 'manual');
-        });
+        /* ---------- main: runs when "Franchise" is clicked (and when the address changes later) ---------- */
+        function processFranchise() {
+            if (!isFranchiseOrder()) { return; }
+            const myRun = ++runId;
+            say('muted', 'Finding nearest franchise from the customer address...');
 
-        // Address edited after a pin was set -> remind, don't silently keep a stale pin
-        $('#c_address, #c_post_office, #c_thaluk, #c_pincode, #n_state_id, #n_district_id').on('change',
-            function() {
-                if ($lat.val().trim() !== '') {
-                    say('warning',
-                        'Address changed. Click "Get Location from Address" to refresh the location.');
+            geocodeAddress().done(function(pt) {
+                if (myRun !== runId) { return; }
+                $lat.val(pt.lat.toFixed(7));
+                $lng.val(pt.lng.toFixed(7));
+
+                const best = rankFranchises(pt.lat, pt.lng, 1)[0];
+                if (!franchiseManual) {
+                    if (best && best.km <= MAX_KM) {
+                        setFranchise(best.f);
+                        franchiseAutoSet = true;
+                        say('success', 'Nearest franchise selected: ' + best.f.name + ' (' + best.km.toFixed(1) + ' km away). You can change it.');
+                    } else {
+                        if (franchiseAutoSet) { $franchise.val(''); }
+                        franchiseAutoSet = false;
+                        say('warning', 'No franchise within ' + MAX_KM + ' km. Please select one manually.');
+                    }
+                } else {
+                    say('muted', '');
+                }
+                renderRank(pt.lat, pt.lng);
+            }).fail(function(reason) {
+                if (myRun !== runId) { return; }
+                $lat.val('');
+                $lng.val('');
+                $rank.hide().empty();
+                if (reason === 'missing') {
+                    say('warning', 'Enter the customer address, state and district. The nearest franchise is picked automatically once they are filled.');
+                } else {
+                    fallbackByDistrict(myRun);
                 }
             });
-
-        // Edit page / validation error: show the saved pin
-        const l0 = parseFloat($lat.val()),
-            g0 = parseFloat($lng.val());
-        if (validCoords(l0, g0)) {
-            ensureMap(l0, g0, 16);
-            placeMarker(l0, g0);
-            say('muted',
-                'Saved location shown. Change the address and click "Get Location from Address" to update it.'
-            );
         }
+
+        // A hand-picked franchise is never overwritten
+        $franchise.on('change', function() {
+            franchiseAutoSet = false;
+            franchiseManual = $franchise.val() !== '';
+            if (franchiseManual) { say('muted', ''); }
+        });
+
+        // Clicking "Franchise" starts the search; clicking "Company" cancels any pending one
+        $(document).on('click', '#franchise_type', processFranchise);
+        $(document).on('click', '#company', function() { runId++; });
+
+        // Address changed while Franchise is selected -> refresh (debounced)
+        $('#c_address, #c_post_office, #c_thaluk, #c_pincode, #n_state_id, #n_district_id').on('change', function() {
+            if (!isFranchiseOrder()) { return; }
+            clearTimeout(timer);
+            timer = setTimeout(processFranchise, 800);
+        });
     });

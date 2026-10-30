@@ -18,7 +18,7 @@ class DesignationController extends Controller
         $designations = DesignationMaster::with('parent')
             ->where('c_status', 'Y')
             ->orderBy('hierarchy_level')
-            ->get();
+            ->paginate(10);
 
         return view('admin.designations.index', compact('designations'));
     }

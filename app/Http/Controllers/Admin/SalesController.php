@@ -1313,7 +1313,6 @@ class SalesController extends Controller
                 'nullable',
                 'string',
                 'in:company,franchise',
-                Rule::requiredIf($isAdminRole),
             ],
 
             /* Franchise / order location (NOT the customer's address) */

@@ -1,9 +1,6 @@
 @extends('layouts.app')
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-
 <style>
 /* =====================================================================
        SALES ORDER FORM — SPC "Evergreen" edition
@@ -1076,20 +1073,6 @@ body .so-wrap #btn_create {
 /* 3. Mobile: buttons stack in a clean column */
 @media screen and (max-width: 767px) {
 
-    /* Wrapper of the two location buttons becomes a column */
-    body .so-wrap .d-flex:has(> #soGetLocationBtn) {
-        flex-direction: column !important;
-        flex-wrap: nowrap !important;
-        align-items: stretch !important;
-        gap: 10px !important;
-    }
-    body .so-wrap #soGetLocationBtn,
-    body .so-wrap #soToggleMapBtn {
-        width: 100% !important;
-        flex: 0 0 auto !important;
-        white-space: normal !important;   /* allow wrapping only if the screen is tiny */
-    }
-
     /* Find Customer button */
     body .so-wrap #lookupBtn {
         width: 100% !important;
@@ -1780,48 +1763,12 @@ use Illuminate\Support\Facades\Crypt;
                                 @enderror
                             </div>
 
-                            {{-- Order location: filled from the address above, same approach as Franchise > Add --}}
-                            <div class="col-md-12">
-                                <div class="form-label mb-2"><i class="ti ti-current-location"></i> Location (from
-                                    address)</div>
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-md-3">
-                                        <label for="so_latitude" class="form-label">Latitude</label>
-                                        <input type="text" id="so_latitude" name="latitude"
-                                            value="{{ old('latitude', isset($sale) ? $sale->latitude : '') }}"
-                                            class="form-control" maxlength="20" placeholder="Latitude"
-                                            inputmode="decimal">
-                                        @error('latitude')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label for="so_longitude" class="form-label">Longitude</label>
-                                        <input type="text" id="so_longitude" name="longitude"
-                                            value="{{ old('longitude', isset($sale) ? $sale->longitude : '') }}"
-                                            class="form-control" maxlength="20" placeholder="Longitude"
-                                            inputmode="decimal">
-                                        @error('longitude')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 d-flex flex-wrap gap-2">
-                                        <button type="button" id="soGetLocationBtn" class="btn buttonSpc">
-                                            <i class="ti ti-map-pin-search"></i> Get Location from Address
-                                        </button>
-                                        <button type="button" id="soToggleMapBtn" class="btn btn-outline-secondary">
-                                            <i class="ti ti-map-pin"></i> Select on Map
-                                        </button>
-                                    </div>
-                                </div>
-                                <div id="soLocationStatus" class="mt-2 small text-muted">
-                                    Fill in the address, state and district, then click "Get Location from Address". You
-                                    can drag the pin or click the map to fine-tune it.
-                                </div>
-                                <div id="soLocationMap"
-                                    style="display:none;height:340px;border-radius:12px;margin-top:12px;border:1px solid #dfe5e1;">
-                                </div>
-                            </div>
+                            {{-- Order location: filled automatically from the customer address when the
+                                 "Franchise" order type is chosen. Not shown to the user, still saved with the order. --}}
+                            <input type="hidden" id="so_latitude" name="latitude"
+                                value="{{ old('latitude', isset($sale) ? $sale->latitude : '') }}">
+                            <input type="hidden" id="so_longitude" name="longitude"
+                                value="{{ old('longitude', isset($sale) ? $sale->longitude : '') }}">
                         </div>
 
                        {{-- Customer Status: hidden from the UI, value still submitted --}}
@@ -1860,7 +1807,11 @@ use Illuminate\Support\Facades\Crypt;
 
                     <!-- Section 6: Franchise / Company Details Section -->
                     <div class="form-box so-section mb-4" id="franchise-details">
-                        @if((isset($isAdmin) && $isAdmin==true) || (isset($isOfficeAdmin) && $isOfficeAdmin==true))
+                        {{-- Order Type is available to every role (Admin, Office Admin, FCO, FCA, Telecaller).
+                             Old orders without an order type are pre-selected as Franchise when a franchise is saved. --}}
+                        @php
+                        $__orderType = old('order_type', $sale->order_type ?? (!empty($sale->nearest_franchise_id) ? 'franchise' : ''));
+                        @endphp
                         <div class="row mb-4">
                             <div class="col-md-12">
                                 <label class="form-label fw-bold">Order Type <span class="text-danger">*</span></label>
@@ -1868,14 +1819,16 @@ use Illuminate\Support\Facades\Crypt;
                                     <div class="form-check">
                                         <input class="form-check-input mandatory" type="radio" name="order_type"
                                             id="company" value="company"
-                                            {{ old('order_type', $sale->order_type ?? '') == 'company' ? 'checked' : '' }}>
+                                            data-message="Please Choose the Order Type"
+                                            {{ $__orderType == 'company' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="company">Company</label>
                                     </div>
 
                                     <div class="form-check">
                                         <input class="form-check-input mandatory" type="radio" name="order_type"
                                             id="franchise_type" value="franchise"
-                                            {{ old('order_type', $sale->order_type ?? '') == 'franchise' ? 'checked' : '' }}>
+                                            data-message="Please Choose the Order Type"
+                                            {{ $__orderType == 'franchise' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="franchise_type">Franchise</label>
                                     </div>
                                 </div>
@@ -1884,7 +1837,6 @@ use Illuminate\Support\Facades\Crypt;
                                 @enderror
                             </div>
                         </div>
-                        @endif
 
                         <div id="franchise-location-details">
                             <div class="row g-4 mb-4">
@@ -2123,8 +2075,5 @@ use Illuminate\Support\Facades\Crypt;
 @endsection
 
     @push('scripts')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-
     <script src="{{ asset('js/sales-order-create.js') }}?v={{ @filemtime(public_path('js/sales-order-create.js')) }}"></script>
     @endpush

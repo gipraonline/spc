@@ -11,19 +11,40 @@ use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
 {
-    public function index()
-    {
-        $module = $this->abortUnlessModuleAllowed('organization');
+    public function index(Request $request)
+{
+    $module = $this->abortUnlessModuleAllowed('organization');
 
-        return view('hr.modules.organization', array_merge($this->baseViewData(), [
-            'module' => $module,
-            'moduleKey' => 'organization',
-            'departments' => Department::withCount('employees')->orderBy('name')->get(),
-            'designations' => Designation::with('department')->withCount('employees')->orderBy('title')->get(),
-            'holidays' => Holiday::orderBy('holiday_date')->get(),
-            'parentOptions' => DesignationMaster::where('c_status', 'Y')->orderBy('hierarchy_level')->get(),
-        ]));
-    }
+    $perPage = 10;
+
+    return view('hr.modules.organization', array_merge($this->baseViewData(), [
+        'module'     => $module,
+        'moduleKey'  => 'organization',
+        'activeTab'  => in_array($request->query('tab'), ['departments', 'designations', 'holidays'])
+                            ? $request->query('tab')
+                            : 'departments',
+
+        'departments' => Department::withCount('employees')
+            ->orderBy('name')
+            ->paginate($perPage, ['*'], 'dept_page')
+            ->withQueryString(),
+
+        'designations' => Designation::with('department')
+            ->withCount('employees')
+            ->orderBy('title')
+            ->paginate($perPage, ['*'], 'desig_page')
+            ->withQueryString(),
+
+        'holidays' => Holiday::orderBy('holiday_date')
+            ->paginate($perPage, ['*'], 'holiday_page')
+            ->withQueryString(),
+
+        // Full list for the <select> dropdowns (must NOT be paginated)
+        'departmentOptions' => Department::orderBy('name')->get(['id', 'name']),
+
+        'parentOptions' => DesignationMaster::where('c_status', 'Y')->orderBy('hierarchy_level')->get(),
+    ]));
+}
 
     public function storeDepartment(Request $request)
     {

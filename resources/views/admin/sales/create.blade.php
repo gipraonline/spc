@@ -1364,7 +1364,7 @@ use Illuminate\Support\Facades\Crypt;
                                         <th style="min-width: 195px;">Sub Category</th>
                                         <th style="min-width: 220px;">Product *</th>
                                         <th style="min-width: 155px;">Attribute / Pack Size</th>
-                                        <th style="min-width: 110px;">HSN Code</th>
+                                        {{-- <th style="min-width: 110px;">HSN Code</th> --}}
                                         <th style="min-width: 110px;">Price (Excl. GST)</th>
                                         <th style="min-width: 90px;">Quantity *</th>
                                         <th style="min-width: 100px;">Discount</th>
@@ -1408,7 +1408,7 @@ use Illuminate\Support\Facades\Crypt;
                                     'product_id' => $r['product_id'] ?? '',
                                     'product_name' => $prodNames[$r['product_id'] ?? 0] ?? ($r['c_product_name'] ?? ''),
                                     'c_unit' => $r['c_unit'] ?? '',
-                                    'c_hsn_code' => $r['c_hsn_code'] ?? '',
+                                    // 'c_hsn_code' => $r['c_hsn_code'] ?? '',
                                     'product_price' => $r['product_price'] ?? '0.00',
                                     'qty' => $r['qty'] ?? 1,
                                     'discount' => $r['discount'] ?? '0.00',
@@ -1428,7 +1428,7 @@ use Illuminate\Support\Facades\Crypt;
                                     'product_id' => $val->product_id,
                                     'product_name' => $val->product?->c_product_name,
                                     'c_unit' => $val->c_unit ?: ($val->product?->c_unit),
-                                    'c_hsn_code' => $val->c_hsn_code,
+                                    // 'c_hsn_code' => $val->c_hsn_code,
                                     'product_price' => $val->product_price ?? '0.00',
                                     'qty' => $val->qty ?? 1,
                                     'discount' => $val->discount ?? '0.00',
@@ -1476,11 +1476,11 @@ use Illuminate\Support\Facades\Crypt;
                                         </td>
 
                                         <!-- HSN Code -->
-                                        <td>
+                                       {{--  <td>
                                             <input type="text" name="products[{{ $key }}][c_hsn_code]"
                                                 class="form-control c_hsn_code" value="{{ $row['c_hsn_code'] }}"
                                                 readonly>
-                                        </td>
+                                        </td> --}}
 
                                         <!-- Price -->
                                         <td>

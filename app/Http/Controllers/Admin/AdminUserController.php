@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\DesignationMaster;
 use App\Models\EmployeeMaster;
 use App\Models\Role;
 use App\Services\AuditTrail;
@@ -14,6 +15,9 @@ class AdminUserController extends Controller
 {
     /** Role whose users are visible only to a Gipra Admin. */
     private const HIDDEN_ROLES = ['Gipra Admin'];
+
+    /** Roles nobody can assign from this screen (matched by role identifier). */
+    private const UNASSIGNABLE_ROLE_IDENTIFIERS = ['CHAIRMAN', 'MD', 'CEO', 'COO_CFO'];
 
     /** Specific accounts visible only to a Gipra Admin (matched by username). */
     private const HIDDEN_USERNAMES = ['admin@spc.com'];
@@ -35,13 +39,54 @@ class AdminUserController extends Controller
         return $query;
     }
 
-    /** Roles offered in the create / edit dropdowns. */
-    private function assignableRoles()
+    /**
+     * Roles offered in the create / edit dropdowns. Chairman, MD, CEO and
+     * COO / CFO are never offered. Roles are listed by hierarchy level (taken
+     * from the designation with the same identifier). When editing, the user's current role is
+     * kept in the list so saving the form doesn't silently change it.
+     */
+    private function assignableRoles(?Admin $editing = null)
     {
-        return Role::when(
-            ! $this->isGipraAdmin(),
-            fn ($q) => $q->where('name', '!=', 'Gipra Admin')
-        )->get();
+        $currentRoles = $editing ? $editing->getRoleNames()->all() : [];
+
+        // identifier => hierarchy level (lower number = higher in the org)
+        $levels = DesignationMaster::pluck('hierarchy_level', 'identifier');
+
+        $roles = Role::query()
+            ->where(function ($q) use ($currentRoles) {
+                $q->where(function ($w) {
+                    $w->whereNull('identifier')
+                        ->orWhereNotIn('identifier', self::UNASSIGNABLE_ROLE_IDENTIFIERS);
+                });
+
+                if ($currentRoles) {
+                    $q->orWhereIn('name', $currentRoles);
+                }
+            })
+            ->when(
+                ! $this->isGipraAdmin(),
+                fn ($q) => $q->where('name', '!=', 'Gipra Admin')
+            )
+            ->get();
+
+        // Roles with no matching designation (Super Admin, Gipra Admin) go first.
+        return $roles
+            ->sortBy(fn ($role) => sprintf(
+                '%03d-%s',
+                $levels[$role->identifier] ?? 0,
+                $role->name
+            ))
+            ->values();
+    }
+
+    /** Server-side check that the submitted role is one we offered. */
+    private function ensureRoleAllowed(string $roleName, ?Admin $editing = null): void
+    {
+        abort_unless(
+            $this->assignableRoles($editing)->contains('name', $roleName),
+            403,
+            'This role cannot be assigned.'
+        );
     }
 
     /** 404 when a non-Gipra user tries to reach a hidden user by URL. */
@@ -93,11 +138,7 @@ class AdminUserController extends Controller
             'role' => 'required|exists:roles,name',
         ]);
 
-        // Only a Gipra Admin may assign the Gipra Admin role
-        abort_if(
-            $request->role === 'Gipra Admin' && ! $this->isGipraAdmin(),
-            403
-        );
+        $this->ensureRoleAllowed($request->role);
 
         // Get selected employee
         $employee = EmployeeMaster::findOrFail($request->employee_id);
@@ -239,7 +280,7 @@ class AdminUserController extends Controller
     {
         $this->guardUser($user);
 
-        $roles = $this->assignableRoles();
+        $roles = $this->assignableRoles($user);
 
         return view('admin.users.edit', compact('user', 'roles'));
     }
@@ -254,11 +295,7 @@ class AdminUserController extends Controller
             'role' => 'required|exists:roles,name',
         ]);
 
-        // Only a Gipra Admin may assign the Gipra Admin role
-        abort_if(
-            $request->role === 'Gipra Admin' && ! $this->isGipraAdmin(),
-            403
-        );
+        $this->ensureRoleAllowed($request->role, $user);
 
         $oldRole = $user->getRoleNames()->first();
 

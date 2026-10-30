@@ -82,6 +82,22 @@
                 </tbody>
             </table>
         </div>
+        {{-- Pagination --}}
+@if ($designations->hasPages())
+    <div class="mt-4">
+
+        <div class="text-muted text-center mb-3">
+            Showing {{ $designations->firstItem() }}
+            to {{ $designations->lastItem() }}
+            of {{ $designations->total() }} designations
+        </div>
+
+        <div class="d-flex justify-content-center">
+            {{ $designations->links('pagination::bootstrap-5') }}
+        </div>
+
     </div>
+@endif
+</div>
 </div>
 @endsection

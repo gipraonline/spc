@@ -12,34 +12,68 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminUserController extends Controller
 {
-    public function index()
-{
-    $currentUser = auth('web')->user();
+    /** Role whose users are visible only to a Gipra Admin. */
+    private const HIDDEN_ROLES = ['Gipra Admin'];
 
-    $query = Admin::with('roles');
+    /** Specific accounts visible only to a Gipra Admin (matched by username). */
+    private const HIDDEN_USERNAMES = ['admin@spc.com'];
 
-    // Only Gipra Admin can see Gipra Admin users
-    if (! $currentUser->hasRole('Gipra Admin')) {
-        $query->whereDoesntHave('roles', function ($q) {
-            $q->where('name', 'Gipra Admin');
-        });
+    private function isGipraAdmin(): bool
+    {
+        return (bool) auth('web')->user()?->hasRole('Gipra Admin');
     }
 
-    $users = $query
-        ->latest()
-        ->paginate(10);
+    /** Limit an Admin query to the users the signed-in person may see. */
+    private function visibleUsers($query)
+    {
+        if (! $this->isGipraAdmin()) {
+            $query->whereDoesntHave('roles', function ($q) {
+                $q->whereIn('name', self::HIDDEN_ROLES);
+            })->whereNotIn('c_username', self::HIDDEN_USERNAMES);
+        }
 
-    $hasActivePasswords = Admin::whereNotNull('initial_password')
-        ->whereNotNull('initial_password_expires_at')
-        ->where('initial_password_expires_at', '>=', now())
-        ->exists();
+        return $query;
+    }
 
-    return view('admin.users.index', compact('users', 'hasActivePasswords'));
-}
+    /** Roles offered in the create / edit dropdowns. */
+    private function assignableRoles()
+    {
+        return Role::when(
+            ! $this->isGipraAdmin(),
+            fn ($q) => $q->where('name', '!=', 'Gipra Admin')
+        )->get();
+    }
+
+    /** 404 when a non-Gipra user tries to reach a hidden user by URL. */
+    private function guardUser(Admin $user): void
+    {
+        abort_if(
+            ! $this->isGipraAdmin() && (
+                $user->hasAnyRole(self::HIDDEN_ROLES)
+                || in_array($user->c_username, self::HIDDEN_USERNAMES, true)
+            ),
+            404
+        );
+    }
+
+    public function index()
+    {
+        $users = $this->visibleUsers(Admin::with('roles'))
+            ->latest()
+            ->paginate(10);
+
+        $hasActivePasswords = $this->visibleUsers(Admin::query())
+            ->whereNotNull('initial_password')
+            ->whereNotNull('initial_password_expires_at')
+            ->where('initial_password_expires_at', '>=', now())
+            ->exists();
+
+        return view('admin.users.index', compact('users', 'hasActivePasswords'));
+    }
 
     public function create()
     {
-        $roles = Role::all();
+        $roles = $this->assignableRoles();
 
         // Employees who don't already have an admin account
         $employees = EmployeeMaster::where('c_status', 'Y')
@@ -49,7 +83,6 @@ class AdminUserController extends Controller
             ->orderBy('c_employee_name')
             ->get();
 
-        // dd($employees);
         return view('admin.users.create', compact('roles', 'employees'));
     }
 
@@ -59,6 +92,12 @@ class AdminUserController extends Controller
             'employee_id' => 'required|exists:employee_masters,n_employee_id|unique:admins,n_employee_id',
             'role' => 'required|exists:roles,name',
         ]);
+
+        // Only a Gipra Admin may assign the Gipra Admin role
+        abort_if(
+            $request->role === 'Gipra Admin' && ! $this->isGipraAdmin(),
+            403
+        );
 
         // Get selected employee
         $employee = EmployeeMaster::findOrFail($request->employee_id);
@@ -93,13 +132,6 @@ class AdminUserController extends Controller
         $password = $firstName.$upper.$lower.$special.$number;
 
         // Create Admin User
-        // $user = Admin::create([
-        //     'n_employee_id' => $employee->n_employee_id,
-        //     'c_name' => $name,
-        //     'c_username' => $username,
-        //     'c_password' => Hash::make($password),
-        //     'c_status' => 'Active',
-        // ]);
         $user = Admin::create([
             'n_employee_id' => $employee->n_employee_id,
             'c_name' => $name,
@@ -108,7 +140,7 @@ class AdminUserController extends Controller
             // Password used for login
             'c_password' => Hash::make($password),
 
-            // Temporary encrypted copy for admin viewing
+            // Temporary copy for admin viewing
             'initial_password' => $password,
 
             // Available for 48 hours
@@ -132,13 +164,15 @@ class AdminUserController extends Controller
 
     public function showPassword(Admin $user)
     {
-        // Only Super Admin and Gipra Admin can view passwords
+        // Only HR Manager and Gipra Admin can view passwords
         if (
             ! auth('web')->check() ||
             ! auth('web')->user()->hasAnyRole(['HR Manager', 'Gipra Admin'])
         ) {
             abort(403);
         }
+
+        $this->guardUser($user);
 
         // Check whether password viewing has expired
         if (
@@ -167,12 +201,12 @@ class AdminUserController extends Controller
 
     public function copyAllLoginDetails()
     {
-
         if (! auth()->check() || ! auth()->user()->hasAnyRole(['HR Manager', 'Gipra Admin'])) {
             abort(403, 'You are not authorized to view passwords.');
         }
 
-        $users = Admin::whereNotNull('initial_password')
+        $users = $this->visibleUsers(Admin::query())
+            ->whereNotNull('initial_password')
             ->whereNotNull('initial_password_expires_at')
             ->where('initial_password_expires_at', '>=', now())
             ->orderBy('c_name')
@@ -203,18 +237,28 @@ class AdminUserController extends Controller
 
     public function edit(Admin $user)
     {
-        $roles = Role::all();
+        $this->guardUser($user);
+
+        $roles = $this->assignableRoles();
 
         return view('admin.users.edit', compact('user', 'roles'));
     }
 
     public function update(Request $request, Admin $user)
     {
+        $this->guardUser($user);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'username' => 'required|email|unique:admins,c_username,'.$user->n_role_id.',n_role_id',
             'role' => 'required|exists:roles,name',
         ]);
+
+        // Only a Gipra Admin may assign the Gipra Admin role
+        abort_if(
+            $request->role === 'Gipra Admin' && ! $this->isGipraAdmin(),
+            403
+        );
 
         $oldRole = $user->getRoleNames()->first();
 
@@ -240,6 +284,8 @@ class AdminUserController extends Controller
 
     public function destroy(Admin $user)
     {
+        $this->guardUser($user);
+
         if ($user->hasRole('Super Admin')) {
             return back()->with('error', 'Super Admin cannot be deleted.');
         }

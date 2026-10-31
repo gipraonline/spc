@@ -66,4 +66,4 @@
         </form>
     </div>
 </details>
-<?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/partials/nav-actions.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\laravel\spc_new\resources\views/hr/partials/nav-actions.blade.php ENDPATH**/ ?>

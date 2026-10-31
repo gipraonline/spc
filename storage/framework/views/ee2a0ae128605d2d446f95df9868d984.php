@@ -1103,4 +1103,4 @@
 </script>
 </body>
 </html>
-<?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/layouts/app.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\laravel\spc_new\resources\views/hr/layouts/app.blade.php ENDPATH**/ ?>

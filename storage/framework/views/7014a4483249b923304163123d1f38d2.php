@@ -53,4 +53,4 @@
         </ul>
     </div>
 <?php endif; ?>
-<?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/partials/topbar.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\laravel\spc_new\resources\views/hr/partials/topbar.blade.php ENDPATH**/ ?>

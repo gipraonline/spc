@@ -166,4 +166,4 @@
         line-height:1; padding:4px 8px; border-radius:99px;
     }
     .spc-link.active .spc-badge{background:#fff; color:#C2410C; box-shadow:0 3px 8px rgba(0,0,0,.15);}
-</style><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/partials/sidebar.blade.php ENDPATH**/ ?>
+</style><?php /**PATH C:\xampp\htdocs\laravel\spc_new\resources\views/hr/partials/sidebar.blade.php ENDPATH**/ ?>

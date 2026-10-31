@@ -73,6 +73,12 @@
     transform: translateY(-1px);
 }
 
+.form-control[readonly] {
+    background-color: #eef2ee;
+    color: #6b756d;
+    cursor: not-allowed;
+}
+
 /* Action Toolbar */
 .btn-create-action {
     background: var(--primary-green);
@@ -144,32 +150,27 @@
                 <div class="text-danger mt-1">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="mb-3">
-                <label class="form-label">
-                    Hierarchy Level <span class="text-danger">*</span>
-                </label>
 
-                <input type="number" name="hierarchy_level" class="form-control" value="{{ old('hierarchy_level') }}"
-                    min="1" placeholder="Example: 1">
-                @error('hierarchy_level')
+            <div class="mb-4">
+                <label for="parent_designation_id" class="form-label">Reports To</label>
+                <select id="parent_designation_id" name="parent_designation_id" class="form-select">
+                    <option value="" data-level="0">— None (top of the hierarchy) —</option>
+                    @foreach($parentOptions as $option)
+                        <option value="{{ $option->n_designation_id }}" data-level="{{ $option->hierarchy_level }}"
+                            {{ (string) old('parent_designation_id') === (string) $option->n_designation_id ? 'selected' : '' }}>
+                            {{ str_repeat('— ', $option->depth) }}{{ $option->c_designation }}
+                        </option>
+                    @endforeach
+                </select>
+                <small class="text-muted">Choose who this designation reports to. The level is set automatically.</small>
+                @error('parent_designation_id')
                 <div class="text-danger mt-1">{{ $message }}</div>
                 @enderror
             </div>
 
             <div class="mb-4">
-                <label for="parent_designation_id" class="form-label">Reports To</label>
-                <select id="parent_designation_id" name="parent_designation_id" class="form-select">
-                    <option value="">— None (top of the hierarchy) —</option>
-                    @foreach($parentOptions as $option)
-                        <option value="{{ $option->n_designation_id }}"
-                            {{ (string) old('parent_designation_id') === (string) $option->n_designation_id ? 'selected' : '' }}>
-                            {{ $option->c_designation }} (Level {{ $option->hierarchy_level }})
-                        </option>
-                    @endforeach
-                </select>
-                @error('parent_designation_id')
-                <div class="text-danger mt-1">{{ $message }}</div>
-                @enderror
+                <label for="level_preview" class="form-label">Hierarchy Level</label>
+                <input type="text" id="level_preview" class="form-control" readonly>
             </div>
 
             <div class="mb-4">
@@ -230,9 +231,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (this.value !== '') {
             if (error) {
-                error.remove(); //  completely removes error
+                error.remove(); // completely removes error
             }
         }
+    });
+
+    // Level is worked out from "Reports To": parent's level + 1.
+    const parentSel = document.getElementById('parent_designation_id');
+    const levelBox = document.getElementById('level_preview');
+
+    function showLevel() {
+        const lvl = parseInt(parentSel.selectedOptions[0].dataset.level || 0, 10);
+        levelBox.value = 'Level ' + (lvl + 1);
+    }
+
+    parentSel.addEventListener('change', showLevel);
+    showLevel();
+
+    // Pre-select the parent's department (only until HR picks one by hand).
+    const parentDepts = @json($parentDepartments);
+    const deptSel = document.getElementById('department_id');
+    let deptTouched = deptSel.value !== '';
+
+    deptSel.addEventListener('change', () => deptTouched = true);
+
+    parentSel.addEventListener('change', function () {
+        if (deptTouched) return;
+        deptSel.value = parentDepts[this.value] || '';
     });
 });
 </script>

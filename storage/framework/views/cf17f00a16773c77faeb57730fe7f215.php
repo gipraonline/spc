@@ -159,6 +159,27 @@ unset($__errorArgs, $__bag); ?>
             </div>
 
             <div class="mb-4">
+                <label for="identifier" class="form-label">
+                    Identifier <span class="text-danger">*</span>
+                </label>
+                <input type="text" id="identifier" name="identifier"
+                    value="<?php echo e(old('identifier', $designation->identifier)); ?>"
+                    class="form-control mandatory" data-message="Please enter an Identifier" placeholder="e.g. SM"
+                    maxlength="50" style="text-transform: uppercase;">
+                <small class="text-muted">Must be unique. Renaming the designation does not change it. If any report or code looks designations up by identifier, changing it can break that lookup.</small>
+                <?php $__errorArgs = ['identifier'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+            </div>
+
+            <div class="mb-4">
                 <label for="parent_designation_id" class="form-label">Reports To</label>
                 <select id="parent_designation_id" name="parent_designation_id" class="form-select">
                     <option value="" data-level="0">— None (top of the hierarchy) —</option>
@@ -170,7 +191,7 @@ unset($__errorArgs, $__bag); ?>
                         </option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
-                <small class="text-muted">Choose who this designation reports to. The level is set automatically, and changing this also updates the levels of designations that report to this one.</small>
+                <small class="text-muted">Choose who this designation reports to.</small>
                 <?php $__errorArgs = ['parent_designation_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -184,8 +205,21 @@ unset($__errorArgs, $__bag); ?>
             </div>
 
             <div class="mb-4">
-                <label for="level_preview" class="form-label">Hierarchy Level</label>
-                <input type="text" id="level_preview" class="form-control" readonly>
+                <label for="hierarchy_level" class="form-label">Hierarchy Level *</label>
+                <input type="number" id="hierarchy_level" name="hierarchy_level" min="0" max="50" step="1"
+                    value="<?php echo e(old('hierarchy_level', $designation->hierarchy_level)); ?>"
+                    class="form-control mandatory" data-message="Please enter a Hierarchy Level">
+                <small class="text-muted">Changing "Reports To" suggests parent's level + 1, and you can type a different level. If this level changes, designations that report to this one move up or down by the same amount.</small>
+                <?php $__errorArgs = ['hierarchy_level'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
 
             <div class="mb-4">
@@ -276,18 +310,20 @@ document.querySelectorAll('.dash-card-toggle').forEach(function (a) {
     });
 });
 
-// Level is worked out from "Reports To": parent's level + 1.
+// Level: keeps the saved value on load; suggests parent's level + 1 only when
+// "Reports To" is changed and the level hasn't been typed by hand.
 (function () {
     var parentSel = document.getElementById('parent_designation_id');
-    var levelBox = document.getElementById('level_preview');
+    var levelBox = document.getElementById('hierarchy_level');
+    var levelTouched = false;
 
-    function showLevel() {
+    levelBox.addEventListener('input', function () { levelTouched = true; });
+
+    parentSel.addEventListener('change', function () {
+        if (levelTouched) return;
         var lvl = parseInt(parentSel.selectedOptions[0].dataset.level || 0, 10);
-        levelBox.value = 'Level ' + (lvl + 1);
-    }
-
-    parentSel.addEventListener('change', showLevel);
-    showLevel();
+        levelBox.value = lvl + 1;
+    });
 })();
 </script>
 <?php $__env->stopSection(); ?>

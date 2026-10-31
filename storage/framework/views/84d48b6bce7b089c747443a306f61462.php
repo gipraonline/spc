@@ -143,13 +143,16 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
             </div>
+
             <div class="mb-4">
                 <label for="identifier" class="form-label">
                     Identifier <span class="text-danger">*</span>
                 </label>
 
                 <input type="text" id="identifier" name="identifier" value="<?php echo e(old('identifier')); ?>"
-                    class="form-control mandatory" data-message="Please enter an Identifier" placeholder="e.g. SM">
+                    class="form-control mandatory" data-message="Please enter an Identifier" placeholder="e.g. SM"
+                    maxlength="50" style="text-transform: uppercase;">
+                <small class="text-muted">Generated from the name. You can change it &mdash; it must be unique.</small>
 
                 <?php $__errorArgs = ['identifier'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -175,7 +178,7 @@ unset($__errorArgs, $__bag); ?>
                         </option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
-                <small class="text-muted">Choose who this designation reports to. The level is set automatically.</small>
+                <small class="text-muted">Choose who this designation reports to.</small>
                 <?php $__errorArgs = ['parent_designation_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -189,8 +192,20 @@ unset($__errorArgs, $__bag); ?>
             </div>
 
             <div class="mb-4">
-                <label for="level_preview" class="form-label">Hierarchy Level</label>
-                <input type="text" id="level_preview" class="form-control" readonly>
+                <label for="hierarchy_level" class="form-label">Hierarchy Level</label>
+                <input type="number" id="hierarchy_level" name="hierarchy_level" min="0" max="50" step="1"
+                    value="<?php echo e(old('hierarchy_level')); ?>" class="form-control">
+                <small class="text-muted">Filled in automatically (parent's level + 1) when you pick "Reports To". You can type a different level.</small>
+                <?php $__errorArgs = ['hierarchy_level'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                <div class="text-danger mt-1"><?php echo e($message); ?></div>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
 
             <div class="mb-4">
@@ -271,17 +286,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Level is worked out from "Reports To": parent's level + 1.
-    const parentSel = document.getElementById('parent_designation_id');
-    const levelBox = document.getElementById('level_preview');
+    // ---- Identifier: suggested from the name, unique, still editable ----
+    const nameBox = document.getElementById('c_designation');
+    const idBox = document.getElementById('identifier');
+    const taken = new Set(<?php echo json_encode($existingIdentifiers, 15, 512) ?>);
+    let idTouched = idBox.value !== '';   // keep what was typed after a failed submit
 
-    function showLevel() {
-        const lvl = parseInt(parentSel.selectedOptions[0].dataset.level || 0, 10);
-        levelBox.value = 'Level ' + (lvl + 1);
+    function suggestIdentifier(name) {
+        const words = name.trim().split(/[^A-Za-z0-9]+/).filter(Boolean);
+        if (!words.length) return '';
+        let base = words.length === 1
+            ? words[0].toUpperCase()
+            : words.map(w => w[0]).join('').toUpperCase();
+        base = base.substring(0, 40);
+        let candidate = base, i = 2;
+        while (taken.has(candidate)) candidate = base + '_' + i++;
+        return candidate;
     }
 
-    parentSel.addEventListener('change', showLevel);
-    showLevel();
+    nameBox.addEventListener('input', function () {
+        if (!idTouched) idBox.value = suggestIdentifier(this.value);
+    });
+    idBox.addEventListener('input', function () {
+        idTouched = this.value !== '';   // clearing it hands control back to auto-generate
+        if (!idTouched) idBox.value = suggestIdentifier(nameBox.value);
+        let error = this.parentElement.querySelector('.text-danger:not(span)');
+        if (error) error.remove();
+    });
+    if (!idTouched && nameBox.value) idBox.value = suggestIdentifier(nameBox.value);
+
+    // ---- Level: parent's level + 1 until HR types their own ----
+    const parentSel = document.getElementById('parent_designation_id');
+    const levelBox = document.getElementById('hierarchy_level');
+    let levelTouched = levelBox.value !== '';
+
+    function autoLevel() {
+        const lvl = parseInt(parentSel.selectedOptions[0].dataset.level || 0, 10);
+        levelBox.value = lvl + 1;
+    }
+
+    levelBox.addEventListener('input', () => levelTouched = levelBox.value !== '');
+    parentSel.addEventListener('change', function () {
+        if (!levelTouched) autoLevel();
+    });
+    if (!levelTouched) autoLevel();
 
     // Pre-select the parent's department (only until HR picks one by hand).
     const parentDepts = <?php echo json_encode($parentDepartments, 15, 512) ?>;

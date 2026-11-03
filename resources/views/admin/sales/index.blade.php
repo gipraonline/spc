@@ -280,6 +280,20 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Payment proof thumbnail + popup */
+.payment-thumb {
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.payment-thumb:hover {
+    transform: scale(1.06);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+}
+
+#paymentImageModal {
+    z-index: 1070;
+}
+
 
 /* Approval status button */
 .approval-status-btn {
@@ -495,14 +509,28 @@ html {
 @php
     // Keep existing filters (date, search, payment, mode of payment...) and only swap the status
     $cardUrl = function (?string $status = null) {
-    $params = request()->except(['status', 'order_status', 'page', 'export']);
-    if ($status) {
-        $params['status'] = $status;
-    }
-    return route('admin.salesorders.index', $params) . '#sales-table';
-};
+        $params = request()->except(['status', 'order_status', 'page', 'export']);
+        if ($status) {
+            $params['status'] = $status;
+        }
+        return route('admin.salesorders.index', $params) . '#sales-table';
+    };
 
     $activeStatus = $requestedStatus ?? '';
+
+    // Telecaller / FCO / FCA do not get the Search (sales person), Payment Status & Order Status filters
+    $hideStatusFilters = !empty($isTelecaller) || !empty($isFarmCareOfficer) || !empty($isFarmCareAdvisor);
+
+    // Sales person = the advisor on the order; if there is none (e.g. telecaller / FCO orders),
+    // fall back to the employee who created the order. One query for the whole page.
+    $creatorIds = $sales->pluck('created_by')->filter()->unique()->values();
+    $creatorMap = collect();
+    if ($creatorIds->isNotEmpty() && $sales->first()) {
+        $creatorMap = $sales->first()->employee()->getRelated()->newQuery()
+            ->whereIn('n_employee_id', $creatorIds)
+            ->get()
+            ->keyBy('n_employee_id');
+    }
 @endphp
 
 @if ($errors->any())
@@ -613,13 +641,15 @@ html {
             <div class="card refine-search-card border-0 rounded-4 mb-4">
                 <div class="card-body p-3">
 
-                    <!-- Search By Farm Care Advisor Name or Code-->
                     <div class="row g-3 align-items-end">
+                        @unless($hideStatusFilters)
+                        <!-- Search By Sales Person Name or Code (not for Telecaller / FCO / FCA) -->
                         <div class="col-lg-3 col-md-3">
                             <label class="form-label fw-semibold">Search</label>
                             <input type="text" name="search" class="form-control"
-                                placeholder="Farm Care Advisor name/Code" value="{{ request('search') }}">
+                                placeholder="Sales person name / code" value="{{ request('search') }}">
                         </div>
+                        @endunless
 
                         <!-- From Date -->
                         <div class="col-lg-3 col-md-3">
@@ -634,6 +664,7 @@ html {
                             <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
                         </div>
 
+                        @unless($hideStatusFilters)
                         <!-- Payment Status -->
                         <div class="col-lg-3 col-md-3">
                             <label class="form-label fw-semibold">Payment Status</label>
@@ -642,10 +673,10 @@ html {
                                 <option value="">Select Status</option>
 
                                 <option value="pending"
-                                    {{ old('payment_status', $sale->payment_status ?? '') == "pending" ? 'selected' : '' }}>
+                                    {{ request('payment_status') == 'pending' ? 'selected' : '' }}>
                                     Pending</option>
                                 <option value="confirmed"
-                                    {{ old('payment_status', $sale->payment_status ?? '') == "confirmed" ? 'selected' : '' }}>
+                                    {{ request('payment_status') == 'confirmed' ? 'selected' : '' }}>
                                     Paid</option>
 
                             </select>
@@ -697,6 +728,7 @@ html {
 
                             </select>
                         </div>
+                        @endunless
 
                         <!-- Buttons -->
                         <div class="col-lg-6 col-md-9 d-flex flex-wrap gap-2">
@@ -730,15 +762,15 @@ html {
                         <th scope="col">Customer Name</th>
                         <th scope="col">Customer Address</th>
                         @if(isset($isFarmCareAdvisor))
-                        <th scope="col">Farm Care Advisor</th>
+                        <th scope="col">Sales Person</th>
                         @endif
                         <th scope="col">Franchise</th>
                         {{-- Sales Amount --}}
                         <th scope="col" class="text-end">Sales Total</th>
                         <th scope="col">Payment Image</th>
+                        <th scope="col">Approval Status</th>
                         <th scope="col">Payment Status</th>
                         <th scope="col">Order Status</th>
-                        <th scope="col">Approval Status</th>
                         @canany([ 'sales-orders.edit', 'sales-orders.delete'])
                         <th scope="col">Actions</th>
                         @endcanany
@@ -761,8 +793,9 @@ html {
                         <td>
                             <div class="d-flex align-items-center">
                                 <div>
-                                    <h6 class="mb-0 fw-semibold">{{ $sale->employee?->c_employee_name ?? 'N/A' }}</h6>
-                                    <span class="fs-2 text-muted">{{ $sale->employee?->c_employee_code ?? '' }}</span>
+                                    @php $salesPerson = $sale->employee ?? $creatorMap->get($sale->created_by); @endphp
+                                    <h6 class="mb-0 fw-semibold">{{ $salesPerson?->c_employee_name ?? 'N/A' }}</h6>
+                                    <span class="fs-2 text-muted">{{ $salesPerson?->c_employee_code ?? '' }}</span>
                                 </div>
                             </div>
                         </td>
@@ -780,15 +813,53 @@ html {
                         </td>
                         <td>
                             @if($sale->payment_image)
-                            <a href="{{ route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) }}" target="_blank">
-                                <img src="{{ route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]) }}" width="50"
-                                    height="50"
-                                    style="object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0;">
-                            </a>
+                            @php
+                                $payImgUrl = route('admin.salesorders.proof', ['type' => 'payment_images', 'filename' => $sale->payment_image]);
+                            @endphp
+                            <img src="{{ $payImgUrl }}" data-src="{{ $payImgUrl }}"
+                                class="payment-thumb" alt="Payment Proof"
+                                data-bs-toggle="modal" data-bs-target="#paymentImageModal"
+                                width="50" height="50"
+                                style="object-fit: cover; border-radius: 6px; cursor: zoom-in; border: 1px solid #e2e8f0;">
                             @else
                             <span class="text-muted">No Image</span>
                             @endif
                         </td>
+                        <td>
+                            @if(!empty($isOfficeAdmin))
+                                @php
+                                $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
+                                @endphp
+
+                                <button type="button"
+                                    class="btn btn-sm
+                                        badge-status  {{ strtolower($approvalStatus) === 'approved' ? 'approved' :
+                                        (strtolower($approvalStatus) === 'rejected' ? 'rejected' : 'pending') }}"
+                                    data-id="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}"
+                                    data-status="{{ $approvalStatus }}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#approveModal"
+                                    onclick="openStatusPopup(this)">
+                                    {{ ucfirst($approvalStatus ?? 'Pending') }}
+                                </button>
+
+
+                            @else
+
+                                @php
+                                $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
+                                @endphp
+                                @if($approvalStatus == 'approved')
+                                <span class="badge-status approved">Approved</span>
+                                @elseif($approvalStatus == 'rejected')
+                                <span class="badge-status rejected">Rejected</span>
+                                @else
+                                <span class="badge-status pending">Pending</span>
+                                @endif
+
+                            @endif
+                        </td>
+
                         <td>
                             @php
                             $status = strtolower($sale->payment_status ?? 'pending');
@@ -846,41 +917,6 @@ html {
                                 <span class="badge-status returned">Returned</span>
 
                                 @elseif($status == 'pending')
-                                <span class="badge-status pending">Pending</span>
-                                @endif
-
-                            @endif
-                        </td>
-
-                        <td>
-                            @if(!empty($isOfficeAdmin))
-                                @php
-                                $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
-                                @endphp
-
-                                <button type="button"
-                                    class="btn btn-sm
-                                        badge-status  {{ strtolower($approvalStatus) === 'approved' ? 'approved' :
-                                        (strtolower($approvalStatus) === 'rejected' ? 'rejected' : 'pending') }}"
-                                    data-id="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}"
-                                    data-status="{{ $approvalStatus }}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#approveModal"
-                                    onclick="openStatusPopup(this)">
-                                    {{ ucfirst($approvalStatus ?? 'Pending') }}
-                                </button>
-
-
-                            @else
-
-                                @php
-                                $approvalStatus = strtolower($sale->approval?->status ?? 'pending');
-                                @endphp
-                                @if($approvalStatus == 'approved')
-                                <span class="badge-status approved">Approved</span>
-                                @elseif($approvalStatus == 'rejected')
-                                <span class="badge-status rejected">Rejected</span>
-                                @else
                                 <span class="badge-status pending">Pending</span>
                                 @endif
 
@@ -950,6 +986,22 @@ html {
     </div>
 </div>
 
+<!-- Payment Proof Popup -->
+<div class="modal fade" id="paymentImageModal" tabindex="-1" aria-labelledby="paymentImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border:0;border-radius:14px;overflow:hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1b6b49, #0e3d26);">
+                <h5 class="modal-title text-white" id="paymentImageModalLabel">Payment Proof</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="paymentImageFull" src="" alt="Payment Proof" class="img-fluid"
+                    style="max-height:75vh; object-fit:contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Follow-up Modal -->
 <div class="modal fade" id="salesUpdateModal" tabindex="-1" aria-labelledby="salesUpdateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -977,48 +1029,6 @@ html {
                             <label class="form-label">Order Update Date</label>
                             <input type="date" name="d_followup_date" class="form-control" required>
                         </div>
-
-                        {{-- @if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor != true) --}}
-                        {{-- <div class="col-md-6 mb-3">
-                            <label class="form-label">Follow-up Type</label>
-                            <select name="followup_type" class="form-select" required>
-                                <option value="">Select</option>
-                                <option value="Phone Call">Phone Call</option>
-                                <option value="WhatsApp">WhatsApp</option>
-                                <option value="Site Visit">Site Visit</option>
-                            </select>
-                        </div> --}}
-
-                        {{-- <div class="col-md-6 mb-3">
-
-
-
-                            <label class="form-label">Order Status</label>
-                            <select name="c_order_status" class="form-select" required>
-                                <option value="">Select Status</option>
-
-
-                                @if(isset($sale) && $sale->c_mode_of_payment != "Paid to Franchise")
-                                    @php
-                                        $status = strtolower($sale->current_order_status ?? 'pending');
-                                    @endphp
-                                    @if(!in_array($status, ['cancelled','returned','completed','delivered','shipped']))
-                                    <option value="dispatched">Dispatched</option>
-                                    @elseif(!in_array($status, ['cancelled','returned','completed','delivered']))
-                                    <option value="shipped">Shipped</option>
-                                    @elseif(!in_array($status, ['cancelled','returned','completed']))
-                                    <option value="delivered">Delivered</option>
-                                    @endif
-                                @endif
-                                @if(!in_array($status, ['cancelled','returned']))
-                                    <option value="completed">Completed</option>
-                                @elseif(!in_array($status, ['returned']))
-                                    <option value="cancelled">Cancelled</option>
-                                @else
-                                    <option value="returned">Returned</option>
-                                @endif
-                            </select>
-                        </div> --}}
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Order Status</label>
@@ -1155,6 +1165,15 @@ html {
 
 <script>
     $(document).ready(function () {
+
+        // Payment proof popup: load the clicked thumbnail into the modal
+        $(document).on('click', '.payment-thumb', function () {
+            $('#paymentImageFull').attr('src', this.dataset.src || this.src);
+        });
+
+        $('#paymentImageModal').on('hidden.bs.modal', function () {
+            $('#paymentImageFull').attr('src', '');
+        });
 
         $(document).on('click', '.sales-update-btn', function () {
 
@@ -1373,8 +1392,6 @@ html {
             const salesNumber = $(button).data('id');
 
             $('.n_sale_id').val(salesNumber);
-
-            console.log('Sales ID:', salesNumber);
         });
 
     });

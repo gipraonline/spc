@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 
 class DesignationController extends Controller
 {
-    /** Level is never typed in: it is the parent's level + 1 (top of chart = 1). */
+    /** Default level when none is typed: parent's level + 1 (top of chart = 1). */
     private function levelFor(?int $parentId): int
     {
         return $parentId
@@ -21,14 +21,64 @@ class DesignationController extends Controller
             : 1;
     }
 
-    /** When a designation moves, push the new levels down to everything under it. */
-    private function cascadeLevels(DesignationMaster $designation): void
+    /** Tidy a typed identifier: UPPER_CASE, letters/digits/underscores only. */
+    private function normalizeIdentifier(?string $value): string
     {
-        $children = DesignationMaster::where('parent_designation_id', $designation->n_designation_id)->get();
+        $value = strtoupper(preg_replace('/[^A-Za-z0-9]+/', '_', trim((string) $value)));
 
-        foreach ($children as $child) {
-            $child->update(['hierarchy_level' => $designation->hierarchy_level + 1]);
-            $this->cascadeLevels($child);
+        return trim($value, '_');
+    }
+
+    /**
+     * Build a unique identifier from the designation name.
+     *   "Senior Manager" -> SM        "Chairman" -> CHAIRMAN
+     * If taken, a number is appended: SM, SM_2, SM_3 ...
+     */
+    private function generateIdentifier(string $name, ?int $ignoreId = null): string
+    {
+        $words = preg_split('/[^A-Za-z0-9]+/', trim($name), -1, PREG_SPLIT_NO_EMPTY);
+
+        if (! $words) {
+            $base = 'DESG';
+        } elseif (count($words) === 1) {
+            $base = strtoupper($words[0]);
+        } else {
+            $base = strtoupper(implode('', array_map(fn ($w) => $w[0], $words)));
+        }
+
+        $base = substr($base, 0, 40);
+        $candidate = $base;
+        $i = 2;
+
+        while (
+            DesignationMaster::where('identifier', $candidate)
+                ->when($ignoreId, fn ($q) => $q->where('n_designation_id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $candidate = $base . '_' . $i++;
+        }
+
+        return $candidate;
+    }
+
+    /**
+     * When a designation's level changes by N, move everything under it by N
+     * too. This keeps the gaps between levels exactly as HR set them instead of
+     * flattening every child to parent + 1.
+     */
+    private function shiftDescendantLevels(DesignationMaster $designation, int $delta): void
+    {
+        if ($delta === 0) {
+            return;
+        }
+
+        $ids = $designation->descendantIds();
+        if (! $ids) {
+            return;
+        }
+
+        foreach (DesignationMaster::whereIn('n_designation_id', $ids)->get() as $child) {
+            $child->update(['hierarchy_level' => max(0, (int) $child->hierarchy_level + $delta)]);
         }
     }
 
@@ -84,11 +134,22 @@ class DesignationController extends Controller
             $d->n_designation_id => $deptByTitle[mb_strtolower(trim($d->c_designation))] ?? null,
         ]);
 
-        return view('admin.designations.create', compact('parentOptions', 'hrDepartments', 'parentDepartments'));
+        // Identifiers already in use, so the form can suggest a free one live.
+        $existingIdentifiers = DesignationMaster::whereNotNull('identifier')
+            ->pluck('identifier')
+            ->map(fn ($i) => strtoupper($i))
+            ->values();
+
+        return view('admin.designations.create', compact(
+            'parentOptions', 'hrDepartments', 'parentDepartments', 'existingIdentifiers'
+        ));
     }
 
     public function store(Request $request)
     {
+        // Clean the typed identifier first so uniqueness is checked on the final value.
+        $request->merge(['identifier' => $this->normalizeIdentifier($request->input('identifier'))]);
+
         $validated = $request->validate([
             'c_designation' => [
                 'required',
@@ -101,16 +162,17 @@ class DesignationController extends Controller
             ],
             // Optional: HR department the matching HR designation is filed under.
             'department_id' => 'nullable|integer|exists:spc_hr.departments,id',
+            // Left blank -> generated from the name below.
             'identifier' => [
-                'required',
+                'nullable',
                 'string',
                 'max:50',
                 'unique:designation_masters,identifier',
             ],
-            // hierarchy_level is no longer entered by hand — it is worked out
-            // from "Reports To" below. Several designations can share a level
-            // (e.g. GM, HR Manager, Finance and Marketing Manager are Level 5);
-            // parent_designation_id pins each one to its spot in the org chart.
+            // Optional: if left blank it is parent's level + 1. Several
+            // designations can share a level; parent_designation_id pins each
+            // one to its spot in the org chart.
+            'hierarchy_level' => 'nullable|integer|min:0|max:50',
             'parent_designation_id' => 'nullable|exists:designation_masters,n_designation_id',
 
             'c_status' => 'required|in:Y,N',
@@ -119,8 +181,9 @@ class DesignationController extends Controller
             'c_designation.max' => 'Designation must not exceed 30 characters.',
             'c_designation.unique' => 'This designation already exists.',
             'c_designation.regex' => 'Only letters, spaces, & and / are allowed.',
-            'identifier.required' => 'Identifier is required.',
             'identifier.unique' => 'This identifier already exists.',
+            'hierarchy_level.integer' => 'Hierarchy level must be a whole number.',
+            'hierarchy_level.min' => 'Hierarchy level cannot be negative.',
             'parent_designation_id.exists' => 'Please select a valid reporting designation.',
             'c_status.required' => 'Please select a Status.',
         ]);
@@ -128,7 +191,13 @@ class DesignationController extends Controller
         $departmentId = $validated['department_id'] ?? null;
         unset($validated['department_id']);
 
-        $validated['hierarchy_level'] = $this->levelFor($validated['parent_designation_id'] ?? null);
+        if (($validated['identifier'] ?? '') === '') {
+            $validated['identifier'] = $this->generateIdentifier($validated['c_designation']);
+        }
+
+        if (! isset($validated['hierarchy_level']) || $validated['hierarchy_level'] === '') {
+            $validated['hierarchy_level'] = $this->levelFor($validated['parent_designation_id'] ?? null);
+        }
 
         $master = DesignationMaster::create($validated);
 
@@ -168,8 +237,18 @@ class DesignationController extends Controller
 
     public function update(Request $request, DesignationMaster $designation)
     {
+        $request->merge(['identifier' => $this->normalizeIdentifier($request->input('identifier'))]);
+
         $validated = $request->validate([
             'c_designation' => 'required|string|unique:designation_masters,c_designation,'.$designation->n_designation_id.',n_designation_id',
+            'identifier' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('designation_masters', 'identifier')
+                    ->ignore($designation->n_designation_id, 'n_designation_id'),
+            ],
+            'hierarchy_level' => 'required|integer|min:0|max:50',
             'parent_designation_id' => [
                 'nullable',
                 'exists:designation_masters,n_designation_id',
@@ -179,19 +258,24 @@ class DesignationController extends Controller
             'dashboard_cards' => 'nullable|array',
             'dashboard_cards.*' => ['string', Rule::in(array_keys(DashboardCardVisibility::catalog()))],
         ], [
+            'identifier.required' => 'Identifier is required.',
+            'identifier.unique' => 'This identifier already exists.',
+            'hierarchy_level.required' => 'Hierarchy level is required.',
+            'hierarchy_level.integer' => 'Hierarchy level must be a whole number.',
+            'hierarchy_level.min' => 'Hierarchy level cannot be negative.',
             'parent_designation_id.not_in' => 'A designation cannot report to itself or one of its own subordinates.',
         ]);
 
         $oldTitle = $designation->c_designation;
+        $oldLevel = (int) $designation->hierarchy_level;
 
         $cards = $validated['dashboard_cards'] ?? [];
         unset($validated['dashboard_cards']);
 
-        // Level follows the chosen parent; sub-designations follow in turn.
-        $validated['hierarchy_level'] = $this->levelFor($validated['parent_designation_id'] ?? null);
-
         $designation->update($validated);
-        $this->cascadeLevels($designation->fresh());
+
+        // Everything below moves up/down by the same amount this one did.
+        $this->shiftDescendantLevels($designation->fresh(), (int) $validated['hierarchy_level'] - $oldLevel);
 
         // Only touch card settings when the form actually carried that section.
         if ($request->boolean('dashboard_cards_present')) {

@@ -802,26 +802,53 @@ html {
 
                         <td>
                             @php
-                            $status = strtolower($sale->current_order_status ?? 'pending');
+                                $status = strtolower($sale->current_order_status ?? 'pending');
                             @endphp
+                            @if(!empty($isOfficeAdmin))
+                                @can('sales-orders.follow-up')
+                                            <!--Follow-up Button-->
+                                            <button type="button"
+                                                class="badge-status sales-update-btn {{ strtolower($status) === 'approved' ? 'approved' :
+                                                    (strtolower($status) === 'rejected' ? 'rejected' :
+                                                    (strtolower($status) === 'dispatched' ? 'dispatched' :
+                                                    (strtolower($status) === 'shipped' ? 'shipped' :
+                                                    (strtolower($status) === 'delivered' ? 'delivered' :
+                                                    (strtolower($status) === 'completed' ? 'completed' :
+                                                    (strtolower($status) === 'returned' ? 'returned' : 'pending'
 
-                            @if($status == 'approved' )
-                            <span class="badge-status approved">Order Approved</span>
-                            @elseif($status == 'rejected')
-                            <span class="badge-status rejected">Rejected</span>
-                            @elseif($status == 'dispatched')
-                            <span class="badge-status dispatched">Dispatched</span>
-                            @elseif($status == 'shipped')
-                            <span class="badge-status shipped">Shipped</span>
-                            @elseif($status == 'delivered')
-                            <span class="badge-status delivered">Delivered</span>
-                            @elseif($status == 'completed')
-                            <span class="badge-status completed">Completed</span>
-                            @elseif($status == 'returned')
-                            <span class="badge-status returned">Returned</span>
+                                                    )))))) }}"
+                                                data-status="{{ $status }}"
+                                                data-bs-toggle="modal" data-bs-target="#salesUpdateModal"
+                                                data-id="{{ Crypt::encryptString($sale->n_sl_no) }}"
+                                                data-payment="{{ $sale->c_mode_of_payment }}">
+                                                <i class="ti ti-pencil"></i>
+                                                {{ ucfirst($status ?? 'Pending') }}
+                                            </button>
 
-                            @elseif($status == 'pending')
-                            <span class="badge-status pending">Pending</span>
+                                @endcan
+                            @else
+
+
+
+                                @if($status == 'approved' )
+                                <span class="badge-status approved">Order Approved</span>
+                                @elseif($status == 'rejected')
+                                <span class="badge-status rejected">Rejected</span>
+                                @elseif($status == 'dispatched')
+                                <span class="badge-status dispatched">Dispatched</span>
+                                @elseif($status == 'shipped')
+                                <span class="badge-status shipped">Shipped</span>
+                                @elseif($status == 'delivered')
+                                <span class="badge-status delivered">Delivered</span>
+                                @elseif($status == 'completed')
+                                <span class="badge-status completed">Completed</span>
+                                @elseif($status == 'returned')
+                                <span class="badge-status returned">Returned</span>
+
+                                @elseif($status == 'pending')
+                                <span class="badge-status pending">Pending</span>
+                                @endif
+
                             @endif
                         </td>
 
@@ -833,7 +860,7 @@ html {
 
                                 <button type="button"
                                     class="btn btn-sm
-                                        badge-status {{ strtolower($approvalStatus) === 'approved' ? 'approved' :
+                                        badge-status  {{ strtolower($approvalStatus) === 'approved' ? 'approved' :
                                         (strtolower($approvalStatus) === 'rejected' ? 'rejected' : 'pending') }}"
                                     data-id="{{ Crypt::encryptString(isset($sale) && $sale->n_sl_no ? $sale->n_sl_no : '') }}"
                                     data-status="{{ $approvalStatus }}"
@@ -900,20 +927,7 @@ html {
                                         </form>
                                         @endcan
                                     </li>
-                                    <li>
-                                        @can('sales-orders.follow-up')
-                                        <!--Follow-up Button-->
-                                        <button type="button"
-                                            class="dropdown-item d-flex align-items-center gap-3 salesorder-btn"
-                                            data-bs-toggle="modal" data-bs-target="#salesUpdateModal"
-                                            data-id="{{ Crypt::encryptString($sale->n_sl_no) }}">
 
-                                            <i class="ti ti-pencil"></i>
-                                            Update Order Status
-                                        </button>
-
-                                        @endcan
-                                    </li>
 
                                 </ul>
                             </div>
@@ -964,7 +978,7 @@ html {
                             <input type="date" name="d_followup_date" class="form-control" required>
                         </div>
 
-                        @if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor != true)
+                        {{-- @if(isset($isFarmCareAdvisor) && $isFarmCareAdvisor != true) --}}
                         {{-- <div class="col-md-6 mb-3">
                             <label class="form-label">Follow-up Type</label>
                             <select name="followup_type" class="form-select" required>
@@ -975,7 +989,7 @@ html {
                             </select>
                         </div> --}}
 
-                        <div class="col-md-6 mb-3">
+                        {{-- <div class="col-md-6 mb-3">
 
 
 
@@ -983,17 +997,37 @@ html {
                             <select name="c_order_status" class="form-select" required>
                                 <option value="">Select Status</option>
 
+
                                 @if(isset($sale) && $sale->c_mode_of_payment != "Paid to Franchise")
-                                <option value="dispatched">Dispatched</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
+                                    @php
+                                        $status = strtolower($sale->current_order_status ?? 'pending');
+                                    @endphp
+                                    @if(!in_array($status, ['cancelled','returned','completed','delivered','shipped']))
+                                    <option value="dispatched">Dispatched</option>
+                                    @elseif(!in_array($status, ['cancelled','returned','completed','delivered']))
+                                    <option value="shipped">Shipped</option>
+                                    @elseif(!in_array($status, ['cancelled','returned','completed']))
+                                    <option value="delivered">Delivered</option>
+                                    @endif
                                 @endif
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                                <option value="returned">Returned</option>
+                                @if(!in_array($status, ['cancelled','returned']))
+                                    <option value="completed">Completed</option>
+                                @elseif(!in_array($status, ['returned']))
+                                    <option value="cancelled">Cancelled</option>
+                                @else
+                                    <option value="returned">Returned</option>
+                                @endif
+                            </select>
+                        </div> --}}
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Order Status</label>
+                            <select name="c_order_status" id="sales_order_status"
+                                class="form-select" required>
+                                <option value="">Select Status</option>
                             </select>
                         </div>
-                        @endif
+
 
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Remarks</label>
@@ -1120,6 +1154,77 @@ html {
 
 
 <script>
+    $(document).ready(function () {
+
+        $(document).on('click', '.sales-update-btn', function () {
+
+            const button = this;
+
+            const saleId = button.dataset.id || '';
+            const status = (button.dataset.status || 'pending')
+                .trim()
+                .toLowerCase();
+
+            // Set sales order ID
+            $('#salesUpdateModal .n_sale_id').val(saleId);
+
+            // Reset form fields
+            $('#salesUpdateModal input[name="d_followup_date"]').val('');
+            $('#salesUpdateModal textarea[name="remarks"]').val('');
+
+            // Status dropdown
+            const statusSelect = $('#sales_order_status');
+
+            statusSelect.empty();
+            statusSelect.append(
+                '<option value="">Select Status</option>'
+            );
+
+            // Generate permitted statuses
+            const statuses = [];
+            const paymentMode = button.dataset.payment || '';
+
+            if (paymentMode !== 'Paid to Franchise') {
+
+                if (!['cancelled', 'returned', 'completed', 'delivered', 'shipped'].includes(status)) {
+                    statuses.push('dispatched');
+                }
+
+                if (!['cancelled', 'returned', 'completed', 'delivered'].includes(status)) {
+                    statuses.push('shipped');
+                }
+
+                if (!['cancelled', 'returned', 'completed'].includes(status)) {
+                    statuses.push('delivered');
+                }
+            }
+
+                if (!['cancelled', 'returned'].includes(status)) {
+                    statuses.push('completed');
+                }
+
+                if (!['returned'].includes(status)) {
+                    statuses.push('cancelled');
+                }
+
+                if (status !== 'returned') {
+                    statuses.push('returned');
+                }
+
+                statuses.forEach(function (value) {
+                    statusSelect.append(
+                        $('<option>', {
+                            value: value,
+                            text: value.charAt(0).toUpperCase() + value.slice(1)
+                        })
+                    );
+                });
+
+        });
+
+    });
+
+
     $(document).ready(function () {
 
         window.currentApprovalButton = null;

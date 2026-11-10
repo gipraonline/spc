@@ -50,6 +50,18 @@ class EmployeeController extends Controller
     private const HR_ROLE_IDENTIFIERS = ['HRM', 'HR_TEAM'];
 
     /**
+ * Designations that report to a GROUP of designations. A single
+ * parent_designation_id can't express "any regional team lead", so
+ * FCO / Tele Caller managers are looked up by these identifiers.
+ */
+    private const REGIONAL_TL_IDENTIFIERS = ['KTL', 'TNTL', 'KT', 'ATL', 'TL'];
+
+    private const MANAGER_GROUPS = [
+    'FCO' => self::REGIONAL_TL_IDENTIFIERS,
+    'TC'  => self::REGIONAL_TL_IDENTIFIERS,   // delete this line if Tele Callers should not report to TLs
+    ];
+
+    /**
      * How much of the employee list the signed-in user may see.
      *
      * @return array{0: 'all'|'direct', 1: ?int} mode, and (for 'direct')
@@ -859,32 +871,68 @@ class EmployeeController extends Controller
         }
     }
 
+    // public function getReportingManagers($designationId)
+    // {
+    //     $designation = DesignationMaster::findOrFail($designationId);
+
+    //     /*
+    //      * Reporting managers are now the employees holding the exact
+    //      * parent designation in this designation's own branch of the org
+    //      * chart (parent_designation_id), not just "anyone one hierarchy
+    //      * level up" — which used to pull in people from unrelated
+    //      * branches (e.g. Finance or Marketing) at the same level.
+    //      */
+    //     if (! $designation->parent_designation_id) {
+    //         return response()->json([]);
+    //     }
+
+    //     $reportingEmployees = EmployeeMaster::join(
+    //         'designation_masters',
+    //         'employee_masters.n_designation_id',
+    //         '=',
+    //         'designation_masters.n_designation_id'
+    //     )
+    //         ->where('designation_masters.n_designation_id', $designation->parent_designation_id)
+    //         ->where('employee_masters.c_status', 'Y')
+    //         ->select()
+    //         ->get();
+
+    //     return response()->json($reportingEmployees);
+    // }
     public function getReportingManagers($designationId)
-    {
-        $designation = DesignationMaster::findOrFail($designationId);
+{
+    $designation = DesignationMaster::findOrFail($designationId);
 
-        /*
-         * Reporting managers are now the employees holding the exact
-         * parent designation in this designation's own branch of the org
-         * chart (parent_designation_id), not just "anyone one hierarchy
-         * level up" — which used to pull in people from unrelated
-         * branches (e.g. Finance or Marketing) at the same level.
-         */
-        if (! $designation->parent_designation_id) {
-            return response()->json([]);
-        }
+    // Designations that report to a group of designations (e.g. FCO -> any regional TL)
+    if (isset(self::MANAGER_GROUPS[$designation->identifier])) {
+        $parentIds = DesignationMaster::whereIn('identifier', self::MANAGER_GROUPS[$designation->identifier])
+            ->where('c_status', 'Y')
+            ->pluck('n_designation_id');
+    } elseif ($designation->parent_designation_id) {
+        // Everyone else: the exact parent designation in the org chart
+        $parentIds = collect([$designation->parent_designation_id]);
+    } else {
+        return response()->json([]);
+    }
 
-        $reportingEmployees = EmployeeMaster::join(
+    $reportingEmployees = EmployeeMaster::join(
             'designation_masters',
             'employee_masters.n_designation_id',
             '=',
             'designation_masters.n_designation_id'
         )
-            ->where('designation_masters.n_designation_id', $designation->parent_designation_id)
-            ->where('employee_masters.c_status', 'Y')
-            ->select()
-            ->get();
+        ->whereIn('designation_masters.n_designation_id', $parentIds)
+        ->where('employee_masters.c_status', 'Y')
+        ->whereNull('employee_masters.deleted_at')
+        ->orderBy('designation_masters.c_designation')
+        ->orderBy('employee_masters.c_employee_name')
+        ->select(
+            'employee_masters.n_employee_id',
+            'employee_masters.c_employee_name',
+            'designation_masters.c_designation'
+        )
+        ->get();
 
-        return response()->json($reportingEmployees);
-    }
+    return response()->json($reportingEmployees);
+}
 }

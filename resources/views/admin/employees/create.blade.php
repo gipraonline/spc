@@ -534,7 +534,6 @@ $(document).ready(function() {
 
         let designation = $(this).val();
 
-        console.log(designation);
         // Clear employee code when designation is removed
         if (!designation) {
             $('#c_employee_code').val('');
@@ -557,28 +556,34 @@ $(document).ready(function() {
                 $('#c_employee_code').val('');
             }
         });
+
         // Reporting manager logic
+        // (FCO / Tele Caller load the regional team leads: Kerala, Tamil Nadu,
+        //  Karnataka, Andhra — see EmployeeController::getReportingManagers)
+        $('#reporting_to').html('<option value="">Loading managers...</option>');
+
         $.ajax({
-            url: '/admin/employees/reporting-managers/' + designation,
+            url: "{{ url('/admin/employees/reporting-managers') }}/" + designation,
             type: 'GET',
+            dataType: 'json',
             success: function(data) {
-                $('#reporting_to').empty();
                 let options = '<option value="">Select Reporting Manager</option>';
 
                 $.each(data, function(index, emp) {
-
-                    options += `
-            <option value="${emp.n_employee_id}">
-                ${emp.c_employee_name}
-            </option>
-        `;
-
+                    options += `<option value="${emp.n_employee_id}">
+                        ${emp.c_employee_name}${emp.c_designation ? ' — ' + emp.c_designation : ''}
+                    </option>`;
                 });
 
                 $('#reporting_to').html(options);
+
+                if (!data.length) {
+                    $('#reporting_to').html('<option value="">No reporting managers found</option>');
+                }
             },
             error: function(xhr) {
-                console.log(xhr.responseText);
+                console.error('Reporting managers failed', xhr.status, xhr.responseText);
+                $('#reporting_to').html('<option value="">Could not load managers (' + xhr.status + ')</option>');
             }
         });
 

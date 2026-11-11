@@ -36,6 +36,16 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class SalesController extends Controller
 {
+    /**
+     * All Team Lead role identifiers:
+     *  TL   = generic Team Lead
+     *  KTL  = Kerala TL
+     *  TNTL = Tamil Nadu TL
+     *  ATL  = Andhra TL
+     *  KT   = Karnataka TL
+     */
+    private const TL_ROLES = ['TL', 'KTL', 'TNTL', 'ATL', 'KT'];
+
     private function isFca(): bool
     {
         return Auth::check()
@@ -65,6 +75,14 @@ class SalesController extends Controller
         return Auth::check()
             && Auth::user()->roles()
                 ->where('identifier', 'TC')
+                ->exists();
+    }
+
+    private function isTL(): bool
+    {
+        return Auth::check()
+            && Auth::user()->roles()
+                ->whereIn('identifier', self::TL_ROLES)
                 ->exists();
     }
 
@@ -100,6 +118,9 @@ class SalesController extends Controller
         | FCA:
         |   Own sales only
         |
+        | TL (Kerala / Tamil Nadu / Andhra / Karnataka):
+        |   Own sales + everyone below (FCO, and the FCAs under those FCOs, TCs...)
+        |
         */
 
         $allowedEmployeeIds = null;
@@ -133,7 +154,14 @@ class SalesController extends Controller
             $allowedEmployeeIds = [
                 (int) $user->n_employee_id,
             ];
+        } elseif ($this->isTL()) {
+
+            // Own sales + everyone below the TL (FCO, FCA, TC...)
+            $allowedEmployeeIds = $this->getSubordinateEmployeeIds(
+                (int) $user->n_employee_id
+            );
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -219,32 +247,17 @@ class SalesController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | FCO / FCA/Tele Caller Access Restriction
+        | FCO / FCA / Tele Caller / TL Access Restriction
         |--------------------------------------------------------------------------
         */
 
-       if ($allowedEmployeeIds !== null) {
+        if ($allowedEmployeeIds !== null) {
 
-    $query->where(function ($q) use ($allowedEmployeeIds) {
-        $q->whereIn('sales_orders.created_by', $allowedEmployeeIds)
-          ->orWhereIn('sales_orders.farm_care_advisor_id', $allowedEmployeeIds);
-    });
-}
-
-        /*
-        |--------------------------------------------------------------------------
-        | FCO / FCA Access Restriction
-        |--------------------------------------------------------------------------
-        */
-
-        /*  elseif ($allowedEmployeeIds !== null) {
-
-             $query->whereIn(
-                 'sales_orders.farm_care_advisor_id',
-                 $allowedEmployeeIds
-             );
-         }
- */
+            $query->where(function ($q) use ($allowedEmployeeIds) {
+                $q->whereIn('sales_orders.created_by', $allowedEmployeeIds)
+                    ->orWhereIn('sales_orders.farm_care_advisor_id', $allowedEmployeeIds);
+            });
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -638,11 +651,11 @@ class SalesController extends Controller
 
         if ($allowedEmployeeIds !== null) {
 
-    $countQuery->where(function ($q) use ($allowedEmployeeIds) {
-        $q->whereIn('sales_orders.created_by', $allowedEmployeeIds)
-          ->orWhereIn('sales_orders.farm_care_advisor_id', $allowedEmployeeIds);
-    });
-}
+            $countQuery->where(function ($q) use ($allowedEmployeeIds) {
+                $q->whereIn('sales_orders.created_by', $allowedEmployeeIds)
+                    ->orWhereIn('sales_orders.farm_care_advisor_id', $allowedEmployeeIds);
+            });
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -1075,6 +1088,8 @@ class SalesController extends Controller
         $isAdmin = $is(['SUPER_ADMIN', 'GIPRA_ADMIN']);
         $isTc = $is(['TC']);
         $isOfficeAdmin = $is(['OFFICE_ADMIN']);
+        // Team Lead: generic TL + Kerala / Tamil Nadu / Andhra / Karnataka TL roles
+        $isTl = $is(self::TL_ROLES);
 
         return [
             'isOfficeAdmin' => $isOfficeAdmin,
@@ -1086,6 +1101,7 @@ class SalesController extends Controller
             'isAdminId' => $isAdmin ? $employeeId : null,
             'isTelecaller' => $isTc,
             'isTelecallerId' => $isTc ? $employeeId : null,
+            'isTeamLead' => $isTl,
         ];
     }
 
@@ -1093,7 +1109,7 @@ class SalesController extends Controller
      * Load a (non-deleted) sales order and make sure the logged-in user is
      * allowed to touch it. Mirrors the visibility rules of index():
      *  - FCA / TC : only their own orders
-     *  - FCO      : own orders + orders of everyone below them
+     *  - FCO / TL : own orders + orders of everyone below them
      *  - others   : unrestricted (permissions are enforced by the routes)
      */
     private function findAccessibleOrder(int $id, array $with = []): SalesOrder
@@ -1105,7 +1121,7 @@ class SalesController extends Controller
         $user = Auth::user();
         $employeeId = (int) ($user?->n_employee_id ?? 0);
 
-        if ($this->isFco()) {
+        if ($this->isFco() || $this->isTL()) {
             $allowed = $this->getSubordinateEmployeeIds($employeeId);
         } elseif ($this->isFca() || $this->isTC()) {
             $allowed = [$employeeId];
@@ -1128,10 +1144,14 @@ class SalesController extends Controller
      *  TC                       -> TL-n   (tele caller)
      *  SUPER_ADMIN/GIPRA_ADMIN  -> FS-n   (admin orders)
      *  OFFICE_ADMIN             -> OA-n   (office administration orders)
-     *  FCO / FCA                -> the booklet serial no. typed on the form
+     *  TL roles                -> KTL-n / TTL-n / KRTL-n / ATL-n (no booklet)
+     *  FCO                      -> FCO-n  (no booklet)
+     *  FCA                      -> the booklet serial no. typed on the form
      */
     private function generateOrderNoForUser(?string $typedOrderNo = null): ?string
     {
+
+
         if ($this->isTC()) {
             return SalesOrder::generateTeleOrderNo();
         }
@@ -1140,14 +1160,19 @@ class SalesController extends Controller
             return $typedOrderNo ?: null;
         }
 
-        // FCO types the booklet serial no. on the form (same as FCA)
+        // FCO -> FCO-n (no booklet)
         if ($this->isFco()) {
-            return $typedOrderNo ?: null;
+            return SalesOrder::generateFCOOrderNo();
         }
 
         // Office Administration -> OA-n (marks the sale as added by the office)
         if ($this->isOfficeAdmin()) {
             return SalesOrder::generateOfficeAdminOrderNo();
+        }
+
+        // Team Lead -> KTL-n / TTL-n / KRTL-n / ATL-n by role (TLD-n fallback), no booklet
+        if ($this->isTL()) {
+            return $this->generateTeamLeadOrderNo();
         }
 
         $isAdmin = Auth::user()?->roles()
@@ -1159,6 +1184,51 @@ class SalesController extends Controller
         }
 
         return $typedOrderNo ?: null;
+    }
+
+    /**
+     * Order-number prefix per Team Lead role:
+     *  KTL  (Kerala TL)     -> KTL-n
+     *  TNTL (Tamil Nadu TL) -> TTL-n
+     *  KT   (Karnataka TL)  -> KRTL-n
+     *  ATL  (Andhra TL)     -> ATL-n
+     *  TL   (generic TL)    -> TLD-n (fallback)
+     */
+    private const TL_ORDER_PREFIXES = [
+        'KTL' => 'KTL',
+        'TNTL' => 'TTL',
+        'KT' => 'KRTL',
+        'ATL' => 'ATL',
+    ];
+
+    private function teamLeadOrderPrefix(): string
+    {
+        $identifiers = Auth::user()->roles()->pluck('identifier')->all();
+
+        foreach (self::TL_ORDER_PREFIXES as $role => $prefix) {
+            if (in_array($role, $identifiers, true)) {
+                return $prefix;
+            }
+        }
+
+        return 'TLD';
+    }
+
+    private function generateTeamLeadOrderNo(): string
+    {
+        $prefix = $this->teamLeadOrderPrefix();
+        $numberStart = strlen($prefix) + 2; // SUBSTRING is 1-based: skips "PREFIX-"
+
+        // Called inside the store() transaction, so the row lock prevents duplicate numbers
+        $last = DB::table('sales_orders')
+            ->where('c_order_no', 'like', $prefix.'-%')
+            ->orderByRaw("CAST(SUBSTRING(c_order_no, {$numberStart}) AS UNSIGNED) DESC")
+            ->lockForUpdate()
+            ->value('c_order_no');
+
+        $next = $last ? ((int) substr($last, $numberStart - 1)) + 1 : 1;
+
+        return $prefix.'-'.$next;
     }
 
     public function create()
@@ -1219,14 +1289,16 @@ class SalesController extends Controller
 
         /*
         | Booklet rules
-        | FCA / FCO : sale is added under their own name, with a booklet serial no.
-        |             and a booklet proof image.
-        | An FCO editing a sale that belongs to one of their FCAs only edits the
-        | sale; that sale's advisor / booklet serial / booklet proof stay untouched.
+        | FCA : sale is added under their own name, with a booklet serial no.
+        |       and a booklet proof image.
+        | FCO : no booklet. Order no. is auto-generated (FCO-n); the sale is added
+        |       under the FCO's own name. An FCO editing a sale that belongs to one
+        |       of their FCAs only edits the sale; its advisor / booklet stay untouched.
         */
         $fcoOwnsOrder = $this->isFco()
             && ($existingOrder === null || (int) $existingOrder->created_by === (int) $user->n_employee_id);
-        $typesBooklet = $this->isFca() || $fcoOwnsOrder;
+        // Only the FCA has a booklet. FCO orders are auto-numbered FCO-n, with no booklet.
+        $typesBooklet = $this->isFca();
 
         $isCreatorRoleWithAdvisor = $user && $user->roles()
             ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'FCO', 'FCA'])
@@ -1234,8 +1306,8 @@ class SalesController extends Controller
 
         // Office Administration behaves like Super Admin on this form (Company /
         // Franchise order type) but has no Farm Care Advisor and no booklet proof.
-        $isOfficeAdmin = $this->isOfficeAdmin();
-
+        // Team Leads (all TL roles) are the same: no advisor / booklet.
+        $isOfficeAdmin = $this->isOfficeAdmin() || $this->isTL(); // no advisor / booklet roles
         $isAdminRole = $user && $user->roles()
             ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'OFFICE_ADMIN'])
             ->exists();
@@ -1346,13 +1418,7 @@ class SalesController extends Controller
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:5120',
-                // FCO must upload the booklet proof (unless one is already stored and kept)
-                Rule::requiredIf(
-                    $fcoOwnsOrder
-                    && ($existingOrder === null
-                        || empty($existingOrder->booklet_image)
-                        || $request->input('remove_booklet_image') == '1')
-                ),
+                // No server-side "required": FCO no longer has a booklet; FCA's proof is enforced by the form
             ],
             'remove_booklet_image' => ['nullable', 'in:0,1'],
 
@@ -1426,10 +1492,11 @@ class SalesController extends Controller
 
         $validated = $validator->validated();
 
-        // Office Administration: never an advisor, never a booklet serial / proof,
+        // Office Administration / Team Lead: never an advisor, never a booklet serial / proof,
         // whatever the browser posts.
         // The same goes for an FCO editing a sale that belongs to one of their FCAs.
-        if ($isOfficeAdmin || ($this->isFco() && ! $fcoOwnsOrder)) {
+        // FCO has no booklet at all (own or subordinate's sale), so it is ignored for FCO too.
+        if ($isOfficeAdmin || $this->isFco()) {
             unset($validated['farm_care_advisor_id'], $validated['c_order_no'], $validated['booklet_image']);
             $request->files->remove('booklet_image');
             $request->merge(['remove_booklet_image' => '0']);
@@ -1538,7 +1605,7 @@ class SalesController extends Controller
             |----------------------------------------------------------------------
             */
             if ($existingOrder && $typesBooklet) {
-                // FCA / FCO type the booklet serial number by hand
+                // FCA types the booklet serial number by hand
                 $orderNo = $validated['c_order_no'] ?? $existingOrder->c_order_no;
             } elseif ($existingOrder && ! empty($existingOrder->c_order_no)) {
                 // Never regenerate an existing number

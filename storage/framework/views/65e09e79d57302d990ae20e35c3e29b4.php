@@ -1212,18 +1212,19 @@ unset($__errorArgs, $__bag); ?></div>
                             // ---- Booklet rules by role -------------------------------------------------
                             // FCA : own sales, booklet serial + proof (editable)
                             // FCO : own sales, booklet serial + proof (editable) - advisor = the FCO
-                            // TC / Office Admin : no booklet; Office Admin / FCO can still SEE the
+                            // TC / TL / Office Admin : no booklet; Office Admin / FCO / TL can still SEE the
                             // advisor, booklet serial and proof of an FCA sale (read-only).
                             $__me = (int) auth()->user()->n_employee_id;
                             $__isFca = !empty($isFarmCareAdvisor);
                             $__isFco = !empty($isFarmCareOfficer);
                             $__isOA = !empty($isOfficeAdmin);
                             $__isTc = !empty($isTelecaller);
+                            $__isTl = !empty($isTeamLead); // Team Lead (Kerala / Andhra / Karnataka / Tamil Nadu TL): no booklet
                             $__fcoOwns = $__isFco && (!isset($sale) || (int) $sale->created_by === $__me);
-                            $__bookletUser = $__isFca || $__fcoOwns;
-                            $__legacyRow2 = !$__isTc && !$__isFco && !$__isOA; // admins & other roles (unchanged)
-                            $__hasBookletData = isset($sale) && ($sale->booklet_image || $sale->farm_care_advisor_id);
-                            $__autoNo = isset($sale) && preg_match('/^(TL|FS|OA|FCO)-\d+$/', (string)
+                            $__bookletUser = $__isFca;
+                            $__legacyRow2 = !$__isTc && !$__isFco && !$__isOA && !$__isTl; // admins & other roles (unchanged)
+                            $__hasBookletData = isset($sale) && ($sale->booklet_image || ($sale->farm_care_advisor_id && !$__fcoOwns));
+                            $__autoNo = isset($sale) && preg_match('/^(TL|KTL|TTL|KRTL|ATL|FS|OA|FCO)-\d+$/', (string)
                             $sale->c_order_no);
                             $__showRow2 = $__bookletUser || $__legacyRow2 || (!$__isTc && $__hasBookletData);
                             $__row2Editable = $__bookletUser || $__legacyRow2;

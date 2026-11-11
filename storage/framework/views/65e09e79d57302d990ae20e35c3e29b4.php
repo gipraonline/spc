@@ -819,7 +819,7 @@
         margin-bottom: 2px;
     }
 
-    .so-wrap #productTable tbody td:nth-child(13) {
+    .so-wrap #productTable tbody td:nth-child(12) {
         grid-column: 10 / span 3;
         grid-row: 1;
         flex-direction: row;
@@ -830,73 +830,27 @@
         margin-bottom: 2px;
     }
 
-    .so-wrap #productTable tbody td:nth-child(13)::before {
+    .so-wrap #productTable tbody td:nth-child(12)::before {
         content: "";
         display: none;
     }
 
-    /* Row A – what is being sold */
-    .so-wrap #productTable tbody td:nth-child(1) {
-        grid-column: 1 / span 3;
-        grid-row: 2;
-    }
+    /* Row A: category, sub category, product, pack size */
+    .so-wrap #productTable tbody td:nth-child(1) { grid-column: 1 / span 3;  grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(2) { grid-column: 4 / span 3;  grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(3) { grid-column: 7 / span 3;  grid-row: 2; }
+    .so-wrap #productTable tbody td:nth-child(4) { grid-column: 10 / span 3; grid-row: 2; }
 
-    .so-wrap #productTable tbody td:nth-child(2) {
-        grid-column: 4 / span 3;
-        grid-row: 2;
-    }
+    /* Row B: price, quantity, discount, GST % */
+    .so-wrap #productTable tbody td:nth-child(5) { grid-column: 1 / span 3;  grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(6) { grid-column: 4 / span 3;  grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(7) { grid-column: 7 / span 3;  grid-row: 3; }
+    .so-wrap #productTable tbody td:nth-child(8) { grid-column: 10 / span 3; grid-row: 3; }
 
-    .so-wrap #productTable tbody td:nth-child(3) {
-        grid-column: 7 / span 3;
-        grid-row: 2;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(4) {
-        grid-column: 10 / span 3;
-        grid-row: 2;
-    }
-
-    /* Row B – HSN, price, quantity, discount */
-    .so-wrap #productTable tbody td:nth-child(5) {
-        grid-column: 1 / span 3;
-        grid-row: 3;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(6) {
-        grid-column: 4 / span 3;
-        grid-row: 3;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(7) {
-        grid-column: 7 / span 3;
-        grid-row: 3;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(8) {
-        grid-column: 10 / span 3;
-        grid-row: 3;
-    }
-
-    /* Row C – calculated amounts */
-    .so-wrap #productTable tbody td:nth-child(9) {
-        grid-column: 1 / span 3;
-        grid-row: 4;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(10) {
-        grid-column: 4 / span 3;
-        grid-row: 4;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(11) {
-        grid-column: 7 / span 3;
-        grid-row: 4;
-    }
-
-    .so-wrap #productTable tbody td:nth-child(12) {
-        grid-column: 10 / span 3;
-        grid-row: 4;
-    }
+    /* Row C: GST amount, taxable amount, total */
+    .so-wrap #productTable tbody td:nth-child(9)  { grid-column: 1 / span 3; grid-row: 4; }
+    .so-wrap #productTable tbody td:nth-child(10) { grid-column: 4 / span 3; grid-row: 4; }
+    .so-wrap #productTable tbody td:nth-child(11) { grid-column: 7 / span 3; grid-row: 4; }
 
     /* Auto-filled / calculated fields look muted, editable ones stay white */
     .so-wrap #productTable tbody td input[readonly],
@@ -913,7 +867,7 @@
     }
 
     /* Total stands out */
-    .so-wrap #productTable tbody td:nth-child(12) input {
+    .so-wrap #productTable tbody td:nth-child(11) input {
         font-weight: 700;
         font-size: 15px;
         color: #0e3d26;
@@ -921,7 +875,7 @@
         border-color: #A9CD94;
     }
 
-    .so-wrap #productTable tbody td:nth-child(12)::before {
+    .so-wrap #productTable tbody td:nth-child(11)::before {
         color: #0e3d26;
     }
 }
@@ -1374,7 +1328,6 @@ unset($__errorArgs, $__bag); ?></div>
                                         <th style="min-width: 195px;">Sub Category</th>
                                         <th style="min-width: 220px;">Product *</th>
                                         <th style="min-width: 155px;">Attribute / Pack Size</th>
-                                        
                                         <th style="min-width: 110px;">Price (Excl. GST)</th>
                                         <th style="min-width: 90px;">Quantity *</th>
                                         <th style="min-width: 100px;">Discount</th>
@@ -1484,9 +1437,6 @@ unset($__errorArgs, $__bag); ?></div>
                                             <input type="text" class="form-control" value="<?php echo e($row['c_unit']); ?>"
                                                 readonly>
                                         </td>
-
-                                        <!-- HSN Code -->
-                                       
 
                                         <!-- Price -->
                                         <td>

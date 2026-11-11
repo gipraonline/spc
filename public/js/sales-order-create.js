@@ -78,6 +78,9 @@ var CFG = window.SO_CFG || {};
         /*
         |--------------------------------------------------------------------------
         | Add New Product Row
+        | 12 cells, same order as the table header:
+        | Category, Sub Category, Product, Attribute, Price, Quantity, Discount,
+        | GST %, GST Amount, Taxable Amount, Total, Action
         |--------------------------------------------------------------------------
         */
         $('#addRow').on('click', function() {
@@ -115,48 +118,42 @@ var CFG = window.SO_CFG || {};
                     <input type="hidden" class="n_product_id" name="products[${rowIndex}][product_id]" value=''>
                 </td>
 
-                <!-- 5. HSN Code -->
-                <td>
-                    <input type="text" name="products[${rowIndex}][c_hsn_code]" class="form-control c_hsn_code" value="" readonly>
-                </td>
-
-                <!-- 6. Price (Excl GST) -->
+                <!-- 5. Price (Excl GST) -->
                 <td>
                     <input type="text" name="products[${rowIndex}][product_price]" class="form-control price" value="0.00" readonly>
                 </td>
 
-                <!-- 7. Quantity -->
+                <!-- 6. Quantity -->
                 <td>
                     <input type="number" name="products[${rowIndex}][qty]" class="form-control qty" value="1" min="1">
                 </td>
 
-
-                <!-- 9. Discount -->
+                <!-- 7. Discount -->
                 <td>
                     <input type="number" name="products[${rowIndex}][discount]" class="form-control discount" value="0.00" step="0.01" min="0">
                 </td>
 
-                <!-- 10. GST % -->
+                <!-- 8. GST % -->
                 <td>
                     <input type="number" name="products[${rowIndex}][n_gst_percentage]" class="form-control gst_percentage" value="0.00" step="0.01" readonly>
                 </td>
 
-                <!-- 11. GST Amount -->
+                <!-- 9. GST Amount -->
                 <td>
                     <input type="text" name="products[${rowIndex}][gst_amount]" class="form-control gst_amount" value="0.00" readonly>
                 </td>
 
-                <!-- 12. Discounted / Taxable Price -->
+                <!-- 10. Discounted / Taxable Price -->
                 <td>
                     <input type="text" name="products[${rowIndex}][discounted_price]" class="form-control discounted_price" value="0.00" readonly>
                 </td>
 
-                <!-- 13. Total (MRP) -->
+                <!-- 11. Total (MRP) -->
                 <td>
                     <input type="text" name="products[${rowIndex}][product_total]" class="form-control total" value="0.00" readonly>
                 </td>
 
-                <!-- 14. Action -->
+                <!-- 12. Action -->
                 <td class="text-center">
                     <button type="button" class="btn btn-danger btn-sm removeRow">
                         <i class="ti ti-trash"></i>
@@ -369,8 +366,6 @@ var CFG = window.SO_CFG || {};
 
                         success: function(data) {
 
-                            // Set HSN
-                            row.find('.c_hsn_code').val(data.c_hsn_code);
                             // Set gst percentage
                             row.find('.gst_percentage').val(data.n_gst_percentage);
                             row.find('.n_product_id').val(data.n_product_id);
@@ -466,8 +461,6 @@ var CFG = window.SO_CFG || {};
 
                     success: function(data) {
 
-                        // Set HSN
-                        row.find('.c_hsn_code').val(data.c_hsn_code);
                         // Set gst percentage
                         row.find('.gst_percentage').val(data.n_gst_percentage);
                         row.find('.n_product_id').val(data.n_product_id);
@@ -562,7 +555,6 @@ var CFG = window.SO_CFG || {};
 
         function clearRowPricing(row) {
             row.removeData('mrp');
-            row.find('.c_hsn_code').val('');
             row.find('.price').val('0.00');
             row.find('.c_unit').val('');
             row.find('.discount').val('0.00');
@@ -984,6 +976,11 @@ var CFG = window.SO_CFG || {};
                 }
             });
         }
+
+        $('#n_state_id').on('change', function () {
+    $('#n_district_id').html('<option value="">Select District</option>');
+    districtFilter(this.value);
+});
     });
 
 ;

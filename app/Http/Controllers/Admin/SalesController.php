@@ -37,14 +37,12 @@ use Maatwebsite\Excel\Facades\Excel;
 class SalesController extends Controller
 {
     /**
-     * All Team Lead role identifiers:
-     *  TL   = generic Team Lead
-     *  KTL  = Kerala TL
-     *  TNTL = Tamil Nadu TL
-     *  ATL  = Andhra TL
-     *  KT   = Karnataka TL
+     * Team Lead role identifier.
+     * Every Team Lead (Kerala, Tamil Nadu, Andhra, Karnataka and any future state)
+     * holds the single "TL" role. The state is told apart by the employee's
+     * designation (Kerala TL, Tamil Nadu TL, ...), which drives the order-number prefix.
      */
-    private const TL_ROLES = ['TL', 'KTL', 'TNTL', 'ATL', 'KT'];
+    private const TL_ROLES = ['TL'];
 
     private function isFca(): bool
     {
@@ -118,7 +116,7 @@ class SalesController extends Controller
         | FCA:
         |   Own sales only
         |
-        | TL (Kerala / Tamil Nadu / Andhra / Karnataka):
+        | TL (all states, single TL role):
         |   Own sales + everyone below (FCO, and the FCAs under those FCOs, TCs...)
         |
         */
@@ -1088,7 +1086,7 @@ class SalesController extends Controller
         $isAdmin = $is(['SUPER_ADMIN', 'GIPRA_ADMIN']);
         $isTc = $is(['TC']);
         $isOfficeAdmin = $is(['OFFICE_ADMIN']);
-        // Team Lead: generic TL + Kerala / Tamil Nadu / Andhra / Karnataka TL roles
+        // Team Lead: single TL role (all states)
         $isTl = $is(self::TL_ROLES);
 
         return [
@@ -1144,7 +1142,7 @@ class SalesController extends Controller
      *  TC                       -> TL-n   (tele caller)
      *  SUPER_ADMIN/GIPRA_ADMIN  -> FS-n   (admin orders)
      *  OFFICE_ADMIN             -> OA-n   (office administration orders)
-     *  TL roles                -> KTL-n / TTL-n / KRTL-n / ATL-n (no booklet)
+     *  TL roles                 -> <designation identifier>D<n>, e.g. KTLD0 / TNTLD0 (no booklet)
      *  FCO                      -> FCO-n  (no booklet)
      *  FCA                      -> the booklet serial no. typed on the form
      */
@@ -1170,7 +1168,7 @@ class SalesController extends Controller
             return SalesOrder::generateOfficeAdminOrderNo();
         }
 
-        // Team Lead -> KTL-n / TTL-n / KRTL-n / ATL-n by role (TLD-n fallback), no booklet
+        // Team Lead -> <designation identifier>D<n> (KTLD0, TNTLD0, ...), no booklet
         if ($this->isTL()) {
             return $this->generateTeamLeadOrderNo();
         }
@@ -1187,48 +1185,40 @@ class SalesController extends Controller
     }
 
     /**
-     * Order-number prefix per Team Lead role:
-     *  KTL  (Kerala TL)     -> KTL-n
-     *  TNTL (Tamil Nadu TL) -> TTL-n
-     *  KT   (Karnataka TL)  -> KRTL-n
-     *  ATL  (Andhra TL)     -> ATL-n
-     *  TL   (generic TL)    -> TLD-n (fallback)
+     * Order-number prefix for a Team Lead, built from the TL's designation
+     * identifier + "D". Each state has its own TL designation, so the prefix
+     * is dynamic and a new state needs no code change:
+     *  Kerala TL     (KTL)  -> KTLD   => KTLD0, KTLD1, ...
+     *  Tamil Nadu TL (TNTL) -> TNTLD  => TNTLD0, TNTLD1, ...
+     *  Andhra TL     (ATL)  -> ATLD   => ATLD0, ATLD1, ...
+     *  Karnataka TL  (KT)   -> KTD    => KTD0, KTD1, ...
+     *  generic TL    (TL)   -> TLD    (also the fallback)
      */
-    private const TL_ORDER_PREFIXES = [
-        'KTL' => 'KTL',
-        'TNTL' => 'TTL',
-        'KT' => 'KRTL',
-        'ATL' => 'ATL',
-    ];
-
     private function teamLeadOrderPrefix(): string
     {
-        $identifiers = Auth::user()->roles()->pluck('identifier')->all();
+        $identifier = DB::table('employee_masters as e')
+            ->join('designation_masters as d', 'd.n_designation_id', '=', 'e.n_designation_id')
+            ->where('e.n_employee_id', Auth::user()->n_employee_id)
+            ->value('d.identifier');
 
-        foreach (self::TL_ORDER_PREFIXES as $role => $prefix) {
-            if (in_array($role, $identifiers, true)) {
-                return $prefix;
-            }
-        }
-
-        return 'TLD';
+        return preg_replace('/[^A-Z0-9]/', '', strtoupper($identifier ?: 'TL')).'D';
     }
 
     private function generateTeamLeadOrderNo(): string
     {
         $prefix = $this->teamLeadOrderPrefix();
-        $numberStart = strlen($prefix) + 2; // SUBSTRING is 1-based: skips "PREFIX-"
+        $numberStart = strlen($prefix) + 1; // SUBSTRING is 1-based: skips the prefix
 
-        // Called inside the store() transaction, so the row lock prevents duplicate numbers
+        // Called inside the store() transaction, so the row lock prevents duplicate numbers.
+        // The anchored REGEXP keeps one state's counter from mixing with another's (KTLD vs TNTLD).
         $last = DB::table('sales_orders')
-            ->where('c_order_no', 'like', $prefix.'-%')
+            ->whereRaw('c_order_no REGEXP ?', ['^'.$prefix.'[0-9]+$'])
             ->orderByRaw("CAST(SUBSTRING(c_order_no, {$numberStart}) AS UNSIGNED) DESC")
             ->lockForUpdate()
             ->value('c_order_no');
 
-        $next = $last ? ((int) substr($last, $numberStart - 1)) + 1 : 1;
-
-        return $prefix.'-'.$next;
+        // Numbering starts at 0 (KTLD0, KTLD1, ...)
+        return $prefix.($last ? ((int) substr($last, strlen($prefix))) + 1 : 0);
     }
 
     public function create()

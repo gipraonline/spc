@@ -984,6 +984,11 @@ var CFG = window.SO_CFG || {};
                 }
             });
         }
+
+        $('#n_state_id').on('change', function () {
+    $('#n_district_id').html('<option value="">Select District</option>');
+    districtFilter(this.value);
+});
     });
 
 ;

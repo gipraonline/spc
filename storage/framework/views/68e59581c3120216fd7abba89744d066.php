@@ -516,6 +516,44 @@ html {
 
     $activeStatus = $requestedStatus ?? '';
 
+    // Quick date filters: Today / This Week (Mon-Sun) / This Month.
+    // They set From Date + To Date and keep every other filter (search, payment, status...).
+    $quickRanges = [
+        'today' => [
+            'label' => 'Today',
+            'icon'  => 'ti-calendar-event',
+            'from'  => now()->startOfDay(),
+            'to'    => now()->endOfDay(),
+        ],
+        'week' => [
+            'label' => 'This Week',
+            'icon'  => 'ti-calendar-week',
+            'from'  => now()->startOfWeek(),
+            'to'    => now()->endOfWeek(),
+        ],
+        'month' => [
+            'label' => 'This Month',
+            'icon'  => 'ti-calendar-month',
+            'from'  => now()->startOfMonth(),
+            'to'    => now()->endOfMonth(),
+        ],
+    ];
+
+    foreach ($quickRanges as $qKey => $qRange) {
+        $qFrom = $qRange['from']->format('Y-m-d');
+        $qTo = $qRange['to']->format('Y-m-d');
+
+        $quickRanges[$qKey]['title'] = $qRange['from']->format('d M Y') . ' - ' . $qRange['to']->format('d M Y');
+        $quickRanges[$qKey]['active'] = request('start_date') === $qFrom && request('end_date') === $qTo;
+        $quickRanges[$qKey]['url'] = route(
+            'admin.salesorders.index',
+            array_merge(
+                request()->except(['page', 'export', 'date', 'start_date', 'end_date']),
+                ['start_date' => $qFrom, 'end_date' => $qTo]
+            )
+        ) . '#sales-table';
+    }
+
     // Telecaller / FCO / FCA do not get the Search (sales person), Payment Status & Order Status filters
     $hideStatusFilters = !empty($isTelecaller) || !empty($isFarmCareOfficer) || !empty($isFarmCareAdvisor);
 
@@ -731,6 +769,18 @@ html {
 
                         <!-- Buttons -->
                         <div class="col-lg-6 col-md-9 d-flex flex-wrap gap-2">
+                            <?php $__currentLoopData = $quickRanges; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $quick): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <a href="<?php echo e($quick['url']); ?>"
+                                class="btn text-nowrap px-4 d-inline-flex align-items-center"
+                                title="<?php echo e($quick['title']); ?>"
+                                style="font-weight:600;<?php echo e($quick['active']
+                                    ? 'background:#1F5C2E;color:#fff;border:1.5px solid #1F5C2E;'
+                                    : 'background:#fff;color:#1F5C2E;border:1.5px solid #5E8D3D;'); ?>">
+                                <i class="ti <?php echo e($quick['icon']); ?> me-1"
+                                    style="<?php echo e($quick['active'] ? 'color:#fff;' : 'color:#5E8D3D;'); ?>"></i><?php echo e($quick['label']); ?>
+
+                            </a>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             <button class="btn buttonSpc px-4 text-nowrap">
                                 <i class="ti ti-filter me-1"></i>Filter Report
                             </button>

@@ -267,22 +267,7 @@ class SalesController extends Controller
 
             $search = trim($request->search);
 
-            $query->whereHas('employee', function ($q) use ($search) {
-
-                $q->where(function ($sub) use ($search) {
-
-                    $sub->where(
-                        'c_employee_name',
-                        'like',
-                        "%{$search}%"
-                    )
-                        ->orWhere(
-                            'c_employee_code',
-                            'like',
-                            "%{$search}%"
-                        );
-                });
-            });
+            $this->applySalesPersonSearch($query, $search);
         }
 
         /*
@@ -665,22 +650,7 @@ class SalesController extends Controller
 
             $search = trim($request->search);
 
-            $countQuery->whereHas('employee', function ($q) use ($search) {
-
-                $q->where(function ($sub) use ($search) {
-
-                    $sub->where(
-                        'c_employee_name',
-                        'like',
-                        "%{$search}%"
-                    )
-                        ->orWhere(
-                            'c_employee_code',
-                            'like',
-                            "%{$search}%"
-                        );
-                });
-            });
+            $this->applySalesPersonSearch($countQuery, $search);
         }
 
         /*
@@ -987,6 +957,31 @@ class SalesController extends Controller
         }
 
         return array_unique($employeeIds);
+    }
+
+    /**
+     * "Search" box on the Sales Orders list: match the sales person by name / code.
+     * The sales person is the advisor on the order, or - when the order has no
+     * advisor (Team Lead / Telecaller / FCO / Office Admin orders) - the employee
+     * who created it. Searching therefore looks at BOTH columns, so a Team Lead
+     * can find their own sales and every team member's sales.
+     * (Visibility is still limited separately by the allowed-employee filter.)
+     */
+    private function applySalesPersonSearch($query, string $search): void
+    {
+        $matchedIds = EmployeeMaster::query()
+            ->whereNull('deleted_at')
+            ->where(function ($q) use ($search) {
+                $q->where('c_employee_name', 'like', "%{$search}%")
+                    ->orWhere('c_employee_code', 'like', "%{$search}%");
+            })
+            ->pluck('n_employee_id')
+            ->all();
+
+        $query->where(function ($q) use ($matchedIds) {
+            $q->whereIn('sales_orders.farm_care_advisor_id', $matchedIds)
+                ->orWhereIn('sales_orders.created_by', $matchedIds);
+        });
     }
 
     /**
@@ -2136,6 +2131,59 @@ class SalesController extends Controller
         return response()->json([
             'products' => $products,
         ]);
+    }
+
+    /**
+     * Product quick-search for the Sales Order form.
+     * Matches product name / code and returns the product together with its
+     * sub category and parent category, so the form can auto-fill them.
+     * One result per product name inside a sub category (same grouping and
+     * MIN(n_product_id) value that getProducts() uses for the Product dropdown).
+     */
+    public function searchProducts(Request $request)
+    {
+        $term = trim((string) $request->query('q', ''));
+
+        if (mb_strlen($term) < 2) {
+            return response()->json(['products' => []]);
+        }
+
+        $like = '%'.addcslashes($term, '\\%_').'%';
+
+        $products = DB::table('product_masters as p')
+            ->join('category_masters as sc', 'sc.n_category_id', '=', 'p.n_category_id')
+            ->join('category_masters as c', 'c.n_category_id', '=', 'sc.n_parent_category_id')
+            ->where('p.c_status', 'Y')
+            ->where('sc.c_status', 'Y')
+            ->where('c.c_status', 'Y')
+            ->whereNull('p.deleted_at')
+            ->whereNull('sc.deleted_at')
+            ->whereNull('c.deleted_at')
+            ->where(function ($q) use ($like) {
+                $q->where('p.c_product_name', 'like', $like)
+                    ->orWhere('p.c_product_code', 'like', $like);
+            })
+            ->selectRaw("
+                MIN(p.n_product_id) AS product_id,
+                p.c_product_name AS product_name,
+                sc.n_category_id AS sub_category_id,
+                sc.c_category_name AS sub_category_name,
+                c.n_category_id AS category_id,
+                c.c_category_name AS category_name,
+                GROUP_CONCAT(DISTINCT NULLIF(p.c_unit, '') ORDER BY p.c_unit SEPARATOR ', ') AS units
+            ")
+            ->groupBy(
+                'p.c_product_name',
+                'sc.n_category_id',
+                'sc.c_category_name',
+                'c.n_category_id',
+                'c.c_category_name'
+            )
+            ->orderBy('p.c_product_name')
+            ->limit(15)
+            ->get();
+
+        return response()->json(['products' => $products]);
     }
 
     public function getAttributesFromProductname(Request $request, $productId)

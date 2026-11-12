@@ -1247,3 +1247,213 @@ var CFG = window.SO_CFG || {};
             timer = setTimeout(processFranchise, 800);
         });
     });
+
+/*
+|--------------------------------------------------------------------------
+| Product quick search
+| Finds a product by name / code and auto-fills Category, Sub Category,
+| Product and Pack Size on a product row (re-using the existing handlers
+| for price / GST / totals).
+|--------------------------------------------------------------------------
+*/
+$(function () {
+    var $input = $('#soProductSearch');
+    if (!$input.length) { return; }              // View Details mode: no search box
+
+    var CFG = window.SO_CFG || {};
+    var $results = $('#soProductSearchResults');
+    var $clear = $('#soProductSearchClear');
+    var $hint = $('#soProductSearchHint');
+    var defaultHint = $hint.text();
+    var searchUrl = $input.data('url');
+    var timer = null, reqId = 0, items = [], active = -1;
+
+    function esc(s) { return $('<div>').text(s == null ? '' : s).html(); }
+
+    function setHint(text, isError) {
+        $hint.text(text || defaultHint)
+            .toggleClass('text-danger', !!isError)
+            .toggleClass('text-muted', !isError);
+    }
+
+    function render(list, term) {
+        items = list;
+        active = -1;
+        if (!list.length) {
+            $results.html('<div class="so-psearch-empty">No products found with the name \u201C' + esc(term) + '\u201D.</div>').show();
+            return;
+        }
+        $results.html(list.map(function (p, i) {
+            return '<div class="so-psearch-item" data-i="' + i + '">' +
+                '<div><div class="so-psearch-name">' + esc(p.product_name) + '</div>' +
+                '<div class="so-psearch-meta">' + esc(p.category_name) + ' \u203A ' + esc(p.sub_category_name) + '</div></div>' +
+                (p.units ? '<div class="so-psearch-units">' + esc(p.units) + '</div>' : '') +
+                '</div>';
+        }).join('')).show();
+    }
+
+    function doSearch() {
+        var term = $.trim($input.val());
+        $clear.toggle(term.length > 0);
+        if (term.length < 2) {
+            reqId++;
+            items = [];
+            $results.hide().empty();
+            return;
+        }
+        var my = ++reqId;
+        $results.html('<div class="so-psearch-empty searching">Searching\u2026</div>').show();
+        $.ajax({ url: searchUrl, type: 'GET', dataType: 'json', data: { q: term } })
+            .done(function (res) {
+                if (my !== reqId) { return; }
+                render((res && res.products) || [], term);
+            })
+            .fail(function () {
+                if (my !== reqId) { return; }
+                $results.html('<div class="so-psearch-empty">Unable to search right now. Please try again.</div>').show();
+            });
+    }
+
+    /* ---------- which row gets the product ---------- */
+    function targetRow() {
+        var $row = $('#productTable tbody tr.new-product-row').filter(function () {
+            var $c = $(this).find('.category-select');
+            return $c.length && !$c.val() && !$(this).find('.product-select').val();
+        }).first();
+
+        if (!$row.length) {
+            $('#addRow').trigger('click');
+            $row = $('#productTable tbody tr.new-product-row').last();
+        }
+        return $row;
+    }
+
+    /* ---------- fill the row: category -> sub category -> product -> pack size ---------- */
+    function fillRow($row, p) {
+        var $cat = $row.find('.category-select');
+        var $sub = $row.find('.subcategory-select');
+        var $prod = $row.find('.product-select');
+        var $pack = $row.find('.packSize-select');
+
+        $cat.val(String(p.category_id));
+        if ($cat.val() !== String(p.category_id)) {
+            setHint('Category "' + p.category_name + '" is not available in the category list.', true);
+            return;
+        }
+
+        setHint('Loading product details\u2026');
+
+        $.getJSON(CFG.urlSubcategories.replace(':categoryId', p.category_id))
+            .then(function (data) {
+                $sub.empty().append($('<option>').val('').text('Select Sub Category'));
+                $.each(data.subcategories || [], function (i, s) {
+                    $sub.append($('<option>').val(s.n_category_id).text(s.c_category_name));
+                });
+                $sub.prop('disabled', false).val(String(p.sub_category_id));
+                return $.getJSON(CFG.urlProducts.replace(':subCategoryId', p.sub_category_id));
+            })
+            .then(function (data) {
+                $prod.empty().append($('<option>').val('').text('Select Product'));
+                $.each(data.products || [], function (i, x) {
+                    $prod.append($('<option>').val(x.n_product_id).text(x.c_product_name));
+                });
+                $prod.prop('disabled', false).val(String(p.product_id));
+
+                if ($prod.val() !== String(p.product_id)) {
+                    // fall back to matching by name
+                    var $opt = $prod.find('option').filter(function () {
+                        return $(this).text() === p.product_name;
+                    }).first();
+                    if (!$opt.length) { return $.Deferred().reject().promise(); }
+                    $prod.val($opt.val());
+                }
+
+                var code = String($cat.find(':selected').attr('data-categoryCode') || '').toUpperCase();
+                if (code === 'PLANTS') {
+                    // existing handler: no pack size, loads GST / MRP and calculates the row
+                    $prod.trigger('change');
+                    return null;
+                }
+
+                var productName = $prod.find(':selected').text();
+                return $.getJSON(CFG.urlPackSize.replace(':productName', productName));
+            })
+            .then(function (data) {
+                if (!data) { return; }                       // plants: already handled
+                var seen = {}, units = [];
+                $.each(data.units || [], function (i, u) {
+                    if (u.c_unit && !seen[u.c_unit]) { seen[u.c_unit] = true; units.push(u.c_unit); }
+                });
+                $pack.empty().append($('<option>').val('').text('Select Pack Size'));
+                $.each(units, function (i, u) { $pack.append($('<option>').val(u).text(u)); });
+                $pack.prop('disabled', false);
+
+                // one pack size only -> pick it; existing handler loads price / GST
+                if (units.length === 1) { $pack.val(units[0]).trigger('change'); }
+            })
+            .done(function () {
+                setHint('Added: ' + p.product_name + '. Choose the pack size if asked, then set the quantity.');
+                var $qty = $row.find('.qty');
+                if ($row[0] && $row[0].scrollIntoView) {
+                    $row[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                $qty.trigger('focus');
+            })
+            .fail(function () {
+                setHint('Could not load the product details. Please select the product manually.', true);
+            });
+    }
+
+    function pick(p) {
+        reqId++;
+        $results.hide().empty();
+        $input.val('');
+        $clear.hide();
+        fillRow(targetRow(), p);
+    }
+
+    /* ---------- events ---------- */
+    $input.on('input', function () {
+        setHint('');
+        clearTimeout(timer);
+        timer = setTimeout(doSearch, 300);
+    });
+
+    $input.on('keydown', function (e) {
+        var $list = $results.find('.so-psearch-item');
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            if (!$list.length) { return; }
+            e.preventDefault();
+            active = e.key === 'ArrowDown' ? Math.min(active + 1, $list.length - 1) : Math.max(active - 1, 0);
+            $list.removeClass('is-active').eq(active).addClass('is-active');
+            var el = $list.get(active);
+            if (el && el.scrollIntoView) { el.scrollIntoView({ block: 'nearest' }); }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();                               // never submit the form from the search box
+            if (items.length && $results.is(':visible')) { pick(items[active >= 0 ? active : 0]); }
+        } else if (e.key === 'Escape') {
+            $results.hide();
+        }
+    });
+
+    $results.on('click', '.so-psearch-item', function () {
+        var p = items[parseInt($(this).data('i'), 10)];
+        if (p) { pick(p); }
+    });
+
+    $clear.on('click', function () {
+        reqId++;
+        $input.val('').trigger('focus');
+        $results.hide().empty();
+        $clear.hide();
+        setHint('');
+    });
+
+    $input.on('focus', function () {
+        if ($.trim($input.val()).length >= 2 && $results.children().length) { $results.show(); }
+    });
+
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('#soProductSearchBox').length) { $results.hide(); }
+    });
+});

@@ -1241,9 +1241,10 @@ use Illuminate\Support\Facades\Crypt;
                             @php
                             // ---- Booklet rules by role -------------------------------------------------
                             // FCA : own sales, booklet serial + proof (editable)
-                            // FCO : own sales, booklet serial + proof (editable) - advisor = the FCO
-                            // TC / TL / Office Admin : no booklet; Office Admin / FCO / TL can still SEE the
-                            // advisor, booklet serial and proof of an FCA sale (read-only).
+                            // FCO : own sales, no booklet - advisor = the FCO
+                            // TC / TL / Office Admin / Admin / others : no booklet and no advisor dropdown;
+                            // Office Admin / FCO / TL / Admin can still SEE the advisor, booklet serial and
+                            // proof of an FCA sale (read-only).
                             $__me = (int) auth()->user()->n_employee_id;
                             $__isFca = !empty($isFarmCareAdvisor);
                             $__isFco = !empty($isFarmCareOfficer);
@@ -1252,12 +1253,14 @@ use Illuminate\Support\Facades\Crypt;
                             $__isTl = !empty($isTeamLead); // Team Lead (Kerala / Andhra / Karnataka / Tamil Nadu TL): no booklet
                             $__fcoOwns = $__isFco && (!isset($sale) || (int) $sale->created_by === $__me);
                             $__bookletUser = $__isFca;
-                            $__legacyRow2 = !$__isTc && !$__isFco && !$__isOA && !$__isTl; // admins & other roles (unchanged)
+                            $__legacyRow2 = !$__isTc && !$__isFco && !$__isOA && !$__isTl; // admins & other roles
                             $__hasBookletData = isset($sale) && ($sale->booklet_image || ($sale->farm_care_advisor_id && !$__fcoOwns));
                             $__autoNo = isset($sale) && preg_match('/^(TL|KTL|TTL|KRTL|ATL|FS|OA|FCO)-\d+$/', (string)
                             $sale->c_order_no);
-                            $__showRow2 = $__bookletUser || $__legacyRow2 || (!$__isTc && $__hasBookletData);
-                            $__row2Editable = $__bookletUser || $__legacyRow2;
+                            // Advisor + booklet proof row: only the FCA adds / edits it. Everyone else only sees it
+                            // (read-only) when the sale already has advisor / booklet data.
+                            $__showRow2 = $__bookletUser || (!$__isTc && $__hasBookletData);
+                            $__row2Editable = $__bookletUser;
                             $__showSerial = $__bookletUser || (!$__isTc && $__hasBookletData && !$__autoNo &&
                             !$__legacyRow2);
                             $__serialEditable = $__bookletUser;
@@ -1293,25 +1296,10 @@ use Illuminate\Support\Facades\Crypt;
                                     value="{{ auth()->user()->n_employee_id }}" readonly>
                                 <input type="text" class="form-control advisor-highlight"
                                     value="{{ auth()->user()->c_name }}" readonly>
-                                @elseif(!$__row2Editable)
-                                {{-- Office Admin / FCO / TL viewing someone else's sale: read-only, never posted --}}
+                                @else
+                                {{-- Office Admin / FCO / TL / Admin viewing someone else's sale: read-only, never posted --}}
                                 <input type="text" class="form-control advisor-highlight"
                                     value="{{ optional($sale->employee)->c_employee_name }}" readonly>
-                                @else
-                                <select name="farm_care_advisor_id" class="form-control"
-                                    data-message="Please Enter Farm Care Advisor">
-                                    <option value="">Select Farm Care Adviser</option>
-                                    @if(isset($employees))
-                                    @foreach($employees as $employee)
-                                    <option value="{{ $employee->n_employee_id }}"
-                                        {{ old('farm_care_advisor_id', $sale->farm_care_advisor_id ?? '') == $employee->n_employee_id ? 'selected' : '' }}>
-                                        {{ $employee->c_employee_name }}
-                                    </option>
-                                    @endforeach
-                                    @endif
-                                </select>
-                                <div class="text-danger mt-1 fs-2">@error('farm_care_advisor_id'){{ $message }}@enderror
-                                </div>
                                 @endif
                             </div>
 

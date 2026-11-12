@@ -6,6 +6,7 @@ use App\Models\Hr\AppraisalCycle;
 use App\Models\Hr\Employee;
 use App\Models\Hr\SalesTarget;
 use App\Services\Hr\PerformanceInsightsService;
+use App\Services\Hr\TeamLeadSalesService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -18,7 +19,7 @@ use Illuminate\Support\Carbon;
  */
 class AppraisalController extends Controller
 {
-    public function index(Request $request, PerformanceInsightsService $insights)
+    public function index(Request $request, PerformanceInsightsService $insights, TeamLeadSalesService $teamLeadSales)
     {
         $module = $this->abortUnlessModuleAllowed('appraisal');
         $employee = $this->currentEmployee();
@@ -41,6 +42,10 @@ class AppraisalController extends Controller
         // My own numbers for the picked month (every login with an employee record).
         $mineMonth = $employee ? $insights->forEmployee($employee, $from, $to, null) : null;
         $mineReport = $employee ? ($insights->employeeMonthlyReport($month, null, $employee)['rows'][0] ?? null) : null;
+
+        // Team leads: own sales + team sales (daily / weekly / monthly) for "My performance".
+        // Decided by having people reporting to you, not by portal role (null when nobody reports to you).
+        $leadSales = $employee ? $teamLeadSales->forLead($employee) : null;
 
         // Scope is decided here, by role, and nowhere else.
         $team = ($role === 'manager' && $employee) ? $insights->forTeam($employee, $from, $to) : null;
@@ -73,6 +78,7 @@ class AppraisalController extends Controller
             'mine' => $mine,
             'mineMonth' => $mineMonth,
             'mineReport' => $mineReport,
+            'leadSales' => $leadSales,
             'team' => $team,
             'org' => $org,
             'report' => $report,

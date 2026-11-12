@@ -68,6 +68,9 @@
                 Your own sales, attendance, leave, WFH, late marks and salary paid for the month picked above. Only you can see this page of numbers; your targets are in the Targets tab.
             </div>
         </div>
+        @if($leadSales)
+            @include('hr.partials.performance-lead-sales')
+        @endif
         @include('hr.partials.performance-mine')
     </div>
     @endif

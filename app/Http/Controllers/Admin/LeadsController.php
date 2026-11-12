@@ -242,21 +242,16 @@ class LeadsController extends Controller
 
     public function create()
     {
-        $employees = $this->seesAllLeads() ? $this->salesPersons() : collect();
-
         $states = State::where('status', '1')->get();
         $lead = new Lead;
         $user = $this->currentUser();
         $viewMode = 'Off';
-        $canSeeAll = $this->seesAllLeads();
 
-        return view('admin.Leads.create', compact('states', 'lead', 'user', 'viewMode', 'employees', 'canSeeAll'));
+        return view('admin.Leads.create', compact('states', 'lead', 'user', 'viewMode'));
     }
 
     public function show(Request $request, $id)
     {
-        $employees = $this->seesAllLeads() ? $this->salesPersons() : collect();
-
         $id = Crypt::decryptString($id);
 
         // Scoped: a user cannot open someone else's lead by editing the URL
@@ -265,15 +260,12 @@ class LeadsController extends Controller
         $states = State::where('status', 1)->get();
         $user = $this->currentUser();
         $viewMode = 'On';
-        $canSeeAll = $this->seesAllLeads();
 
-        return view('admin.Leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees', 'canSeeAll'));
+        return view('admin.Leads.create', compact('lead', 'user', 'states', 'viewMode'));
     }
 
     public function edit(Request $request, $id)
     {
-        $employees = $this->seesAllLeads() ? $this->salesPersons() : collect();
-
         $id = Crypt::decryptString($id);
 
         // Scoped: a user cannot edit someone else's lead
@@ -282,9 +274,8 @@ class LeadsController extends Controller
         $states = State::where('status', 1)->get();
         $user = $this->currentUser();
         $viewMode = 'Off';
-        $canSeeAll = $this->seesAllLeads();
 
-        return view('admin.Leads.create', compact('lead', 'user', 'states', 'viewMode', 'employees', 'canSeeAll'));
+        return view('admin.Leads.create', compact('lead', 'user', 'states', 'viewMode'));
     }
 
     public function existingCustomer(Request $request)
@@ -331,13 +322,6 @@ class LeadsController extends Controller
             'priority' => 'required|in:Low,Medium,High,Urgent',
 
             'remarks' => 'nullable|string',
-
-            // Office Administrator / Team Lead must choose a Sales Person
-            'n_fca_id' => $this->seesAllLeads()
-                ? 'required|exists:employee_masters,n_employee_id'
-                : 'nullable',
-        ], [
-            'n_fca_id.required' => 'Please select a Sales Person.',
         ]);
 
         if ($validator->fails()) {
@@ -347,7 +331,6 @@ class LeadsController extends Controller
         }
 
         $data = [
-            'n_fca_id' => isset($request->n_fca_id) ? $request->n_fca_id : Auth::user()->n_employee_id,
             'c_customer_type' => $request->c_customer_type,
             'c_customer_name' => $request->c_customer_name,
             'n_mobile' => $request->n_mobile,
@@ -372,15 +355,10 @@ class LeadsController extends Controller
             'updated_by' => Auth::user()->n_role_id,
         ];
 
-        // Office Administrator / Team Lead choose the Sales Person.
-        // FCA / FCO / Telecaller are always recorded against themselves.
-        $data['n_fca_id'] = $this->seesAllLeads() && $request->filled('n_fca_id')
-            ? $request->n_fca_id
-            : Auth::user()->n_employee_id;
-
         if ($id == null) {
 
-            // Create
+            // Create: the logged-in user is always recorded as the Sales Person
+            $data['n_fca_id'] = Auth::user()->n_employee_id;
             $data['created_by'] = Auth::user()->n_role_id;
 
             Lead::create($data);
@@ -392,12 +370,8 @@ class LeadsController extends Controller
         } else {
 
             // Update (scoped: only leads this user can see)
+            // n_fca_id is not in $data, so the original Sales Person is kept
             $lead = $this->scopedLeads()->findOrFail($id);
-
-            // Only managers may change the Sales Person on edit
-            if (! $this->seesAllLeads()) {
-                unset($data['n_fca_id']);
-            }
 
             $lead->update($data);
 

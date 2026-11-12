@@ -496,6 +496,8 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('filter-attributes/{productName}/{packSize}', [SalesController::class, 'getProductAttributes'])
             ->name('get.product.attributes');
+        Route::get('/search-products', [SalesController::class, 'searchProducts'])
+            ->name('get.products.search');
 
         /*
          |--------------------------------------------------------------------------

@@ -1059,6 +1059,86 @@ body .so-wrap #btn_create {
 .modal-backdrop {
     z-index: 1050 !important;
 }
+
+/* ---------- Product quick search ---------- */
+.so-psearch { position: relative; margin-bottom: 16px; }
+.so-psearch-field { position: relative; }
+.so-psearch-field > i {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--so-olive); font-size: 17px; pointer-events: none;
+}
+.so-wrap .so-psearch-field .form-control { padding-left: 42px; padding-right: 38px; }
+.so-psearch-clear {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    border: 0; background: transparent; font-size: 22px; line-height: 1;
+    color: var(--so-mut); cursor: pointer; padding: 0 4px;
+}
+.so-psearch-results {
+    position: absolute; left: 0; right: 0; z-index: 30; margin-top: 4px;
+    background: #fff; border: 1.5px solid #dde9e1; border-radius: 12px;
+    box-shadow: 0 14px 30px -14px rgba(14, 61, 38, .35);
+    max-height: 280px; overflow-y: auto;
+}
+.so-psearch-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #EEF4EA;
+}
+.so-psearch-item:last-child { border-bottom: 0; }
+.so-psearch-item:hover, .so-psearch-item.is-active { background: #F1F9EC; }
+.so-psearch-name { font-weight: 700; font-size: 13.5px; color: var(--so-forest); }
+.so-psearch-meta { font-size: 11.5px; color: var(--so-mut); margin-top: 2px; }
+.so-psearch-units { font-size: 11.5px; color: var(--so-olive); font-weight: 600; text-align: right; }
+.so-psearch-empty { padding: 14px; font-size: 13.5px; color: #8C3B32; }
+.so-psearch-empty.searching { color: var(--so-mut); }
+@media screen and (max-width: 767px) {
+    .so-psearch-item { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .so-psearch-units { text-align: left; }
+}
+
+/* ---------- Product quick search: highlighted panel ---------- */
+.so-psearch {
+    padding: 16px 18px 12px;
+    margin-bottom: 20px;
+    border: 1.5px solid #86c4a4;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #e3efe7 0%, #f4fbf6 70%);
+    box-shadow: 0 10px 24px -16px rgba(27, 107, 73, .55);
+}
+.so-psearch-head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+.so-psearch-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: linear-gradient(135deg, #1b6b49, #0e3d26); color: #fff;
+    font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px;
+}
+.so-psearch-title {
+    margin: 0; font-size: 14.5px; font-weight: 700; color: var(--so-forest);
+}
+.so-wrap .so-psearch-field .form-control {
+    min-height: 52px; font-size: 15px; font-weight: 600;
+    border: 2px solid var(--so-olive); background: #fff;
+    box-shadow: 0 0 0 0 rgba(27, 107, 73, .35);
+    animation: soPsearchPulse 2.2s ease-out 3;
+}
+.so-wrap .so-psearch-field .form-control:focus {
+    animation: none;
+    border-color: var(--so-forest);
+    box-shadow: 0 0 0 4px rgba(27, 107, 73, .18);
+}
+.so-psearch-field > i { font-size: 19px; }
+.so-psearch-results { left: 18px; right: 18px; }
+@keyframes soPsearchPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(27, 107, 73, .40); }
+    70%  { box-shadow: 0 0 0 10px rgba(27, 107, 73, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(27, 107, 73, 0); }
+}
+@media screen and (max-width: 767px) {
+    .so-psearch { padding: 14px 14px 10px; }
+    .so-psearch-results { left: 14px; right: 14px; }
+}
 </style>
 <?php $__env->stopPush(); ?>
 
@@ -1319,6 +1399,27 @@ unset($__errorArgs, $__bag); ?></div>
                             </button>
                             <?php endif; ?>
                         </div>
+
+                        <?php if(!isset($viewmode) || $viewmode=='off'): ?>
+                        <div class="so-psearch" id="soProductSearchBox">
+                            <div class="so-psearch-head">
+                                <span class="so-psearch-badge"><i class="ti ti-bolt"></i> Quick find</span>
+                                <label class="so-psearch-title" for="soProductSearch">Search Product</label>
+                            </div>
+                            <div class="so-psearch-field">
+                                <i class="ti ti-search"></i>
+                                <input type="text" id="soProductSearch" class="form-control" autocomplete="off"
+                                    placeholder="Type a product name or code (min 2 letters)…"
+                                    data-url="<?php echo e(route('admin.get.products.search')); ?>">
+                                <button type="button" id="soProductSearchClear" class="so-psearch-clear"
+                                    style="display:none;" aria-label="Clear search">&times;</button>
+                            </div>
+                            <div class="so-psearch-results" id="soProductSearchResults" style="display:none;"></div>
+                            <div class="small text-muted mt-1" id="soProductSearchHint">
+                                Pick a result and the category, sub category, product and pack size are filled in automatically.
+                            </div>
+                        </div>
+                        <?php endif; ?>
 
                         <div class="tablescrolll">
                             <table class="table table-bordered table-responsive align-middle" id="productTable">

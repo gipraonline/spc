@@ -1245,9 +1245,10 @@ unset($__errorArgs, $__bag); ?></div>
                             <?php
                             // ---- Booklet rules by role -------------------------------------------------
                             // FCA : own sales, booklet serial + proof (editable)
-                            // FCO : own sales, booklet serial + proof (editable) - advisor = the FCO
-                            // TC / TL / Office Admin : no booklet; Office Admin / FCO / TL can still SEE the
-                            // advisor, booklet serial and proof of an FCA sale (read-only).
+                            // FCO : own sales, no booklet - advisor = the FCO
+                            // TC / TL / Office Admin / Admin / others : no booklet and no advisor dropdown;
+                            // Office Admin / FCO / TL / Admin can still SEE the advisor, booklet serial and
+                            // proof of an FCA sale (read-only).
                             $__me = (int) auth()->user()->n_employee_id;
                             $__isFca = !empty($isFarmCareAdvisor);
                             $__isFco = !empty($isFarmCareOfficer);
@@ -1256,12 +1257,14 @@ unset($__errorArgs, $__bag); ?></div>
                             $__isTl = !empty($isTeamLead); // Team Lead (Kerala / Andhra / Karnataka / Tamil Nadu TL): no booklet
                             $__fcoOwns = $__isFco && (!isset($sale) || (int) $sale->created_by === $__me);
                             $__bookletUser = $__isFca;
-                            $__legacyRow2 = !$__isTc && !$__isFco && !$__isOA && !$__isTl; // admins & other roles (unchanged)
+                            $__legacyRow2 = !$__isTc && !$__isFco && !$__isOA && !$__isTl; // admins & other roles
                             $__hasBookletData = isset($sale) && ($sale->booklet_image || ($sale->farm_care_advisor_id && !$__fcoOwns));
                             $__autoNo = isset($sale) && preg_match('/^(TL|KTL|TTL|KRTL|ATL|FS|OA|FCO)-\d+$/', (string)
                             $sale->c_order_no);
-                            $__showRow2 = $__bookletUser || $__legacyRow2 || (!$__isTc && $__hasBookletData);
-                            $__row2Editable = $__bookletUser || $__legacyRow2;
+                            // Advisor + booklet proof row: only the FCA adds / edits it. Everyone else only sees it
+                            // (read-only) when the sale already has advisor / booklet data.
+                            $__showRow2 = $__bookletUser || (!$__isTc && $__hasBookletData);
+                            $__row2Editable = $__bookletUser;
                             $__showSerial = $__bookletUser || (!$__isTc && $__hasBookletData && !$__autoNo &&
                             !$__legacyRow2);
                             $__serialEditable = $__bookletUser;
@@ -1304,33 +1307,10 @@ unset($__errorArgs, $__bag); ?>
                                     value="<?php echo e(auth()->user()->n_employee_id); ?>" readonly>
                                 <input type="text" class="form-control advisor-highlight"
                                     value="<?php echo e(auth()->user()->c_name); ?>" readonly>
-                                <?php elseif(!$__row2Editable): ?>
+                                <?php else: ?>
                                 
                                 <input type="text" class="form-control advisor-highlight"
                                     value="<?php echo e(optional($sale->employee)->c_employee_name); ?>" readonly>
-                                <?php else: ?>
-                                <select name="farm_care_advisor_id" class="form-control"
-                                    data-message="Please Enter Farm Care Advisor">
-                                    <option value="">Select Farm Care Adviser</option>
-                                    <?php if(isset($employees)): ?>
-                                    <?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($employee->n_employee_id); ?>"
-                                        <?php echo e(old('farm_care_advisor_id', $sale->farm_care_advisor_id ?? '') == $employee->n_employee_id ? 'selected' : ''); ?>>
-                                        <?php echo e($employee->c_employee_name); ?>
-
-                                    </option>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                    <?php endif; ?>
-                                </select>
-                                <div class="text-danger mt-1 fs-2"><?php $__errorArgs = ['farm_care_advisor_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                </div>
                                 <?php endif; ?>
                             </div>
 

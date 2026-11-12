@@ -1285,8 +1285,10 @@ class SalesController extends Controller
         // Only the FCA has a booklet. FCO orders are auto-numbered FCO-n, with no booklet.
         $typesBooklet = $this->isFca();
 
+        // Only the FCA posts a Farm Care Advisor (their own id, filled by the form).
+        // Every other role no longer picks an advisor.
         $isCreatorRoleWithAdvisor = $user && $user->roles()
-            ->whereIn('identifier', ['SUPER_ADMIN', 'GIPRA_ADMIN', 'FCO', 'FCA'])
+            ->whereIn('identifier', ['FCA'])
             ->exists();
 
         // Office Administration behaves like Super Admin on this form (Company /
@@ -1483,6 +1485,15 @@ class SalesController extends Controller
         // FCO has no booklet at all (own or subordinate's sale), so it is ignored for FCO too.
         if ($isOfficeAdmin || $this->isFco()) {
             unset($validated['farm_care_advisor_id'], $validated['c_order_no'], $validated['booklet_image']);
+            $request->files->remove('booklet_image');
+            $request->merge(['remove_booklet_image' => '0']);
+        }
+
+        // Only the FCA can set / replace the booklet proof and the advisor.
+        // Every other role (Admin, TC, ...) keeps whatever the sale already has,
+        // whatever the browser posts.
+        if (! $this->isFca()) {
+            unset($validated['farm_care_advisor_id'], $validated['booklet_image']);
             $request->files->remove('booklet_image');
             $request->merge(['remove_booklet_image' => '0']);
         }

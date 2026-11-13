@@ -1,6 +1,6 @@
 
 <?php
-    $inrL = fn ($v) => \App\Services\Hr\PerformanceInsightsService::inr($v);
+    $inrL = fn ($v) => \App\Services\Hr\PerformanceInsightsService::inrExact($v);
     $deltaL = function ($cur, $prev) {
         if ($prev <= 0) { return $cur > 0 ? ['new', 'up'] : ['—', 'flat']; }
         $d = ($cur - $prev) / $prev * 100;
@@ -124,5 +124,4 @@ function leadSalesTab(btn, name) {
     btn.classList.add('active');
     wrap.querySelector('[data-ls-panel="' + name + '"]').classList.add('active');
 }
-</script>
-<?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/partials/performance-lead-sales.blade.php ENDPATH**/ ?>
+</script><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/partials/performance-lead-sales.blade.php ENDPATH**/ ?>

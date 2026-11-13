@@ -1,6 +1,7 @@
 
 <?php
     $inrM = fn ($v) => \App\Services\Hr\PerformanceInsightsService::inr($v);
+    $exactM = fn ($v) => \App\Services\Hr\PerformanceInsightsService::inrExact($v);
     $rateM = fn ($v) => $v === null ? '—' : rtrim(rtrim(number_format($v, 1), '0'), '.').'%';
     $trendMax = max(array_column($mineMonth['trend'], 'net_sales') ?: [0]);
 ?>
@@ -13,7 +14,7 @@
 <div class="kpi-row" style="margin-top:0;">
     <div class="kpi-card">
         <div class="kpi-top"><span class="kpi-label">My sales</span></div>
-        <div class="kpi-val"><?php echo e($mineMonth['sales_linked'] ? $inrM($mineMonth['sales']['net_sales']) : '—'); ?></div>
+        <div class="kpi-val"><?php echo e($mineMonth['sales_linked'] ? $exactM($mineMonth['sales']['net_sales']) : '—'); ?></div>
         <div class="kpi-sub"><i class="fa-solid fa-receipt"></i><?php echo e($mineMonth['sales']['orders']); ?> orders &middot; <?php echo e($mineMonth['sales']['customers']); ?> customers</div>
     </div>
     <div class="kpi-card">
@@ -43,7 +44,7 @@
             <table>
                 <thead><tr><th colspan="2">My monthly report</th></tr></thead>
                 <tbody>
-                    <tr><td>Total monthly sales value</td><td><b><?php echo e($mineReport && $mineReport['sales_linked'] ? $inrM($mineReport['sales']) : '—'); ?></b></td></tr>
+                    <tr><td>Total monthly sales value</td><td><b><?php echo e($mineReport && $mineReport['sales_linked'] ? $exactM($mineReport['sales']) : '—'); ?></b></td></tr>
                     <tr><td>Leave (days)</td><td><b><?php echo e($mineReport['leave_days'] ?? 0); ?></b></td></tr>
                     <tr><td>WFH (days)</td><td><b><?php echo e($mineReport['wfh_days'] ?? 0); ?></b></td></tr>
                     <tr><td>Late</td><td><b><?php echo e($mineReport['late'] ?? 0); ?></b></td></tr>
@@ -57,7 +58,7 @@
         <h3>My sales, last 6 months</h3>
         <div class="pi-bars">
             <?php $__currentLoopData = $mineMonth['trend']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <div class="pi-bar" title="<?php echo e($m['orders']); ?> orders">
+                <div class="pi-bar" title="<?php echo e($m['orders']); ?> orders · <?php echo e($exactM($m['net_sales'])); ?>">
                     <em><?php echo e($m['net_sales'] > 0 ? $inrM($m['net_sales']) : ''); ?></em>
                     <i style="height:<?php echo e($trendMax > 0 ? max(2, (int) round($m['net_sales'] / $trendMax * 100)) : 0); ?>%;"></i>
                     <small><?php echo e($m['label']); ?></small>
@@ -65,5 +66,4 @@
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
     </div>
-</div>
-<?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/partials/performance-mine.blade.php ENDPATH**/ ?>
+</div><?php /**PATH C:\xampp\htdocs\spc_new\resources\views/hr/partials/performance-mine.blade.php ENDPATH**/ ?>

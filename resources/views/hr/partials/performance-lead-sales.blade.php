@@ -4,7 +4,7 @@
     Expects: $leadSales (TeamLeadSalesService::forLead), null for people who aren't team leads.
 --}}
 @php
-    $inrL = fn ($v) => \App\Services\Hr\PerformanceInsightsService::inr($v);
+    $inrL = fn ($v) => \App\Services\Hr\PerformanceInsightsService::inrExact($v);
     $deltaL = function ($cur, $prev) {
         if ($prev <= 0) { return $cur > 0 ? ['new', 'up'] : ['—', 'flat']; }
         $d = ($cur - $prev) / $prev * 100;

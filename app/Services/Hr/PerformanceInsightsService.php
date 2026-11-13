@@ -88,6 +88,21 @@ class PerformanceInsightsService
         return '₹'.number_format($v);
     }
 
+    /** Exact amount with paise and Indian digit grouping, e.g. ₹12,34,567.89 (no lakh / crore shorthand, no rounding). */
+    public static function inrExact(float|int|string|null $value): string
+    {
+        $v = round((float) ($value ?? 0), 2);
+        [$int, $dec] = explode('.', number_format(abs($v), 2, '.', ''));
+
+        $last3 = substr($int, -3);
+        $rest = substr($int, 0, -3);
+        if ($rest !== '') {
+            $rest = preg_replace('/\B(?=(\d{2})+(?!\d))/', ',', $rest).',';
+        }
+
+        return ($v < 0 ? '-' : '').'₹'.$rest.$last3.'.'.$dec;
+    }
+
     /* ------------------------------------------------------------------ */
     /*  Role entry points */
     /* ------------------------------------------------------------------ */
@@ -180,6 +195,12 @@ class PerformanceInsightsService
     /*  Sales (default / "spc" connection) */
     /* ------------------------------------------------------------------ */
 
+    /**
+     * Who made the sale (employee_masters.n_employee_id). Orders entered through
+     * Add Sales Entry store the person in created_by and leave farm_care_advisor_id empty.
+     */
+    protected const SELLER_SQL = 'COALESCE(sales_orders.farm_care_advisor_id, sales_orders.created_by)';
+
     /** Base query. $ids === null means "everyone". */
     protected function ordersQuery(?array $masterIds, Carbon $from, Carbon $to)
     {
@@ -187,7 +208,7 @@ class PerformanceInsightsService
             ->whereNull('deleted_at')
             ->whereNotIn('c_order_status', self::EXCLUDED_ORDER_STATUSES)
             ->whereBetween('d_date', [$from->toDateString(), $to->toDateString()])
-            ->when($masterIds !== null, fn ($q) => $q->whereIn('farm_care_advisor_id', $masterIds));
+            ->when($masterIds !== null, fn ($q) => $q->whereIn(DB::raw(self::SELLER_SQL), $masterIds));
     }
 
     protected function salesSummary(?array $masterIds, Carbon $from, Carbon $to): array
@@ -231,8 +252,8 @@ class PerformanceInsightsService
 
         try {
             return $this->ordersQuery($masterIds, $from, $to)
-                ->selectRaw('farm_care_advisor_id, COUNT(*) as orders, COALESCE(SUM(n_net_sales_amount),0) as net_sales')
-                ->groupBy('farm_care_advisor_id')->get()->keyBy('farm_care_advisor_id')->all();
+                ->selectRaw(self::SELLER_SQL.' as advisor_id, COUNT(*) as orders, COALESCE(SUM(n_net_sales_amount),0) as net_sales')
+                ->groupBy('advisor_id')->get()->keyBy('advisor_id')->all();
         } catch (\Throwable $e) {
             report($e);
 
@@ -273,7 +294,7 @@ class PerformanceInsightsService
     {
         try {
             return $this->ordersQuery(null, $from, $to)
-                ->join('employee_masters as em', 'em.n_employee_id', '=', 'sales_orders.farm_care_advisor_id')
+                ->join('employee_masters as em', fn ($j) => $j->whereRaw('em.n_employee_id = '.self::SELLER_SQL))
                 ->selectRaw('em.c_employee_name as name, em.c_employee_code as code, COUNT(*) as orders, COALESCE(SUM(sales_orders.n_net_sales_amount),0) as net_sales')
                 ->groupBy('em.n_employee_id', 'em.c_employee_name', 'em.c_employee_code')
                 ->orderByDesc('net_sales')->limit($limit)->get()

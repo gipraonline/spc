@@ -19,6 +19,9 @@ class TeamLeadSalesService
 {
     private const EXCLUDED_ORDER_STATUSES = ['Rejected', 'Cancelled'];
 
+    /** Who made the sale: Add Sales Entry saves the person in created_by and leaves farm_care_advisor_id empty. */
+    private const SELLER_SQL = 'COALESCE(sales_orders.farm_care_advisor_id, sales_orders.created_by)';
+
     /** How many periods each tab shows. */
     private const PERIODS = ['day' => 30, 'week' => 12, 'month' => 12];
 
@@ -91,12 +94,12 @@ class TeamLeadSalesService
                     ->whereNotIn('c_order_status', self::EXCLUDED_ORDER_STATUSES)
                     ->where('d_date', '>=', $from->toDateString())
                     ->where('d_date', '<', now()->addDay()->toDateString())
-                    ->whereIn('farm_care_advisor_id', $teamIds)
+                    ->whereIn(DB::raw(self::SELLER_SQL), $teamIds)
                     ->selectRaw(
                         "$keyExpr as k,
-                         COALESCE(SUM(CASE WHEN farm_care_advisor_id = ? THEN n_net_sales_amount ELSE 0 END),0) as own,
+                         COALESCE(SUM(CASE WHEN ".self::SELLER_SQL." = ? THEN n_net_sales_amount ELSE 0 END),0) as own,
                          COALESCE(SUM(n_net_sales_amount),0) as team,
-                         COALESCE(SUM(farm_care_advisor_id = ?),0) as own_orders,
+                         COALESCE(SUM(".self::SELLER_SQL." = ?),0) as own_orders,
                          COUNT(*) as team_orders",
                         [$own, $own]
                     )
